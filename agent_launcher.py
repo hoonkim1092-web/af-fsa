@@ -13,6 +13,20 @@ from dotenv import load_dotenv
 
 import google.generativeai as genai
 
+def safe_generate(model, prompt, **kwargs):
+    for i in range(5):
+        try:
+            return model.generate_content(prompt, **kwargs)
+        except Exception as e:
+            msg = str(e).lower()
+            if "429" in msg or "quota" in msg:
+                wait_sec = 20 * (i + 1)
+                print(f"[Warn] Quota hit. Waiting {wait_sec}s... ({i+1}/5)")
+                time.sleep(wait_sec)
+                continue
+            raise e
+    raise RuntimeError("Quota exceeded after retries")
+
 # =============================================================================
 # 0) ENV / PATH
 # =============================================================================
@@ -161,8 +175,8 @@ class ModelRouter:
     def pick(self, stage: str) -> str:
         # ?붽뎄遺꾩꽍/鍮뚮뜑??pro, ?섎㉧吏 flash
         if stage in ("requirement", "builder"):
-            return "models/gemini-2.0-flash-lite-001"
-        return "models/gemini-2.0-flash-lite-001"
+            return "models/gemini-2.0-flash"
+        return "models/gemini-2.0-flash"
 
 # =============================================================================
 # 2) Quick Guard (AST) - 移섎챸 ?꾧뎄 ?뺤닔
@@ -482,11 +496,42 @@ class HimariResearchAgent:
                 picked.append(sid)
         return picked[:3]
 
-    def research(self, agent: dict, reqs: dict) -> dict:
-        missing = [safe_id(str(s)) for s in (reqs.get("missing_skills") or []) if str(s).strip()]
+    def _score_candidate(self, need: str, item: dict) -> tuple[int, dict]:
+        need_tokens = set(t for t in safe_id(need).split("_") if t)
+        caps = [safe_id(str(c)) for c in (item.get("capabilities") or [])]
+        corpus = " ".join([safe_id(item.get("id", "")), safe_id(item.get("name", ""))] + caps)
+        tokens = set(t for t in corpus.split("_") if t)
+        overlap = sorted(list(need_tokens & tokens))
+
+        meta = item.get("meta", {}) if isinstance(item.get("meta"), dict) else {}
+        path = str(meta.get("path", ""))
+        meta_path = str(meta.get("meta_path", ""))
+        exists_py = os.path.exists(path) if path else os.path.exists(os.path.join(SKILLS_DIR, item["id"], "skill.py"))
+        exists_meta = os.path.exists(meta_path) if meta_path else os.path.exists(os.path.join(SKILLS_DIR, item["id"], "meta.yaml"))
+        last_test_ok = bool(meta.get("last_test_ok", False))
+
+        score = 0
+        score += min(len(overlap) * 25, 60)
+        if exists_py:
+            score += 20
+        if exists_meta:
+            score += 10
+        if last_test_ok:
+            score += 10
+        score = max(0, min(100, score))
+        verify = {
+            "exists_skill_py": exists_py,
+            "exists_meta_yaml": exists_meta,
+            "last_test_ok": last_test_ok,
+            "token_overlap": overlap,
+        }
+        return score, verify
+
+    def research(self, agent: dict, reqs: dict, build_targets: list[str] | None = None) -> dict:
+        missing = [safe_id(str(s)) for s in (build_targets or reqs.get("missing_skills") or []) if str(s).strip()]
         idx = self._registry_skill_index()
-        if not missing or not idx:
-            return {"suggestions": {}, "all_candidates": []}
+        if not missing:
+            return {"suggestions": {}, "all_candidates": [], "evidence_pack": {"targets": {}}}
 
         skill_catalog = []
         for sid, item in idx.items():
@@ -538,21 +583,49 @@ LocalSkillCatalog(JSON): {json.dumps(skill_catalog, ensure_ascii=False)}
             for sid in arr:
                 if sid not in all_candidates:
                     all_candidates.append(sid)
-        return {"suggestions": suggestions, "all_candidates": all_candidates}
 
-    def approval_gate(self, candidates: list[str], idx: dict) -> list[str]:
+        targets: dict = {}
+        for need in missing:
+            ranked = []
+            for sid in suggestions.get(need, []):
+                item = idx.get(sid)
+                if not item:
+                    continue
+                score, verify = self._score_candidate(need, item)
+                ranked.append({
+                    "candidate_skill_id": sid,
+                    "candidate_name": item.get("name", sid),
+                    "score": score,
+                    "verification": verify,
+                    "capabilities": item.get("capabilities", []),
+                })
+            ranked.sort(key=lambda x: x["score"], reverse=True)
+            best = ranked[0] if ranked else None
+            targets[need] = {
+                "need_skill_id": need,
+                "top_candidate": (best or {}).get("candidate_skill_id"),
+                "top_score": (best or {}).get("score", 0),
+                "verified": bool(best and best["verification"]["exists_skill_py"]),
+                "candidates": ranked,
+            }
+
+        evidence_pack = {
+            "generated_at": now_iso(),
+            "agent_role": agent.get("role"),
+            "goal": reqs.get("goal"),
+            "targets": targets,
+        }
+        return {"suggestions": suggestions, "all_candidates": all_candidates, "evidence_pack": evidence_pack}
+
+    def notify_candidates(self, candidates: list[str], idx: dict):
         if not candidates:
             print("\n[Himari] 설치 추천 후보가 없습니다.")
-            return []
+            return
         print("\n[Himari] 리서치 결과 - 설치 후보")
         for i, sid in enumerate(candidates, start=1):
             item = idx.get(sid, {})
             caps = item.get("capabilities", [])
             print(f"  {i}. {sid} | name={item.get('name', sid)} | capabilities={caps}")
-        ans = input("위 후보를 에이전트에 설치할까요? (yes/no): ").strip().lower()
-        if ans != "yes":
-            return []
-        return candidates
 
 # =============================================================================
 # 5) Builder
@@ -561,7 +634,14 @@ class SandboxedBuilder:
     def __init__(self, mr: ModelRouter):
         self.mr = mr
 
-    def build_skill(self, agent: dict, skill_name: str, reqs: dict, run_id: str) -> tuple[bool, str | None, dict]:
+    def build_skill(
+        self,
+        agent: dict,
+        skill_name: str,
+        reqs: dict,
+        run_id: str,
+        evidence_pack: dict,
+    ) -> tuple[bool, str | None, dict]:
         skill_id = safe_id(skill_name)
         skill_dir = os.path.join(SKILLS_DIR, skill_id)
         os.makedirs(skill_dir, exist_ok=True)
@@ -571,6 +651,23 @@ class SandboxedBuilder:
         run_dir = os.path.join(RUNS_DIR, run_id)
         os.makedirs(run_dir, exist_ok=True)
 
+        evidence_targets = (evidence_pack or {}).get("targets", {}) if isinstance(evidence_pack, dict) else {}
+        target_evidence = evidence_targets.get(skill_id)
+        if not target_evidence:
+            fail_meta = {
+                "id": skill_id,
+                "name": skill_name,
+                "status": "disabled",
+                "version": "0.1.0",
+                "capabilities": [skill_name],
+                "created_at": now_iso(),
+                "updated_at": now_iso(),
+                "last_test_ok": False,
+                "last_test_detail": {"ok": False, "reason": "missing_evidence_pack"},
+            }
+            write_yaml(meta_path, fail_meta)
+            return False, None, fail_meta
+
         model = genai.GenerativeModel(self.mr.pick("builder"))
         base_prompt = f"""
 ?덈뒗 ?뚯씠???ㅽ궗 紐⑤뱢???묒꽦?쒕떎.
@@ -578,6 +675,7 @@ Skill: "{skill_name}"
 AgentRole: {agent.get("role")}
 Goal: {reqs.get("goal")}
 Constraints: {reqs.get("constraints")}
+Evidence(JSON): {json.dumps(target_evidence, ensure_ascii=False)}
 
 ?꾩닔:
 - ?⑥닔 3媛? propose(ctx)->dict, apply(ctx)->dict, test(ctx)->dict(諛섎뱶??ok ???ы븿)
@@ -705,6 +803,17 @@ class AgentFactory:
         self.registry = RegistryManager()
         self.git = GitManager()
 
+    def _missing_local_skill_files(self, agent: dict) -> list[str]:
+        missing: list[str] = []
+        for sid_raw in (agent.get("skills") or []):
+            sid = safe_id(str(sid_raw))
+            if not sid:
+                continue
+            skill_py = os.path.join(SKILLS_DIR, sid, "skill.py")
+            if not os.path.exists(skill_py):
+                missing.append(sid)
+        return list(dict.fromkeys(missing))
+
     def run(self, task_input: str, role_spec: str = "General"):
         run_id = f"run_{int(time.time())}"
         print(f"\n?룺 RUN={run_id}")
@@ -713,36 +822,48 @@ class AgentFactory:
 
         agent = self.agent_mgr.get_or_create(role_spec)
         reqs = self.req.analyze(agent, task_input)
+        file_missing = self._missing_local_skill_files(agent)
 
         skills = reqs.get("missing_skills", [])
-        if not skills:
+        initial_targets = list(dict.fromkeys([safe_id(s) for s in skills] + file_missing))
+        if not initial_targets:
             print("??missing_skills ?놁쓬. 醫낅즺.")
             return
 
-        print("\n?뱦 Needed skills:", skills)
-        research = self.research.research(agent, reqs)
+        print("\n?뱦 Needed skills:", initial_targets)
+        research = self.research.research(agent, reqs, build_targets=initial_targets)
         reg_idx = self.research._registry_skill_index()
-        approved = self.research.approval_gate(research.get("all_candidates", []), reg_idx)
-        if approved:
-            merged = self.agent_mgr.install_skills(role_spec, approved)
-            print(f"[Install] agent skills updated: {merged}")
-            covered = set()
-            sugg = research.get("suggestions", {}) if isinstance(research, dict) else {}
-            for need, cands in sugg.items():
-                if any(c in approved for c in (cands or [])):
+        candidates = research.get("all_candidates", [])
+        self.research.notify_candidates(candidates, reg_idx)
+        if candidates:
+            merged = self.agent_mgr.install_skills(role_spec, candidates)
+            print(f"[Install] 승인 없이 자동 설치 적용됨: {merged}")
+
+        covered = set()
+        sugg = research.get("suggestions", {}) if isinstance(research, dict) else {}
+        for need, cands in sugg.items():
+            for c in (cands or []):
+                skill_py = os.path.join(SKILLS_DIR, safe_id(c), "skill.py")
+                if os.path.exists(skill_py):
                     covered.add(safe_id(need))
-            skills = [s for s in skills if safe_id(s) not in covered]
-            if skills:
-                print(f"[Install] 로컬 설치로 커버되지 않은 스킬은 빌드 진행: {skills}")
-            else:
-                print("[Install] 모든 missing_skills가 설치 후보로 커버되었습니다.")
-                return
+                    break
+
+        skills = [s for s in initial_targets if safe_id(s) not in covered]
+        if skills:
+            print(f"[Build] 설치로 커버되지 않은 스킬은 생성 진행: {skills}")
+        else:
+            print("[Build] 설치된 스킬로 모두 커버되었습니다.")
+
+        if not skills:
+            print("[Build] 생성할 스킬이 없습니다. 종료합니다.")
+            return
 
         built_metas: list[dict] = []
         built_dirs: list[str] = []
 
+        evidence_pack = research.get("evidence_pack", {}) if isinstance(research, dict) else {}
         for s in skills:
-            ok, path, meta = self.builder.build_skill(agent, s, reqs, run_id=run_id)
+            ok, path, meta = self.builder.build_skill(agent, s, reqs, run_id=run_id, evidence_pack=evidence_pack)
             if ok and path:
                 skill_dir = os.path.dirname(path)
                 built_dirs.append(skill_dir)
@@ -762,7 +883,7 @@ class AgentFactory:
             print("?? committed (push???덇? ?뚯븘????")
 
 # =============================================================================
-# Example
+# Example 뭐지 왜 적용이 안되지 ㅇ
 # =============================================================================
 if __name__ == "__main__":
     AgentFactory().run(

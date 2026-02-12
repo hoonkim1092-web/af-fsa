@@ -32,4 +32,48 @@ skills:
     updated_at: "2026-02-12T15:55:00"
     last_test_ok: true
 
+  generate_image:
+    id: "generate_image"
+    name: "Generate Image (SVG)"
+    status: "active"
+    version: "1.0.0"
+    capabilities: ["IMAGE_GEN", "SVG"]
+    path: "d:/hoonProJect/agent-factory/skills/generate_image/skill.py"
+    meta_path: "d:/hoonProJect/agent-factory/skills/generate_image/meta.yaml"
+    updated_at: "2026-02-12T18:10:00"
+    last_test_ok: true
+
+  create_design_system:
+    id: "create_design_system"
+    name: "Create Design System"
+    status: "active"
+    version: "1.0.0"
+    capabilities: ["DESIGN_SYSTEM", "CSS", "JSON"]
+    path: "d:/hoonProJect/agent-factory/skills/create_design_system/skill.py"
+    meta_path: "d:/hoonProJect/agent-factory/skills/create_design_system/meta.yaml"
+    updated_at: "2026-02-12T18:10:00"
+    last_test_ok: true
+
+  perform_web_design_review:
+    id: "perform_web_design_review"
+    name: "Perform Web Design Review"
+    status: "active"
+    version: "1.0.0"
+    capabilities: ["DESIGN_REVIEW", "CHECKLIST"]
+    path: "d:/hoonProJect/agent-factory/skills/perform_web_design_review/skill.py"
+    meta_path: "d:/hoonProJect/agent-factory/skills/perform_web_design_review/meta.yaml"
+    updated_at: "2026-02-12T18:15:00"
+    last_test_ok: true
+
+  user_flow_optimization:
+    id: "user_flow_optimization"
+    name: "User Flow Optimization"
+    status: "active"
+    version: "1.0.0"
+    capabilities: ["USER_FLOW", "MERMAID"]
+    path: "d:/hoonProJect/agent-factory/skills/user_flow_optimization/skill.py"
+    meta_path: "d:/hoonProJect/agent-factory/skills/user_flow_optimization/meta.yaml"
+    updated_at: "2026-02-12T18:15:00"
+    last_test_ok: true
+
 install_candidates: {}
