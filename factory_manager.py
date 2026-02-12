@@ -17,7 +17,14 @@ FORGE_DIR = os.path.join(FACTORY_ROOT, "skills", "forge")
 # 🔗 안티그래비티 링크에서 넘겨준 정보 수신
 # sys.argv[1]: 역할명, sys.argv[2]: 모델명
 role = sys.argv[1] if len(sys.argv) > 1 else "General Assistant"
-selected_model_name = sys.argv[2] if len(sys.argv) > 2 else "gemini-flash-latest"
+if len(sys.argv) > 2:
+    selected_model_name = sys.argv[2]
+else:
+    selected_model_name = "gemini-flash-latest"
+
+with open("debug.log", "a", encoding="utf-8") as f:
+    f.write(f"INIT LOG: sys.argv: {sys.argv}, len: {len(sys.argv)}\n")
+    f.write(f"INIT LOG: selected_model_name: {selected_model_name}\n")
 
 # 스킬 저장소 설정
 ANTIGRAVITY_REPO_URL = "https://github.com/guanyang/antigravity-skills.git"

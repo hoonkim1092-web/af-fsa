@@ -1,3 +1,5 @@
+INIT LOG: sys.argv: ['factory_manager.py', 'Stock Analyst'], len: 2
+INIT LOG: selected_model_name: gemini-flash-latest
 LOG: sys.argv: ['factory_manager.py', 'Stock Analyst']
 LOG: Model Name: gemini-1.5-pro
 ERROR: 404 models/gemini-1.5-pro is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
