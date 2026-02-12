@@ -190,6 +190,8 @@ def load_agent_config(agent_name):
         return None
 
 def research_required_skills(role):
+    with open("debug.log", "a", encoding="utf-8") as f:
+        f.write(f"LOG: Model Name: {selected_model_name}\n")
     log("RESEARCH", f"'{role}'에 필요한 핵심 스킬 분석 중...")
     
     # 히마리(Himari) 에이전트 설정 로드
