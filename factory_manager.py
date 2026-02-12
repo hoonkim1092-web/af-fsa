@@ -253,6 +253,8 @@ def research_required_skills(role):
             
     except Exception as e: 
         log("RESEARCH", f"⚠️ 리서치 오류: {e}")
+        with open("debug.log", "a", encoding="utf-8") as f:
+            f.write(f"ERROR: {e}\n")
         return ["core_module"]
 
 def normalize_skill_id(value):
