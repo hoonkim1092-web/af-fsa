@@ -8,7 +8,6 @@ import google.generativeai as genai
 from dotenv import load_dotenv
 
 # --- [0] 설정 및 준비 ---
-sys.stdout.reconfigure(encoding='utf-8')
 FACTORY_ROOT = os.getcwd()
 AGENTS_DIR = os.path.join(FACTORY_ROOT, "agents")
 WAREHOUSE_DIR = os.path.join(FACTORY_ROOT, "skills", "warehouse")
@@ -17,115 +16,67 @@ FORGE_DIR = os.path.join(FACTORY_ROOT, "skills", "forge")
 # 🔗 안티그래비티 링크에서 넘겨준 정보 수신
 # sys.argv[1]: 역할명, sys.argv[2]: 모델명
 role = sys.argv[1] if len(sys.argv) > 1 else "General Assistant"
+selected_model_name = sys.argv[2] if len(sys.argv) > 2 else "gemini-2.0-flash"
+
+# 스킬 저장소 설정
+ANTIGRAVITY_REPO_URL = "https://github.com/guanyang/antigravity-skills.git"
+
+# 보안: .env 파일 로드
+sys.stdout.reconfigure(encoding='utf-8')
+load_dotenv() # Search for .env automatically
+api_key = os.getenv("GOOGLE_API_KEY")
+
+if not api_key:
+    print("⚠️ [경고] GOOGLE_API_KEY가 설정되지 않았습니다. (시스템 인증을 시도합니다)")
+else:
+    genai.configure(api_key=api_key)
+
+# 🧠 선택된 모델 엔진 장착 (리서치 기능 포함)
+def log(step, msg):
+    print(f"[{step}] {msg}")
+
+def get_best_model():
+    """
+    사용 가능한 모델 목록을 조회하여 최적의 모델을 반환합니다.
+    우선순위: gemini-2.0-flash -> gemini-1.5-flash -> gemini-1.5-pro
+    """
+    try:
+        log("SYSTEM", "🤖 가용 모델 검색 중...")
+        available_models = []
+        for m in genai.list_models():
+            if 'generateContent' in m.supported_generation_methods:
+                available_models.append(m.name)
+        
+        # 모델 우선순위 정의 (이름에 포함된 문자열 매칭)
+        priorities = [
+            "gemini-2.0-flash",
+            "gemini-1.5-flash", 
+            "gemini-1.5-pro",
+            "gemini-1.0-pro"
+        ]
+        
+        for p in priorities:
+            for m_name in available_models:
+                if p in m_name:
+                     log("SYSTEM", f"✅ 모델 선택됨: {m_name}")
+                     return m_name
+        
+        # 우선순위 모델을 못 찾으면 목록의 첫 번째 것 반환 (최후의 수단)
+        if available_models:
+             log("SYSTEM", f"⚠️ 우선순위 모델 없음, 대체 모델 선택: {available_models[0]}")
+             return available_models[0]
+             
+    except Exception as e:
+        log("SYSTEM", f"⚠️ 모델 검색 실패: {e}")
+    
+    # 기본값 (하드코딩)
+    return "models/gemini-2.0-flash"
+
+# sys.argv[2]가 있으면 그걸 쓰고, 없으면 자동 검색
 if len(sys.argv) > 2:
     selected_model_name = sys.argv[2]
 else:
-    selected_model_name = "gemini-flash-latest"
-
-with open("debug.log", "a", encoding="utf-8") as f:
-    f.write(f"INIT LOG: sys.argv: {sys.argv}, len: {len(sys.argv)}\n")
-    f.write(f"INIT LOG: selected_model_name: {selected_model_name}\n")
-
-# 스킬 저장소 설정
-ANTIGRAVITY_REPO_URL = "https://github.com/guanyang/antigravity-skills.git"
-
-# 보안: .env 파일 로드
-load_dotenv(os.path.join(FACTORY_ROOT, ".env"))
-api_key = os.getenv("GOOGLE_API_KEY")
-
-if not api_key:
-    print("❌ [오류] GEMINI_API_KEY가 설정되지 않았습니다.")
-    sys.exit(1)
-
-genai.configure(api_key=api_key)
-
-# 🧠 선택된 모델 엔진 장착 (리서치 기능 포함)
-def log(step, msg):
-    print(f"[{step}] {msg}")
-
-log("SYSTEM", f"⚡ {selected_model_name} 엔진으로 {role} 제작 공정 시작")
-
-model = genai.GenerativeModel(
-    model_name=selected_model_name
-)
-
-# --- [보안] 민감 정보 패턴 ---
-SENSITIVE_PATTERNS = [
-    r"sk-[a-zA-Z0-9]{20,}", r"AIza[0-9A-Za-z-_]{35}", 
-    r"ghp_[a-zA-Z0-9]{20,}", r"xoxb-[a-zA-Z0-9-]{10,}"
-]
-
-def security_scan(directory):
-    log("SECURITY", f"🔍 보안 검색 중: {directory}")
-    is_safe = True
-    for root, _, files in os.walk(directory):
-        for file in files:
-            if file.endswith((".py", ".md", ".yaml", ".txt", ".json", ".sh")):
-                try:
-                    with open(os.path.join(root, file), "r", encoding="utf-8", errors="ignore") as f:
-                        content = f.read()
-                        for pattern in SENSITIVE_PATTERNS:
-                            if re.search(pattern, content):
-                                log("SECURITY", f"🚨 민감 정보 발견! 파일: {file}")
-                                is_safe = False
-                except: pass
-    if not is_safe:
-        log("SECURITY", "⛔ 보안 위규 사항 발생! (Git Push 중단됨)")
-        return False
-    return True
-
-# --- [기능] 스킬 창고 동기화 ---
-def sync_warehouse():
-    log("WAREHOUSE", "📦 최신 스킬 저장소 동기화 중...")
-    if not os.path.exists(WAREHOUSE_DIR):
-        try:
-            subprocess.run(["git", "clone", ANTIGRAVITY_REPO_URL, WAREHOUSE_DIR], check=True)
-            log("WAREHOUSE", "✅ 스킬 창고 다운로드 완료")
-        except Exception as e:
-            log("WAREHOUSE", f"⚠️ 다운로드 실패: {e}")
-    else:
-        try:
-            subprocess.run(["git", "-C", WAREHOUSE_DIR, "pull"], check=True)
-            log("WAREHOUSE", "✅ 최신 스킬 업데이트 완료")
-        except Exception as e:
-            log("WAREHOUSE", f"⚠️ 업데이트 실패(로컬 모드): {e}")
-
-import os
-import sys
-import glob
-import subprocess
-import re
-import shutil
-import google.generativeai as genai
-from dotenv import load_dotenv
-
-# --- [0] 설정 및 준비 ---
-FACTORY_ROOT = os.getcwd()
-AGENTS_DIR = os.path.join(FACTORY_ROOT, "agents")
-WAREHOUSE_DIR = os.path.join(FACTORY_ROOT, "skills", "warehouse")
-FORGE_DIR = os.path.join(FACTORY_ROOT, "skills", "forge")
-
-# 🔗 안티그래비티 링크에서 넘겨준 정보 수신
-# sys.argv[1]: 역할명, sys.argv[2]: 모델명
-role = sys.argv[1] if len(sys.argv) > 1 else "General Assistant"
-selected_model_name = sys.argv[2] if len(sys.argv) > 2 else "gemini-1.5-pro"
-
-# 스킬 저장소 설정
-ANTIGRAVITY_REPO_URL = "https://github.com/guanyang/antigravity-skills.git"
-
-# 보안: .env 파일 로드
-load_dotenv(os.path.join(FACTORY_ROOT, ".env"))
-api_key = os.getenv("GOOGLE_API_KEY")
-
-if not api_key:
-    print("❌ [오류] GEMINI_API_KEY가 설정되지 않았습니다.")
-    sys.exit(1)
-
-genai.configure(api_key=api_key)
-
-# 🧠 선택된 모델 엔진 장착 (리서치 기능 포함)
-def log(step, msg):
-    print(f"[{step}] {msg}")
+    selected_model_name = get_best_model()
 
 log("SYSTEM", f"⚡ {selected_model_name} 엔진으로 {role} 제작 공정 시작")
 

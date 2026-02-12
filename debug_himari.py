@@ -10,7 +10,20 @@ load_dotenv(".env")
 api_key = os.getenv("GOOGLE_API_KEY")
 genai.configure(api_key=api_key)
 
-model = genai.GenerativeModel("gemini-flash-latest")
+def get_best_model():
+    try:
+        for m in genai.list_models():
+            if 'generateContent' in m.supported_generation_methods:
+                if 'gemini-2.0-flash' in m.name: return m.name
+        for m in genai.list_models():
+            if 'generateContent' in m.supported_generation_methods:
+                if 'gemini-1.5-flash' in m.name: return m.name
+    except: pass
+    return "gemini-1.5-flash"
+
+model_name = get_best_model()
+print(f"DEBUG: Selected model: {model_name}")
+model = genai.GenerativeModel(model_name)
 
 def load_agent_config(agent_name):
     try:
