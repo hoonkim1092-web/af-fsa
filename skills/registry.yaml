@@ -1,0 +1,35 @@
+skills:
+  data_visualize:
+    id: "data_visualize"
+    name: "Data Visualization"
+    status: "active"
+    version: "1.0.0"
+    capabilities: ["DATA_VISUALIZE"]
+    path: "d:/hoonProJect/agent-factory/skills/data_visualize/skill.py"
+    meta_path: "d:/hoonProJect/agent-factory/skills/data_visualize/meta.yaml"
+    updated_at: "2026-02-12T15:40:00"
+    last_test_ok: true
+
+  issue_tracker:
+    id: "issue_tracker"
+    name: "Issue Tracker"
+    status: "active"
+    version: "1.0.0"
+    capabilities: ["ISSUE_READ", "ISSUE_WRITE"]
+    path: "d:/hoonProJect/agent-factory/skills/issue_tracker/skill.py"
+    meta_path: "d:/hoonProJect/agent-factory/skills/issue_tracker/meta.yaml"
+    updated_at: "2026-02-12T15:40:00"
+    last_test_ok: true
+
+  research_assistant:
+    id: "research_assistant"
+    name: "Research Assistant"
+    status: "active"
+    version: "1.0.0"
+    capabilities: ["RESEARCH"]
+    path: "d:/hoonProJect/agent-factory/skills/research_assistant/skill.py"
+    meta_path: "d:/hoonProJect/agent-factory/skills/research_assistant/meta.yaml"
+    updated_at: "2026-02-12T15:55:00"
+    last_test_ok: true
+
+install_candidates: {}

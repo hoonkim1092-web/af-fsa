@@ -5,6 +5,7 @@ import subprocess
 import re
 import shutil
 import google.generativeai as genai
+from dotenv import load_dotenv
 
 # --- [0] 설정 및 준비 ---
 FACTORY_ROOT = os.getcwd()
@@ -12,22 +13,34 @@ AGENTS_DIR = os.path.join(FACTORY_ROOT, "agents")
 WAREHOUSE_DIR = os.path.join(FACTORY_ROOT, "skills", "warehouse")
 FORGE_DIR = os.path.join(FACTORY_ROOT, "skills", "forge")
 
-# [NEW] 안티그래비티 스킬 저장소 (여기에 원하는 깃허브 주소를 넣으세요!)
-# 예시: "https://github.com/Significant-Gravitas/AutoGPT" (또는 본인의 스킬 저장소)
+# 🔗 안티그래비티 링크에서 넘겨준 정보 수신
+# sys.argv[1]: 역할명, sys.argv[2]: 모델명
+role = sys.argv[1] if len(sys.argv) > 1 else "General Assistant"
+selected_model_name = sys.argv[2] if len(sys.argv) > 2 else "gemini-1.5-pro"
+
+# 스킬 저장소 설정
 ANTIGRAVITY_REPO_URL = "https://github.com/guanyang/antigravity-skills.git"
 
-# API 키 확인
-api_key = os.getenv("GEMINI_API_KEY")
+# 보안: .env 파일 로드
+load_dotenv(os.path.join(FACTORY_ROOT, ".env"))
+api_key = os.getenv("GOOGLE_API_KEY")
+
 if not api_key:
     print("❌ [오류] GEMINI_API_KEY가 설정되지 않았습니다.")
-    print("   터미널에 다음을 입력하세요: $env:GEMINI_API_KEY='본인의_API_키'")
     sys.exit(1)
 
 genai.configure(api_key=api_key)
-model = genai.GenerativeModel('gemini-2.0-flash')
 
+# 🧠 선택된 모델 엔진 장착 (리서치 기능 포함)
 def log(step, msg):
     print(f"[{step}] {msg}")
+
+log("SYSTEM", f"⚡ {selected_model_name} 엔진으로 {role} 제작 공정 시작")
+
+model = genai.GenerativeModel(
+    model_name=selected_model_name,
+    tools=[{'google_search_retrieval': {}}]
+)
 
 # --- [보안] 민감 정보 패턴 ---
 SENSITIVE_PATTERNS = [
@@ -53,26 +66,22 @@ def security_scan(directory):
         log("SECURITY", "⛔ 보안 위규 사항 발생! (Git Push 중단됨)")
         return False
     return True
-# --- [NEW] 깃허브 창고 동기화 (스킬 수입) ---
+
+# --- [기능] 스킬 창고 동기화 ---
 def sync_warehouse():
-    log("WAREHOUSE", "📦 깃허브에서 최신 스킬을 확인하는 중...")
-    
+    log("WAREHOUSE", "📦 최신 스킬 저장소 동기화 중...")
     if not os.path.exists(WAREHOUSE_DIR):
-        # 폴더가 없으면 -> 깃허브에서 통째로 다운로드 (Clone)
-        log("WAREHOUSE", "🚀 스킬 창고가 비었습니다. 깃허브에서 다운로드합니다...")
         try:
             subprocess.run(["git", "clone", ANTIGRAVITY_REPO_URL, WAREHOUSE_DIR], check=True)
-            log("WAREHOUSE", "✅ 스킬 다운로드 완료!")
+            log("WAREHOUSE", "✅ 스킬 창고 다운로드 완료")
         except Exception as e:
-            log("WAREHOUSE", f"⚠️ 스킬 다운로드 실패 (주소 확인 필요): {e}")
+            log("WAREHOUSE", f"⚠️ 다운로드 실패: {e}")
     else:
-        # 폴더가 있으면 -> 최신 버전으로 업데이트 (Pull)
-        log("WAREHOUSE", "🔄 기존 창고를 업데이트합니다...")
         try:
             subprocess.run(["git", "-C", WAREHOUSE_DIR, "pull"], check=True)
-            log("WAREHOUSE", "✅ 업데이트 완료!")
+            log("WAREHOUSE", "✅ 최신 스킬 업데이트 완료")
         except Exception as e:
-            log("WAREHOUSE", f"⚠️ 업데이트 실패 (로컬 모드로 진행): {e}")
+            log("WAREHOUSE", f"⚠️ 업데이트 실패(로컬 모드): {e}")
 
 # --- [기능] 에이전트 생성 및 조립 ---
 def find_existing_agent(role):
@@ -81,12 +90,14 @@ def find_existing_agent(role):
     return None
 
 def research_required_skills(role):
-    log("RESEARCH", f"'{role}' 스킬 리서치 중...")
+    log("RESEARCH", f"'{role}'에 필요한 핵심 스킬 분석 중...")
     try:
-        prompt = f"Role: {role}. Recommend 2-3 Python CLI tool names (comma separated, English only). Example: web_search, data_loader"
+        # 선택된 고성능 모델(Pro)이 구글 검색을 활용해 리서치 수행
+        # 추천 사유를 한국어로 작성하라는 지침 추가
+        prompt = f"Role: {role}. Analyze this role and recommend 2-3 essential Python CLI tool names (comma separated, English only). Example: logistics_optimizer, route_planner. **모든 분석 결과와 추천 사유는 반드시 한국어로 작성해.**"
         response = model.generate_content(prompt)
         return [s.strip() for s in response.text.split(',')]
-    except: return []
+    except: return ["core_module"]
 
 def procure_skill(skill_name, role):
     found = glob.glob(os.path.join(WAREHOUSE_DIR, "**", f"{skill_name}.py"), recursive=True)
@@ -98,13 +109,15 @@ def procure_skill(skill_name, role):
     return forge_new_skill(skill_name, role)
 
 def forge_new_skill(skill_name, role):
-    log("FORGE", f"⚠️ 스킬 없음. '{skill_name}' 제작 시작...")
+    log("FORGE", f"🛠️ 스킬 직접 제작: '{skill_name}'")
     os.makedirs(FORGE_DIR, exist_ok=True)
     output_path = os.path.join(FORGE_DIR, f"{skill_name}.py")
-    prompt = f"Write Python CLI tool '{skill_name}.py' for role '{role}'. Use argparse. No hardcoded keys. Output code only."
+    
+    # 3.0 Pro나 1.5 Pro가 직접 고퀄리티 코드를 짭니다.
+    prompt = f"Write a professional Python CLI tool '{skill_name}.py' for the role '{role}'. Use argparse. Provide clean, robust code only. **코드 내의 독스트링(Docstring)과 사용자에게 보여지는 출력 메시지는 반드시 한국어로 작성해.**"
     try:
         response = model.generate_content(prompt)
-        code = response.text.replace("```python", "").replace("```", "")
+        code = response.text.replace("```python", "").replace("```", "").strip()
         with open(output_path, "w", encoding="utf-8") as f: f.write(code)
         log("FORGE", f"🔥 제작 완료: {output_path}")
         return output_path
@@ -116,45 +129,39 @@ def assemble_and_push(agent_name, role, skill_paths):
     os.makedirs(tools_dir, exist_ok=True)
     
     with open(os.path.join(target_dir, "profile.md"), "w", encoding="utf-8") as f:
-        f.write(f"# Role: {role}\nGenerated by Factory Manager")
+        f.write(f"# Agent Role: {role}\nEngine: {selected_model_name}\n\nGenerated by Logi-Mind Factory Manager.")
 
     for src in skill_paths:
         if src and os.path.exists(src): shutil.copy2(src, tools_dir)
 
-    log("ASSEMBLE", f"에이전트 조립 완료: {target_dir}")
+    log("ASSEMBLE", f"✅ 에이전트 조립 완료: {target_dir}")
     
     if not security_scan(target_dir): return 
 
-    log("GIT", "GitHub로 전송 중...")
+    log("GIT", "GitHub 저장소로 전송 중...")
     try:
         subprocess.run(["git", "add", "."], check=True)
-        subprocess.run(["git", "commit", "-m", f"feat: Created {agent_name}"], check=True)
+        subprocess.run(["git", "commit", "-m", f"feat: Factory generated {agent_name} using {selected_model_name}"], check=True)
         subprocess.run(["git", "push"], check=True)
-        log("GIT", "✅ Push 성공!")
-    except: log("GIT", "⚠️ Git 변경 사항이 없거나 설정 오류")
+        log("GIT", "🚀 전송 성공!")
+    except: log("GIT", "⚠️ 변경 사항이 없거나 푸시 실패")
 
-
+# --- 메인 실행 ---
 if __name__ == "__main__":
-    # 1. 사용자가 역할을 입력했는지 확인
     if len(sys.argv) < 2:
-        print("사용법: python factory_manager.py '원하는 역할'")
+        print("사용법: python factory_manager.py '역할명' '모델명'")
         sys.exit(1)
-    
-    role = sys.argv[1]
 
-    # [NEW] 2. 공장 가동 전에 깃허브에서 스킬부터 가져오기! (여기에 추가됨)
-    # (위에서 만든 sync_warehouse 함수가 여기서 실행됩니다)
-    try:
-        sync_warehouse() 
-    except NameError:
-        print("⚠️ sync_warehouse 함수가 정의되지 않아 건너뜁니다.")
+    # 1. 창고 동기화
+    sync_warehouse()
 
-    # 3. 이미 만든 에이전트인지 확인
+    # 2. 중복 확인
+    agent_id = role.replace(" ", "-").lower() + "-agent"
     if find_existing_agent(role):
-        print("이미 존재하는 에이전트입니다.")
+        log("SYSTEM", f"이미 '{agent_id}'가 존재하여 종료합니다.")
         sys.exit(0)
         
-    # 4. 리서치 -> 스킬 확보 -> 조립 -> 깃허브 전송
+    # 3. 생산 공정 (리서치 -> 스킬 확보 -> 조립 -> 푸시)
     skills = research_required_skills(role)
     paths = [procure_skill(s, role) for s in skills]
-    assemble_and_push(role.replace(" ", "-").lower() + "-agent", role, paths)
+    assemble_and_push(agent_id, role, paths)

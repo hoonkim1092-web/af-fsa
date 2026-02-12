@@ -1,75 +1,99 @@
 import os
 import sys
 import subprocess
+import json
 import google.generativeai as genai
+from dotenv import load_dotenv
 
-# --- 1. 설정 ---
-api_key = os.getenv("GEMINI_API_KEY")
+# --- 1. 환경 설정 및 보안 ---
+current_dir = os.path.dirname(os.path.abspath(__file__))
+env_path = os.path.join(current_dir, ".env")
+load_dotenv(dotenv_path=env_path)
+
+api_key = os.getenv("GOOGLE_API_KEY")
 if not api_key:
-    print("❌ [오류] GEMINI_API_KEY가 없습니다.")
+    print("❌ [오류] .env 파일에서 API 키를 찾을 수 없습니다.")
     sys.exit(1)
 
 genai.configure(api_key=api_key)
-model = genai.GenerativeModel('gemini-2.0-flash')
 
-# --- 2. AI 번역기 (한국어 -> 영어 역할명) ---
-def interpret_command(user_input):
-    print(f"🧠 [Antigravity] 명령 분석 중...")
-    
-    prompt = f"""
-    User Request: "{user_input}"
-    
-    Task:
-    1. Analyze the user's request.
-    2. Extract the most suitable 'Agent Role Name' in English.
-    3. Output ONLY the role name. (e.g., 'Stock Trader', 'News Scraper')
-    4. Do not add any explanation.
-    """
-    
-    try:
-        response = model.generate_content(prompt)
-        role_name = response.text.strip()
-        # 특수문자나 불필요한 공백 제거
-        role_name = role_name.replace('"', '').replace("'", "").replace(".", "")
-        return role_name
-    except Exception as e:
-        print(f"❌ 분석 실패: {e}")
-        return None
+# --- 2. 지능형 오케스트레이터 클래스 ---
+class SmartLinker:
+    def __init__(self):
+        # 상황 판단용 가벼운 모델
+        self.gatekeeper = genai.GenerativeModel('gemini-2.0-flash')
+
+    def analyze_and_route(self, user_input):
+        """질문을 분석하여 최적의 모델과 역할명을 결정"""
+        print(f"🧠 [Antigravity] 의도 분석 및 모델 선정 중...")
+        
+        prompt = f"""
+        User Request: "{user_input}"
+        
+        당신은 AI 자원 관리자입니다. 다음 규칙에 따라 요청을 분석하세요.
+        1. 전략/기획/게임/아이디어 -> GEMINI_3_PRO
+        2. 물류/분석/리서치/문서화 -> GEMINI_1_5_PRO
+        3. 단순 작업/요약 -> GEMINI_2_FLASH
+        
+        다음 JSON 형식으로만 답하세요:
+        {{
+            "role_name": "영문 역할명 (예: Logistics Manager)",
+            "model_choice": "모델명",
+            "reason": "선택 사유"
+        }}
+        """
+        
+        try:
+            response = self.gatekeeper.generate_content(prompt)
+            # JSON 파싱
+            res_text = response.text.replace('```json', '').replace('```', '').strip()
+            data = json.loads(res_text)
+            
+            # 모델 매핑
+            model_map = {
+                "GEMINI_3_PRO": "gemini-3.0-pro",
+                "GEMINI_1_5_PRO": "gemini-1.5-pro",
+                "GEMINI_2_FLASH": "gemini-2.0-flash"
+            }
+            data['actual_model'] = model_map.get(data['model_choice'], "gemini-1.5-pro")
+            return data
+        except Exception as e:
+            print(f"⚠️ 분석 중 오류 발생, 기본 모델을 사용합니다: {e}")
+            return {"role_name": "General Assistant", "actual_model": "gemini-1.5-pro"}
 
 # --- 3. 메인 실행 루프 ---
 def main():
-    print("\n" + "="*40)
-    print("🚀 [Antigravity Link] 시스템 대기 중")
-    print("   (종료하려면 'exit' 입력)")
-    print("="*40 + "\n")
+    linker = SmartLinker()
+    
+    print("\n" + "="*50)
+    print("🚀 [Logi-Mind Intelligent Link] 가동 중")
+    print("   모델 자율 선택 모드가 활성화되었습니다.")
+    print("="*50 + "\n")
 
     while True:
         try:
-            # 사용자 입력 대기
             user_input = input("💬 명령(자연어): ").strip()
-            
-            if user_input.lower() in ['exit', 'quit', '종료']:
-                print("👋 시스템을 종료합니다.")
-                break
-            
-            if not user_input:
-                continue
+            if user_input.lower() in ['exit', 'quit', '종료']: break
+            if not user_input: continue
 
-            # 1. 의도 파악
-            role_name = interpret_command(user_input)
+            # 1. AI가 직접 모델과 역할 결정
+            plan = linker.analyze_and_route(user_input)
+            role_name = plan['role_name']
+            selected_model = plan['actual_model']
+
+            print(f"🎯 목표: '{role_name}'")
+            print(f"🧠 선택된 뇌: {selected_model}")
+            print(f"🏭 공장장에게 제작 요청을 보냅니다...\n")
+
+            # --- antigravity_link.py의 메인 루프 안 ---
+            # 2. 공장장 실행 (모델 정보를 두 번째 인자로 넘깁니다)
+            print(f"🚀 {selected_model} 엔진을 장착하고 공장을 가동합니다...")
             
-            if role_name:
-                print(f"🎯 목표 설정: '{role_name}'")
-                print(f"🏭 공장 가동 요청 보내는 중...\n")
-                
-                # 2. 공장장(factory_manager.py) 실행
-                # 여기서 factory_manager가 리서치->제작->Git전송을 수행합니다.
-                subprocess.run(["python", "factory_manager.py", role_name])
-                
-                print("\n✅ 에이전트 생성 완료. 다음 명령을 주세요.")
-                
-            else:
-                print("⚠️ 명령을 이해하지 못했습니다.")
+            # 기존: ["python", "factory_manager.py", role_name]
+            # 변경: 모델명(selected_model)을 추가로 전달
+            subprocess.run(["python", "factory_manager.py", role_name, selected_model])         
+            
+            print("\n✅ 작업 완료. 다음 명령을 주세요.")
 
         except KeyboardInterrupt:
             break
