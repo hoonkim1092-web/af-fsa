@@ -360,8 +360,11 @@ class AgentManager:
     def __init__(self, mr: ModelRouter):
         self.mr = mr
 
+    def _agent_path(self, role_spec: str) -> str:
+        return os.path.join(AGENTS_DIR, f"{safe_id(role_spec)}.yaml")
+
     def get_or_create(self, role_spec: str) -> dict:
-        path = os.path.join(AGENTS_DIR, f"{safe_id(role_spec)}.yaml")
+        path = self._agent_path(role_spec)
         if os.path.exists(path):
             return read_yaml(path)
 
@@ -379,9 +382,36 @@ JSON留?異쒕젰:
         write_yaml(path, data)
         return data
 
+    def install_skills(self, role_spec: str, skill_ids: list[str]) -> list[str]:
+        if not skill_ids:
+            return []
+        path = self._agent_path(role_spec)
+        agent = read_yaml(path) if os.path.exists(path) else self.get_or_create(role_spec)
+        current = [safe_id(str(s)) for s in (agent.get("skills") or []) if str(s).strip()]
+        merged = list(dict.fromkeys(current + [safe_id(s) for s in skill_ids]))
+        agent["skills"] = merged
+        agent["updated_at"] = now_iso()
+        write_yaml(path, agent)
+        return merged
+
 class RequirementAnalyzer:
     def __init__(self, mr: ModelRouter):
         self.mr = mr
+
+    def _fallback_missing_skills(self, task_input: str, role_text: str) -> list[str]:
+        text = f"{task_input} {role_text}".lower()
+        picks: list[str] = []
+        rules = [
+            ("research_assistant", ["research", "리서치", "검증", "후보", "라이브러리"]),
+            ("issue_tracker", ["이슈", "추적", "ticket", "issue", "책임", "audit", "로그"]),
+            ("data_visualize", ["시각화", "대시보드", "차트", "그래프", "요약"]),
+        ]
+        for sid, kws in rules:
+            if any(k in text for k in kws):
+                picks.append(sid)
+        if not picks:
+            picks.append("research_assistant")
+        return list(dict.fromkeys([safe_id(s) for s in picks]))[:5]
 
     def analyze(self, agent: dict, task_input: str) -> dict:
         model = genai.GenerativeModel(self.mr.pick("requirement"))
@@ -402,8 +432,17 @@ JSON留?異쒕젰:
 - ?ㅽ궗紐?snake_case
 - data 遺꾩꽍?대㈃ needs_pandas 異붽?
 """
-        res = model.generate_content(prompt, generation_config={"response_mime_type": "application/json"})
-        data = safe_json_load(res.text)
+        try:
+            res = model.generate_content(prompt, generation_config={"response_mime_type": "application/json"})
+            data = safe_json_load(res.text)
+        except Exception as e:
+            data = {
+                "goal": task_input,
+                "missing_skills": self._fallback_missing_skills(task_input, str(agent.get("role", ""))),
+                "constraints": ["network_allowed", "no_system_tools", "data_io_allowed"],
+                "risk_level": "normal",
+                "analysis_fallback": f"llm_unavailable:{type(e).__name__}",
+            }
         data.setdefault("goal", task_input)
         data.setdefault("missing_skills", [])
         data.setdefault("constraints", ["network_allowed", "no_system_tools", "data_io_allowed"])
@@ -413,6 +452,107 @@ JSON留?異쒕젰:
 
         data["missing_skills"] = [safe_id(str(s)) for s in (data["missing_skills"] or []) if str(s).strip()]
         return data
+
+class HimariResearchAgent:
+    def __init__(self, mr: ModelRouter):
+        self.mr = mr
+
+    def _registry_skill_index(self) -> dict:
+        reg = read_yaml(REGISTRY_PATH)
+        items = reg.get("skills", {}) if isinstance(reg, dict) else {}
+        idx: dict = {}
+        for sid, meta in items.items():
+            key = safe_id(str(sid))
+            caps = [safe_id(str(c)) for c in (meta.get("capabilities") or [])]
+            idx[key] = {
+                "id": key,
+                "name": meta.get("name") or sid,
+                "capabilities": caps,
+                "meta": meta,
+            }
+        return idx
+
+    def _fallback_match(self, need: str, idx: dict) -> list[str]:
+        need_tokens = set(t for t in safe_id(need).split("_") if t)
+        picked: list[str] = []
+        for sid, item in idx.items():
+            corpus = " ".join([sid, safe_id(item.get("name", ""))] + item.get("capabilities", []))
+            tokens = set(t for t in corpus.split("_") if t)
+            if need_tokens and (need_tokens & tokens):
+                picked.append(sid)
+        return picked[:3]
+
+    def research(self, agent: dict, reqs: dict) -> dict:
+        missing = [safe_id(str(s)) for s in (reqs.get("missing_skills") or []) if str(s).strip()]
+        idx = self._registry_skill_index()
+        if not missing or not idx:
+            return {"suggestions": {}, "all_candidates": []}
+
+        skill_catalog = []
+        for sid, item in idx.items():
+            skill_catalog.append({
+                "id": sid,
+                "name": item["name"],
+                "capabilities": item["capabilities"],
+            })
+
+        model = genai.GenerativeModel(self.mr.pick("requirement"))
+        prompt = f"""
+너는 리서치 에이전트 Himari다.
+목표: missing_skills에 대해 설치 가능한 로컬 스킬 후보를 추천한다.
+
+AgentRole: {agent.get("role")}
+Goal: {reqs.get("goal")}
+MissingSkills: {missing}
+LocalSkillCatalog(JSON): {json.dumps(skill_catalog, ensure_ascii=False)}
+
+출력은 JSON만:
+{{
+  "suggestions": {{
+    "missing_skill_id": ["candidate_skill_id_1", "candidate_skill_id_2"]
+  }}
+}}
+"""
+        suggestions: dict[str, list[str]] = {}
+        try:
+            res = model.generate_content(prompt, generation_config={"response_mime_type": "application/json"})
+            payload = safe_json_load(res.text)
+            raw = payload.get("suggestions", {}) if isinstance(payload, dict) else {}
+            if isinstance(raw, dict):
+                for need, cands in raw.items():
+                    k = safe_id(str(need))
+                    values = [safe_id(str(c)) for c in (cands or []) if safe_id(str(c)) in idx]
+                    if values:
+                        suggestions[k] = list(dict.fromkeys(values))
+        except Exception:
+            suggestions = {}
+
+        for need in missing:
+            if need not in suggestions:
+                fallback = self._fallback_match(need, idx)
+                if fallback:
+                    suggestions[need] = fallback
+
+        all_candidates = []
+        for arr in suggestions.values():
+            for sid in arr:
+                if sid not in all_candidates:
+                    all_candidates.append(sid)
+        return {"suggestions": suggestions, "all_candidates": all_candidates}
+
+    def approval_gate(self, candidates: list[str], idx: dict) -> list[str]:
+        if not candidates:
+            print("\n[Himari] 설치 추천 후보가 없습니다.")
+            return []
+        print("\n[Himari] 리서치 결과 - 설치 후보")
+        for i, sid in enumerate(candidates, start=1):
+            item = idx.get(sid, {})
+            caps = item.get("capabilities", [])
+            print(f"  {i}. {sid} | name={item.get('name', sid)} | capabilities={caps}")
+        ans = input("위 후보를 에이전트에 설치할까요? (yes/no): ").strip().lower()
+        if ans != "yes":
+            return []
+        return candidates
 
 # =============================================================================
 # 5) Builder
@@ -560,6 +700,7 @@ class AgentFactory:
         self.mr = ModelRouter()
         self.agent_mgr = AgentManager(self.mr)
         self.req = RequirementAnalyzer(self.mr)
+        self.research = HimariResearchAgent(self.mr)
         self.builder = SandboxedBuilder(self.mr)
         self.registry = RegistryManager()
         self.git = GitManager()
@@ -579,6 +720,23 @@ class AgentFactory:
             return
 
         print("\n?뱦 Needed skills:", skills)
+        research = self.research.research(agent, reqs)
+        reg_idx = self.research._registry_skill_index()
+        approved = self.research.approval_gate(research.get("all_candidates", []), reg_idx)
+        if approved:
+            merged = self.agent_mgr.install_skills(role_spec, approved)
+            print(f"[Install] agent skills updated: {merged}")
+            covered = set()
+            sugg = research.get("suggestions", {}) if isinstance(research, dict) else {}
+            for need, cands in sugg.items():
+                if any(c in approved for c in (cands or [])):
+                    covered.add(safe_id(need))
+            skills = [s for s in skills if safe_id(s) not in covered]
+            if skills:
+                print(f"[Install] 로컬 설치로 커버되지 않은 스킬은 빌드 진행: {skills}")
+            else:
+                print("[Install] 모든 missing_skills가 설치 후보로 커버되었습니다.")
+                return
 
         built_metas: list[dict] = []
         built_dirs: list[str] = []
