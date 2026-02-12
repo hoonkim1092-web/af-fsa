@@ -111,6 +111,44 @@ def load_agent_config(agent_name):
         log("SYSTEM", f"⚠️ Error loading agent config: {e}")
         return None
 
+def _query_notebooklm(query: str) -> str:
+    """
+    NotebookLM CLI를 통해 질문을 수행합니다. (Factory 버전)
+    기본 노트북 ID: eaa34a54-a898-46a0-835a-cdb6024887f0 (Google Antigravity Guide)
+    """
+    try:
+        # CLI 모듈을 서브프로세스로 호출
+        target_notebook_id = "eaa34a54-a898-46a0-835a-cdb6024887f0"
+        
+        cmd = [
+            sys.executable, "-m", "notebooklm_tools.cli.main",
+            "query", "notebook",
+            target_notebook_id,
+            query
+        ]
+        
+        # 윈도우 인코딩 문제 방지를 위해 env 설정
+        env = os.environ.copy()
+        env["PYTHONIOENCODING"] = "utf-8"
+        
+        p = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            encoding='utf-8',
+            env=env,
+            timeout=60
+        )
+        
+        if p.returncode != 0:
+            return ""
+            
+        return p.stdout.strip()
+        
+    except Exception as e:
+        log("RESEARCH", f"⚠️ NotebookLM 연결 오류: {e}")
+        return ""
+
 def research_required_skills(role):
     with open("debug.log", "a", encoding="utf-8") as f:
         f.write(f"LOG: sys.argv: {sys.argv}\n")
@@ -124,6 +162,15 @@ def research_required_skills(role):
     if himari_config:
         log("RESEARCH", "✨ 히마리(Himari)가 분석을 시작합니다.")
         system_instruction = himari_config.get("prompt", {}).get("system_ko", "")
+
+        # [New] NotebookLM 리서치 (RAG)
+        log("RESEARCH", "🔎 [비밀 서고] NotebookLM에서 관련 지식을 탐색합니다...")
+        query = f"Key Python CLI tools and skills required for: {role}. Architecture recommendations?"
+        notebook_insight = _query_notebooklm(query)
+        
+        if notebook_insight:
+            log("RESEARCH", f"💡 서고에서 유의미한 기록을 발견했습니다.")
+            system_instruction += f"\n\n[NotebookLM Secret Archive Constraint]:\n{notebook_insight[:1000]}\n(이 정보를 바탕으로 판단하십시오.)"
     
     try:
         # 선택된 고성능 모델(Pro)이 구글 검색을 활용해 리서치 수행

@@ -532,6 +532,46 @@ class HimariResearchAgent:
         }
         return score, verify
 
+    def _query_notebooklm(self, query: str) -> str:
+        """
+        NotebookLM CLI를 통해 질문을 수행합니다.
+        기본 노트북 ID: eaa34a54-a898-46a0-835a-cdb6024887f0 (Google Antigravity Guide)
+        """
+        try:
+            # CLI 모듈을 서브프로세스로 호출
+            # python -m notebooklm_tools.cli.main query notebook <ID> <QUERY>
+            target_notebook_id = "eaa34a54-a898-46a0-835a-cdb6024887f0"
+            
+            cmd = [
+                sys.executable, "-m", "notebooklm_tools.cli.main",
+                "query", "notebook",
+                target_notebook_id,
+                query
+            ]
+            
+            # 윈도우 인코딩 문제 방지를 위해 env 설정
+            env = os.environ.copy()
+            env["PYTHONIOENCODING"] = "utf-8"
+            
+            p = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                encoding='utf-8',
+                env=env,
+                timeout=60 # 리서치는 시간이 걸릴 수 있음
+            )
+            
+            if p.returncode != 0:
+                print(f"⚠️ [Himari] NotebookLM 쿼리 실패: {p.stderr.strip()}")
+                return ""
+                
+            return p.stdout.strip()
+            
+        except Exception as e:
+            print(f"⚠️ [Himari] NotebookLM 연결 오류: {e}")
+            return ""
+
     def research(self, agent: dict, reqs: dict, build_targets: list[str] | None = None) -> dict:
         missing = [safe_id(str(s)) for s in (build_targets or reqs.get("missing_skills") or []) if str(s).strip()]
         idx = self._registry_skill_index()
@@ -546,6 +586,17 @@ class HimariResearchAgent:
                 "capabilities": item["capabilities"],
             })
 
+        # --- NotebookLM 리서치 수행 (필요 시) ---
+        notebook_insight = ""
+        if missing:
+            # 첫 번째 미싱 스킬에 대해 힌트를 얻어봄
+            query = f"Python skill implementation for: {missing[0]}. requirements: {reqs.get('goal')}"
+            print(f"🔎 [Himari] 비밀 서고(NotebookLM)에서 '{missing[0]}' 관련 지식을 탐색합니다...")
+            insight = self._query_notebooklm(query)
+            if insight:
+                notebook_insight = f"\n[NotebookLM Secret Archive Constraint]: {insight[:1000]}"
+                print(f"💡 [Himari] 서고에서 유의미한 기록을 발견했습니다.")
+
         model = genai.GenerativeModel(self.mr.pick("requirement"))
         prompt = f"""
 너는 리서치 에이전트 Himari다.
@@ -555,6 +606,7 @@ AgentRole: {agent.get("role")}
 Goal: {reqs.get("goal")}
 MissingSkills: {missing}
 LocalSkillCatalog(JSON): {json.dumps(skill_catalog, ensure_ascii=False)}
+{notebook_insight}
 
 출력은 JSON만:
 {{
@@ -619,6 +671,7 @@ LocalSkillCatalog(JSON): {json.dumps(skill_catalog, ensure_ascii=False)}
             "agent_role": agent.get("role"),
             "goal": reqs.get("goal"),
             "targets": targets,
+            "notebook_insight": notebook_insight # 결과에 포함
         }
         return {"suggestions": suggestions, "all_candidates": all_candidates, "evidence_pack": evidence_pack}
 
