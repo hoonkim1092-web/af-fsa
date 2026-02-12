@@ -1,0 +1,85 @@
+version: 1
+name: "2-week WebApp Delivery Loop"
+owner_agent: "Lilith"
+working_days: 10
+
+inputs_required:
+  - "goal(목표 1문장)"
+  - "demo_target(2주 후 보여줄 데모 대상)"
+  - "constraints(제약: 시간/인력/기술/데이터)"
+  - "deadline(마감일)"
+  - "capacity_hours(가용 시간, 예: 60)"
+
+stages:
+  - id: D0
+    name: "Decision Lock"
+    day_range: "Day1"
+    objective: "이번 스프린트의 '데모 정의'를 잠그고(고정) 흔들림을 차단"
+    deliverables:
+      - "Decision 1~3"
+      - "DoD(Definition of Done, 완료 기준)"
+      - "Must/Should/Could + effort(시간) 표"
+    controls:
+      - "Must effort 합계 <= capacity_hours"
+      - "결정 안 되면 스프린트 시작 금지"
+    outputs:
+      - "runs/**/plan.md"
+
+  - id: D1
+    name: "Risks First"
+    day_range: "Day1~Day2"
+    objective: "리스크(불확실성)를 먼저 터뜨려서 후반 폭발 방지"
+    activities:
+      - "Top5 리스크 정의"
+      - "스파이크(spike, 짧은 실험) 1~2개 실행"
+    deliverables:
+      - "Risk list + 대응"
+      - "Spike 결과 요약"
+    outputs:
+      - "runs/**/plan.md"
+
+  - id: D2
+    name: "MVP Slice"
+    day_range: "Day3~Day7"
+    objective: "세로 슬라이스(처음~끝 사용자 흐름) 1개를 데모 가능 상태로 만든다"
+    deliverables:
+      - "User flow end-to-end 1개"
+      - "Demo script(시연 대본)"
+      - "Known issues(알려진 문제) 목록"
+    controls:
+      - "스코프 늘리기 금지(늘리면 Must 컷)"
+    outputs:
+      - "runs/**/outputs/demo_script.md"
+      - "runs/**/outputs/known_issues.md"
+
+  - id: D3
+    name: "Stabilize"
+    day_range: "Day8~Day9"
+    objective: "버그/엣지 케이스/로그 정리로 데모 실패 확률 최소화"
+    deliverables:
+      - "QA checklist(점검표)"
+      - "데모 리허설 체크"
+    outputs:
+      - "runs/**/outputs/qa_checklist.md"
+
+  - id: D4
+    name: "Demo & Retro"
+    day_range: "Day10"
+    objective: "시연 + 회고 + 다음 스프린트 후보 백로그 확보"
+    deliverables:
+      - "Demo notes"
+      - "Retro: keep/stop/start"
+      - "Next backlog 후보 5개"
+    outputs:
+      - "runs/**/outputs/demo_notes.md"
+      - "runs/**/outputs/retro.md"
+      - "runs/**/outputs/next_backlog.md"
+
+global_controls:
+  scope_control:
+    method: "Must/Should/Could + effort(hours)"
+    rule: "Must 초과 시 즉시 3가지 컷 옵션 제시(기능/품질/플랫폼)"
+  approval_control:
+    rule: "외부 호출/원격 반영은 승인 없이는 금지"
+  quality_control:
+    rule: "Day10 데모 실패는 0점. 안정화(D3) 우선순위 최상"
