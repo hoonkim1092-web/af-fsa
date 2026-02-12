@@ -38,8 +38,7 @@ def log(step, msg):
 log("SYSTEM", f"⚡ {selected_model_name} 엔진으로 {role} 제작 공정 시작")
 
 model = genai.GenerativeModel(
-    model_name=selected_model_name,
-    tools=[{'google_search_retrieval': {}}]
+    model_name=selected_model_name
 )
 
 # --- [보안] 민감 정보 패턴 ---
