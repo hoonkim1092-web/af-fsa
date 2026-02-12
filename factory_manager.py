@@ -8,6 +8,7 @@ import google.generativeai as genai
 from dotenv import load_dotenv
 
 # --- [0] 설정 및 준비 ---
+sys.stdout.reconfigure(encoding='utf-8')
 FACTORY_ROOT = os.getcwd()
 AGENTS_DIR = os.path.join(FACTORY_ROOT, "agents")
 WAREHOUSE_DIR = os.path.join(FACTORY_ROOT, "skills", "warehouse")
