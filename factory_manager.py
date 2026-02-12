@@ -6,6 +6,7 @@ import re
 import shutil
 import google.generativeai as genai
 from dotenv import load_dotenv
+from model_utils import get_best_model
 
 # --- [0] 설정 및 준비 ---
 FACTORY_ROOT = os.getcwd()
@@ -34,43 +35,6 @@ else:
 # 🧠 선택된 모델 엔진 장착 (리서치 기능 포함)
 def log(step, msg):
     print(f"[{step}] {msg}")
-
-def get_best_model():
-    """
-    사용 가능한 모델 목록을 조회하여 최적의 모델을 반환합니다.
-    우선순위: gemini-2.0-flash -> gemini-1.5-flash -> gemini-1.5-pro
-    """
-    try:
-        log("SYSTEM", "🤖 가용 모델 검색 중...")
-        available_models = []
-        for m in genai.list_models():
-            if 'generateContent' in m.supported_generation_methods:
-                available_models.append(m.name)
-        
-        # 모델 우선순위 정의 (이름에 포함된 문자열 매칭)
-        priorities = [
-            "gemini-2.0-flash",
-            "gemini-1.5-flash", 
-            "gemini-1.5-pro",
-            "gemini-1.0-pro"
-        ]
-        
-        for p in priorities:
-            for m_name in available_models:
-                if p in m_name:
-                     log("SYSTEM", f"✅ 모델 선택됨: {m_name}")
-                     return m_name
-        
-        # 우선순위 모델을 못 찾으면 목록의 첫 번째 것 반환 (최후의 수단)
-        if available_models:
-             log("SYSTEM", f"⚠️ 우선순위 모델 없음, 대체 모델 선택: {available_models[0]}")
-             return available_models[0]
-             
-    except Exception as e:
-        log("SYSTEM", f"⚠️ 모델 검색 실패: {e}")
-    
-    # 기본값 (하드코딩)
-    return "models/gemini-2.0-flash"
 
 # sys.argv[2]가 있으면 그걸 쓰고, 없으면 자동 검색
 if len(sys.argv) > 2:

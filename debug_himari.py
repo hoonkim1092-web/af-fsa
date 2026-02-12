@@ -5,21 +5,15 @@ import google.generativeai as genai
 from dotenv import load_dotenv
 import json
 
+# Reconfigure stdout to utf-8 for Windows console
+sys.stdout.reconfigure(encoding='utf-8')
+
 # Load env
 load_dotenv(".env")
 api_key = os.getenv("GOOGLE_API_KEY")
 genai.configure(api_key=api_key)
 
-def get_best_model():
-    try:
-        for m in genai.list_models():
-            if 'generateContent' in m.supported_generation_methods:
-                if 'gemini-2.0-flash' in m.name: return m.name
-        for m in genai.list_models():
-            if 'generateContent' in m.supported_generation_methods:
-                if 'gemini-1.5-flash' in m.name: return m.name
-    except: pass
-    return "gemini-1.5-flash"
+from model_utils import get_best_model
 
 model_name = get_best_model()
 print(f"DEBUG: Selected model: {model_name}")

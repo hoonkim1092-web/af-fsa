@@ -12,6 +12,10 @@ from datetime import datetime
 from dotenv import load_dotenv
 
 import google.generativeai as genai
+from model_utils import get_best_model
+
+# Reconfigure stdout for Windows
+sys.stdout.reconfigure(encoding='utf-8')
 
 def safe_generate(model, prompt, **kwargs):
     for i in range(5):
@@ -174,9 +178,10 @@ def ensure_registry_files():
 class ModelRouter:
     def pick(self, stage: str) -> str:
         # ?붽뎄遺꾩꽍/鍮뚮뜑??pro, ?섎㉧吏 flash
+        # ?붽뎄遺꾩꽍/鍮뚮뜑??pro, ?섎㉧吏€ flash
         if stage in ("requirement", "builder"):
-            return "models/gemini-2.0-flash"
-        return "models/gemini-2.0-flash"
+            return get_best_model(["gemini-2.0-flash", "gemini-1.5-flash"])
+        return get_best_model(["gemini-2.0-flash", "gemini-1.5-flash"])
 
 # =============================================================================
 # 2) Quick Guard (AST) - 移섎챸 ?꾧뎄 ?뺤닔
@@ -737,11 +742,9 @@ Evidence(JSON): {json.dumps(target_evidence, ensure_ascii=False)}
 
     def get_model_priority_queue(self):
         # 1순위부터 순차적으로 시도할 모델 목록 (2026.02 Update)
-        return [
-            "models/gemini-2.0-flash-lite-001",
-            "models/gemini-1.5-flash",
-            "models/gemini-1.0-pro"
-        ]
+        # model_utils를 통해 동적으로 가져오진 않지만, 캐시된 유효 모델을 우선순위에 따라 반환하도록 유도
+        # 여기서는 단순화를 위해 best model 하나를 리스트로 반환하거나, Known list를 반환
+        return [get_best_model(["gemini-2.0-flash", "gemini-1.5-flash"])]
 
 # =============================================================================
 # 6) Registry / Workflow / Git

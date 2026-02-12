@@ -4,6 +4,10 @@ import subprocess
 import json
 import google.generativeai as genai
 from dotenv import load_dotenv
+from model_utils import get_best_model, get_available_models
+
+# Reconfigure stdout to utf-8 for Windows console
+sys.stdout.reconfigure(encoding='utf-8')
 
 # --- 1. 환경 설정 및 보안 ---
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -21,7 +25,7 @@ genai.configure(api_key=api_key)
 class SmartLinker:
     def __init__(self):
         # 상황 판단용 가벼운 모델
-        self.gatekeeper = genai.GenerativeModel('gemini-2.0-flash')
+        self.gatekeeper = genai.GenerativeModel(get_best_model(["gemini-2.0-flash", "gemini-1.5-flash"]))
 
     def analyze_and_route(self, user_input):
         """질문을 분석하여 최적의 모델과 역할명을 결정"""
@@ -49,17 +53,22 @@ class SmartLinker:
             res_text = response.text.replace('```json', '').replace('```', '').strip()
             data = json.loads(res_text)
             
-            # 모델 매핑
-            model_map = {
-                "GEMINI_3_PRO": "gemini-3.0-pro",
-                "GEMINI_1_5_PRO": "gemini-1.5-pro",
-                "GEMINI_2_FLASH": "gemini-2.0-flash"
-            }
-            data['actual_model'] = model_map.get(data['model_choice'], "gemini-1.5-pro")
+            # 모델 매핑 (동적 검색 결과 활용)
+            choice = data.get('model_choice', '').upper()
+            
+            # 우선순위 부여
+            if "GEMINI_3" in choice:
+                priority = ["gemini-3.0-pro", "gemini-2.0-pro", "gemini-1.5-pro"]
+            elif "GEMINI_1_5" in choice:
+                priority = ["gemini-1.5-pro", "gemini-2.0-flash"]
+            else: # FLASH or default
+                priority = ["gemini-2.0-flash", "gemini-1.5-flash"]
+                
+            data['actual_model'] = get_best_model(priority)
             return data
         except Exception as e:
             print(f"⚠️ 분석 중 오류 발생, 기본 모델을 사용합니다: {e}")
-            return {"role_name": "General Assistant", "actual_model": "gemini-1.5-pro"}
+            return {"role_name": "General Assistant", "actual_model": get_best_model()}
 
 # --- 3. 메인 실행 루프 ---
 def main():
