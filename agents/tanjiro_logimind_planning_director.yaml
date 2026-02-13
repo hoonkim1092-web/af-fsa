@@ -83,7 +83,7 @@ skills:
   - "state_machine_exception_planning"
   - "gherkin_sdd_authoring"
   - "roi_defense_modeling"
-  - "research_assistant"
+  - "roi_defense_modeling"
 
 runtime_rules:
   default_deny: true

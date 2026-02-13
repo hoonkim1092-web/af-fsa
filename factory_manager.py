@@ -36,6 +36,17 @@ else:
 def log(step, msg):
     print(f"[{step}] {msg}")
 
+def get_random_signature(agent_config: dict) -> str:
+    """YAML 설정에서 무작위 시그니처 대사를 반환합니다."""
+    import random
+    lines = agent_config.get("signature_lines")
+    if not lines and "persona" in agent_config:
+        lines = agent_config["persona"].get("signature_lines")
+    
+    if lines and isinstance(lines, list):
+        return random.choice(lines)
+    return ""
+
 # sys.argv[2]가 있으면 그걸 쓰고, 없으면 자동 검색
 if len(sys.argv) > 2:
     selected_model_name = sys.argv[2]
@@ -160,6 +171,9 @@ def research_required_skills(role):
     
     system_instruction = ""
     if himari_config:
+        sig = get_random_signature(himari_config)
+        if sig:
+            print(f"\n[RESEARCH] Himari \"{sig}\"")
         log("RESEARCH", "✨ 히마리(Himari)가 분석을 시작합니다.")
         system_instruction = himari_config.get("prompt", {}).get("system_ko", "")
 

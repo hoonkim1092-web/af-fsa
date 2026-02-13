@@ -172,6 +172,27 @@ def ensure_registry_files():
     if not os.path.exists(WORKFLOW_PATH):
         write_yaml(WORKFLOW_PATH, {"capability_to_skill": {}, "updated_at": now_iso()})
 
+def get_random_signature(agent_config: dict) -> str:
+    """YAML 설정에서 무작위 시그니처 대사를 반환합니다."""
+    import random
+    # persona 하위 혹은 최상위에 signature_lines가 있을 수 있음 (표준화 진행됨)
+    lines = agent_config.get("signature_lines")
+    if not lines and "persona" in agent_config:
+        lines = agent_config["persona"].get("signature_lines")
+    
+    if lines and isinstance(lines, list):
+        return random.choice(lines)
+    return ""
+
+def print_agent_msg(name: str, msg: str, signature: str = ""):
+    """에이전트 이름과 메시지, 그리고 시그니처 대사를 출력합니다."""
+    header = f"[{name}]"
+    if signature:
+        print(f"\n{header} \"{signature}\"")
+        print(f"{header} {msg}")
+    else:
+        print(f"{header} {msg}")
+
 # =============================================================================
 # 1) Model Router (Lite)
 # =============================================================================
@@ -421,7 +442,7 @@ class RequirementAnalyzer:
         text = f"{task_input} {role_text}".lower()
         picks: list[str] = []
         rules = [
-            ("research_assistant", ["research", "리서치", "검증", "후보", "라이브러리"]),
+            # ("research_assistant", ["research", "리서치", "검증", "후보", "라이브러리"]), # 제거됨: Himari 전용
             ("issue_tracker", ["이슈", "추적", "ticket", "issue", "책임", "audit", "로그"]),
             ("data_visualize", ["시각화", "대시보드", "차트", "그래프", "요약"]),
         ]
@@ -429,10 +450,14 @@ class RequirementAnalyzer:
             if any(k in text for k in kws):
                 picks.append(sid)
         if not picks:
-            picks.append("research_assistant")
+            # 기본값으로 research_assistant를 주지 않음 (Centralized Research Policy)
+            pass
         return list(dict.fromkeys([safe_id(s) for s in picks]))[:5]
 
     def analyze(self, agent: dict, task_input: str) -> dict:
+        sig = get_random_signature(agent)
+        print_agent_msg(agent.get("name", "Agent"), f"태스크 분석을 시작합니다: {task_input}", sig)
+        
         model = genai.GenerativeModel(self.mr.pick("requirement"))
         prompt = f"""
 AgentRole: {agent.get("role")}
@@ -589,9 +614,13 @@ class HimariResearchAgent:
         # --- NotebookLM 리서치 수행 (필요 시) ---
         notebook_insight = ""
         if missing:
+            # 히마리 셋업 및 시그니처 출력
+            himari_cfg = read_yaml(os.path.join(AGENTS_DIR, "himari.yaml"))
+            sig = get_random_signature(himari_cfg)
+            print_agent_msg("Himari", f"비밀 서고(NotebookLM)에서 '{missing[0]}' 관련 지식을 탐색합니다...", sig)
+            
             # 첫 번째 미싱 스킬에 대해 힌트를 얻어봄
             query = f"Python skill implementation for: {missing[0]}. requirements: {reqs.get('goal')}"
-            print(f"🔎 [Himari] 비밀 서고(NotebookLM)에서 '{missing[0]}' 관련 지식을 탐색합니다...")
             insight = self._query_notebooklm(query)
             if insight:
                 notebook_insight = f"\n[NotebookLM Secret Archive Constraint]: {insight[:1000]}"

@@ -76,4 +76,15 @@ skills:
     updated_at: "2026-02-12T18:15:00"
     last_test_ok: true
 
+  stitch_design:
+    id: "stitch_design"
+    name: "Stitch AI Design Tool"
+    status: "active"
+    version: "1.0.0"
+    capabilities: ["STITCH_DESIGN", "AI_UI_GEN", "CODE_SPEC"]
+    path: "d:/agent-factory/skills/stitch_design/skill.py"
+    meta_path: "d:/agent-factory/skills/stitch_design/meta.yaml"
+    updated_at: "2026-02-13T02:10:00"
+    last_test_ok: true
+
 install_candidates: {}
