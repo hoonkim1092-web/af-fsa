@@ -87,4 +87,15 @@ skills:
     updated_at: "2026-02-13T02:10:00"
     last_test_ok: true
 
+  core_memory:
+    id: "core_memory"
+    name: "Core Memory"
+    status: "active"
+    version: "1.0.0"
+    capabilities: ["MEMORY_READ", "MEMORY_WRITE", "MEMORY_SEARCH"]
+    path: "d:/agent-factory/skills/core_memory/skill.py"
+    meta_path: "d:/agent-factory/skills/core_memory/meta.yaml"
+    updated_at: "2026-02-14T21:13:00"
+    last_test_ok: true
+
 install_candidates: {}
