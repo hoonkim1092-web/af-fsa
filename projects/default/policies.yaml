@@ -1,5 +1,10 @@
 approval_policy:
   default_require_approval: false
+  require_skill_change_approval: false
+autonomy:
+  max_stage_retries: 2
+  strict_quality_gate: true
+  stop_on_stage_failure: true
 project_id: default
 quality_gate:
   auto_promote_sequence:
