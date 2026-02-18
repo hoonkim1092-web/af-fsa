@@ -296,6 +296,10 @@ def is_codex_model(model_name: str) -> bool:
     m = (model_name or "").strip().lower()
     return m.startswith("codex") or m.startswith("gpt-5")
 
+def is_claude_model(model_name: str) -> bool:
+    m = (model_name or "").strip().lower()
+    return m.startswith("claude")
+
 def read_project_policies() -> dict:
     data = read_yaml(POLICIES_PATH)
     return data if isinstance(data, dict) else {}
@@ -402,8 +406,14 @@ class ModelRouter:
             forced = (os.getenv("AGENT_CHAT_MODEL") or "").strip()
             if forced:
                 return forced
-            if (os.getenv("AGENT_CHAT_PROVIDER") or "").strip().lower() == "codex" and OPENAI_API_KEY:
-                return "codex-gpt-5"
+            provider_raw = (os.getenv("AGENT_CHAT_PROVIDER") or "").strip().lower()
+            providers = [p.strip() for p in provider_raw.split(",") if p.strip()]
+            for provider in providers:
+                if provider == "codex" and OPENAI_API_KEY:
+                    return "codex-gpt-5"
+                if provider == "claude":
+                    # Claude 어댑터가 없으므로 모델 의도만 유지하고 실행 단계에서 Codex/Gemini로 폴백한다.
+                    return "claude-4.6"
         # ?붽뎄遺꾩꽍/鍮뚮뜑??pro, ?섎㉧吏 flash
         # ?붽뎄遺꾩꽍/鍮뚮뜑??pro, ?섎㉧吏€ flash
         if stage in ("requirement", "builder"):
@@ -1294,10 +1304,15 @@ class AgentRunner:
     def _agent_prefers_codex(self, agent: dict, model_name: str) -> bool:
         if is_codex_model(model_name):
             return True
+        if is_claude_model(model_name):
+            # Claude 설정 시에도 실행 가능한 Codex 경로를 우선 시도한다.
+            return True
         engine = str(agent.get("engine", "")).strip().lower()
         if "codex" in engine:
             return True
         runtime_rules = agent.get("runtime_rules", {}) if isinstance(agent, dict) else {}
+        if bool(runtime_rules.get("codex_enabled", False)):
+            return True
         directive = str(runtime_rules.get("codex_directive", "")).strip().lower()
         return "codex" in directive
 
@@ -1455,7 +1470,7 @@ class AgentRunner:
             print("에이전트가 응답을 생성하지 못했습니다.")
             return {"ok": False, "reason": "missing_google_api_key", "latency_ms": int((time.time() - started) * 1000), "approval_rejects": approval_rejects}
 
-        gemini_model = model_name if not is_codex_model(model_name) else get_best_model(["gemini-2.0-flash", "gemini-1.5-flash"])
+        gemini_model = model_name if not (is_codex_model(model_name) or is_claude_model(model_name)) else get_best_model(["gemini-2.0-flash", "gemini-1.5-flash"])
         model = genai.GenerativeModel(gemini_model, tools=tool_functions)
 
         chat = model.start_chat(history=[

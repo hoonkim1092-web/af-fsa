@@ -54,6 +54,8 @@ def main():
     os.makedirs(project_root, exist_ok=True)
     os.environ["AGENT_PROJECT_ID"] = project_id
     os.environ["AGENT_PROJECT_ROOT"] = project_root
+    if args.model:
+        os.environ["AGENT_CHAT_MODEL"] = args.model.strip()
 
     # Import after project env is fixed.
     from agent_launcher import AgentFactory
