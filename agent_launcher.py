@@ -9,14 +9,31 @@ import hashlib
 import subprocess
 import sys
 import importlib.util
+import inspect
+import functools
 from datetime import datetime
 from dotenv import load_dotenv
 
 import google.generativeai as genai
+try:
+    from openai import OpenAI
+except Exception:
+    OpenAI = None
 from model_utils import get_best_model
 
 # Reconfigure stdout for Windows
-sys.stdout.reconfigure(encoding='utf-8')
+try:
+    sys.stdin.reconfigure(encoding='utf-8')
+except Exception:
+    pass
+try:
+    sys.stdout.reconfigure(encoding='utf-8')
+except Exception:
+    pass
+try:
+    sys.stderr.reconfigure(encoding='utf-8')
+except Exception:
+    pass
 
 def safe_generate(model, prompt, **kwargs):
     for i in range(5):
@@ -38,29 +55,103 @@ def safe_generate(model, prompt, **kwargs):
 load_dotenv(override=True)
 
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
-if not GOOGLE_API_KEY:
-    raise RuntimeError("GOOGLE_API_KEY not found in env/.env")
-genai.configure(api_key=GOOGLE_API_KEY)
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+if not GOOGLE_API_KEY and not OPENAI_API_KEY:
+    raise RuntimeError("Neither GOOGLE_API_KEY nor OPENAI_API_KEY found in env/.env")
+if GOOGLE_API_KEY:
+    genai.configure(api_key=GOOGLE_API_KEY)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 # [Project Specific Path Resolution]
-# If AGENT_PROJECT_ROOT is set, use it. Otherwise use CWD.
-_proj = os.environ.get("AGENT_PROJECT_ROOT") or os.getcwd()
-PROJECT_ROOT = os.path.abspath(_proj)
-
-AGENTS_DIR = os.path.join(BASE_DIR, "agents")
+PROJECTS_DIR = os.path.join(BASE_DIR, "projects")
+GLOBAL_AGENTS_DIR = os.path.join(BASE_DIR, "agents")
 SKILLS_DIR = os.path.join(BASE_DIR, "skills")
-RUNS_DIR = os.path.join(BASE_DIR, "runs")
+GLOBAL_RUNS_DIR = os.path.join(BASE_DIR, "runs")
 
-# Data and Artifacts are now relative to the PROJECT ROOT
+def _boot_safe_id(text: str) -> str:
+    t = (text or "").strip().lower()
+    t = re.sub(r"[^a-z0-9_]+", "_", t)
+    t = re.sub(r"_+", "_", t).strip("_")
+    return t or "default"
+
+_proj_id_env = _boot_safe_id(os.environ.get("AGENT_PROJECT_ID", "").strip()) if os.environ.get("AGENT_PROJECT_ID") else ""
+_proj_root_env = os.environ.get("AGENT_PROJECT_ROOT", "").strip()
+if _proj_root_env:
+    PROJECT_ROOT = os.path.abspath(_proj_root_env)
+    PROJECT_ID = _proj_id_env or _boot_safe_id(os.path.basename(PROJECT_ROOT))
+else:
+    PROJECT_ID = _proj_id_env or "default"
+    PROJECT_ROOT = os.path.abspath(os.path.join(PROJECTS_DIR, PROJECT_ID))
+
+AGENTS_DIR = os.path.join(PROJECT_ROOT, "agents")
+RUNS_DIR = os.path.join(PROJECT_ROOT, "runs")
 DATA_DIR = os.path.join(PROJECT_ROOT, "data")
 ARTIFACTS_DIR = os.path.join(PROJECT_ROOT, "artifacts")
+PROJECT_SKILLS_DIR = os.path.join(PROJECT_ROOT, "skills")
+PROJECT_SETTINGS_PATH = os.path.join(PROJECT_ROOT, "settings.yaml")
+POLICIES_PATH = os.path.join(PROJECT_ROOT, "policies.yaml")
+CONTEXT_SCHEMA_PATH = os.path.join(PROJECT_ROOT, "context_schema.yaml")
+SKILL_LOCK_PATH = os.path.join(PROJECT_ROOT, "skill-lock.yaml")
+DASHBOARD_PATH = os.path.join(PROJECT_ROOT, "dashboard.json")
+PROJECT_WORKFLOW_PATH = os.path.join(PROJECT_ROOT, "workflow.yaml")
 
 REGISTRY_PATH = os.path.join(SKILLS_DIR, "registry.yaml")
 WORKFLOW_PATH = os.path.join(SKILLS_DIR, "workflow_registry.yaml")
 
-for d in [AGENTS_DIR, SKILLS_DIR, RUNS_DIR, DATA_DIR, ARTIFACTS_DIR]:
+for d in [PROJECTS_DIR, GLOBAL_AGENTS_DIR, GLOBAL_RUNS_DIR, AGENTS_DIR, SKILLS_DIR, RUNS_DIR, DATA_DIR, ARTIFACTS_DIR, PROJECT_SKILLS_DIR]:
     os.makedirs(d, exist_ok=True)
+
+if not os.path.exists(POLICIES_PATH):
+    with open(POLICIES_PATH, "w", encoding="utf-8") as f:
+        yaml.dump(
+            {
+                "project_id": PROJECT_ID,
+                "workflow": {"default_template": "workflows/two_week_webapp_delivery.yaml", "role_map": {}},
+                "quality_gate": {"default_stage_on_build": "candidate", "auto_promote_sequence": ["canary", "active"]},
+                "approval_policy": {"default_require_approval": False},
+            },
+            f,
+            allow_unicode=True,
+            default_flow_style=False,
+        )
+if not os.path.exists(CONTEXT_SCHEMA_PATH):
+    with open(CONTEXT_SCHEMA_PATH, "w", encoding="utf-8") as f:
+        yaml.dump(
+            {
+                "required_keys": ["agent", "data_dir", "artifacts_dir"],
+                "types": {"agent": "dict", "data_dir": "str", "artifacts_dir": "str"},
+            },
+            f,
+            allow_unicode=True,
+            default_flow_style=False,
+        )
+if not os.path.exists(SKILL_LOCK_PATH):
+    with open(SKILL_LOCK_PATH, "w", encoding="utf-8") as f:
+        yaml.dump({"skills": {}}, f, allow_unicode=True, default_flow_style=False)
+if not os.path.exists(DASHBOARD_PATH):
+    with open(DASHBOARD_PATH, "w", encoding="utf-8") as f:
+        json.dump({"project_id": PROJECT_ID, "runs": []}, f, ensure_ascii=False, indent=2)
+if not os.path.exists(PROJECT_WORKFLOW_PATH):
+    with open(PROJECT_WORKFLOW_PATH, "w", encoding="utf-8") as f:
+        yaml.dump(
+            {"owner_agent": "General", "stages": [{"id": "MAIN", "name": "Main", "objective": "기본 워크플로우"}]},
+            f,
+            allow_unicode=True,
+            default_flow_style=False,
+        )
+if not os.path.exists(PROJECT_SETTINGS_PATH):
+    with open(PROJECT_SETTINGS_PATH, "w", encoding="utf-8") as f:
+        yaml.dump(
+            {
+                "agent_overrides": {},
+                "skill_overrides": {
+                    "prefer_project_skills": True,
+                },
+            },
+            f,
+            allow_unicode=True,
+            default_flow_style=False,
+        )
 
 MAX_ITERATIONS = 3
 TEST_TIMEOUT_SEC = 10
@@ -201,11 +292,118 @@ def print_agent_msg(name: str, msg: str, signature: str = ""):
     else:
         print(f"{header} {msg}")
 
+def is_codex_model(model_name: str) -> bool:
+    m = (model_name or "").strip().lower()
+    return m.startswith("codex") or m.startswith("gpt-5")
+
+def read_project_policies() -> dict:
+    data = read_yaml(POLICIES_PATH)
+    return data if isinstance(data, dict) else {}
+
+def read_project_settings() -> dict:
+    data = read_yaml(PROJECT_SETTINGS_PATH)
+    return data if isinstance(data, dict) else {}
+
+def resolve_skill_paths(skill_id: str) -> tuple[str | None, str | None]:
+    sid = safe_id(skill_id)
+    settings = read_project_settings()
+    pref = settings.get("skill_overrides", {}) if isinstance(settings.get("skill_overrides"), dict) else {}
+    prefer_project = bool(pref.get("prefer_project_skills", True))
+    project_py = os.path.join(PROJECT_SKILLS_DIR, sid, "skill.py")
+    project_meta = os.path.join(PROJECT_SKILLS_DIR, sid, "meta.yaml")
+    global_py = os.path.join(SKILLS_DIR, sid, "skill.py")
+    global_meta = os.path.join(SKILLS_DIR, sid, "meta.yaml")
+    ordered = (
+        [(project_py, project_meta), (global_py, global_meta)]
+        if prefer_project
+        else [(global_py, global_meta), (project_py, project_meta)]
+    )
+    for py_path, meta_path in ordered:
+        if os.path.exists(py_path):
+            return py_path, (meta_path if os.path.exists(meta_path) else None)
+    return None, None
+
+def _merge_dict(base: dict, override: dict) -> dict:
+    out = dict(base or {})
+    for k, v in (override or {}).items():
+        if isinstance(v, dict) and isinstance(out.get(k), dict):
+            out[k] = _merge_dict(out[k], v)
+        else:
+            out[k] = v
+    return out
+
+def apply_agent_overrides(agent: dict, role_spec: str) -> dict:
+    settings = read_project_settings()
+    over = settings.get("agent_overrides", {}) if isinstance(settings.get("agent_overrides"), dict) else {}
+    key = safe_id(role_spec)
+    cfg = over.get(key, {}) if isinstance(over.get(key), dict) else {}
+    if not cfg:
+        return agent
+    merged = _merge_dict(agent, cfg)
+    extra = [safe_id(str(s)) for s in (cfg.get("skills_add") or []) if str(s).strip()]
+    if extra:
+        base_skills = [safe_id(str(s)) for s in (merged.get("skills") or []) if str(s).strip()]
+        merged["skills"] = list(dict.fromkeys(base_skills + extra))
+    return merged
+
+def validate_context_with_schema(ctx: dict) -> tuple[bool, str]:
+    schema = read_yaml(CONTEXT_SCHEMA_PATH)
+    reqs = schema.get("required_keys", []) if isinstance(schema, dict) else []
+    types = schema.get("types", {}) if isinstance(schema, dict) else {}
+    for key in reqs:
+        if key not in ctx:
+            return False, f"missing context key: {key}"
+    type_map = {"str": str, "dict": dict, "list": list, "int": int, "bool": bool}
+    for key, tname in (types or {}).items():
+        if key not in ctx:
+            continue
+        py_t = type_map.get(str(tname).strip().lower())
+        if py_t and not isinstance(ctx[key], py_t):
+            return False, f"context type mismatch: {key} expected {tname}"
+    return True, "ok"
+
+def read_skill_lock() -> dict:
+    data = read_yaml(SKILL_LOCK_PATH)
+    if not isinstance(data, dict):
+        return {"skills": {}}
+    data.setdefault("skills", {})
+    return data
+
+def lock_skill_state(skill_id: str, meta: dict):
+    lock = read_skill_lock()
+    lock.setdefault("skills", {})
+    lock["skills"][safe_id(skill_id)] = {
+        "version": str(meta.get("version", "0.1.0")),
+        "status": str(meta.get("status", "candidate")),
+        "updated_at": now_iso(),
+    }
+    write_yaml(SKILL_LOCK_PATH, lock)
+
+def append_dashboard_run(entry: dict):
+    try:
+        with open(DASHBOARD_PATH, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except Exception:
+        data = {"project_id": PROJECT_ID, "runs": []}
+    data.setdefault("project_id", PROJECT_ID)
+    data.setdefault("runs", [])
+    data["runs"].append(entry)
+    # Keep recent 300 entries to avoid unbounded growth.
+    data["runs"] = data["runs"][-300:]
+    with open(DASHBOARD_PATH, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
 # =============================================================================
 # 1) Model Router (Lite)
 # =============================================================================
 class ModelRouter:
     def pick(self, stage: str) -> str:
+        if stage == "chat":
+            forced = (os.getenv("AGENT_CHAT_MODEL") or "").strip()
+            if forced:
+                return forced
+            if (os.getenv("AGENT_CHAT_PROVIDER") or "").strip().lower() == "codex" and OPENAI_API_KEY:
+                return "codex-gpt-5"
         # ?붽뎄遺꾩꽍/鍮뚮뜑??pro, ?섎㉧吏 flash
         # ?붽뎄遺꾩꽍/鍮뚮뜑??pro, ?섎㉧吏€ flash
         if stage in ("requirement", "builder"):
@@ -414,7 +612,15 @@ class AgentManager:
     def get_or_create(self, role_spec: str) -> dict:
         path = self._agent_path(role_spec)
         if os.path.exists(path):
-            return read_yaml(path)
+            return apply_agent_overrides(read_yaml(path), role_spec)
+
+        # Reuse global agent template first, then local project copy.
+        global_path = os.path.join(GLOBAL_AGENTS_DIR, f"{safe_id(role_spec)}.yaml")
+        if os.path.exists(global_path):
+            data = read_yaml(global_path)
+            data["updated_at"] = now_iso()
+            write_yaml(path, data)
+            return apply_agent_overrides(data, role_spec)
 
         model = genai.GenerativeModel(self.mr.pick("agent_create"))
         prompt = f"""
@@ -434,7 +640,7 @@ JSON 출력:
         data["role"] = data.get("role") or role_spec
         data["created_at"] = now_iso()
         write_yaml(path, data)
-        return data
+        return apply_agent_overrides(data, role_spec)
 
     def install_skills(self, role_spec: str, skill_ids: list[str]) -> list[str]:
         if not skill_ids:
@@ -515,6 +721,20 @@ class HimariResearchAgent:
     def __init__(self, mr: ModelRouter):
         self.mr = mr
 
+    def _approve_notebooklm_insight(self, insight: str) -> bool:
+        preview = (insight or "").strip()
+        if not preview:
+            return False
+        print("\n[Himari][디버그] NotebookLM 응답 미리보기")
+        print("-" * 50)
+        print(preview[:1200])
+        print("-" * 50)
+        try:
+            ans = input("[Himari] 위 응답을 리서치 근거로 반영할까요? (yes/no): ").strip().lower()
+            return ans in ("y", "yes")
+        except Exception:
+            return False
+
     def _registry_skill_index(self) -> dict:
         reg = read_yaml(REGISTRY_PATH)
         items = reg.get("skills", {}) if isinstance(reg, dict) else {}
@@ -550,8 +770,9 @@ class HimariResearchAgent:
         meta = item.get("meta", {}) if isinstance(item.get("meta"), dict) else {}
         path = str(meta.get("path", ""))
         meta_path = str(meta.get("meta_path", ""))
-        exists_py = os.path.exists(path) if path else os.path.exists(os.path.join(SKILLS_DIR, item["id"], "skill.py"))
-        exists_meta = os.path.exists(meta_path) if meta_path else os.path.exists(os.path.join(SKILLS_DIR, item["id"], "meta.yaml"))
+        resolved_py, resolved_meta = resolve_skill_paths(item["id"])
+        exists_py = os.path.exists(path) if path else bool(resolved_py)
+        exists_meta = os.path.exists(meta_path) if meta_path else bool(resolved_meta)
         last_test_ok = bool(meta.get("last_test_ok", False))
 
         score = 0
@@ -636,9 +857,11 @@ class HimariResearchAgent:
             # 첫 번째 미싱 스킬에 대해 힌트를 얻어봄
             query = f"Python skill implementation for: {missing[0]}. requirements: {reqs.get('goal')}"
             insight = self._query_notebooklm(query)
-            if insight:
+            if insight and self._approve_notebooklm_insight(insight):
                 notebook_insight = f"\n[NotebookLM Secret Archive Constraint]: {insight[:1000]}"
-                print(f"💡 [Himari] 서고에서 유의미한 기록을 발견했습니다.")
+                print("💡 [Himari] 승인된 NotebookLM 근거를 반영합니다.")
+            elif insight:
+                print("⏭️ [Himari] NotebookLM 근거 반영이 보류되었습니다. 로컬 근거만 사용합니다.")
 
         model = genai.GenerativeModel(self.mr.pick("requirement"))
         prompt = f"""
@@ -849,21 +1072,66 @@ class RegistryManager:
     def __init__(self):
         ensure_registry_files()
 
+    def _quality_gate_policy(self) -> dict:
+        policies = read_project_policies()
+        qg = policies.get("quality_gate", {}) if isinstance(policies, dict) else {}
+        if not isinstance(qg, dict):
+            qg = {}
+        return {
+            "default_stage_on_build": str(qg.get("default_stage_on_build", "candidate")),
+            "auto_promote_sequence": [safe_id(str(s)) for s in (qg.get("auto_promote_sequence") or ["canary", "active"])],
+            "installable_statuses": [safe_id(str(s)) for s in (qg.get("installable_statuses") or ["canary", "active"])],
+        }
+
+    def apply_quality_gate(self, meta: dict) -> dict:
+        qg = self._quality_gate_policy()
+        stage = safe_id(qg.get("default_stage_on_build", "candidate"))
+        sequence = [s for s in qg.get("auto_promote_sequence", []) if s in ("candidate", "canary", "active")]
+        if stage not in ("candidate", "canary", "active"):
+            stage = "candidate"
+        for s in sequence:
+            stage = s
+        patched = dict(meta or {})
+        patched["status"] = stage
+        patched["quality_stage"] = stage
+        patched["quality_updated_at"] = now_iso()
+        return patched
+
+    def is_installable(self, skill_id: str) -> bool:
+        lock = read_skill_lock()
+        item = (lock.get("skills", {}) or {}).get(safe_id(skill_id), {})
+        status = safe_id(str(item.get("status", "")))
+        qg = self._quality_gate_policy()
+        installable = set(qg.get("installable_statuses", ["canary", "active"]))
+        return status in installable
+
+    def ensure_lock_for_existing_skill(self, skill_id: str):
+        sid = safe_id(skill_id)
+        lock = read_skill_lock()
+        if sid in (lock.get("skills", {}) or {}):
+            return
+        reg = read_yaml(REGISTRY_PATH)
+        item = ((reg.get("skills", {}) if isinstance(reg, dict) else {}) or {}).get(sid, {})
+        status = safe_id(str(item.get("status", "active") or "active"))
+        lock_skill_state(sid, {"version": item.get("version", "1.0.0"), "status": status or "active"})
+
     def register_built(self, meta: dict, skill_dir: str):
+        gated = self.apply_quality_gate(meta)
         reg = read_yaml(REGISTRY_PATH)
         reg.setdefault("skills", {})
-        reg["skills"][meta["id"]] = {
-            "id": meta["id"],
-            "name": meta.get("name"),
-            "status": meta.get("status"),
-            "version": meta.get("version"),
-            "capabilities": meta.get("capabilities", []),
+        reg["skills"][gated["id"]] = {
+            "id": gated["id"],
+            "name": gated.get("name"),
+            "status": gated.get("status"),
+            "version": gated.get("version"),
+            "capabilities": gated.get("capabilities", []),
             "path": os.path.join(skill_dir, "skill.py"),
             "meta_path": os.path.join(skill_dir, "meta.yaml"),
             "updated_at": now_iso(),
-            "last_test_ok": bool(meta.get("last_test_ok", False)),
+            "last_test_ok": bool(gated.get("last_test_ok", False)),
         }
         write_yaml(REGISTRY_PATH, reg)
+        lock_skill_state(gated["id"], gated)
 
     def workflow_apply(self, metas: list[dict]):
         wf = read_yaml(WORKFLOW_PATH)
@@ -893,22 +1161,214 @@ class AgentRunner:
     def __init__(self, model_router: ModelRouter):
         self.mr = model_router
 
+    def _resolve_system_prompt(self, agent: dict) -> str:
+        direct = str(agent.get("system_ko", "")).strip()
+        if direct:
+            return direct
+        prompt_obj = agent.get("prompt", {}) if isinstance(agent.get("prompt"), dict) else {}
+        nested = str(prompt_obj.get("system_ko", "")).strip()
+        if nested:
+            return nested
+        legacy = str(agent.get("system_prompt", "")).strip()
+        if legacy:
+            return legacy
+        return "당신은 유용한 AI 어시스턴트입니다."
+
+    def _resolve_signature_lines(self, agent: dict) -> list[str]:
+        lines = agent.get("signature_lines")
+        if not lines and isinstance(agent.get("persona"), dict):
+            lines = agent["persona"].get("signature_lines")
+        if isinstance(lines, list):
+            return [str(x) for x in lines if str(x).strip()]
+        return []
+
+    def _build_policy(self, agent: dict, loaded_skill_ids: list[str]) -> dict:
+        rr = agent.get("runtime_rules", {}) if isinstance(agent, dict) else {}
+        if not isinstance(rr, dict):
+            rr = {}
+        loaded = {safe_id(s) for s in loaded_skill_ids if safe_id(s)}
+        allowed_skills_raw = {safe_id(str(x)) for x in (rr.get("allowed_skills") or []) if str(x).strip()}
+        approval_skills_raw = {safe_id(str(x)) for x in (rr.get("approval_required_skills") or []) if str(x).strip()}
+        explicit_approval_tools = {safe_id(str(x)) for x in (rr.get("explicit_approval_required") or []) if str(x).strip()}
+        allowed_tools = {safe_id(str(x)) for x in (rr.get("allowed_tools") or []) if str(x).strip()}
+        approval_tools = {safe_id(str(x)) for x in (rr.get("approval_required_tools") or []) if str(x).strip()}
+
+        # Enforce only when policy actually references installed local skills.
+        allowed_local = allowed_skills_raw & loaded
+        approval_local = approval_skills_raw & loaded
+        enforce_allow = bool(rr.get("default_deny", False)) and bool(allowed_local or allowed_tools)
+
+        return {
+            "enforce_allow": enforce_allow,
+            "allowed_local": allowed_local,
+            "approval_local": approval_local,
+            "allowed_tools": allowed_tools,
+            "approval_tools": approval_tools | explicit_approval_tools,
+        }
+
+    def _is_tool_allowed(self, policy: dict, skill_id: str, tool_name: str) -> bool:
+        if not policy.get("enforce_allow", False):
+            return True
+        sid = safe_id(skill_id)
+        tname = safe_id(tool_name)
+        if sid and sid in policy.get("allowed_local", set()):
+            return True
+        if tname and tname in policy.get("allowed_tools", set()):
+            return True
+        return False
+
+    def _requires_tool_approval(self, policy: dict, skill_id: str, tool_name: str) -> bool:
+        sid = safe_id(skill_id)
+        tname = safe_id(tool_name)
+        if sid and sid in policy.get("approval_local", set()):
+            return True
+        if tname and tname in policy.get("approval_tools", set()):
+            return True
+        return False
+
+    def _ask_tool_approval(self, fname: str, skill_id: str) -> bool:
+        try:
+            print("\n[승인 요청]")
+            print(f"- 도구: {fname}")
+            print(f"- 스킬: {skill_id if skill_id else 'unknown'}")
+            ans = input("위 도구 실행을 허용할까요? (yes/no): ").strip().lower()
+            return ans in ("y", "yes")
+        except Exception:
+            return False
+
+    def _list_approval_required_tools(self, tool_functions: list, policy: dict):
+        needs = []
+        for fn in tool_functions:
+            fname = str(getattr(fn, "__name__", "unknown"))
+            sid = safe_id(str(getattr(fn, "_skill_id", "")))
+            if self._requires_tool_approval(policy, sid, fname):
+                needs.append((sid or "unknown", fname))
+        if not needs:
+            return
+        print("\n[정책 안내] 사용자 승인이 필요한 도구 목록")
+        for sid, fname in needs:
+            print(f"- 스킬 `{sid}` / 도구 `{fname}`")
+        print("실행 시마다 yes/y로 승인해야 진행됩니다.")
+
+    def _make_tool_wrapper(self, func, ctx: dict):
+        sig = inspect.signature(func)
+        params = list(sig.parameters.values())
+        takes_ctx = bool(params) and params[0].name == "ctx"
+
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            if takes_ctx and len(params) == 1:
+                # apply(ctx) style: merge model args into context
+                call_ctx = dict(ctx)
+                call_ctx.update(kwargs)
+                return func(call_ctx)
+            if takes_ctx:
+                return func(ctx, *args, **kwargs)
+            return func(*args, **kwargs)
+
+        return wrapper
+
+    def _build_tool_functions(self, modules: list, ctx: dict, policy: dict) -> list:
+        tool_functions = []
+        for mod in modules:
+            sid = safe_id(str(getattr(mod, "__skill_id__", "")))
+            for attr_name in dir(mod):
+                if attr_name.startswith("_"):
+                    continue
+                attr = getattr(mod, attr_name)
+                if not inspect.isfunction(attr):
+                    continue
+                # Expose only functions declared in the skill module itself.
+                if getattr(attr, "__module__", "") != mod.__name__:
+                    continue
+                if not self._is_tool_allowed(policy, sid, attr_name):
+                    print(f"⛔ [Policy] 도구 차단: {sid}.{attr_name}")
+                    continue
+                wrapped = self._make_tool_wrapper(attr, ctx)
+                wrapped.__name__ = attr.__name__
+                wrapped.__doc__ = attr.__doc__
+                setattr(wrapped, "_skill_id", sid)
+                tool_functions.append(wrapped)
+        return tool_functions
+
+    def _agent_prefers_codex(self, agent: dict, model_name: str) -> bool:
+        if is_codex_model(model_name):
+            return True
+        engine = str(agent.get("engine", "")).strip().lower()
+        if "codex" in engine:
+            return True
+        runtime_rules = agent.get("runtime_rules", {}) if isinstance(agent, dict) else {}
+        directive = str(runtime_rules.get("codex_directive", "")).strip().lower()
+        return "codex" in directive
+
+    def _run_with_codex(self, model_name: str, sys_prompt: str, task_input: str, tool_functions: list) -> bool:
+        if not OPENAI_API_KEY:
+            print("⚠️ [Runner] OPENAI_API_KEY가 없어 Codex 경로를 사용할 수 없습니다.")
+            return False
+        if OpenAI is None:
+            print("⚠️ [Runner] openai 패키지가 없어 Codex 경로를 사용할 수 없습니다.")
+            return False
+
+        codex_model = model_name if is_codex_model(model_name) else "codex-gpt-5"
+        tools = ", ".join(sorted({t.__name__ for t in tool_functions})) if tool_functions else "none"
+        prompt = (
+            f"{sys_prompt}\n\n"
+            f"[Task]\n{task_input}\n\n"
+            f"[Available Tools]\n{tools}\n"
+            "도구 호출은 현재 Codex 경로에서 비활성화되어 있으니, 실행 가능한 지시와 설계안을 우선 제시하세요."
+        )
+
+        client = OpenAI(api_key=OPENAI_API_KEY)
+        for i in range(3):
+            try:
+                resp = client.responses.create(model=codex_model, input=prompt)
+                text = getattr(resp, "output_text", "") or ""
+                if not text:
+                    try:
+                        chunks = []
+                        for item in getattr(resp, "output", []) or []:
+                            if getattr(item, "type", "") != "message":
+                                continue
+                            for c in getattr(item, "content", []) or []:
+                                c_type = getattr(c, "type", "")
+                                if c_type in ("output_text", "text"):
+                                    chunks.append(getattr(c, "text", ""))
+                        text = "\n".join([c for c in chunks if c])
+                    except Exception:
+                        text = ""
+
+                if text.strip():
+                    print(f"🤖 {text.strip()}")
+                    return True
+                return False
+            except Exception as e:
+                msg = str(e).lower()
+                if "429" in msg or "rate" in msg or "quota" in msg:
+                    wait = 5 * (i + 1)
+                    print(f"⏳ [Quota] Codex API 사용량 제한. {wait}초 대기 중... ({i+1}/3)")
+                    time.sleep(wait)
+                    continue
+                print(f"⚠️ [Runner] Codex 실행 오류: {e}")
+                return False
+        return False
+
     def load_skills(self, agent: dict) -> list:
         loaded_skills = []
         skill_ids = agent.get("skills", [])
         for sid in skill_ids:
             sid = safe_id(str(sid))
-            skill_path = os.path.join(SKILLS_DIR, sid)
-            if not os.path.exists(skill_path):
+            skill_py, _skill_meta = resolve_skill_paths(sid)
+            if not skill_py:
                  continue
             
             try:
                 # Dynamic import
-                spec = importlib.util.spec_from_file_location(f"skills.{sid}", os.path.join(skill_path, "skill.py"))
+                spec = importlib.util.spec_from_file_location(f"skills.{sid}", skill_py)
                 if spec and spec.loader:
                     module = importlib.util.module_from_spec(spec)
                     sys.modules[f"skills.{sid}"] = module
                     spec.loader.exec_module(module)
+                    setattr(module, "__skill_id__", sid)
                     loaded_skills.append(module)
                     print(f"✅ [Runner] 스킬 로드 성공: {sid}")
             except Exception as e:
@@ -936,6 +1396,8 @@ class AgentRunner:
 
     def run(self, agent: dict, task_input: str):
         print(f"\n🚀 [Runner] 에이전트 실행 시작: {agent.get('name')}")
+        started = time.time()
+        approval_rejects = 0
         
         # 1. Load Skills
         modules = self.load_skills(agent)
@@ -947,39 +1409,21 @@ class AgentRunner:
             "data_dir": DATA_DIR,
             "artifacts_dir": ARTIFACTS_DIR
         }
-        
-        # We need a way to pass 'ctx' to tools. 
-        # A simple hack: set a global 'ctx' in the module
-        tool_functions = []
-        for mod in modules:
-            # Inject context
-            # mod.ctx = ctx # This implies the module code uses 'ctx' global
-            # Better: The tool functions are expected to be called by the LLM.
-            # The LLM doesn't know about 'ctx'. 
-            # We must wrap the function to hide 'ctx' from the LLM but pass it to logic.
-            
-            for attr_name in dir(mod):
-                if attr_name.startswith("_"): continue
-                attr = getattr(mod, attr_name)
-                if callable(attr):
-                    # Wrap it to supply ctx automatically
-                    def make_wrapper(f):
-                        def wrapper(*args, **kwargs):
-                            return f(ctx, *args, **kwargs)
-                        # Copy metadata for Gemini to see docstrings
-                        wrapper.__name__ = f.__name__
-                        wrapper.__doc__ = f.__doc__
-                        return wrapper
-                    
-                    wrapped = make_wrapper(attr)
-                    tool_functions.append(wrapped)
+        ok_ctx, msg_ctx = validate_context_with_schema(ctx)
+        if not ok_ctx:
+            print(f"⚠️ [ContextSchema] 컨텍스트 검증 실패: {msg_ctx}")
+            print("에이전트 실행을 중단합니다.")
+            return {"ok": False, "reason": f"context_schema:{msg_ctx}", "latency_ms": int((time.time() - started) * 1000), "approval_rejects": approval_rejects}
+        loaded_skill_ids = [safe_id(str(getattr(m, "__skill_id__", ""))) for m in modules]
+        policy = self._build_policy(agent, loaded_skill_ids)
+        tool_functions = self._build_tool_functions(modules, ctx, policy)
+        self._list_approval_required_tools(tool_functions, policy)
 
         # 3. Chat Session
         model_name = self.mr.pick("chat") or "gemini-2.0-flash"
-        model = genai.GenerativeModel(model_name, tools=tool_functions)
         
         # System Prompt construction
-        sys_prompt = agent.get("system_ko", "당신은 유용한 AI 어시스턴트입니다.")
+        sys_prompt = self._resolve_system_prompt(agent)
         
         # Proactive Memory Instruction
         skill_ids = [safe_id(str(s)) for s in agent.get("skills", [])]
@@ -992,12 +1436,27 @@ class AgentRunner:
                 "저장할 때는 맥락에 맞는 적절한 키(key)와 카테고리(category)를 판단하여 저장합니다."
             )
 
-        sigs = agent.get("signature_lines", [])
+        sigs = self._resolve_signature_lines(agent)
         if sigs:
             import random
             greeting = random.choice(sigs)
             print(f"💬 [Agent] {greeting}")
             sys_prompt += f"\n\n[Signature]\n{greeting}"
+
+        if self._agent_prefers_codex(agent, model_name):
+            codex_ok = self._run_with_codex(model_name, sys_prompt, task_input, tool_functions)
+            if codex_ok:
+                print("✅ Agent Execution Finished.")
+                return {"ok": True, "reason": "codex", "latency_ms": int((time.time() - started) * 1000), "approval_rejects": approval_rejects}
+            print("⚠️ [Runner] Codex 경로 실패, Gemini 경로로 폴백합니다.")
+
+        if not GOOGLE_API_KEY:
+            print("⚠️ [Runner] GOOGLE_API_KEY가 없어 Gemini 경로를 사용할 수 없습니다.")
+            print("에이전트가 응답을 생성하지 못했습니다.")
+            return {"ok": False, "reason": "missing_google_api_key", "latency_ms": int((time.time() - started) * 1000), "approval_rejects": approval_rejects}
+
+        gemini_model = model_name if not is_codex_model(model_name) else get_best_model(["gemini-2.0-flash", "gemini-1.5-flash"])
+        model = genai.GenerativeModel(gemini_model, tools=tool_functions)
 
         chat = model.start_chat(history=[
             {"role": "user", "parts": [sys_prompt + f"\n\nTask: {task_input}"]}
@@ -1045,6 +1504,13 @@ class AgentRunner:
                     tool_func = next((t for t in tool_functions if t.__name__ == fname), None)
                     if tool_func:
                         try:
+                            skill_id = safe_id(str(getattr(tool_func, "_skill_id", "")))
+                            if self._requires_tool_approval(policy, skill_id, fname):
+                                if not self._ask_tool_approval(fname, skill_id):
+                                    print(f"⏭️ [Policy] 사용자 미승인으로 도구 실행을 건너뜁니다: {fname}")
+                                    approval_rejects += 1
+                                    response = safe_send("해당 도구는 승인되지 않았습니다. 다른 방법으로 진행하세요.")
+                                    continue
                             # Execute
                             res_obj = tool_func(**fargs)
                             print(f"  -> Result: {str(res_obj)[:100]}...")
@@ -1069,12 +1535,13 @@ class AgentRunner:
                     break
             
             print("✅ Agent Execution Finished.")
-            pass
+            return {"ok": True, "reason": "gemini", "latency_ms": int((time.time() - started) * 1000), "approval_rejects": approval_rejects}
 
         except Exception as e:
             print(f"⚠️ [Runner] 실행 중 오류: {e}")
             # Fallback output
             print("에이전트가 응답을 생성하지 못했습니다.")
+            return {"ok": False, "reason": f"runner_error:{type(e).__name__}", "latency_ms": int((time.time() - started) * 1000), "approval_rejects": approval_rejects}
 
 # =============================================================================
 # 7) Factory
@@ -1096,8 +1563,8 @@ class AgentFactory:
             sid = safe_id(str(sid_raw))
             if not sid:
                 continue
-            skill_py = os.path.join(SKILLS_DIR, sid, "skill.py")
-            if not os.path.exists(skill_py):
+            skill_py, _meta = resolve_skill_paths(sid)
+            if not skill_py:
                 missing.append(sid)
         return list(dict.fromkeys(missing))
 
@@ -1114,38 +1581,153 @@ class AgentFactory:
         skills = reqs.get("missing_skills", [])
         initial_targets = list(dict.fromkeys([safe_id(s) for s in skills] + file_missing))
         
-        # [Build Phase] - Simplified logic
-        # If skills are missing, we research and build them.
+        # [Build Phase]
         if initial_targets:
             print(f"\n🧱 Needed skills: {initial_targets}")
-            # ... (Existing Research & Build Logic omitted for brevity but assumed present)
-            # For this patch, I will assume the previous logic handles building.
-            # I will just ensure we call the RUNNER at the end.
-            
-            # (Re-using existing build logic would be best, but replacing specific lines)
-            # Let's keep the existing build logic by checking if we need to call it.
-            # ... [Original Build Logic] ...
-            
-            # Since I cannot see the full file to keep lines perfectly, I will append the Runner
-            # call AFTER the build process.
-            pass
+            built_metas: list[dict] = []
 
-        # ... [Let's assume the View provided covered the end of run method]
-        # I need to be careful with the Replace.
-        
-        # Re-implementing run method to include Runner call
-        # I will paste the original run logic but add self.runner.run() at the end.
-        
-        # [Original Logic Start]
-        # ... (lines 921-981)
-        # Check if I can just append to the end of the run function?
-        # The tool requires StartLine and EndLine.
-        # I will replace the END of the class to include Runner.
+            # 1) Research reusable local skills and evidence
+            research = self.research.research(agent, reqs, build_targets=initial_targets)
+            evidence_pack = research.get("evidence_pack", {}) if isinstance(research, dict) else {}
+            targets = evidence_pack.get("targets", {}) if isinstance(evidence_pack, dict) else {}
 
-        # Let's look at the previous `view_file` to be sure about lines.
-        # Lines 915-981 are the `run` method.
-        # I will replace the entire `run` method to ensure correct flow.
-        pass
+            # 2) Install verified top candidates first
+            reusable: list[str] = []
+            resolved_needs: set[str] = set()
+            for need in initial_targets:
+                target = targets.get(need, {}) if isinstance(targets, dict) else {}
+                top_sid = safe_id(str(target.get("top_candidate", "")))
+                verified = bool(target.get("verified", False))
+                if top_sid and verified:
+                    reusable.append(top_sid)
+                    resolved_needs.add(need)
+
+            reusable = list(dict.fromkeys(reusable))
+            if reusable:
+                for sid in reusable:
+                    self.registry.ensure_lock_for_existing_skill(sid)
+                installable_reuse = [sid for sid in reusable if self.registry.is_installable(sid)]
+                blocked_reuse = [sid for sid in reusable if sid not in installable_reuse]
+                if blocked_reuse:
+                    print(f"⛔ [QualityGate] 설치 보류(상태 미달): {blocked_reuse}")
+                installed = self.agent_mgr.install_skills(role_spec, installable_reuse) if installable_reuse else []
+                print(f"📦 [Factory] 기존 스킬 설치: {installable_reuse} -> agent.skills={installed}")
+                agent = self.agent_mgr.get_or_create(role_spec)
+
+            # 3) Build only unresolved needs
+            unresolved = [need for need in initial_targets if need not in resolved_needs]
+            if unresolved:
+                print(f"🛠️ [Factory] 신규 빌드 대상: {unresolved}")
+
+            built_skill_ids: list[str] = []
+            for need in unresolved:
+                ok, _code_path, meta = self.builder.build_skill(
+                    agent=agent,
+                    skill_name=need,
+                    reqs=reqs,
+                    run_id=run_id,
+                    evidence_pack=evidence_pack,
+                )
+                if ok:
+                    sid = safe_id(str(meta.get("id", need)))
+                    skill_dir = os.path.join(SKILLS_DIR, sid)
+                    self.registry.register_built(meta, skill_dir)
+                    built_metas.append(meta)
+                    built_skill_ids.append(sid)
+                    print(f"✅ [Factory] 빌드 성공: {sid}")
+                else:
+                    print(f"⚠️ [Factory] 빌드 실패: {need} | detail={meta.get('last_test_detail')}")
+
+            if built_metas:
+                self.registry.workflow_apply(built_metas)
+
+            if built_skill_ids:
+                installable_new = [sid for sid in built_skill_ids if self.registry.is_installable(sid)]
+                blocked_new = [sid for sid in built_skill_ids if sid not in installable_new]
+                if blocked_new:
+                    print(f"⛔ [QualityGate] 신규 스킬 설치 보류(상태 미달): {blocked_new}")
+                installed = self.agent_mgr.install_skills(role_spec, installable_new) if installable_new else []
+                print(f"📦 [Factory] 신규 스킬 설치: {installable_new} -> agent.skills={installed}")
+                agent = self.agent_mgr.get_or_create(role_spec)
+
+        # Always execute the selected agent so the task can be handled even when build pipeline is unavailable.
+        run_metrics = self.runner.run(agent, task_input) or {}
+        append_dashboard_run(
+            {
+                "ts": now_iso(),
+                "type": "single_run",
+                "project_id": PROJECT_ID,
+                "role": role_spec,
+                "task": (task_input or "")[:300],
+                "skills_loaded": list(agent.get("skills", []) if isinstance(agent, dict) else []),
+                "ok": bool(run_metrics.get("ok", False)),
+                "reason": str(run_metrics.get("reason", "")),
+                "latency_ms": int(run_metrics.get("latency_ms", 0) or 0),
+                "approval_rejects": int(run_metrics.get("approval_rejects", 0) or 0),
+            }
+        )
+
+    def run_workflow(self, task_input: str, workflow_path: str | None = None, role_specs: list[str] | None = None):
+        if not workflow_path:
+            policies = read_project_policies()
+            wf_cfg = policies.get("workflow", {}) if isinstance(policies, dict) else {}
+            default_tpl = str(wf_cfg.get("default_template", "")).strip()
+            if default_tpl:
+                cand = os.path.join(BASE_DIR, default_tpl)
+                workflow_path = cand if os.path.exists(cand) else PROJECT_WORKFLOW_PATH
+            else:
+                workflow_path = PROJECT_WORKFLOW_PATH
+
+        wf = read_yaml(workflow_path)
+        if not wf:
+            print(f"⚠️ [Workflow] 워크플로우를 읽을 수 없습니다: {workflow_path}")
+            return
+
+        owner = str(wf.get("owner_agent", "")).strip()
+        stages = wf.get("stages", []) if isinstance(wf.get("stages"), list) else []
+        picked_roles = [r.strip() for r in (role_specs or []) if str(r).strip()]
+        if not picked_roles:
+            picked_roles = [owner] if owner else ["General"]
+
+        if not stages:
+            stages = [{"id": "MAIN", "name": "Main", "objective": task_input}]
+
+        policies = read_project_policies()
+        role_map = {}
+        if isinstance(policies, dict):
+            wf_cfg = policies.get("workflow", {}) if isinstance(policies.get("workflow"), dict) else {}
+            role_map = wf_cfg.get("role_map", {}) if isinstance(wf_cfg.get("role_map"), dict) else {}
+
+        print(f"\n🧭 [Workflow] 시작: {workflow_path}")
+        print(f"👥 [Workflow] 대상 에이전트: {picked_roles}")
+        run_count = 0
+        for stage in stages:
+            sid = str(stage.get("id", "STAGE"))
+            sname = str(stage.get("name", sid))
+            objective = str(stage.get("objective", "")).strip()
+            mapped_roles = role_map.get(sid)
+            stage_roles = [r.strip() for r in mapped_roles if str(r).strip()] if isinstance(mapped_roles, list) else picked_roles
+            stage_task = (
+                f"{task_input}\n"
+                f"[Workflow Stage] id={sid}, name={sname}\n"
+                f"[Stage Objective] {objective if objective else 'N/A'}"
+            )
+            print(f"\n📍 [Workflow] Stage {sid}: {sname}")
+            for role in stage_roles:
+                print(f"🤝 [Workflow] 실행 에이전트: {role}")
+                self.run(task_input=stage_task, role_spec=role)
+                run_count += 1
+        append_dashboard_run(
+            {
+                "ts": now_iso(),
+                "type": "workflow_run",
+                "project_id": PROJECT_ID,
+                "workflow_path": workflow_path,
+                "stage_count": len(stages),
+                "run_count": run_count,
+                "base_roles": picked_roles,
+            }
+        )
     
     # ... [Skipping manual re-implementation of run for now to focus on AgentRunner class addition]
     # Actually, I'll add AgentRunner class BEFORE AgentFactory, and then update AgentFactory.init and run.
