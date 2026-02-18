@@ -61,6 +61,7 @@ system_prompt: |
 
 runtime_rules:
   default_deny: true
+  codex_directive: "Use Codex tooling/workflow first for implementation tasks."
   allowed_skills:
     - "PLAN"
     - "DOC_WRITE"

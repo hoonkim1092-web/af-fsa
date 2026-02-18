@@ -1,0 +1,11 @@
+approval_policy:
+  default_require_approval: false
+project_id: default
+quality_gate:
+  auto_promote_sequence:
+  - canary
+  - active
+  default_stage_on_build: candidate
+workflow:
+  default_template: workflows/two_week_webapp_delivery.yaml
+  role_map: {}
