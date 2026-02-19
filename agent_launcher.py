@@ -1415,9 +1415,33 @@ class AgentRunner:
                     tools[attr_name] = attr 
         return tools
 
-    def run(self, agent: dict, task_input: str):
+    def run(self, agent: dict, task_input: str, run_id: str | None = None):
         print(f"\n🚀 [Runner] 에이전트 실행 시작: {agent.get('name')}")
         started = time.time()
+        run_id = run_id or f"run_{int(started)}"
+        run_dir = os.path.join(RUNS_DIR, run_id)
+        os.makedirs(run_dir, exist_ok=True)
+        transcript = []
+
+        def _append_trace(kind: str, payload: dict):
+            transcript.append({
+                "ts": now_iso(),
+                "kind": str(kind),
+                "payload": payload if isinstance(payload, dict) else {"value": str(payload)},
+            })
+
+        def _flush_trace(result: dict):
+            data = {
+                "run_id": run_id,
+                "project_id": PROJECT_ID,
+                "agent_name": str(agent.get("name", "")),
+                "agent_role": str(agent.get("role", "")),
+                "task": str(task_input or ""),
+                "transcript": transcript,
+                "result": result,
+                "updated_at": now_iso(),
+            }
+            _safe_write_json(os.path.join(run_dir, "chat_trace.json"), data)
         approval_rejects = 0
         
         # 1. Load Skills
@@ -1434,7 +1458,10 @@ class AgentRunner:
         if not ok_ctx:
             print(f"⚠️ [ContextSchema] 컨텍스트 검증 실패: {msg_ctx}")
             print("에이전트 실행을 중단합니다.")
-            return {"ok": False, "reason": f"context_schema:{msg_ctx}", "latency_ms": int((time.time() - started) * 1000), "approval_rejects": approval_rejects}
+            result = {"ok": False, "reason": f"context_schema:{msg_ctx}", "latency_ms": int((time.time() - started) * 1000), "approval_rejects": approval_rejects}
+            _append_trace("error", {"stage": "context_schema", "message": str(msg_ctx)})
+            _flush_trace(result)
+            return result
         loaded_skill_ids = [safe_id(str(getattr(m, "__skill_id__", ""))) for m in modules]
         policy = self._build_policy(agent, loaded_skill_ids)
         tool_functions = self._build_tool_functions(modules, ctx, policy)
@@ -1468,13 +1495,19 @@ class AgentRunner:
             codex_ok = self._run_with_codex(model_name, sys_prompt, task_input, tool_functions)
             if codex_ok:
                 print("✅ Agent Execution Finished.")
-                return {"ok": True, "reason": "codex", "latency_ms": int((time.time() - started) * 1000), "approval_rejects": approval_rejects}
+                result = {"ok": True, "reason": "codex", "latency_ms": int((time.time() - started) * 1000), "approval_rejects": approval_rejects}
+                _append_trace("assistant", {"channel": "codex", "note": "codex path completed"})
+                _flush_trace(result)
+                return result
             print("⚠️ [Runner] Codex 경로 실패, Gemini 경로로 폴백합니다.")
 
         if not GOOGLE_API_KEY:
             print("⚠️ [Runner] GOOGLE_API_KEY가 없어 Gemini 경로를 사용할 수 없습니다.")
             print("에이전트가 응답을 생성하지 못했습니다.")
-            return {"ok": False, "reason": "missing_google_api_key", "latency_ms": int((time.time() - started) * 1000), "approval_rejects": approval_rejects}
+            result = {"ok": False, "reason": "missing_google_api_key", "latency_ms": int((time.time() - started) * 1000), "approval_rejects": approval_rejects}
+            _append_trace("error", {"stage": "bootstrap", "message": "missing_google_api_key"})
+            _flush_trace(result)
+            return result
 
         gemini_model = model_name if not (is_codex_model(model_name) or is_claude_model(model_name)) else get_best_model(["gemini-2.0-flash", "gemini-1.5-flash"])
         model = genai.GenerativeModel(gemini_model, tools=tool_functions)
@@ -1482,6 +1515,8 @@ class AgentRunner:
         chat = model.start_chat(history=[
             {"role": "user", "parts": [sys_prompt + f"\n\nTask: {task_input}"]}
         ])
+        _append_trace("user", {"text": f"Task: {task_input}"})
+        _append_trace("system", {"model": str(gemini_model), "skills": [str(s) for s in skill_ids]})
         
         # Helper for safe sending
         def safe_send(msg, **kwargs):
@@ -1511,6 +1546,7 @@ class AgentRunner:
                 # 1. Output Text
                 if part.text:
                     print(f"🤖 {part.text}")
+                    _append_trace("assistant", {"text": str(part.text)})
                     # If model thinks it's done or asking question, we might stop
                     # But if it also has function call (rare in Gemini part[0]), check that.
                 
@@ -1520,6 +1556,7 @@ class AgentRunner:
                     fname = fc.name
                     fargs = dict(fc.args)
                     print(f"🛠️ [Tool] {fname}({fargs})")
+                    _append_trace("tool_call", {"name": str(fname), "args": fargs})
                     
                     # Find tool wrapper
                     tool_func = next((t for t in tool_functions if t.__name__ == fname), None)
@@ -1530,11 +1567,13 @@ class AgentRunner:
                                 if not self._ask_tool_approval(fname, skill_id):
                                     print(f"⏭️ [Policy] 사용자 미승인으로 도구 실행을 건너뜁니다: {fname}")
                                     approval_rejects += 1
+                                    _append_trace("tool_reject", {"name": str(fname), "skill_id": str(skill_id)})
                                     response = safe_send("해당 도구는 승인되지 않았습니다. 다른 방법으로 진행하세요.")
                                     continue
                             # Execute
                             res_obj = tool_func(**fargs)
                             print(f"  -> Result: {str(res_obj)[:100]}...")
+                            _append_trace("tool_result", {"name": str(fname), "result": str(res_obj)[:800]})
                             
                             # Send result back
                             response = safe_send(
@@ -1546,9 +1585,11 @@ class AgentRunner:
                             continue # Continue loop with new response
                         except Exception as e:
                             print(f"⚠️ Tool Execution Error: {e}")
+                            _append_trace("error", {"stage": "tool_execution", "tool": str(fname), "message": str(e)})
                             break
                     else:
                         print(f"⚠️ Tool not found: {fname}")
+                        _append_trace("error", {"stage": "tool_lookup", "tool": str(fname), "message": "not_found"})
                         break
                 
                 # If no function call and simple text, we assume turn is done for this prompt
@@ -1556,13 +1597,18 @@ class AgentRunner:
                     break
             
             print("✅ Agent Execution Finished.")
-            return {"ok": True, "reason": "gemini", "latency_ms": int((time.time() - started) * 1000), "approval_rejects": approval_rejects}
+            result = {"ok": True, "reason": "gemini", "latency_ms": int((time.time() - started) * 1000), "approval_rejects": approval_rejects}
+            _flush_trace(result)
+            return result
 
         except Exception as e:
             print(f"⚠️ [Runner] 실행 중 오류: {e}")
             # Fallback output
             print("에이전트가 응답을 생성하지 못했습니다.")
-            return {"ok": False, "reason": f"runner_error:{type(e).__name__}", "latency_ms": int((time.time() - started) * 1000), "approval_rejects": approval_rejects}
+            result = {"ok": False, "reason": f"runner_error:{type(e).__name__}", "latency_ms": int((time.time() - started) * 1000), "approval_rejects": approval_rejects}
+            _append_trace("error", {"stage": "runner", "message": str(e)})
+            _flush_trace(result)
+            return result
 
 # =============================================================================
 # 7) Factory
@@ -1765,7 +1811,7 @@ class AgentFactory:
                 agent = self.agent_mgr.get_or_create(role_spec)
 
         # Always execute the selected agent so the task can be handled even when build pipeline is unavailable.
-        run_metrics = self.runner.run(agent, task_input) or {}
+        run_metrics = self.runner.run(agent, task_input, run_id=run_id) or {}
         append_dashboard_run(
             {
                 "ts": now_iso(),

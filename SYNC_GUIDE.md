@@ -1,0 +1,95 @@
+# Agent Factory Sync Guide
+
+이 문서는 `agent-factory`에서 프로젝트 맥락(메모리, 대화/실행 로그, 작업 산출물)을 동기화하는 방법을 설명합니다.
+
+## 1) 가장 쉬운 명령
+
+루트(`D:\agent-factory`)에서 아래처럼 실행:
+
+```bat
+sync up git all
+sync down git all
+sync up db all
+sync down db all
+```
+
+의미:
+- `up` = push
+- `down` = pull
+- `git` = Git 원격 저장소 동기화
+- `db` = Supabase DB 동기화
+- `all` = `agent-mind-v22`, `agent-factory` 두 프로젝트
+
+## 2) 단일 프로젝트 동기화
+
+```bat
+sync up git agent-factory
+sync down git agent-factory
+
+sync up db agent-factory
+sync down db agent-factory
+```
+
+다른 프로젝트도 동일:
+
+```bat
+sync up git agent-mind-v22
+sync down db agent-mind-v22
+```
+
+## 3) 에이전트별 동기화
+
+형식:
+
+```bat
+sync <up|down> <git|db> <project> <agent>
+```
+
+예시:
+
+```bat
+sync up git agent-factory lilith
+sync down db agent-factory lilith
+```
+
+## 4) 내부 실행 스크립트
+
+- 쉬운 진입점: `sync.cmd`
+- 래퍼: `scripts/sync_easy.ps1`
+- Git 동기화: `scripts/project_context_git_sync.ps1`
+- DB 동기화: `scripts/project_context_sync.py`
+
+## 5) DB(Supabase) 사전 준비
+
+1. Supabase SQL Editor에서 `artifacts/context_sync_schema.sql` 실행
+2. `.env`에 아래 값 설정
+   - `SUPABASE_URL`
+   - `SUPABASE_KEY`
+
+## 6) 이름 매칭 규칙
+
+프로젝트 이름은 하이픈/언더스코어 변형을 자동으로 매칭합니다.
+
+예:
+- `logi-mind-v22`
+- `logi_mind_v22`
+- `logi_mind_v22+`
+
+## 7) 동기화 대상(요약)
+
+- 메모리: `projects/<project>/data/memory/**`
+- 실행 로그: `projects/<project>/runs/*/chat_trace.json`, `state.json` 등
+- 설정/맥락: `dashboard.json`, `policies.yaml`, `settings.yaml`, `skill-lock.yaml`, `workflow.yaml`, `context_schema.yaml`
+- 산출물: `projects/<project>/artifacts/*` 주요 텍스트 파일
+
+## 8) 문제 해결
+
+- `sync` 명령이 안 잡히면:
+  - 루트 경로에서 `sync.cmd`가 있는지 확인
+  - 직접 실행: `.\sync up git all`
+- DB 동기화 실패:
+  - `.env`의 `SUPABASE_URL`, `SUPABASE_KEY` 확인
+  - Supabase 테이블(`project_context_sync`) 생성 여부 확인
+- Git 동기화 실패:
+  - 원격 저장소 연결 상태(`git remote -v`) 확인
+  - 인증/권한 확인
