@@ -115,6 +115,9 @@ sync down db agent-factory lilith
 - `sync` 명령이 안 잡히면:
   - 루트 경로에서 `sync.cmd`가 있는지 확인
   - 직접 실행: `.\sync up git all`
+- 한글이 깨져 보이면:
+  - 먼저 `set_utf8` 실행
+  - 다시 파일 확인 (`Get-Content -Encoding utf8 README.md`)
 - DB 동기화 실패:
   - `.env`의 `SUPABASE_URL`, `SUPABASE_KEY` 확인
   - Supabase 테이블(`project_context_sync`) 생성 여부 확인
