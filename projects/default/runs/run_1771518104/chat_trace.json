@@ -1,0 +1,41 @@
+{
+  "run_id": "run_1771518104",
+  "project_id": "default",
+  "agent_name": "himari_external_test",
+  "agent_role": "himari_external_test",
+  "task": "external_demo_skill 설치 테스트",
+  "transcript": [
+    {
+      "ts": "2026-02-20T01:21:49",
+      "kind": "user",
+      "payload": {
+        "text": "Task: external_demo_skill 설치 테스트"
+      }
+    },
+    {
+      "ts": "2026-02-20T01:21:49",
+      "kind": "system",
+      "payload": {
+        "model": "gemini-2.0-flash",
+        "skills": [
+          "external_demo_skill"
+        ]
+      }
+    },
+    {
+      "ts": "2026-02-20T01:22:19",
+      "kind": "error",
+      "payload": {
+        "stage": "runner",
+        "message": "API 호출 실패 (Quota Exceeded)"
+      }
+    }
+  ],
+  "result": {
+    "ok": false,
+    "reason": "runner_error:Exception",
+    "latency_ms": 30399,
+    "approval_rejects": 0
+  },
+  "updated_at": "2026-02-20T01:22:19"
+}

@@ -11,6 +11,7 @@ import sys
 import importlib.util
 import inspect
 import functools
+import shutil
 from datetime import datetime
 from dotenv import load_dotenv
 
@@ -88,6 +89,7 @@ RUNS_DIR = os.path.join(PROJECT_ROOT, "runs")
 DATA_DIR = os.path.join(PROJECT_ROOT, "data")
 ARTIFACTS_DIR = os.path.join(PROJECT_ROOT, "artifacts")
 PROJECT_SKILLS_DIR = os.path.join(PROJECT_ROOT, "skills")
+EXTERNAL_CACHE_DIR = os.path.join(SKILLS_DIR, "_external_cache")
 PROJECT_SETTINGS_PATH = os.path.join(PROJECT_ROOT, "settings.yaml")
 POLICIES_PATH = os.path.join(PROJECT_ROOT, "policies.yaml")
 CONTEXT_SCHEMA_PATH = os.path.join(PROJECT_ROOT, "context_schema.yaml")
@@ -98,7 +100,7 @@ PROJECT_WORKFLOW_PATH = os.path.join(PROJECT_ROOT, "workflow.yaml")
 REGISTRY_PATH = os.path.join(SKILLS_DIR, "registry.yaml")
 WORKFLOW_PATH = os.path.join(SKILLS_DIR, "workflow_registry.yaml")
 
-for d in [PROJECTS_DIR, GLOBAL_AGENTS_DIR, GLOBAL_RUNS_DIR, AGENTS_DIR, SKILLS_DIR, RUNS_DIR, DATA_DIR, ARTIFACTS_DIR, PROJECT_SKILLS_DIR]:
+for d in [PROJECTS_DIR, GLOBAL_AGENTS_DIR, GLOBAL_RUNS_DIR, AGENTS_DIR, SKILLS_DIR, RUNS_DIR, DATA_DIR, ARTIFACTS_DIR, PROJECT_SKILLS_DIR, EXTERNAL_CACHE_DIR]:
     os.makedirs(d, exist_ok=True)
 
 if not os.path.exists(POLICIES_PATH):
@@ -309,6 +311,45 @@ def read_project_settings() -> dict:
     data = read_yaml(PROJECT_SETTINGS_PATH)
     return data if isinstance(data, dict) else {}
 
+def resolve_existing_path(path_text: str) -> str | None:
+    p = str(path_text or "").strip()
+    if not p:
+        return None
+    if os.path.isabs(p) and os.path.exists(p):
+        return os.path.normpath(p)
+    for root in (BASE_DIR, SKILLS_DIR, PROJECT_ROOT):
+        cand = os.path.normpath(os.path.join(root, p))
+        if os.path.exists(cand):
+            return cand
+    return None
+
+def to_portable_path(path_text: str) -> str:
+    p = str(path_text or "").strip()
+    if not p:
+        return p
+    abs_p = resolve_existing_path(p)
+    if not abs_p:
+        return p
+    try:
+        rel = os.path.relpath(abs_p, BASE_DIR)
+        if not rel.startswith(".."):
+            return rel.replace("\\", "/")
+    except Exception:
+        pass
+    return abs_p.replace("\\", "/")
+
+def is_portable_rel_path(path_text: str) -> bool:
+    p = str(path_text or "").strip()
+    if not p:
+        return False
+    # Reject absolute paths (e.g., D:\..., /home/...)
+    if os.path.isabs(p):
+        return False
+    # Reject drive-letter style even if os.path.isabs misses it in edge cases.
+    if re.match(r"^[a-zA-Z]:[/\\\\]", p):
+        return False
+    return True
+
 def resolve_skill_paths(skill_id: str) -> tuple[str | None, str | None]:
     sid = safe_id(skill_id)
     settings = read_project_settings()
@@ -326,6 +367,10 @@ def resolve_skill_paths(skill_id: str) -> tuple[str | None, str | None]:
     for py_path, meta_path in ordered:
         if os.path.exists(py_path):
             return py_path, (meta_path if os.path.exists(meta_path) else None)
+    # Backward compatibility: allow legacy forge single-file skills.
+    forge_py = os.path.join(SKILLS_DIR, "forge", f"{sid}.py")
+    if os.path.exists(forge_py):
+        return forge_py, None
     return None, None
 
 def _merge_dict(base: dict, override: dict) -> dict:
@@ -407,7 +452,7 @@ def _safe_write_json(path: str, data: dict):
 # 1) Model Router (Lite)
 # =============================================================================
 class ModelRouter:
-    def pick(self, stage: str) -> str:
+    def pick(self, stage: str, agent_config: dict = None) -> str:
         if stage == "chat":
             forced = (os.getenv("AGENT_CHAT_MODEL") or "").strip()
             if forced:
@@ -418,12 +463,15 @@ class ModelRouter:
                 if provider == "codex" and OPENAI_API_KEY:
                     return "codex-gpt-5"
                 if provider == "claude":
-                    # Claude 어댑터가 없으므로 모델 의도만 유지하고 실행 단계에서 Codex/Gemini로 폴백한다.
                     return "claude-4.6"
-        # ?붽뎄遺꾩꽍/鍮뚮뜑??pro, ?섎㉧吏 flash
-        # ?붽뎄遺꾩꽍/鍮뚮뜑??pro, ?섎㉧吏€ flash
+        
+        # Check Agent-specific high-end preference
+        if agent_config and agent_config.get("preferred_model"):
+            return get_best_model([agent_config["preferred_model"], "gemini-3.1-pro-preview", "gemini-1.5-pro"])
+
+        # 요구분석/빌더는 pro, 나머지는 flash (Gemini 2.0/3.1 우선)
         if stage in ("requirement", "builder"):
-            return get_best_model(["gemini-2.0-flash", "gemini-1.5-flash"])
+            return get_best_model(["gemini-3.1-pro-preview", "gemini-2.0-pro", "gemini-1.5-pro"])
         return get_best_model(["gemini-2.0-flash", "gemini-1.5-flash"])
 
 # =============================================================================
@@ -787,8 +835,8 @@ class HimariResearchAgent:
         path = str(meta.get("path", ""))
         meta_path = str(meta.get("meta_path", ""))
         resolved_py, resolved_meta = resolve_skill_paths(item["id"])
-        exists_py = os.path.exists(path) if path else bool(resolved_py)
-        exists_meta = os.path.exists(meta_path) if meta_path else bool(resolved_meta)
+        exists_py = bool(resolve_existing_path(path)) if path else bool(resolved_py)
+        exists_meta = bool(resolve_existing_path(meta_path)) if meta_path else bool(resolved_meta)
         last_test_ok = bool(meta.get("last_test_ok", False))
 
         score = 0
@@ -808,42 +856,96 @@ class HimariResearchAgent:
         }
         return score, verify
 
+    def _notebooklm_cmd(self, query: str) -> list[str]:
+        target_notebook_id = "eaa34a54-a898-46a0-835a-cdb6024887f0"
+        return [
+            sys.executable, "-m", "notebooklm_tools.cli.main",
+            "query", "notebook",
+            target_notebook_id,
+            query,
+        ]
+
+    def _notebooklm_login_cmd(self) -> list[str]:
+        return [sys.executable, "-m", "notebooklm_tools.cli.main", "login"]
+
+    def _is_notebooklm_auth_error(self, stderr_text: str) -> bool:
+        s = (stderr_text or "").lower()
+        flags = [
+            "authentication expired",
+            "rpc error 16",
+            "clientauthenticationerror",
+            "run 'nlm login'",
+        ]
+        return any(f in s for f in flags)
+
+    def _extract_notebooklm_answer(self, raw_text: str) -> str:
+        text = (raw_text or "").strip()
+        if not text:
+            return ""
+        payload = safe_json_load(text)
+        if isinstance(payload, dict):
+            value = payload.get("value")
+            if isinstance(value, dict):
+                ans = str(value.get("answer") or "").strip()
+                if ans:
+                    return ans
+                raw_response = str(value.get("raw_response") or "").strip()
+                if raw_response:
+                    # Fallback: keep response non-empty even when answer is blank.
+                    return raw_response[:2000]
+        return text
+
+    def _query_notebooklm_once(self, query: str, timeout: int = 60) -> tuple[int, str, str]:
+        env = os.environ.copy()
+        env["PYTHONIOENCODING"] = "utf-8"
+        env["PYTHONUTF8"] = "1"
+        p = subprocess.run(
+            self._notebooklm_cmd(query),
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            env=env,
+            timeout=timeout,
+        )
+        return p.returncode, (p.stdout or ""), (p.stderr or "")
+
+    def _reauth_notebooklm(self) -> bool:
+        env = os.environ.copy()
+        env["PYTHONIOENCODING"] = "utf-8"
+        env["PYTHONUTF8"] = "1"
+        try:
+            print("🔐 [Himari] NotebookLM 인증 만료 감지. 재인증을 시도합니다...")
+            p = subprocess.run(
+                self._notebooklm_login_cmd(),
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                env=env,
+                timeout=180,
+            )
+            if p.returncode == 0:
+                print("✅ [Himari] NotebookLM 재인증 성공.")
+                return True
+            print(f"⚠️ [Himari] NotebookLM 재인증 실패: {(p.stderr or '').strip()}")
+            return False
+        except Exception as e:
+            print(f"⚠️ [Himari] NotebookLM 재인증 예외: {e}")
+            return False
+
     def _query_notebooklm(self, query: str) -> str:
         """
         NotebookLM CLI를 통해 질문을 수행합니다.
-        기본 노트북 ID: eaa34a54-a898-46a0-835a-cdb6024887f0 (Google Antigravity Guide)
+        인증 만료가 감지되면 자동 재인증 후 1회 재시도합니다.
         """
         try:
-            # CLI 모듈을 서브프로세스로 호출
-            # python -m notebooklm_tools.cli.main query notebook <ID> <QUERY>
-            target_notebook_id = "eaa34a54-a898-46a0-835a-cdb6024887f0"
-            
-            cmd = [
-                sys.executable, "-m", "notebooklm_tools.cli.main",
-                "query", "notebook",
-                target_notebook_id,
-                query
-            ]
-            
-            # 윈도우 인코딩 문제 방지를 위해 env 설정
-            env = os.environ.copy()
-            env["PYTHONIOENCODING"] = "utf-8"
-            
-            p = subprocess.run(
-                cmd,
-                capture_output=True,
-                text=True,
-                encoding='utf-8',
-                env=env,
-                timeout=60 # 리서치는 시간이 걸릴 수 있음
-            )
-            
-            if p.returncode != 0:
-                print(f"⚠️ [Himari] NotebookLM 쿼리 실패: {p.stderr.strip()}")
+            rc, out, err = self._query_notebooklm_once(query, timeout=60)
+            if rc != 0 and self._is_notebooklm_auth_error(err):
+                if self._reauth_notebooklm():
+                    rc, out, err = self._query_notebooklm_once(query, timeout=60)
+            if rc != 0:
+                print(f"⚠️ [Himari] NotebookLM 쿼리 실패: {err.strip()}")
                 return ""
-                
-            return p.stdout.strip()
-            
+            return self._extract_notebooklm_answer(out)
         except Exception as e:
             print(f"⚠️ [Himari] NotebookLM 연결 오류: {e}")
             return ""
@@ -967,6 +1069,20 @@ LocalSkillCatalog(JSON): {json.dumps(skill_catalog, ensure_ascii=False)}
             caps = item.get("capabilities", [])
             print(f"  {i}. {sid} | name={item.get('name', sid)} | capabilities={caps}")
 
+    def search_external_and_install(self, needs: list[str], reqs: dict, registry) -> dict[str, str]:
+        needs = [safe_id(str(n)) for n in (needs or []) if str(n).strip()]
+        if not needs:
+            return {}
+        himari_cfg = read_yaml(os.path.join(AGENTS_DIR, "himari.yaml"))
+        sig = get_random_signature(himari_cfg)
+        print_agent_msg("Himari", f"외부 스킬 소스에서 설치 가능한 후보를 탐색합니다: {needs}", sig)
+        installed = registry.resolve_and_install_external(needs, reqs=reqs)
+        if installed:
+            print(f"💡 [Himari] 외부 소스 설치 성공: {list(installed.keys())}")
+        else:
+            print("⏭️ [Himari] 외부 소스에서 설치 가능한 후보를 찾지 못했습니다.")
+        return installed
+
 # =============================================================================
 # 5) Builder
 # =============================================================================
@@ -1087,6 +1203,338 @@ Evidence(JSON): {json.dumps(target_evidence, ensure_ascii=False)}
 class RegistryManager:
     def __init__(self):
         ensure_registry_files()
+        self._normalize_registry_paths()
+
+    def _read_registry(self) -> dict:
+        reg = read_yaml(REGISTRY_PATH)
+        if not isinstance(reg, dict):
+            reg = {}
+        reg.setdefault("skills", {})
+        reg.setdefault("install_candidates", {})
+        return reg
+
+    def _write_registry(self, reg: dict):
+        reg = reg if isinstance(reg, dict) else {}
+        reg.setdefault("skills", {})
+        reg.setdefault("install_candidates", {})
+        write_yaml(REGISTRY_PATH, reg)
+
+    def _tokenize(self, text: str) -> set[str]:
+        return {t for t in safe_id(text).split("_") if t}
+
+    def _score_need_match(self, need: str, candidate_text: str) -> int:
+        need_tokens = self._tokenize(need)
+        cand_tokens = self._tokenize(candidate_text)
+        if not need_tokens or not cand_tokens:
+            return 0
+        overlap = len(need_tokens & cand_tokens)
+        if overlap == 0:
+            return 0
+        base = overlap * 20
+        if safe_id(need) == safe_id(candidate_text):
+            base += 40
+        return min(100, base)
+
+    def _resolve_path(self, path_text: str) -> str | None:
+        return resolve_existing_path(path_text)
+
+    def _normalize_registry_paths(self):
+        reg = self._read_registry()
+        skills = reg.get("skills", {}) if isinstance(reg, dict) else {}
+        changed = False
+        for sid, item in list((skills or {}).items()):
+            if not isinstance(item, dict):
+                continue
+            key = safe_id(str(sid))
+            resolved_py, resolved_meta = resolve_skill_paths(key)
+            if resolved_py:
+                item["path"] = to_portable_path(resolved_py)
+                changed = True
+            elif item.get("path"):
+                p = self._resolve_path(str(item.get("path")))
+                if p:
+                    item["path"] = to_portable_path(p)
+                    changed = True
+            if resolved_meta:
+                item["meta_path"] = to_portable_path(resolved_meta)
+                changed = True
+            elif item.get("meta_path"):
+                mp = self._resolve_path(str(item.get("meta_path")))
+                if mp:
+                    item["meta_path"] = to_portable_path(mp)
+                    changed = True
+        if changed:
+            reg["skills"] = skills
+            self._write_registry(reg)
+
+        # Enforce portable relative paths for install_candidates as well.
+        raw_cands = reg.get("install_candidates", {})
+        normalized: dict = {}
+        if isinstance(raw_cands, dict):
+            for cid, item in raw_cands.items():
+                sid = safe_id(str(cid))
+                if isinstance(item, str):
+                    rp = to_portable_path(item)
+                    if is_portable_rel_path(rp):
+                        normalized[sid] = rp
+                        changed = True
+                    continue
+                if not isinstance(item, dict):
+                    continue
+                n_item = dict(item)
+                p = str(item.get("path") or "").strip()
+                if p:
+                    rp = to_portable_path(p)
+                    if not is_portable_rel_path(rp):
+                        changed = True
+                        continue
+                    n_item["path"] = rp
+                n_item["id"] = safe_id(str(item.get("id") or sid))
+                normalized[sid] = n_item
+                if str(item) != str(n_item):
+                    changed = True
+        elif isinstance(raw_cands, list):
+            # Convert list shape to map keyed by id.
+            for i, item in enumerate(raw_cands):
+                if not isinstance(item, dict):
+                    continue
+                sid = safe_id(str(item.get("id") or f"cand_{i}"))
+                n_item = dict(item)
+                p = str(item.get("path") or "").strip()
+                if p:
+                    rp = to_portable_path(p)
+                    if not is_portable_rel_path(rp):
+                        changed = True
+                        continue
+                    n_item["path"] = rp
+                n_item["id"] = sid
+                normalized[sid] = n_item
+                changed = True
+        if raw_cands != normalized:
+            reg["install_candidates"] = normalized
+            changed = True
+        if changed:
+            self._write_registry(reg)
+
+    def _iter_install_candidates(self) -> list[dict]:
+        reg = self._read_registry()
+        raw = reg.get("install_candidates", {})
+        out: list[dict] = []
+        if isinstance(raw, dict):
+            for cid, item in raw.items():
+                sid = safe_id(str(cid))
+                if isinstance(item, str):
+                    path = str(item).strip()
+                    if not is_portable_rel_path(path):
+                        continue
+                    out.append({"id": sid, "path": path, "capabilities": [sid]})
+                    continue
+                if isinstance(item, dict):
+                    path = str(item.get("path") or "").strip()
+                    if path and not is_portable_rel_path(path):
+                        continue
+                    out.append(
+                        {
+                            "id": safe_id(str(item.get("id") or sid)),
+                            "name": str(item.get("name") or sid),
+                            "path": path,
+                            "source_url": str(item.get("source_url") or ""),
+                            "capabilities": [safe_id(str(x)) for x in (item.get("capabilities") or []) if str(x).strip()],
+                        }
+                    )
+        elif isinstance(raw, list):
+            for i, item in enumerate(raw):
+                if not isinstance(item, dict):
+                    continue
+                sid = safe_id(str(item.get("id") or f"cand_{i}"))
+                path = str(item.get("path") or "").strip()
+                if path and not is_portable_rel_path(path):
+                    continue
+                out.append(
+                    {
+                        "id": sid,
+                        "name": str(item.get("name") or sid),
+                        "path": path,
+                        "source_url": str(item.get("source_url") or ""),
+                        "capabilities": [safe_id(str(x)) for x in (item.get("capabilities") or []) if str(x).strip()],
+                    }
+                )
+        return out
+
+    def _sync_external_sources(self):
+        policies = read_project_policies()
+        urls: list[str] = []
+        pol_urls = policies.get("external_skill_sources", []) if isinstance(policies, dict) else []
+        if isinstance(pol_urls, list):
+            urls.extend([str(x).strip() for x in pol_urls if str(x).strip()])
+
+        env_urls = [x.strip() for x in str(os.getenv("AGENT_EXTERNAL_SKILL_REPOS", "")).split(",") if x.strip()]
+        urls.extend(env_urls)
+        urls = list(dict.fromkeys(urls))
+        if not urls:
+            return
+
+        for url in urls:
+            repo_name = safe_id(os.path.basename(url).replace(".git", "")) or "external_repo"
+            dst = os.path.join(EXTERNAL_CACHE_DIR, repo_name)
+            try:
+                if os.path.exists(dst):
+                    subprocess.run(["git", "-C", dst, "pull", "--ff-only"], check=False, capture_output=True, text=True, timeout=20)
+                else:
+                    subprocess.run(["git", "clone", "--depth", "1", url, dst], check=False, capture_output=True, text=True, timeout=45)
+            except Exception:
+                continue
+
+    def _scan_cache_candidates(self) -> list[dict]:
+        out: list[dict] = []
+        if not os.path.exists(EXTERNAL_CACHE_DIR):
+            return out
+        for root, _dirs, files in os.walk(EXTERNAL_CACHE_DIR):
+            for fn in files:
+                if not fn.endswith(".py"):
+                    continue
+                if fn.startswith("_") or fn.startswith("test_"):
+                    continue
+                py_path = os.path.join(root, fn)
+                sid = safe_id(os.path.splitext(fn)[0])
+                out.append({"id": sid, "path": py_path, "source": "external_cache"})
+        return out
+
+    def _install_skill_file(self, need_id: str, source_path: str, source_label: str = "external") -> tuple[bool, str]:
+        sid = safe_id(need_id)
+        if not sid:
+            return False, "invalid_skill_id"
+        src = self._resolve_path(source_path)
+        if not src:
+            return False, "source_not_found"
+
+        skill_py: str | None = None
+        if os.path.isdir(src):
+            cand = os.path.join(src, "skill.py")
+            if os.path.exists(cand):
+                skill_py = cand
+        elif os.path.isfile(src):
+            if src.endswith(".py"):
+                skill_py = src
+            elif src.endswith(".yaml") or src.endswith(".yml"):
+                data = read_yaml(src)
+                p = self._resolve_path(str(data.get("path", "")))
+                if p and p.endswith(".py") and os.path.exists(p):
+                    skill_py = p
+        if not skill_py:
+            return False, "no_python_skill_file"
+
+        target_dir = os.path.join(SKILLS_DIR, sid)
+        os.makedirs(target_dir, exist_ok=True)
+        target_py = os.path.join(target_dir, "skill.py")
+        target_meta = os.path.join(target_dir, "meta.yaml")
+        try:
+            shutil.copy2(skill_py, target_py)
+        except Exception as e:
+            return False, f"copy_failed:{type(e).__name__}"
+
+        meta = {
+            "id": sid,
+            "name": sid,
+            "version": "1.0.0",
+            "capabilities": [sid],
+            "status": "active",
+            "updated_at": now_iso(),
+            "source": source_label,
+            "source_path": skill_py,
+        }
+        write_yaml(target_meta, meta)
+
+        reg = self._read_registry()
+        reg.setdefault("skills", {})
+        reg["skills"][sid] = {
+            "id": sid,
+            "name": sid,
+            "status": "active",
+            "version": "1.0.0",
+            "capabilities": [sid],
+            "path": to_portable_path(target_py),
+            "meta_path": to_portable_path(target_meta),
+            "updated_at": now_iso(),
+            "last_test_ok": True,
+        }
+        self._write_registry(reg)
+        lock_skill_state(sid, {"version": "1.0.0", "status": "active"})
+        return True, sid
+
+    def resolve_and_install_external(self, needs: list[str], reqs: dict | None = None) -> dict[str, str]:
+        installed: dict[str, str] = {}
+        needs = [safe_id(str(n)) for n in (needs or []) if str(n).strip()]
+        if not needs:
+            return installed
+
+        # Stage 2-A: local external pools
+        local_pool: list[dict] = []
+        for n in needs:
+            local_pool.append({"id": n, "path": os.path.join(SKILLS_DIR, "warehouse", n)})
+            local_pool.append({"id": n, "path": os.path.join(SKILLS_DIR, "warehouse", f"{n}.py")})
+            local_pool.append({"id": n, "path": os.path.join(SKILLS_DIR, "forge", f"{n}.py")})
+
+        # Stage 2-B: registry install_candidates
+        reg_pool = self._iter_install_candidates()
+
+        # Stage 2-C: best-effort remote sync + cache scan
+        self._sync_external_sources()
+        cache_pool = self._scan_cache_candidates()
+
+        for need in needs:
+            if resolve_skill_paths(need)[0]:
+                installed[need] = need
+                continue
+
+            chosen_path: str | None = None
+            chosen_src = "external_local"
+
+            # 1) exact local hits first
+            for item in local_pool:
+                if safe_id(item.get("id", "")) != need:
+                    continue
+                p = self._resolve_path(str(item.get("path", "")))
+                if p:
+                    chosen_path = p
+                    break
+
+            # 2) registry candidates (token score)
+            if not chosen_path:
+                best_score = -1
+                for cand in reg_pool:
+                    path = self._resolve_path(str(cand.get("path", "")))
+                    if not path:
+                        continue
+                    corpus = " ".join(
+                        [str(cand.get("id", "")), str(cand.get("name", ""))]
+                        + [str(x) for x in (cand.get("capabilities") or [])]
+                    )
+                    sc = self._score_need_match(need, corpus)
+                    if sc > best_score:
+                        best_score = sc
+                        chosen_path = path
+                        chosen_src = "install_candidates"
+
+            # 3) external cache (downloaded repos)
+            if not chosen_path:
+                best_score = -1
+                for cand in cache_pool:
+                    path = self._resolve_path(str(cand.get("path", "")))
+                    if not path:
+                        continue
+                    sc = self._score_need_match(need, str(cand.get("id", "")))
+                    if sc > best_score:
+                        best_score = sc
+                        chosen_path = path
+                        chosen_src = str(cand.get("source", "external_cache"))
+
+            if not chosen_path:
+                continue
+            ok, _msg = self._install_skill_file(need, chosen_path, source_label=chosen_src)
+            if ok:
+                installed[need] = need
+        return installed
 
     def _quality_gate_policy(self) -> dict:
         policies = read_project_policies()
@@ -1141,8 +1589,8 @@ class RegistryManager:
             "status": gated.get("status"),
             "version": gated.get("version"),
             "capabilities": gated.get("capabilities", []),
-            "path": os.path.join(skill_dir, "skill.py"),
-            "meta_path": os.path.join(skill_dir, "meta.yaml"),
+            "path": to_portable_path(os.path.join(skill_dir, "skill.py")),
+            "meta_path": to_portable_path(os.path.join(skill_dir, "meta.yaml")),
             "updated_at": now_iso(),
             "last_test_ok": bool(gated.get("last_test_ok", False)),
         }
@@ -1769,6 +2217,34 @@ class AgentFactory:
                 agent = self.agent_mgr.get_or_create(role_spec)
 
             # 3) Build only unresolved needs
+            unresolved = [need for need in initial_targets if need not in resolved_needs]
+
+            # 3-A) External search/download/install for unresolved needs
+            if unresolved:
+                print(f"🌐 [Factory] 외부 스킬 검색/설치 대상: {unresolved}")
+                ext_installed_map = self.research.search_external_and_install(unresolved, reqs=reqs, registry=self.registry)
+                ext_skill_ids = list(dict.fromkeys([safe_id(str(sid)) for sid in ext_installed_map.values() if str(sid).strip()]))
+                if ext_skill_ids:
+                    installable_ext = [sid for sid in ext_skill_ids if self.registry.is_installable(sid)]
+                    blocked_ext = [sid for sid in ext_skill_ids if sid not in installable_ext]
+                    if blocked_ext:
+                        print(f"⛔ [QualityGate] 외부 스킬 설치 보류(상태 미달): {blocked_ext}")
+                    approval_policy = self._read_approval_policy()
+                    allow_skill_change = True
+                    if installable_ext and approval_policy.get("require_skill_change_approval", False):
+                        allow_skill_change = self._ask_skill_change_approval(role_spec, installable_ext, "외부 스킬 설치")
+                    installed = self.agent_mgr.install_skills(role_spec, installable_ext) if (installable_ext and allow_skill_change) else []
+                    if installable_ext and not allow_skill_change:
+                        print("⏭️ [Approval] 사용자 미승인으로 외부 스킬 설치를 건너뜁니다.")
+                    print(f"📦 [Factory] 외부 스킬 설치: {installable_ext} -> agent.skills={installed}")
+                    for need in unresolved:
+                        if need in ext_installed_map:
+                            resolved_needs.add(need)
+                    agent = self.agent_mgr.get_or_create(role_spec)
+                else:
+                    print("ℹ️ [Factory] 외부 설치 가능한 후보를 찾지 못했습니다.")
+
+            # 3-B) Build only unresolved needs after external install
             unresolved = [need for need in initial_targets if need not in resolved_needs]
             if unresolved:
                 print(f"🛠️ [Factory] 신규 빌드 대상: {unresolved}")

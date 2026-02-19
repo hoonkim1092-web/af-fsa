@@ -21,6 +21,19 @@ if not api_key:
 
 genai.configure(api_key=api_key)
 
+
+def resolve_python_exec() -> str:
+    """Prefer a real Python binary over WindowsApps shim."""
+    candidates = [
+        sys.executable,
+        os.path.expandvars(r"%LOCALAPPDATA%\Python\bin\python.exe"),
+        os.path.expandvars(r"%LOCALAPPDATA%\Python\pythoncore-3.14-64\python.exe"),
+    ]
+    for path in candidates:
+        if path and os.path.exists(path):
+            return path
+    return "python"
+
 # --- 2. 지능형 오케스트레이터 클래스 ---
 class SmartLinker:
     def __init__(self):
@@ -100,7 +113,7 @@ def main():
             
             # 기존: ["python", "factory_manager.py", role_name]
             # 변경: 모델명(selected_model)을 추가로 전달
-            subprocess.run(["python", "factory_manager.py", role_name, selected_model])         
+            subprocess.run([resolve_python_exec(), "factory_manager.py", role_name, selected_model])         
             
             print("\n✅ 작업 완료. 다음 명령을 주세요.")
 

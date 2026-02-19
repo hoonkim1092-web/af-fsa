@@ -96,6 +96,8 @@ runtime_rules:
   approval_required_skills:
     - "GIT_WRITE"
     - "HTTP_CALL"
+  codex_directive: "Use Codex tooling/workflow first for all implementation tasks."
+  preferred_model: "models/gemini-3.1-pro-preview"
 
 prompt:
   system_ko: |

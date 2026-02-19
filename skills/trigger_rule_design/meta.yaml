@@ -1,0 +1,7 @@
+﻿id: trigger_rule_design
+name: trigger_rule_design
+version: 1.0.0
+capabilities:
+  - TRIGGER_RULE_DESIGN
+status: active
+updated_at: '2026-02-20T00:00:00'

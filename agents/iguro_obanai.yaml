@@ -61,7 +61,8 @@ system_prompt: |
 
 runtime_rules:
   default_deny: true
-  codex_directive: "Use Codex tooling/workflow first for implementation tasks."
+  codex_directive: "Use Codex tooling/workflow first for all implementation, INCLUDING database (SQL/Query/Schema) tasks."
+  preferred_model: "models/gemini-2.0-flash" # Default to flash for core logic, router handles fallback
   allowed_skills:
     - "PLAN"
     - "DOC_WRITE"

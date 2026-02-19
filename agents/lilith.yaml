@@ -53,6 +53,8 @@ runtime_rules:
   explicit_approval_required: 
     - "SHELL_EXEC"
     - "factory_manager"
+  codex_directive: "Use Codex tooling/workflow first for all implementation tasks."
+  preferred_model: "models/gemini-3.1-pro-preview"
 
 # ✅ 4. 실행 로그 및 산출물 경로
 run_protocol:

@@ -144,6 +144,48 @@
         "Lilith",
         "Himari"
       ]
+    },
+    {
+      "ts": "2026-02-20T01:22:19",
+      "type": "single_run",
+      "project_id": "default",
+      "role": "himari_external_test",
+      "task": "external_demo_skill 설치 테스트",
+      "skills_loaded": [
+        "external_demo_skill"
+      ],
+      "ok": false,
+      "reason": "runner_error:Exception",
+      "latency_ms": 30399,
+      "approval_rejects": 0
+    },
+    {
+      "ts": "2026-02-20T01:22:35",
+      "type": "single_run",
+      "project_id": "default",
+      "role": "himari_external_test",
+      "task": "external_demo_skill 설치 테스트",
+      "skills_loaded": [
+        "external_demo_skill"
+      ],
+      "ok": false,
+      "reason": "runner_error:Exception",
+      "latency_ms": 30358,
+      "approval_rejects": 0
+    },
+    {
+      "ts": "2026-02-20T01:24:13",
+      "type": "single_run",
+      "project_id": "default",
+      "role": "himari_external_test",
+      "task": "external_demo_skill 설치 테스트(재검증)",
+      "skills_loaded": [
+        "external_demo_skill"
+      ],
+      "ok": false,
+      "reason": "runner_error:Exception",
+      "latency_ms": 30422,
+      "approval_rejects": 0
     }
   ]
 }

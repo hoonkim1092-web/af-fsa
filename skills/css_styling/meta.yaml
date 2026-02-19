@@ -1,0 +1,7 @@
+﻿id: css_styling
+name: css_styling
+version: 1.0.0
+capabilities:
+  - CSS_STYLING
+status: active
+updated_at: '2026-02-20T00:00:00'

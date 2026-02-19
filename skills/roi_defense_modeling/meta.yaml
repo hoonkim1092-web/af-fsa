@@ -1,0 +1,7 @@
+﻿id: roi_defense_modeling
+name: roi_defense_modeling
+version: 1.0.0
+capabilities:
+  - ROI_DEFENSE_MODELING
+status: active
+updated_at: '2026-02-20T00:00:00'

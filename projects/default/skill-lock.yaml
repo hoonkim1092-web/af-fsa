@@ -1,4 +1,8 @@
 skills:
+  external_demo_skill:
+    status: active
+    updated_at: '2026-02-20T01:23:42'
+    version: 1.0.0
   issue_tracker:
     status: active
     updated_at: '2026-02-19T00:50:30'

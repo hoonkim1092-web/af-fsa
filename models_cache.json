@@ -1,5 +1,5 @@
 {
-  "timestamp": 1771350580.5424836,
+  "timestamp": 1771515557.146404,
   "models": [
     "models/gemini-2.5-flash",
     "models/gemini-2.5-pro",
@@ -16,6 +16,8 @@
     "models/gemma-3-12b-it",
     "models/gemma-3-27b-it",
     "models/gemma-3n-e4b-it",
+    "models/snowball-computer-use-no-safety",
+    "models/gemini-3.1-pro-preview-ais-applets",
     "models/gemma-3n-e2b-it",
     "models/gemini-flash-latest",
     "models/gemini-flash-lite-latest",
@@ -26,6 +28,8 @@
     "models/gemini-2.5-flash-lite-preview-09-2025",
     "models/gemini-3-pro-preview",
     "models/gemini-3-flash-preview",
+    "models/gemini-3.1-pro-preview",
+    "models/gemini-3.1-pro-preview-customtools",
     "models/gemini-3-pro-image-preview",
     "models/nano-banana-pro-preview",
     "models/gemini-robotics-er-1.5-preview",

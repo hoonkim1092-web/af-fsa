@@ -70,6 +70,8 @@ runtime_rules:
   - GIT_WRITE
   - HTTP_CALL
   default_deny: true
+  codex_directive: "Use Codex tooling/workflow first for all implementation tasks."
+  preferred_model: "models/gemini-3.1-pro-preview"
 skills:
 - stitch_design
 - generate_image

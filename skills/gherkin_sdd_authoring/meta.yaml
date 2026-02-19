@@ -1,0 +1,7 @@
+﻿id: gherkin_sdd_authoring
+name: gherkin_sdd_authoring
+version: 1.0.0
+capabilities:
+  - GHERKIN_SDD_AUTHORING
+status: active
+updated_at: '2026-02-20T00:00:00'
