@@ -108,6 +108,42 @@
         "Lilith",
         "Himari"
       ]
+    },
+    {
+      "ts": "2026-02-19T02:01:03",
+      "type": "single_run",
+      "project_id": "default",
+      "role": "General",
+      "task": "track issues",
+      "skills_loaded": [],
+      "ok": false,
+      "reason": "",
+      "latency_ms": 0,
+      "approval_rejects": 0
+    },
+    {
+      "ts": "2026-02-19T02:01:03",
+      "type": "single_run",
+      "project_id": "default",
+      "role": "General",
+      "task": "do something new",
+      "skills_loaded": [],
+      "ok": false,
+      "reason": "",
+      "latency_ms": 0,
+      "approval_rejects": 0
+    },
+    {
+      "ts": "2026-02-19T02:01:03",
+      "type": "workflow_run",
+      "project_id": "default",
+      "workflow_path": "C:\\Users\\HOME\\AppData\\Local\\Temp\\pytest-of-HOME\\pytest-5\\test_factory_run_workflow_sequ0\\wf.yaml",
+      "stage_count": 2,
+      "run_count": 4,
+      "base_roles": [
+        "Lilith",
+        "Himari"
+      ]
     }
   ]
 }

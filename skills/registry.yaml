@@ -5,11 +5,11 @@ skills:
     - abc
     id: abc
     last_test_ok: true
-    meta_path: C:\Users\HOME\AppData\Local\Temp\pytest-of-HOME\pytest-4\test_register_built_updates_sk0\skills\abc\meta.yaml
+    meta_path: C:\Users\HOME\AppData\Local\Temp\pytest-of-HOME\pytest-6\test_register_built_updates_sk0\skills\abc\meta.yaml
     name: abc
-    path: C:\Users\HOME\AppData\Local\Temp\pytest-of-HOME\pytest-4\test_register_built_updates_sk0\skills\abc\skill.py
+    path: C:\Users\HOME\AppData\Local\Temp\pytest-of-HOME\pytest-6\test_register_built_updates_sk0\skills\abc\skill.py
     status: active
-    updated_at: '2026-02-19T00:56:47'
+    updated_at: '2026-02-19T02:32:21'
     version: 0.1.0
   core_memory:
     capabilities:

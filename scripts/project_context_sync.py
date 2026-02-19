@@ -26,6 +26,22 @@ def load_dotenv_simple(root: Path) -> None:
             os.environ[k] = v
 
 
+def load_dotenv_override(env_path: Path) -> dict[str, str]:
+    loaded: dict[str, str] = {}
+    if not env_path.exists():
+        return loaded
+    for line in env_path.read_text(encoding="utf-8").splitlines():
+        raw = line.strip()
+        if not raw or raw.startswith("#") or "=" not in raw:
+            continue
+        k, v = raw.split("=", 1)
+        k = k.strip()
+        v = v.strip().strip('"').strip("'")
+        if k:
+            loaded[k] = v
+    return loaded
+
+
 def now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
 
@@ -54,7 +70,34 @@ def resolve_project_root(repo_root: Path, project_input: str) -> tuple[str, Path
     raw = str(project_input or "").strip()
     safe = safe_id(raw)
     sync_id = sync_project_id(raw)
+    key = normalize_match_key(raw)
 
+    # 0) Current repo root if input matches repo name.
+    if key and key == normalize_match_key(repo_root.name):
+        return sync_id, repo_root
+
+    # 1) Sibling project directory support first (e.g. D:\logi-mind-v22).
+    siblings_root = repo_root.parent
+    sibling_candidates = []
+    if raw:
+        sibling_candidates.append(siblings_root / raw)
+    if safe:
+        sibling_candidates.append(siblings_root / safe)
+    for cand in sibling_candidates:
+        if cand.exists() and cand.is_dir():
+            return sync_id, cand
+
+    if key:
+        sibling_matches = []
+        for p in siblings_root.iterdir():
+            if not p.is_dir():
+                continue
+            if normalize_match_key(p.name) == key:
+                sibling_matches.append(p)
+        if len(sibling_matches) == 1:
+            return sync_id, sibling_matches[0]
+
+    # 2) Local projects/ fallback.
     exact_dir = projects_root / raw
     if raw and exact_dir.exists() and exact_dir.is_dir():
         return sync_id, exact_dir
@@ -63,13 +106,12 @@ def resolve_project_root(repo_root: Path, project_input: str) -> tuple[str, Path
     if safe and safe_dir.exists() and safe_dir.is_dir():
         return sync_id, safe_dir
 
-    target_key = normalize_match_key(raw)
-    if target_key:
+    if key:
         matches = []
         for p in projects_root.iterdir():
             if not p.is_dir():
                 continue
-            if normalize_match_key(p.name) == target_key:
+            if normalize_match_key(p.name) == key:
                 matches.append(p)
         if len(matches) == 1:
             return sync_id, matches[0]
@@ -291,7 +333,7 @@ def main():
     parser.add_argument("--projects", default="", help="multiple project ids (comma separated)")
     parser.add_argument("--agent", "-a", default="", help="optional agent id/name for agent-scoped sync")
     parser.add_argument("--mode", "-m", choices=["push", "pull"], required=True, help="sync mode")
-    parser.add_argument("--table", default=os.getenv("CONTEXT_SYNC_TABLE", "project_context_sync"), help="Supabase table name")
+    parser.add_argument("--table", default="", help="Supabase table name")
     parser.add_argument("--run-limit", type=int, default=100, help="max run chat traces to include on push")
     parser.add_argument("--no-overwrite", action="store_true", help="do not overwrite local files on pull")
     args = parser.parse_args()
@@ -303,54 +345,110 @@ def main():
     if not project_inputs:
         raise SystemExit("provide --project or --projects")
 
-    sb_url = os.getenv("SUPABASE_URL", "").rstrip("/")
-    sb_key = os.getenv("SUPABASE_KEY", "")
-    if not sb_url or not sb_key:
-        raise SystemExit("SUPABASE_URL / SUPABASE_KEY required")
-
-    headers = {
-        "apikey": sb_key,
-        "Authorization": f"Bearer {sb_key}",
-        "Content-Type": "application/json",
-    }
-
-    table = args.table.strip()
-    machine = os.getenv("SYNC_MACHINE_ID", socket.gethostname())
-
     results: list[dict] = []
     for project_input in project_inputs:
         project_id, project_root = resolve_project_root(repo_root, project_input)
         scope_key = make_scope_key(project_id, agent_id)
-
-        if args.mode == "push":
-            payload = collect_snapshot(project_root=project_root, project_id=project_id, agent_id=agent_id, run_limit=args.run_limit)
-            row = {
-                "project_id": scope_key,  # stored as scope key for backward-compatible schema
-                "source_machine": machine,
-                "updated_at": now_iso(),
-                "payload": payload,
-                "payload_hash": payload.get("sha256"),
-            }
-            upsert_headers = dict(headers)
-            upsert_headers["Prefer"] = "resolution=merge-duplicates,return=representation"
-            url = f"{sb_url}/rest/v1/{table}?on_conflict=project_id"
-            res = http_json("POST", url, upsert_headers, [row])
+        # Priority: project-local .env > repo-root .env > process env
+        proj_env = load_dotenv_override(project_root / ".env")
+        sb_url = str(proj_env.get("SUPABASE_URL", os.getenv("SUPABASE_URL", ""))).strip().rstrip("/")
+        sb_key = str(proj_env.get("SUPABASE_KEY", os.getenv("SUPABASE_KEY", ""))).strip()
+        table = (
+            str(args.table or "").strip()
+            or str(proj_env.get("CONTEXT_SYNC_TABLE", "")).strip()
+            or str(os.getenv("CONTEXT_SYNC_TABLE", "")).strip()
+            or "project_context_sync"
+        )
+        machine = str(proj_env.get("SYNC_MACHINE_ID", os.getenv("SYNC_MACHINE_ID", socket.gethostname()))).strip()
+        if not sb_url or not sb_key:
             results.append(
                 {
-                    "ok": True,
-                    "mode": "push",
+                    "ok": False,
+                    "mode": args.mode,
                     "project_id": project_id,
                     "agent_id": agent_id,
                     "scope_key": scope_key,
-                    "result": res,
+                    "error": "missing_supabase_env",
                 }
             )
             continue
 
-        q = urllib.parse.quote(scope_key, safe="")
-        url = f"{sb_url}/rest/v1/{table}?project_id=eq.{q}&select=project_id,source_machine,updated_at,payload&limit=1"
-        rows = http_json("GET", url, headers, None) or []
-        if not rows:
+        headers = {
+            "apikey": sb_key,
+            "Authorization": f"Bearer {sb_key}",
+            "Content-Type": "application/json",
+        }
+
+        if args.mode == "push":
+            try:
+                payload = collect_snapshot(project_root=project_root, project_id=project_id, agent_id=agent_id, run_limit=args.run_limit)
+                row = {
+                    "project_id": scope_key,  # stored as scope key for backward-compatible schema
+                    "source_machine": machine,
+                    "updated_at": now_iso(),
+                    "payload": payload,
+                    "payload_hash": payload.get("sha256"),
+                }
+                upsert_headers = dict(headers)
+                upsert_headers["Prefer"] = "resolution=merge-duplicates,return=representation"
+                url = f"{sb_url}/rest/v1/{table}?on_conflict=project_id"
+                res = http_json("POST", url, upsert_headers, [row])
+                results.append(
+                    {
+                        "ok": True,
+                        "mode": "push",
+                        "project_id": project_id,
+                        "agent_id": agent_id,
+                        "scope_key": scope_key,
+                        "result": res,
+                    }
+                )
+            except Exception as e:
+                results.append(
+                    {
+                        "ok": False,
+                        "mode": "push",
+                        "project_id": project_id,
+                        "agent_id": agent_id,
+                        "scope_key": scope_key,
+                        "error": str(e),
+                    }
+                )
+            continue
+
+        try:
+            q = urllib.parse.quote(scope_key, safe="")
+            url = f"{sb_url}/rest/v1/{table}?project_id=eq.{q}&select=project_id,source_machine,updated_at,payload&limit=1"
+            rows = http_json("GET", url, headers, None) or []
+            if not rows:
+                results.append(
+                    {
+                        "ok": False,
+                        "mode": "pull",
+                        "project_id": project_id,
+                        "agent_id": agent_id,
+                        "scope_key": scope_key,
+                        "error": "not_found",
+                    }
+                )
+                continue
+            row = rows[0]
+            payload = row.get("payload", {}) if isinstance(row, dict) else {}
+            written, skipped = write_snapshot(project_root, payload, overwrite=(not args.no_overwrite))
+            results.append(
+                {
+                    "ok": True,
+                    "mode": "pull",
+                    "project_id": project_id,
+                    "agent_id": agent_id,
+                    "scope_key": scope_key,
+                    "source_machine": row.get("source_machine"),
+                    "updated_at": row.get("updated_at"),
+                    "written": written,
+                    "skipped": skipped,
+                }
+            )
+        except Exception as e:
             results.append(
                 {
                     "ok": False,
@@ -358,26 +456,9 @@ def main():
                     "project_id": project_id,
                     "agent_id": agent_id,
                     "scope_key": scope_key,
-                    "error": "not_found",
+                    "error": str(e),
                 }
             )
-            continue
-        row = rows[0]
-        payload = row.get("payload", {}) if isinstance(row, dict) else {}
-        written, skipped = write_snapshot(project_root, payload, overwrite=(not args.no_overwrite))
-        results.append(
-            {
-                "ok": True,
-                "mode": "pull",
-                "project_id": project_id,
-                "agent_id": agent_id,
-                "scope_key": scope_key,
-                "source_machine": row.get("source_machine"),
-                "updated_at": row.get("updated_at"),
-                "written": written,
-                "skipped": skipped,
-            }
-        )
 
     print(json.dumps({"ok": all(r.get("ok", False) for r in results), "items": results}, ensure_ascii=False, indent=2))
 

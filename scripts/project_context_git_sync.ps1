@@ -15,14 +15,17 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
 function Safe-Id([string]$Text) {
-    $t = ($Text ?? "").Trim().ToLower()
+    $t = ""
+    if ($null -ne $Text) { $t = $Text.Trim().ToLower() }
     $t = [regex]::Replace($t, "[^a-z0-9_-]+", "_")
     $t = [regex]::Replace($t, "_+", "_").Trim("_")
     return $t
 }
 
 function Normalize-Key([string]$Text) {
-    return [regex]::Replace((($Text ?? "").ToLower()), "[^a-z0-9]+", "")
+    $v = ""
+    if ($null -ne $Text) { $v = $Text.ToLower() }
+    return [regex]::Replace($v, "[^a-z0-9]+", "")
 }
 
 function Parse-ProjectInputs([string]$Single, [string]$Multi) {
@@ -38,113 +41,178 @@ function Parse-ProjectInputs([string]$Single, [string]$Multi) {
     return $items
 }
 
-function Resolve-ProjectDir([string]$RepoRoot, [string]$ProjectInput) {
-    $projectsRoot = Join-Path $RepoRoot "projects"
-    if (-not (Test-Path $projectsRoot)) {
-        throw "projects directory not found: $projectsRoot"
-    }
-
-    $raw = ($ProjectInput ?? "").Trim()
+function Resolve-ProjectPath([string]$RepoRoot, [string]$ProjectInput) {
+    $raw = ""
+    if ($null -ne $ProjectInput) { $raw = $ProjectInput.Trim() }
     if (-not $raw) { throw "Project name is empty." }
 
     $safe = Safe-Id $raw
-    $candidates = @()
-    $candidates += $raw
-    if ($safe) { $candidates += $safe }
+    $key = Normalize-Key $raw
 
-    foreach ($c in $candidates) {
-        $p = Join-Path $projectsRoot $c
-        if (Test-Path $p) { return $c }
+    # 0) Current repo root when name matches.
+    if ($key -and ((Normalize-Key (Split-Path -Leaf $RepoRoot)) -eq $key)) {
+        return $RepoRoot
     }
 
-    $targetKey = Normalize-Key $raw
-    $matches = @()
-    Get-ChildItem -Path $projectsRoot -Directory | ForEach-Object {
-        if ((Normalize-Key $_.Name) -eq $targetKey) {
-            $matches += $_.Name
-        }
-    }
-    if ($matches.Count -eq 1) {
-        return $matches[0]
+    $projectsRoot = Join-Path $RepoRoot "projects"
+    $siblingsRoot = Split-Path -Parent $RepoRoot
+
+    # 1) Sibling dirs first (e.g. D:\logi-mind-v22).
+    $cands = @()
+    $cands += (Join-Path $siblingsRoot $raw)
+    if ($safe) { $cands += (Join-Path $siblingsRoot $safe) }
+    foreach ($p in $cands) {
+        if (Test-Path $p -PathType Container) { return (Resolve-Path $p).Path }
     }
 
-    # If nothing matched, create canonical directory.
+    # 2) projects/ fallback.
+    $p1 = Join-Path $projectsRoot $raw
+    if (Test-Path $p1 -PathType Container) { return (Resolve-Path $p1).Path }
+    if ($safe) {
+        $p2 = Join-Path $projectsRoot $safe
+        if (Test-Path $p2 -PathType Container) { return (Resolve-Path $p2).Path }
+    }
+
+    # 3) Normalized scan in siblings, then projects.
+    foreach ($p in (Get-ChildItem -Path $siblingsRoot -Directory -ErrorAction SilentlyContinue)) {
+        if ((Normalize-Key $p.Name) -eq $key) { return $p.FullName }
+    }
+    foreach ($p in (Get-ChildItem -Path $projectsRoot -Directory -ErrorAction SilentlyContinue)) {
+        if ((Normalize-Key $p.Name) -eq $key) { return $p.FullName }
+    }
+
+    # Create under projects as last resort.
     $created = Join-Path $projectsRoot $safe
     New-Item -ItemType Directory -Path $created -Force | Out-Null
-    return $safe
+    return (Resolve-Path $created).Path
+}
+
+function Ensure-GitRepo([string]$Path) {
+    try {
+        $out = git -C $Path rev-parse --is-inside-work-tree 2>$null
+        return ($LASTEXITCODE -eq 0 -and "$out".Trim() -eq "true")
+    } catch {
+        return $false
+    }
 }
 
 $repoRoot = Split-Path -Parent $PSScriptRoot
-Set-Location $repoRoot
-git rev-parse --is-inside-work-tree | Out-Null
-
 $projectInputs = Parse-ProjectInputs -Single $Project -Multi $Projects
-$projectDirs = @()
+$projectPaths = @()
 foreach ($p in $projectInputs) {
-    $projectDirs += (Resolve-ProjectDir -RepoRoot $repoRoot -ProjectInput $p)
+    $projectPaths += (Resolve-ProjectPath -RepoRoot $repoRoot -ProjectInput $p)
 }
-$projectDirs = $projectDirs | Select-Object -Unique
-
-if ($Mode -eq "pull") {
-    if ($Branch) {
-        if ($NoRebase) {
-            git pull origin $Branch
-        } else {
-            git pull --rebase origin $Branch
-        }
-    } else {
-        if ($NoRebase) {
-            git pull
-        } else {
-            git pull --rebase
-        }
-    }
-    Write-Host ("OK: pull completed for projects: " + ($projectDirs -join ", "))
-    exit 0
-}
+$projectPaths = $projectPaths | Select-Object -Unique
 
 $agentId = Safe-Id $Agent
-$paths = @()
-foreach ($dir in $projectDirs) {
-    $projectRel = ("projects/" + $dir).Replace("\", "/")
+$results = @()
+
+foreach ($projectPath in $projectPaths) {
+    if (-not (Ensure-GitRepo $projectPath)) {
+        $results += [pscustomobject]@{
+            project_path = $projectPath
+            ok = $false
+            mode = $Mode
+            detail = "not_git_repo"
+        }
+        continue
+    }
+
+    if ($Mode -eq "pull") {
+        if ($Branch) {
+            if ($NoRebase) { git -C $projectPath pull origin $Branch } else { git -C $projectPath pull --rebase origin $Branch }
+        } else {
+            if ($NoRebase) { git -C $projectPath pull } else { git -C $projectPath pull --rebase }
+        }
+        if ($LASTEXITCODE -ne 0) {
+            $results += [pscustomobject]@{
+                project_path = $projectPath
+                ok = $false
+                mode = $Mode
+                detail = "git_pull_failed"
+            }
+            continue
+        }
+        $results += [pscustomobject]@{
+            project_path = $projectPath
+            ok = $true
+            mode = $Mode
+            detail = "pulled"
+        }
+        continue
+    }
+
+    # push
     if ($agentId) {
-        $paths += "$projectRel/data/memory/$agentId"
-        $paths += "$projectRel/agents/$agentId.yaml"
-        $paths += "$projectRel/runs"
-        $paths += "$projectRel/artifacts"
-        $paths += "$projectRel/dashboard.json"
-        $paths += "$projectRel/policies.yaml"
-        $paths += "$projectRel/settings.yaml"
-        $paths += "$projectRel/skill-lock.yaml"
-        $paths += "$projectRel/workflow.yaml"
-        $paths += "$projectRel/context_schema.yaml"
+        $paths = @(
+            "data/memory/$agentId",
+            "agents/$agentId.yaml",
+            "runs",
+            "artifacts",
+            "dashboard.json",
+            "policies.yaml",
+            "settings.yaml",
+            "skill-lock.yaml",
+            "workflow.yaml",
+            "context_schema.yaml"
+        )
+        git -C $projectPath add -- $paths
     } else {
-        $paths += "$projectRel"
+        git -C $projectPath add -A
+    }
+
+    git -C $projectPath diff --cached --quiet
+    if ($LASTEXITCODE -eq 0) {
+        $results += [pscustomobject]@{
+            project_path = $projectPath
+            ok = $true
+            mode = $Mode
+            detail = "no_changes"
+        }
+        continue
+    }
+
+    $ts = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $projName = Split-Path -Leaf $projectPath
+    $msg = $Message
+    if (-not $msg) {
+        if ($agentId) { $msg = "sync($projName/$agentId): context snapshot $ts" }
+        else { $msg = "sync($projName): context snapshot $ts" }
+    }
+
+    git -C $projectPath commit -m $msg
+    if ($LASTEXITCODE -ne 0) {
+        $results += [pscustomobject]@{
+            project_path = $projectPath
+            ok = $false
+            mode = $Mode
+            detail = "git_commit_failed"
+        }
+        continue
+    }
+
+    if ($Branch) { git -C $projectPath push origin $Branch } else { git -C $projectPath push }
+    if ($LASTEXITCODE -ne 0) {
+        $results += [pscustomobject]@{
+            project_path = $projectPath
+            ok = $false
+            mode = $Mode
+            detail = "git_push_failed"
+        }
+        continue
+    }
+    $results += [pscustomobject]@{
+        project_path = $projectPath
+        ok = $true
+        mode = $Mode
+        detail = "pushed"
     }
 }
 
-git add -- $paths
+$okAll = ($results | Where-Object { -not $_.ok }).Count -eq 0
+[pscustomobject]@{
+    ok = $okAll
+    items = $results
+} | ConvertTo-Json -Depth 5
 
-git diff --cached --quiet
-if ($LASTEXITCODE -eq 0) {
-    Write-Host ("No staged changes for projects: " + ($projectDirs -join ", "))
-    exit 0
-}
-
-$ts = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-if (-not $Message) {
-    if ($agentId) {
-        $Message = "sync($($projectDirs -join '+')/$agentId): context snapshot $ts"
-    } else {
-        $Message = "sync($($projectDirs -join '+')): context snapshot $ts"
-    }
-}
-
-git commit -m $Message
-if ($Branch) {
-    git push origin $Branch
-} else {
-    git push
-}
-
-Write-Host ("OK: push completed for projects: " + ($projectDirs -join ", "))
+if (-not $okAll) { exit 1 }

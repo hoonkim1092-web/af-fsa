@@ -7,6 +7,30 @@
 루트(`D:\agent-factory`)에서 아래처럼 실행:
 
 ```bat
+start_sync
+:: 작업
+end_sync
+```
+
+권장 루틴(회사 PC / 집 PC / VSCode / Antigravity 공통):
+- 작업 시작 전: `start_sync`
+- 작업 종료 후: `end_sync`
+
+내부 동작:
+- `start_sync` = `sync down git all` + `sync down db all`
+- `end_sync` = `sync up db all` + `sync up git all`
+
+단일 프로젝트:
+- 작업 시작 전: `start_sync agent-factory`
+- 작업 종료 후: `end_sync agent-factory`
+
+단일 프로젝트 + 에이전트:
+- 작업 시작 전: `start_sync agent-factory lilith`
+- 작업 종료 후: `end_sync agent-factory lilith`
+
+기존 개별 명령도 그대로 사용 가능:
+
+```bat
 sync up git all
 sync down git all
 sync up db all
@@ -18,7 +42,7 @@ sync down db all
 - `down` = pull
 - `git` = Git 원격 저장소 동기화
 - `db` = Supabase DB 동기화
-- `all` = `agent-mind-v22`, `agent-factory` 두 프로젝트
+- `all` = `logi-mind-v22`, `agent-factory` 두 프로젝트
 
 ## 2) 단일 프로젝트 동기화
 
@@ -33,8 +57,8 @@ sync down db agent-factory
 다른 프로젝트도 동일:
 
 ```bat
-sync up git agent-mind-v22
-sync down db agent-mind-v22
+sync up git logi-mind-v22
+sync down db logi-mind-v22
 ```
 
 ## 3) 에이전트별 동기화
@@ -65,6 +89,10 @@ sync down db agent-factory lilith
 2. `.env`에 아래 값 설정
    - `SUPABASE_URL`
    - `SUPABASE_KEY`
+
+프로젝트별 DB를 따로 쓰는 경우:
+- `projects/<project_id>/.env`를 두면 해당 값이 우선 적용됩니다.
+- 즉 `all` 동기화 시에도 각 프로젝트는 자기 `.env` 기준 Supabase로 동기화됩니다.
 
 ## 6) 이름 매칭 규칙
 

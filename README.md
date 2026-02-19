@@ -29,6 +29,26 @@ Git(권장) 또는 Supabase로 스냅샷을 `push/pull` 하여 회사/집 PC를 
 루트에서 아래처럼만 실행하면 됩니다.
 
 ```bat
+start_sync
+:: 작업
+end_sync
+```
+
+내부 동작:
+- `start_sync` -> `sync down git all` + `sync down db all`
+- `end_sync` -> `sync up db all` + `sync up git all`
+
+단일 프로젝트:
+- `start_sync agent-factory`
+- `end_sync agent-factory`
+
+단일 프로젝트 + 에이전트:
+- `start_sync agent-factory lilith`
+- `end_sync agent-factory lilith`
+
+직접 명령이 필요하면:
+
+```bat
 sync up git all
 sync down git all
 sync up db all
@@ -40,12 +60,12 @@ sync down db all
 - `down` = pull
 - `git` = Git 원격 저장소로 동기화
 - `db` = Supabase DB로 동기화
-- `all` = `agent-mind-v22` + `agent-factory`
+- `all` = `logi-mind-v22` + `agent-factory`
 
 특정 프로젝트/에이전트:
 ```bat
 sync up git agent-factory
-sync down db agent-mind-v22
+sync down db logi-mind-v22
 sync up git agent-factory lilith
 ```
 
@@ -67,12 +87,12 @@ powershell -ExecutionPolicy Bypass -File scripts/project_context_git_sync.ps1 -M
 옵션:
 - `-Branch main` : 특정 브랜치로 pull/push
 - `-Message "sync: logi-mind-v22"` : 커밋 메시지 지정
-- `-Projects "agent-mind-v22,agent-factory"` : 여러 프로젝트 일괄 동기화
+- `-Projects "logi-mind-v22,agent-factory"` : 여러 프로젝트 일괄 동기화
 
 요청하신 두 프로젝트 일괄 예시:
 ```powershell
-powershell -ExecutionPolicy Bypass -File scripts/project_context_git_sync.ps1 -Mode push -Projects "agent-mind-v22,agent-factory"
-powershell -ExecutionPolicy Bypass -File scripts/project_context_git_sync.ps1 -Mode pull -Projects "agent-mind-v22,agent-factory"
+powershell -ExecutionPolicy Bypass -File scripts/project_context_git_sync.ps1 -Mode push -Projects "logi-mind-v22,agent-factory"
+powershell -ExecutionPolicy Bypass -File scripts/project_context_git_sync.ps1 -Mode pull -Projects "logi-mind-v22,agent-factory"
 ```
 
 1. Supabase SQL Editor에서 `artifacts/context_sync_schema.sql` 실행
@@ -93,8 +113,8 @@ python scripts/project_context_sync.py --project logi_mind_v22 --agent lilith --
 
 여러 프로젝트 일괄(DB) 동기화:
 ```bash
-python scripts/project_context_sync.py --projects "agent-mind-v22,agent-factory" --mode push
-python scripts/project_context_sync.py --projects "agent-mind-v22,agent-factory" --mode pull
+python scripts/project_context_sync.py --projects "logi-mind-v22,agent-factory" --mode push
+python scripts/project_context_sync.py --projects "logi-mind-v22,agent-factory" --mode pull
 ```
 
 프로젝트 이름 호환:

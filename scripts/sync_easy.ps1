@@ -18,9 +18,10 @@ function To-Mode([string]$a) {
 }
 
 function To-ProjectArgs([string]$t) {
-    $key = ($t ?? "").Trim().ToLower()
+    $key = ""
+    if ($null -ne $t) { $key = $t.Trim().ToLower() }
     switch ($key) {
-        "all" { return @{ IsMulti = $true; Value = "agent-mind-v22,agent-factory" } }
+        "all" { return @{ IsMulti = $true; Value = "logi-mind-v22,agent-factory" } }
         default { return @{ IsMulti = $false; Value = $t } }
     }
 }
