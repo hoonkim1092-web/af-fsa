@@ -158,7 +158,8 @@ foreach ($projectPath in $projectPaths) {
         )
         git -C $projectPath add -- $paths
     } else {
-        git -C $projectPath add -A
+        # Keep syncCompyne in DB-only sync scope (do not commit/push it via git sync).
+        git -C $projectPath add -A -- . ":(exclude)syncCompyne/**"
     }
 
     git -C $projectPath diff --cached --quiet

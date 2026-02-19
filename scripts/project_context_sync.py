@@ -286,6 +286,7 @@ def collect_snapshot(project_root: Path, project_id: str, agent_id: str | None, 
     _include_tree(project_root, files, "runs", (".json", ".yaml", ".yml", ".md", ".txt", ".csv", ".log", ".sql", ".py"))
     _include_tree(project_root, files, "docs", (".json", ".yaml", ".yml", ".md", ".txt"))
     _include_tree(project_root, files, "planning", (".json", ".yaml", ".yml", ".md", ".txt"))
+    _include_tree(project_root, files, "syncCompyne", (".json", ".yaml", ".yml", ".md", ".txt", ".py", ".csv", ".log", ".sql"))
     _include_tree(project_root, files, "inbox", (".json", ".yaml", ".yml", ".md", ".txt", ".csv"))
     _include_tree(project_root, files, "processed", (".json", ".yaml", ".yml", ".md", ".txt", ".csv"))
     _include_root_files(project_root, files, (".md", ".json", ".yaml", ".yml", ".txt", ".log"))
