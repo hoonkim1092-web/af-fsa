@@ -71,6 +71,7 @@ runtime_rules:
   - HTTP_CALL
   default_deny: true
   codex_directive: "Use Codex tooling/workflow first for all implementation tasks."
+  design_directive: "ALWAYS use 'stitch_design' skill for Web Design / UI Layout tasks."
   preferred_model: "models/gemini-3.1-pro-preview"
 skills:
 - stitch_design
