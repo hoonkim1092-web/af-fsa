@@ -209,7 +209,8 @@ foreach ($projectPath in $projectPaths) {
     }
 }
 
-$okAll = ($results | Where-Object { -not $_.ok }).Count -eq 0
+$failCount = @($results | Where-Object { -not $_.ok }).Count
+$okAll = ($failCount -eq 0)
 [pscustomobject]@{
     ok = $okAll
     items = $results

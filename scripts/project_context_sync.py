@@ -123,7 +123,13 @@ def resolve_project_root(repo_root: Path, project_input: str) -> tuple[str, Path
 
 
 def read_text(path: Path) -> str:
-    return path.read_text(encoding="utf-8")
+    raw = path.read_bytes()
+    for enc in ("utf-8", "utf-8-sig", "cp949", "utf-16", "latin-1"):
+        try:
+            return raw.decode(enc)
+        except Exception:
+            continue
+    raise UnicodeDecodeError("unknown", raw, 0, 1, "unsupported text encoding")
 
 
 def write_text(path: Path, content: str) -> None:
@@ -167,6 +173,16 @@ def _include_tree(project_root: Path, files: dict[str, str], root_rel: str, exts
     if not root.exists():
         return
     for p in root.rglob("*"):
+        if not p.is_file():
+            continue
+        if p.suffix.lower() not in exts:
+            continue
+        rel = p.relative_to(project_root).as_posix()
+        files[rel] = b64e(read_text(p))
+
+
+def _include_root_files(project_root: Path, files: dict[str, str], exts: tuple[str, ...]) -> None:
+    for p in project_root.glob("*"):
         if not p.is_file():
             continue
         if p.suffix.lower() not in exts:
@@ -266,6 +282,13 @@ def collect_snapshot(project_root: Path, project_id: str, agent_id: str | None, 
 
     # Project artifacts (work outputs) in text formats.
     _include_tree(project_root, files, "artifacts", (".json", ".yaml", ".yml", ".md", ".txt", ".csv", ".log", ".sql", ".py"))
+    _include_tree(project_root, files, "data", (".json", ".yaml", ".yml", ".md", ".txt", ".csv", ".log", ".sql", ".py"))
+    _include_tree(project_root, files, "runs", (".json", ".yaml", ".yml", ".md", ".txt", ".csv", ".log", ".sql", ".py"))
+    _include_tree(project_root, files, "docs", (".json", ".yaml", ".yml", ".md", ".txt"))
+    _include_tree(project_root, files, "planning", (".json", ".yaml", ".yml", ".md", ".txt"))
+    _include_tree(project_root, files, "inbox", (".json", ".yaml", ".yml", ".md", ".txt", ".csv"))
+    _include_tree(project_root, files, "processed", (".json", ".yaml", ".yml", ".md", ".txt", ".csv"))
+    _include_root_files(project_root, files, (".md", ".json", ".yaml", ".yml", ".txt", ".log"))
 
     digest_src = json.dumps(files, sort_keys=True, ensure_ascii=False).encode("utf-8")
     digest = hashlib.sha256(digest_src).hexdigest()
