@@ -1,4 +1,4 @@
-
+﻿
 import os
 import json
 import time
@@ -6,10 +6,8 @@ import sys
 import google.generativeai as genai
 from dotenv import load_dotenv
 
-# Reconfigure stdout to utf-8 for Windows console
 sys.stdout.reconfigure(encoding='utf-8')
 
-# Ensure .env is loaded
 load_dotenv()
 api_key = os.getenv("GOOGLE_API_KEY")
 if api_key:
@@ -19,9 +17,8 @@ CACHE_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "models_ca
 CACHE_EXPIRY = 24 * 60 * 60  # 24 hours in seconds
 
 def log(msg):
-    # Retrieve the caller module name for better logging
     caller = sys._getframe(1).f_globals.get('__name__')
-    print(f"[{caller}] 🤖 {msg}")
+    print(f"[{caller}] ?쨼 {msg}")
 
 def load_cache():
     if not os.path.exists(CACHE_FILE):
@@ -31,7 +28,6 @@ def load_cache():
         with open(CACHE_FILE, 'r', encoding='utf-8') as f:
             data = json.load(f)
             
-        # Check expiry
         if time.time() - data.get('timestamp', 0) > CACHE_EXPIRY:
             log("Model cache expired.")
             return None
@@ -75,7 +71,6 @@ def get_available_models(force_refresh=False):
         return models
     except Exception as e:
         log(f"Failed to list models: {e}. Returning fallback list.")
-        # Fallback if API fails (and no cache)
         return [
             "models/gemini-2.0-flash",
             "models/gemini-1.5-flash",
@@ -100,10 +95,8 @@ def get_best_model(priority_list=None):
     for p in priority_list:
         for m in available:
             if p in m:
-                # log(f"Selected model: {m} (matched priority '{p}')")
                 return m
                 
-    # Fallback: return the first available model or a safe default
     if available:
         log(f"No priority match found. Using first available: {available[0]}")
         return available[0]

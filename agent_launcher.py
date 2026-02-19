@@ -726,16 +726,12 @@ class RequirementAnalyzer:
         text = f"{task_input} {role_text}".lower()
         picks: list[str] = []
         rules = [
-            # ("research_assistant", ["research", "리서치", "검증", "후보", "라이브러리"]), # 제거됨: Himari 전용
             ("issue_tracker", ["이슈", "추적", "ticket", "issue", "책임", "audit", "로그"]),
             ("data_visualize", ["시각화", "대시보드", "차트", "그래프", "요약"]),
         ]
         for sid, kws in rules:
             if any(k in text for k in kws):
                 picks.append(sid)
-        if not picks:
-            # 기본값으로 research_assistant를 주지 않음 (Centralized Research Policy)
-            pass
         return list(dict.fromkeys([safe_id(s) for s in picks]))[:5]
 
     def analyze(self, agent: dict, task_input: str) -> dict:
@@ -1847,19 +1843,10 @@ class AgentRunner:
     def convert_to_tools(self, modules: list) -> dict:
         tools = {}
         for mod in modules:
-            # Simple assumption: all callable functions in the module are tools
-            # except private ones starting with _
             for attr_name in dir(mod):
                 if attr_name.startswith("_"): continue
                 attr = getattr(mod, attr_name)
                 if callable(attr):
-                    # Wrap function to inject context if needed
-                    # For simplicity in this v1, we assume tools take (ctx, ...)
-                    # But Gemini API expects direct functions. 
-                    # We need to partial-apply 'ctx' or manage state differently.
-                    # For now, let's assume the tool functions handle their own context 
-                    # OR we pass a global context.
-                    # To allow Gemini to call them, we need to inspect signature.
                     tools[attr_name] = attr 
         return tools
 
@@ -2409,9 +2396,6 @@ class AgentFactory:
             }
         )
     
-    # ... [Skipping manual re-implementation of run for now to focus on AgentRunner class addition]
-    # Actually, I'll add AgentRunner class BEFORE AgentFactory, and then update AgentFactory.init and run.
-
 # =============================================================================
 # Example
 # =============================================================================
@@ -2420,8 +2404,5 @@ if __name__ == "__main__":
         task_input="Check current skills",
         role_spec="General",
     )
-
-
-
 
 

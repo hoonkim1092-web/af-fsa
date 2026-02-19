@@ -6,7 +6,6 @@ import sys
 FACTORY_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(FACTORY_DIR)
 
-# Windows Console Encoding Fix
 sys.stdin.reconfigure(encoding='utf-8')
 sys.stdout.reconfigure(encoding='utf-8')
 
@@ -57,7 +56,6 @@ def main():
     if args.model:
         os.environ["AGENT_CHAT_MODEL"] = args.model.strip()
 
-    # Import after project env is fixed.
     from agent_launcher import AgentFactory
 
     print("\n[Logi-Mind Agent Factory] 시작")

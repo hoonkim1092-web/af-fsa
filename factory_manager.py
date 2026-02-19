@@ -1,4 +1,4 @@
-import os
+﻿import os
 import sys
 import glob
 import subprocess
@@ -8,36 +8,30 @@ import google.generativeai as genai
 from dotenv import load_dotenv
 from model_utils import get_best_model
 
-# --- [0] 설정 및 준비 ---
 FACTORY_ROOT = os.getcwd()
 AGENTS_DIR = os.path.join(FACTORY_ROOT, "agents")
 WAREHOUSE_DIR = os.path.join(FACTORY_ROOT, "skills", "warehouse")
 FORGE_DIR = os.path.join(FACTORY_ROOT, "skills", "forge")
 
-# 🔗 안티그래비티 링크에서 넘겨준 정보 수신
-# sys.argv[1]: 역할명, sys.argv[2]: 모델명
 role = sys.argv[1] if len(sys.argv) > 1 else "General Assistant"
 selected_model_name = sys.argv[2] if len(sys.argv) > 2 else "gemini-2.0-flash"
 
-# 스킬 저장소 설정
 ANTIGRAVITY_REPO_URL = "https://github.com/guanyang/antigravity-skills.git"
 
-# 보안: .env 파일 로드
 sys.stdout.reconfigure(encoding='utf-8')
 load_dotenv() # Search for .env automatically
 api_key = os.getenv("GOOGLE_API_KEY")
 
 if not api_key:
-    print("⚠️ [경고] GOOGLE_API_KEY가 설정되지 않았습니다. (시스템 인증을 시도합니다)")
+    print("?좑툘 [寃쎄퀬] GOOGLE_API_KEY媛 ?ㅼ젙?섏? ?딆븯?듬땲?? (?쒖뒪???몄쬆???쒕룄?⑸땲??")
 else:
     genai.configure(api_key=api_key)
 
-# 🧠 선택된 모델 엔진 장착 (리서치 기능 포함)
 def log(step, msg):
     print(f"[{step}] {msg}")
 
 def get_random_signature(agent_config: dict) -> str:
-    """YAML 설정에서 무작위 시그니처 대사를 반환합니다."""
+    """YAML ?ㅼ젙?먯꽌 臾댁옉???쒓렇?덉쿂 ??щ? 諛섑솚?⑸땲??"""
     import random
     lines = agent_config.get("signature_lines")
     if not lines and "persona" in agent_config:
@@ -47,27 +41,25 @@ def get_random_signature(agent_config: dict) -> str:
         return random.choice(lines)
     return ""
 
-# sys.argv[2]가 있으면 그걸 쓰고, 없으면 자동 검색
 if len(sys.argv) > 2:
     selected_model_name = sys.argv[2]
 else:
     selected_model_name = get_best_model()
 
-log("SYSTEM", f"⚡ {selected_model_name} 엔진으로 {role} 제작 공정 시작")
+log("SYSTEM", f"??{selected_model_name} ?붿쭊?쇰줈 {role} ?쒖옉 怨듭젙 ?쒖옉")
 
 model = genai.GenerativeModel(
     model_name=selected_model_name,
     tools=[{'google_search_retrieval': {}}]
 )
 
-# --- [보안] 민감 정보 패턴 ---
 SENSITIVE_PATTERNS = [
     r"sk-[a-zA-Z0-9]{20,}", r"AIza[0-9A-Za-z-_]{35}", 
     r"ghp_[a-zA-Z0-9]{20,}", r"xoxb-[a-zA-Z0-9-]{10,}"
 ]
 
 def security_scan(directory):
-    log("SECURITY", f"🔍 보안 검색 중: {directory}")
+    log("SECURITY", f"?뵇 蹂댁븞 寃??以? {directory}")
     is_safe = True
     for root, _, files in os.walk(directory):
         for file in files:
@@ -77,31 +69,29 @@ def security_scan(directory):
                         content = f.read()
                         for pattern in SENSITIVE_PATTERNS:
                             if re.search(pattern, content):
-                                log("SECURITY", f"🚨 민감 정보 발견! 파일: {file}")
+                                log("SECURITY", f"?슚 誘쇨컧 ?뺣낫 諛쒓껄! ?뚯씪: {file}")
                                 is_safe = False
                 except: pass
     if not is_safe:
-        log("SECURITY", "⛔ 보안 위규 사항 발생! (Git Push 중단됨)")
+        log("SECURITY", "??蹂댁븞 ?꾧퇋 ?ы빆 諛쒖깮! (Git Push 以묐떒??")
         return False
     return True
 
-# --- [기능] 스킬 창고 동기화 ---
 def sync_warehouse():
-    log("WAREHOUSE", "📦 최신 스킬 저장소 동기화 중...")
+    log("WAREHOUSE", "?벀 理쒖떊 ?ㅽ궗 ??μ냼 ?숆린??以?..")
     if not os.path.exists(WAREHOUSE_DIR):
         try:
             subprocess.run(["git", "clone", ANTIGRAVITY_REPO_URL, WAREHOUSE_DIR], check=True)
-            log("WAREHOUSE", "✅ 스킬 창고 다운로드 완료")
+            log("WAREHOUSE", "???ㅽ궗 李쎄퀬 ?ㅼ슫濡쒕뱶 ?꾨즺")
         except Exception as e:
-            log("WAREHOUSE", f"⚠️ 다운로드 실패: {e}")
+            log("WAREHOUSE", f"?좑툘 ?ㅼ슫濡쒕뱶 ?ㅽ뙣: {e}")
     else:
         try:
             subprocess.run(["git", "-C", WAREHOUSE_DIR, "pull"], check=True)
-            log("WAREHOUSE", "✅ 최신 스킬 업데이트 완료")
+            log("WAREHOUSE", "??理쒖떊 ?ㅽ궗 ?낅뜲?댄듃 ?꾨즺")
         except Exception as e:
-            log("WAREHOUSE", f"⚠️ 업데이트 실패(로컬 모드): {e}")
+            log("WAREHOUSE", f"?좑툘 ?낅뜲?댄듃 ?ㅽ뙣(濡쒖뺄 紐⑤뱶): {e}")
 
-# --- [기능] 에이전트 생성 및 조립 ---
 def find_existing_agent(role):
     agent_name = role.replace(" ", "-").lower() + "-agent"
     if os.path.exists(os.path.join(AGENTS_DIR, agent_name)): return agent_name
@@ -116,19 +106,18 @@ def load_agent_config(agent_name):
         with open(config_path, "r", encoding="utf-8") as f:
             return yaml.safe_load(f)
     except ImportError:
-        log("SYSTEM", "⚠️ PyYAML not installed. Returning None.")
+        log("SYSTEM", "?좑툘 PyYAML not installed. Returning None.")
         return None
     except Exception as e:
-        log("SYSTEM", f"⚠️ Error loading agent config: {e}")
+        log("SYSTEM", f"?좑툘 Error loading agent config: {e}")
         return None
 
 def _query_notebooklm(query: str) -> str:
     """
-    NotebookLM CLI를 통해 질문을 수행합니다. (Factory 버전)
-    기본 노트북 ID: eaa34a54-a898-46a0-835a-cdb6024887f0 (Google Antigravity Guide)
+    NotebookLM CLI瑜??듯빐 吏덈Ц???섑뻾?⑸땲?? (Factory 踰꾩쟾)
+    湲곕낯 ?명듃遺?ID: eaa34a54-a898-46a0-835a-cdb6024887f0 (Google Antigravity Guide)
     """
     try:
-        # CLI 모듈을 서브프로세스로 호출
         target_notebook_id = "eaa34a54-a898-46a0-835a-cdb6024887f0"
         
         cmd = [
@@ -138,7 +127,6 @@ def _query_notebooklm(query: str) -> str:
             query
         ]
         
-        # 윈도우 인코딩 문제 방지를 위해 env 설정
         env = os.environ.copy()
         env["PYTHONIOENCODING"] = "utf-8"
         
@@ -157,16 +145,15 @@ def _query_notebooklm(query: str) -> str:
         return p.stdout.strip()
         
     except Exception as e:
-        log("RESEARCH", f"⚠️ NotebookLM 연결 오류: {e}")
+        log("RESEARCH", f"?좑툘 NotebookLM ?곌껐 ?ㅻ쪟: {e}")
         return ""
 
 def research_required_skills(role):
     with open("debug.log", "a", encoding="utf-8") as f:
         f.write(f"LOG: sys.argv: {sys.argv}\n")
         f.write(f"LOG: Model Name: {selected_model_name}\n")
-    log("RESEARCH", f"'{role}'에 필요한 핵심 스킬 분석 중...")
+    log("RESEARCH", f"'{role}'???꾩슂???듭떖 ?ㅽ궗 遺꾩꽍 以?..")
     
-    # 히마리(Himari) 에이전트 설정 로드
     himari_config = load_agent_config("himari")
     
     system_instruction = ""
@@ -174,50 +161,45 @@ def research_required_skills(role):
         sig = get_random_signature(himari_config)
         if sig:
             print(f"\n[RESEARCH] Himari \"{sig}\"")
-        log("RESEARCH", "✨ 히마리(Himari)가 분석을 시작합니다.")
+        log("RESEARCH", "???덈쭏由?Himari)媛 遺꾩꽍???쒖옉?⑸땲??")
         system_instruction = himari_config.get("prompt", {}).get("system_ko", "")
 
-        # [New] NotebookLM 리서치 (RAG)
-        log("RESEARCH", "🔎 [비밀 서고] NotebookLM에서 관련 지식을 탐색합니다...")
+        log("RESEARCH", "?뵊 [鍮꾨? ?쒓퀬] NotebookLM?먯꽌 愿??吏?앹쓣 ?먯깋?⑸땲??..")
         query = f"Key Python CLI tools and skills required for: {role}. Architecture recommendations?"
         notebook_insight = _query_notebooklm(query)
         
         if notebook_insight:
-            log("RESEARCH", f"💡 서고에서 유의미한 기록을 발견했습니다.")
-            system_instruction += f"\n\n[NotebookLM Secret Archive Constraint]:\n{notebook_insight[:1000]}\n(이 정보를 바탕으로 판단하십시오.)"
+            log("RESEARCH", f"?뮕 ?쒓퀬?먯꽌 ?좎쓽誘명븳 湲곕줉??諛쒓껄?덉뒿?덈떎.")
+            system_instruction += f"\n\n[NotebookLM Secret Archive Constraint]:\n{notebook_insight[:1000]}\n(???뺣낫瑜?諛뷀깢?쇰줈 ?먮떒?섏떗?쒖삤.)"
     
     try:
-        # 선택된 고성능 모델(Pro)이 구글 검색을 활용해 리서치 수행
         if system_instruction:
-            # 히마리 페르소나 적용
             prompt = f"""
             {system_instruction}
             
-            [사용자 요청]
+            [?ъ슜???붿껌]
             Role: {role}
             
-            위 역할을 완벽하게 수행하기 위해 필요한 **Python CLI 도구(Skill) 2~3개**를 추천해줘.
+            ????븷???꾨꼍?섍쾶 ?섑뻾?섍린 ?꾪빐 ?꾩슂??**Python CLI ?꾧뎄(Skill) 2~3媛?*瑜?異붿쿇?댁쨾.
             
-            [출력 형식]
-            너의 분석 결과(JSON)에서 `recommended_tools` 리스트만 추출해서 사용할 거야.
-            하지만 너의 그 "초천재적인 분석"을 듣고 싶으니까, **JSON 블록**으로 결과를 줘.
+            [異쒕젰 ?뺤떇]
+            ?덉쓽 遺꾩꽍 寃곌낵(JSON)?먯꽌 `recommended_tools` 由ъ뒪?몃쭔 異붿텧?댁꽌 ?ъ슜??嫄곗빞.
+            ?섏?留??덉쓽 洹?"珥덉쿇?ъ쟻??遺꾩꽍"???ｊ퀬 ?띠쑝?덇퉴, **JSON 釉붾줉**?쇰줈 寃곌낵瑜?以?
             
             ```json
             {{
-                "thought_process": "히마리의 분석 내용 (한국어, 반말, 도도하게)",
+                "thought_process": "?덈쭏由ъ쓽 遺꾩꽍 ?댁슜 (?쒓뎅?? 諛섎쭚, ?꾨룄?섍쾶)",
                 "recommended_tools": ["tool_name_a", "tool_name_b"]
             }}
             ```
-            도구 이름은 반드시 **영어, snake_case**여야 해.
+            ?꾧뎄 ?대쫫? 諛섎뱶??**?곸뼱, snake_case**?ъ빞 ??
             """
         else:
-            # 기존 로직 (히마리 로드 실패 시)
-            prompt = f"Role: {role}. Analyze this role and recommend 2-3 essential Python CLI tool names (comma separated, English only). Example: logistics_optimizer, route_planner. **모든 분석 결과와 추천 사유는 반드시 한국어로 작성해.**"
+            prompt = f"Role: {role}. Analyze this role and recommend 2-3 essential Python CLI tool names (comma separated, English only). Example: logistics_optimizer, route_planner. **紐⑤뱺 遺꾩꽍 寃곌낵? 異붿쿇 ?ъ쑀??諛섎뱶???쒓뎅?대줈 ?묒꽦??**"
 
         response = model.generate_content(prompt)
         text = response.text
 
-        # JSON 파싱 시도 (히마리 모드)
         if system_instruction and "```json" in text:
             import json
             try:
@@ -226,20 +208,18 @@ def research_required_skills(role):
                 tools = data.get("recommended_tools", [])
                 thought = data.get("thought_process", "")
                 if thought:
-                    log("HIMARI", f"💭 {thought}")
+                    log("HIMARI", f"?뮡 {thought}")
                 return [s.strip() for s in tools]
             except Exception as e:
-                log("RESEARCH", f"⚠️ JSON 파싱 실패, 텍스트에서 추출 시도: {e}")
+                log("RESEARCH", f"?좑툘 JSON ?뚯떛 ?ㅽ뙣, ?띿뒪?몄뿉??異붿텧 ?쒕룄: {e}")
         
-        # 일반 텍스트 파싱 (기존 로직 + 백업)
         if "," in text:
             return [s.strip() for s in text.split(',')]
         else:
-            # 줄바꿈으로 되어 있을 경우 대비
             return [s.strip() for s in text.split('\n') if s.strip() and not s.startswith("```")]
             
     except Exception as e: 
-        log("RESEARCH", f"⚠️ 리서치 오류: {e}")
+        log("RESEARCH", f"?좑툘 由ъ꽌移??ㅻ쪟: {e}")
         with open("debug.log", "a", encoding="utf-8") as f:
             f.write(f"ERROR: {e}\n")
         return ["core_module"]
@@ -286,17 +266,16 @@ def procure_skill(skill_name, role):
     return forge_new_skill(skill_name, role)
 
 def forge_new_skill(skill_name, role):
-    log("FORGE", f"🛠️ 스킬 직접 제작: '{skill_name}'")
+    log("FORGE", f"?썱截??ㅽ궗 吏곸젒 ?쒖옉: '{skill_name}'")
     os.makedirs(FORGE_DIR, exist_ok=True)
     output_path = os.path.join(FORGE_DIR, f"{skill_name}.py")
     
-    # 3.0 Pro나 1.5 Pro가 직접 고퀄리티 코드를 짭니다.
-    prompt = f"Write a professional Python CLI tool '{skill_name}.py' for the role '{role}'. Use argparse. Provide clean, robust code only. **코드 내의 독스트링(Docstring)과 사용자에게 보여지는 출력 메시지는 반드시 한국어로 작성해.**"
+    prompt = f"Write a professional Python CLI tool '{skill_name}.py' for the role '{role}'. Use argparse. Provide clean, robust code only. **肄붾뱶 ?댁쓽 ?낆뒪?몃쭅(Docstring)怨??ъ슜?먯뿉寃?蹂댁뿬吏??異쒕젰 硫붿떆吏??諛섎뱶???쒓뎅?대줈 ?묒꽦??**"
     try:
         response = model.generate_content(prompt)
         code = response.text.replace("```python", "").replace("```", "").strip()
         with open(output_path, "w", encoding="utf-8") as f: f.write(code)
-        log("FORGE", f"🔥 제작 완료: {output_path}")
+        log("FORGE", f"?뵦 ?쒖옉 ?꾨즺: {output_path}")
         return output_path
     except: return None
 
@@ -314,49 +293,44 @@ def assemble_and_push(agent_name, role, skill_paths):
     with open(os.path.join(target_dir, "profile.md"), "w", encoding="utf-8") as f:
         f.write(f"# Agent Role: {role}\nEngine: {selected_model_name}\n\nGenerated by Logi-Mind Factory Manager.\n\n{padding_protocol}")
 
-    # [Cortex Upgrade] Core Skill 강제 주입
     CORE_SKILLS_DIR = os.path.join(FACTORY_ROOT, "skills", "core")
     if os.path.exists(CORE_SKILLS_DIR):
-        log("ASSEMBLE", f"🧠 Cortex(Core Skills) 탑재 중...")
+        log("ASSEMBLE", f"?쭬 Cortex(Core Skills) ?묒옱 以?..")
         for core_skill in glob.glob(os.path.join(CORE_SKILLS_DIR, "*.py")):
             shutil.copy2(core_skill, tools_dir)
 
     for src in skill_paths:
         if src and os.path.exists(src): shutil.copy2(src, tools_dir)
 
-    log("ASSEMBLE", f"✅ 에이전트 조립 완료: {target_dir}")
+    log("ASSEMBLE", f"???먯씠?꾪듃 議곕┰ ?꾨즺: {target_dir}")
     
     if not security_scan(target_dir): return 
 
-    log("GIT", "GitHub 저장소로 전송 중...")
+    log("GIT", "GitHub ??μ냼濡??꾩넚 以?..")
     try:
         subprocess.run(["git", "add", "."], check=True)
         subprocess.run(["git", "commit", "-m", f"feat: Factory generated {agent_name} using {selected_model_name}"], check=True)
         subprocess.run(["git", "push"], check=True)
-        log("GIT", "🚀 전송 성공!")
-    except: log("GIT", "⚠️ 변경 사항이 없거나 푸시 실패")
+        log("GIT", "?? ?꾩넚 ?깃났!")
+    except: log("GIT", "?좑툘 蹂寃??ы빆???녾굅???몄떆 ?ㅽ뙣")
 
-# --- 메인 실행 ---
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("사용법: python factory_manager.py '역할명' '모델명'")
+        print("?ъ슜踰? python factory_manager.py '??븷紐? '紐⑤뜽紐?")
         sys.exit(1)
 
-    # 1. 창고 동기화
     sync_warehouse()
 
-    # 2. 기존 에이전트 확인 (있어도 종료하지 않고 업데이트 모드로 진행)
     agent_id = role.replace(" ", "-").lower() + "-agent"
     if find_existing_agent(role):
-        log("SYSTEM", f"이미 '{agent_id}'가 존재합니다. 스킬 업데이트를 계속 진행합니다.")
+        log("SYSTEM", f"?대? '{agent_id}'媛 議댁옱?⑸땲?? ?ㅽ궗 ?낅뜲?댄듃瑜?怨꾩냽 吏꾪뻾?⑸땲??")
     else:
-        log("SYSTEM", f"'{agent_id}' 신규 생성을 진행합니다.")
+        log("SYSTEM", f"'{agent_id}' ?좉퇋 ?앹꽦??吏꾪뻾?⑸땲??")
         
-    # 3. 생산 공정 (리서치 -> 스킬 확보 -> 조립 -> 푸시)
     required_skills = research_required_skills(role)
     missing_skills = get_missing_skills(agent_id, required_skills)
     if not missing_skills:
-        log("SYSTEM", "누락 스킬이 없어 업데이트를 종료합니다.")
+        log("SYSTEM", "?꾨씫 ?ㅽ궗???놁뼱 ?낅뜲?댄듃瑜?醫낅즺?⑸땲??")
         sys.exit(0)
 
     paths = [procure_skill(s, role) for s in missing_skills]
