@@ -61,8 +61,8 @@ system_prompt: |
 
 runtime_rules:
   default_deny: true
-  codex_directive: "Use Codex tooling/workflow first for all implementation, INCLUDING database (SQL/Query/Schema) tasks."
-  preferred_model: "models/gemini-2.0-flash" # Default to flash for core logic, router handles fallback
+  codex_directive: "Hybrid Policy: Use Gemini 3.1 Pro for Schema/Architecture DESIGN. Use Codex for SQL/ORM/Terminal IMPLEMENTATION."
+  preferred_model: "models/gemini-2.0-flash" # Default, overridden by router
   allowed_skills:
     - "PLAN"
     - "DOC_WRITE"
