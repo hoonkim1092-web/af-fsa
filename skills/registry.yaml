@@ -1,5 +1,25 @@
 install_candidates: {}
 skills:
+  ai_funnel_routing:
+    capabilities:
+    - AI_FUNNEL_ROUTING
+    id: ai_funnel_routing
+    last_test_ok: true
+    meta_path: skills/ai_funnel_routing/meta.yaml
+    name: ai_funnel_routing
+    path: skills/ai_funnel_routing/skill.py
+    status: active
+    updated_at: '2026-02-20T02:22:54'
+    version: 1.0.0
+  api_security_vetting:
+    capabilities: []
+    id: api_security_vetting
+    last_test_ok: true
+    name: api_security_vetting
+    path: skills/forge/api_security_vetting.py
+    status: active
+    updated_at: '2026-02-20T02:22:54'
+    version: 1.0.0
   core_memory:
     capabilities:
     - MEMORY_READ
@@ -8,7 +28,7 @@ skills:
     id: core_memory
     last_test_ok: true
     meta_path: skills/core_memory/meta.yaml
-    name: Core Memory
+    name: Core Memory (Korean)
     path: skills/core_memory/skill.py
     status: active
     updated_at: '2026-02-14T21:13:00'
@@ -26,6 +46,17 @@ skills:
     status: active
     updated_at: '2026-02-12T18:10:00'
     version: 1.0.0
+  css_styling:
+    capabilities:
+    - CSS_STYLING
+    id: css_styling
+    last_test_ok: true
+    meta_path: skills/css_styling/meta.yaml
+    name: css_styling
+    path: skills/css_styling/skill.py
+    status: active
+    updated_at: '2026-02-20T02:22:54'
+    version: 1.0.0
   data_visualize:
     capabilities:
     - DATA_VISUALIZE
@@ -36,6 +67,15 @@ skills:
     path: skills/data_visualize/skill.py
     status: active
     updated_at: '2026-02-12T15:40:00'
+    version: 1.0.0
+  db_optimizer:
+    capabilities: []
+    id: db_optimizer
+    last_test_ok: true
+    name: db_optimizer
+    path: skills/forge/db_optimizer.py
+    status: active
+    updated_at: '2026-02-20T02:22:54'
     version: 1.0.0
   generate_image:
     capabilities:
@@ -49,6 +89,26 @@ skills:
     status: active
     updated_at: '2026-02-12T18:10:00'
     version: 1.0.0
+  gherkin_sdd_authoring:
+    capabilities:
+    - GHERKIN_SDD_AUTHORING
+    id: gherkin_sdd_authoring
+    last_test_ok: true
+    meta_path: skills/gherkin_sdd_authoring/meta.yaml
+    name: gherkin_sdd_authoring
+    path: skills/gherkin_sdd_authoring/skill.py
+    status: active
+    updated_at: '2026-02-20T02:22:54'
+    version: 1.0.0
+  infrastructure_scaler:
+    capabilities: []
+    id: infrastructure_scaler
+    last_test_ok: true
+    name: infrastructure_scaler
+    path: skills/forge/infrastructure_scaler.py
+    status: active
+    updated_at: '2026-02-20T02:22:54'
+    version: 1.0.0
   issue_tracker:
     capabilities:
     - ISSUE_READ
@@ -61,10 +121,22 @@ skills:
     status: active
     updated_at: '2026-02-12T15:40:00'
     version: 1.0.0
+  liability_traceability_design:
+    capabilities:
+    - LIABILITY_TRACEABILITY_DESIGN
+    id: liability_traceability_design
+    last_test_ok: true
+    meta_path: skills/liability_traceability_design/meta.yaml
+    name: liability_traceability_design
+    path: skills/liability_traceability_design/skill.py
+    status: active
+    updated_at: '2026-02-20T02:22:54'
+    version: 1.0.0
   perform_web_design_review:
     capabilities:
     - DESIGN_REVIEW
     - CHECKLIST
+    - AUDIT
     id: perform_web_design_review
     last_test_ok: true
     meta_path: skills/perform_web_design_review/meta.yaml
@@ -72,6 +144,17 @@ skills:
     path: skills/perform_web_design_review/skill.py
     status: active
     updated_at: '2026-02-12T18:15:00'
+    version: 1.0.0
+  react_coding:
+    capabilities:
+    - REACT_CODING
+    id: react_coding
+    last_test_ok: true
+    meta_path: skills/react_coding/meta.yaml
+    name: react_coding
+    path: skills/react_coding/skill.py
+    status: active
+    updated_at: '2026-02-20T02:22:54'
     version: 1.0.0
   research_assistant:
     capabilities:
@@ -83,6 +166,28 @@ skills:
     path: skills/research_assistant/skill.py
     status: active
     updated_at: '2026-02-12T15:55:00'
+    version: 1.0.0
+  roi_defense_modeling:
+    capabilities:
+    - ROI_DEFENSE_MODELING
+    id: roi_defense_modeling
+    last_test_ok: true
+    meta_path: skills/roi_defense_modeling/meta.yaml
+    name: roi_defense_modeling
+    path: skills/roi_defense_modeling/skill.py
+    status: active
+    updated_at: '2026-02-20T02:22:54'
+    version: 1.0.0
+  state_machine_exception_planning:
+    capabilities:
+    - STATE_MACHINE_EXCEPTION_PLANNING
+    id: state_machine_exception_planning
+    last_test_ok: true
+    meta_path: skills/state_machine_exception_planning/meta.yaml
+    name: state_machine_exception_planning
+    path: skills/state_machine_exception_planning/skill.py
+    status: active
+    updated_at: '2026-02-20T02:22:54'
     version: 1.0.0
   stitch_design:
     capabilities:
@@ -97,10 +202,22 @@ skills:
     status: active
     updated_at: '2026-02-13T02:10:00'
     version: 1.0.0
+  trigger_rule_design:
+    capabilities:
+    - TRIGGER_RULE_DESIGN
+    id: trigger_rule_design
+    last_test_ok: true
+    meta_path: skills/trigger_rule_design/meta.yaml
+    name: trigger_rule_design
+    path: skills/trigger_rule_design/skill.py
+    status: active
+    updated_at: '2026-02-20T02:22:54'
+    version: 1.0.0
   user_flow_optimization:
     capabilities:
     - USER_FLOW
     - MERMAID
+    - DIAGRAM
     id: user_flow_optimization
     last_test_ok: true
     meta_path: skills/user_flow_optimization/meta.yaml
@@ -108,4 +225,15 @@ skills:
     path: skills/user_flow_optimization/skill.py
     status: active
     updated_at: '2026-02-12T18:15:00'
+    version: 1.0.0
+  zero_integration_parsing_spec:
+    capabilities:
+    - ZERO_INTEGRATION_PARSING_SPEC
+    id: zero_integration_parsing_spec
+    last_test_ok: true
+    meta_path: skills/zero_integration_parsing_spec/meta.yaml
+    name: zero_integration_parsing_spec
+    path: skills/zero_integration_parsing_spec/skill.py
+    status: active
+    updated_at: '2026-02-20T02:22:54'
     version: 1.0.0

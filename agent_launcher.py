@@ -1646,17 +1646,32 @@ class AgentRunner:
         rr = agent.get("runtime_rules", {}) if isinstance(agent, dict) else {}
         if not isinstance(rr, dict):
             rr = {}
+
         loaded = {safe_id(s) for s in loaded_skill_ids if safe_id(s)}
+        declared = {safe_id(str(x)) for x in (agent.get("skills") or []) if str(x).strip()} if isinstance(agent, dict) else set()
+
         allowed_skills_raw = {safe_id(str(x)) for x in (rr.get("allowed_skills") or []) if str(x).strip()}
         approval_skills_raw = {safe_id(str(x)) for x in (rr.get("approval_required_skills") or []) if str(x).strip()}
         explicit_approval_tools = {safe_id(str(x)) for x in (rr.get("explicit_approval_required") or []) if str(x).strip()}
         allowed_tools = {safe_id(str(x)) for x in (rr.get("allowed_tools") or []) if str(x).strip()}
         approval_tools = {safe_id(str(x)) for x in (rr.get("approval_required_tools") or []) if str(x).strip()}
 
-        # Enforce only when policy actually references installed local skills.
-        allowed_local = allowed_skills_raw & loaded
-        approval_local = approval_skills_raw & loaded
-        enforce_allow = bool(rr.get("default_deny", False)) and bool(allowed_local or allowed_tools)
+        known_local = loaded | declared
+        allowed_local = allowed_skills_raw & known_local
+        approval_local = approval_skills_raw & known_local
+
+        default_deny = bool(rr.get("default_deny", False))
+        enforce_allow = default_deny and bool(loaded or allowed_tools or allowed_local)
+
+        # Safe baseline: when default_deny is on, allow only canonical skill entrypoints
+        # unless explicitly opened via allowed_tools or allow_all_local.
+        baseline_tools = {"propose", "apply", "test"}
+        allow_all_local = bool(rr.get("allow_all_local", False))
+
+        if default_deny and allowed_skills_raw and not allowed_local and not allowed_tools:
+            unresolved = sorted([x for x in allowed_skills_raw if x and x not in known_local])
+            if unresolved:
+                print(f"⚠️ [Policy] allowed_skills 항목이 로드/선언된 스킬과 매칭되지 않음: {unresolved}")
 
         return {
             "enforce_allow": enforce_allow,
@@ -1664,17 +1679,33 @@ class AgentRunner:
             "approval_local": approval_local,
             "allowed_tools": allowed_tools,
             "approval_tools": approval_tools | explicit_approval_tools,
+            "loaded_local": loaded,
+            "baseline_tools": baseline_tools,
+            "allow_all_local": allow_all_local,
         }
 
     def _is_tool_allowed(self, policy: dict, skill_id: str, tool_name: str) -> bool:
         if not policy.get("enforce_allow", False):
             return True
+
         sid = safe_id(skill_id)
         tname = safe_id(tool_name)
+        allowed_tools = policy.get("allowed_tools", set())
+        baseline_tools = policy.get("baseline_tools", {"propose", "apply", "test"})
+        allow_all_local = bool(policy.get("allow_all_local", False))
+
+        # Global tool allow-list has highest priority.
+        if tname and tname in allowed_tools:
+            return True
+
+        # Explicitly allowed local skills.
         if sid and sid in policy.get("allowed_local", set()):
+            return True if allow_all_local else (tname in baseline_tools)
+
+        # Safe fallback: loaded skills can still execute canonical entrypoints.
+        if sid and sid in policy.get("loaded_local", set()) and tname in baseline_tools:
             return True
-        if tname and tname in policy.get("allowed_tools", set()):
-            return True
+
         return False
 
     def _requires_tool_approval(self, policy: dict, skill_id: str, tool_name: str) -> bool:
@@ -2404,5 +2435,6 @@ if __name__ == "__main__":
         task_input="Check current skills",
         role_spec="General",
     )
+
 
 

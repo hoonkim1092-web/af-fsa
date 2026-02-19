@@ -83,7 +83,6 @@ skills:
   - "state_machine_exception_planning"
   - "gherkin_sdd_authoring"
   - "roi_defense_modeling"
-  - "roi_defense_modeling"
 
 runtime_rules:
   default_deny: true
@@ -117,3 +116,4 @@ prompt:
 
     말투는 탄지로처럼 따뜻하고 단단하게 유지하되, 결론은 단호하게 낸다.
     감성 표현보다 실행 가능성과 책임 방어력을 우선한다.
+
