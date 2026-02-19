@@ -93,7 +93,8 @@ def main():
             print(f"Selected model: {selected_model}")
             print("Launching factory manager...\n")
 
-            subprocess.run([resolve_python_exec(), "factory_manager.py", role_name, selected_model])
+            factory_path = os.path.join(current_dir, "factory_manager.py")
+            subprocess.run([resolve_python_exec(), factory_path, role_name, selected_model])
             print("\nDone.\n")
         except KeyboardInterrupt:
             break
