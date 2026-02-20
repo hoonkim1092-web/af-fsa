@@ -3,7 +3,11 @@ import sys
 import subprocess
 import json
 
-import google.generativeai as genai
+import warnings
+
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore", FutureWarning)
+    import google.generativeai as genai
 from dotenv import load_dotenv
 from model_utils import get_best_model
 
@@ -70,6 +74,27 @@ Analyze the request and return JSON only:
             return {"role_name": "General Assistant", "actual_model": get_best_model()}
 
 
+def handle_command(linker: SmartLinker, user_input: str) -> bool:
+    user_input = user_input.strip()
+    if not user_input:
+        return True
+    if user_input.lower() in ["exit", "quit"]:
+        return False
+
+    plan = linker.analyze_and_route(user_input)
+    role_name = plan["role_name"]
+    selected_model = plan["actual_model"]
+
+    print(f"Target role: {role_name}")
+    print(f"Selected model: {selected_model}")
+    print("Launching factory manager...\n")
+
+    factory_path = os.path.join(current_dir, "factory_manager.py")
+    subprocess.run([resolve_python_exec(), factory_path, role_name, selected_model])
+    print("\nDone.\n")
+    return True
+
+
 def main():
     linker = SmartLinker()
 
@@ -77,26 +102,21 @@ def main():
     print("[Logi-Mind Intelligent Link] started")
     print("=" * 50 + "\n")
 
+    if not sys.stdin.isatty():
+        for line in sys.stdin:
+            if not handle_command(linker, line):
+                break
+        return
+
     while True:
         try:
-            user_input = input("Command: ").strip()
-            if user_input.lower() in ["exit", "quit"]:
+            user_input = input("Command: ")
+            if not handle_command(linker, user_input):
                 break
-            if not user_input:
-                continue
-
-            plan = linker.analyze_and_route(user_input)
-            role_name = plan["role_name"]
-            selected_model = plan["actual_model"]
-
-            print(f"Target role: {role_name}")
-            print(f"Selected model: {selected_model}")
-            print("Launching factory manager...\n")
-
-            factory_path = os.path.join(current_dir, "factory_manager.py")
-            subprocess.run([resolve_python_exec(), factory_path, role_name, selected_model])
-            print("\nDone.\n")
         except KeyboardInterrupt:
+            break
+        except EOFError:
+            print()
             break
 
 

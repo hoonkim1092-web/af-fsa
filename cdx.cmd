@@ -1,14 +1,31 @@
 @echo off
-setlocal
-
+setlocal EnableExtensions
 chcp 65001 >nul
 
-where codex >nul 2>nul
-if %ERRORLEVEL%==0 (
-  codex %*
-  exit /b %ERRORLEVEL%
+set "CODEX_PATH="
+for /f "delims=" %%I in ('where codex 2^>nul') do if not defined CODEX_PATH set "CODEX_PATH=%%~fI"
+
+if not defined CODEX_PATH goto :not_found
+
+if /i "%CDX_DEBUG%"=="1" (
+  echo [CDX] codex path: "%CODEX_PATH%"
+  echo [CDX] args: %*
 )
 
+if defined CDX_LOG_FILE call :log start %*
+call "%CODEX_PATH%" %*
+set "EXIT_CODE=%ERRORLEVEL%"
+if defined CDX_LOG_FILE call :log exit %EXIT_CODE%
+exit /b %EXIT_CODE%
+
+:not_found
 echo [CDX] 'codex' command not found in PATH.
 echo [CDX] Install Codex CLI first, then run: cdx
+echo [CDX] Optional: set CDX_DEBUG=1 or CDX_LOG_FILE=path
 exit /b 1
+
+:log
+setlocal
+>>"%CDX_LOG_FILE%" echo [%DATE% %TIME%] %*
+endlocal
+exit /b 0

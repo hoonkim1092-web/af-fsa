@@ -1,12 +1,15 @@
 @echo off
-@chcp 65001 >nul
-echo [Logi-Mind Agent Factory] Adding to User PATH...
+setlocal
+chcp 65001 >nul
 
-powershell -Command "$Target='d:\agent-factory'; $Current=[System.Environment]::GetEnvironmentVariable('Path', 'User'); if ($Current -notlike \"*$Target*\") { [System.Environment]::SetEnvironmentVariable('Path', $Current + \";$Target\", 'User'); Write-Host '✅ PATH updated!' } else { Write-Host 'ℹ️ Already in PATH.' }"
+set "TARGET=%~dp0"
+if "%TARGET:~-1%"=="\" set "TARGET=%TARGET:~0,-1%"
+
+echo [CDX] Adding "%TARGET%" to user PATH...
+
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$target = '%TARGET%'; $current = [Environment]::GetEnvironmentVariable('Path','User'); if ([string]::IsNullOrWhiteSpace($current)) { [Environment]::SetEnvironmentVariable('Path', $target, 'User'); Write-Host '[CDX] PATH updated.' } elseif ($current -split ';' | Where-Object { $_.Trim() -ieq $target }) { Write-Host '[CDX] Already in PATH.' } else { [Environment]::SetEnvironmentVariable('Path', $current + ';' + $target, 'User'); Write-Host '[CDX] PATH updated.' }"
 
 echo.
-echo ✅ 설정이 완료되었습니다!
-echo 이제 열려 있는 터미널을 모두 닫고 다시 열면,
-echo 어디서든 'agent' 명령어를 사용할 수 있습니다.
+echo [CDX] Done. Open a new terminal, then run: cdx --help
 echo.
 pause
