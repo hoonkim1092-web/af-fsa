@@ -84,6 +84,10 @@ def get_best_model(priority_list=None):
     """
     if priority_list is None:
         priority_list = [
+            "gemini-3.1-pro-preview",
+            "gemini-3-flash-preview",
+            "codex-5.3",
+            "gemini-2.5-flash",
             "gemini-2.0-flash",
             "gemini-1.5-flash",
             "gemini-1.5-pro",

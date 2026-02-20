@@ -469,10 +469,12 @@ class ModelRouter:
         if agent_config and agent_config.get("preferred_model"):
             return get_best_model([agent_config["preferred_model"], "gemini-3.1-pro-preview", "gemini-1.5-pro"])
 
-        # 요구분석/빌더는 pro, 나머지는 flash (Gemini 2.0/3.1 우선)
-        if stage in ("requirement", "builder"):
+        # Stage 3 (Requirement/Reasoning) -> 3.1 Pro
+        if stage in ("requirement", "reasoning"):
             return get_best_model(["gemini-3.1-pro-preview", "gemini-2.0-pro", "gemini-1.5-pro"])
-        return get_best_model(["gemini-2.0-flash", "gemini-1.5-flash"])
+        
+        # Stage 2 (Flash/Normalization) -> 3 Flash
+        return get_best_model(["gemini-3-flash-preview", "gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"])
 
 # =============================================================================
 # 2) Quick Guard (AST) - 移섎챸 ?꾧뎄 ?뺤닔

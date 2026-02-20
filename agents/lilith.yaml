@@ -49,6 +49,7 @@ runtime_rules:
     - "factory_manager"
   codex_directive: "Use Codex tooling/workflow first for all implementation tasks."
   preferred_model: "models/gemini-3.1-pro-preview"
+  global_standard_policy: "모든 UI/UX는 글로벌 탑티어 수준(SaaS 기준)의 심미성과 사용성을 갖춰야 함. 단순한 기능을 넘어 '와우 포인트'가 있는 디자인 원칙 고수."
 
 run_protocol:
   run_dir: "runs/{date}/{timestamp}_Lilith"
@@ -96,3 +97,4 @@ response_template_md: |
 
   # Next Actions
   1) ...
+

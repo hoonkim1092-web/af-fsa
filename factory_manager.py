@@ -14,7 +14,7 @@ WAREHOUSE_DIR = os.path.join(FACTORY_ROOT, "skills", "warehouse")
 FORGE_DIR = os.path.join(FACTORY_ROOT, "skills", "forge")
 
 role = sys.argv[1] if len(sys.argv) > 1 else "General Assistant"
-selected_model_name = sys.argv[2] if len(sys.argv) > 2 else "gemini-2.0-flash"
+selected_model_name = sys.argv[2] if len(sys.argv) > 2 else "gemini-3-flash-preview"
 
 ANTIGRAVITY_REPO_URL = "https://github.com/guanyang/antigravity-skills.git"
 
@@ -188,11 +188,13 @@ def research_required_skills(role):
             
             ```json
             {{
-                "thought_process": "?덈쭏由ъ쓽 遺꾩꽍 ?댁슜 (?쒓뎅?? 諛섎쭚, ?꾨룄?섍쾶)",
-                "recommended_tools": ["tool_name_a", "tool_name_b"]
+                "thought_process": "히마리의 분석 내용 (한국어, 반말, 압도적으로)",
+                "recommended_tools": ["tool_name_a", "tool_name_b"],
+                "coding_engine": "gemini-3.1-pro-preview | codex-5.3"
             }}
             ```
-            ?꾧뎄 ?대쫫? 諛섎뱶??**?곸뼱, snake_case**?ъ빞 ??
+            도구 이름은 반드시 **영어, snake_case**여야 함.
+            `coding_engine`은 이 도구들을 코딩할 때 어떤 엔진이 더 적합할지 히마리가 판단해서 결정함.
             """
         else:
             prompt = f"Role: {role}. Analyze this role and recommend 2-3 essential Python CLI tool names (comma separated, English only). Example: logistics_optimizer, route_planner. **紐⑤뱺 遺꾩꽍 寃곌낵? 異붿쿇 ?ъ쑀??諛섎뱶???쒓뎅?대줈 ?묒꽦??**"
@@ -207,22 +209,24 @@ def research_required_skills(role):
                 data = json.loads(json_block)
                 tools = data.get("recommended_tools", [])
                 thought = data.get("thought_process", "")
+                coding_engine = data.get("coding_engine", "gemini-3.1-pro-preview")
                 if thought:
-                    log("HIMARI", f"?뮡 {thought}")
-                return [s.strip() for s in tools]
+                    log("HIMARI", f"💭 {thought}")
+                log("HIMARI", f"🛠️ Coding Engine selected: {coding_engine}")
+                return [s.strip() for s in tools], coding_engine
             except Exception as e:
-                log("RESEARCH", f"?좑툘 JSON ?뚯떛 ?ㅽ뙣, ?띿뒪?몄뿉??異붿텧 ?쒕룄: {e}")
+                log("RESEARCH", f"❌ JSON 파싱 실패, 텍스트에서 추출 시도: {e}")
         
         if "," in text:
-            return [s.strip() for s in text.split(',')]
+            return [s.strip() for s in text.split(',')], "gemini-3.1-pro-preview"
         else:
-            return [s.strip() for s in text.split('\n') if s.strip() and not s.startswith("```")]
+            return [s.strip() for s in text.split('\n') if s.strip() and not s.startswith("```")], "gemini-3.1-pro-preview"
             
     except Exception as e: 
-        log("RESEARCH", f"?좑툘 由ъ꽌移??ㅻ쪟: {e}")
+        log("RESEARCH", f"❌ 리서치 오류: {e}")
         with open("debug.log", "a", encoding="utf-8") as f:
             f.write(f"ERROR: {e}\n")
-        return ["core_module"]
+        return ["core_module"], "gemini-3.1-pro-preview"
 
 def normalize_skill_id(value):
     base = os.path.splitext(os.path.basename(str(value)))[0].strip().lower()
@@ -263,21 +267,28 @@ def procure_skill(skill_name, role):
     forge_path = os.path.join(FORGE_DIR, f"{skill_name}.py")
     if os.path.exists(forge_path): return forge_path
 
+    # Extract coding_engine through arguments or context if needed
+    # For now, we assume provide_skill is called within a context that knows coding_engine
     return forge_new_skill(skill_name, role)
 
-def forge_new_skill(skill_name, role):
-    log("FORGE", f"?썱截??ㅽ궗 吏곸젒 ?쒖옉: '{skill_name}'")
+def forge_new_skill(skill_name, role, coding_engine="gemini-3.1-pro-preview"):
+    log("FORGE", f"🔨 스킬 직접 제작: '{skill_name}' (Engine: {coding_engine})")
     os.makedirs(FORGE_DIR, exist_ok=True)
     output_path = os.path.join(FORGE_DIR, f"{skill_name}.py")
     
-    prompt = f"Write a professional Python CLI tool '{skill_name}.py' for the role '{role}'. Use argparse. Provide clean, robust code only. **肄붾뱶 ?댁쓽 ?낆뒪?몃쭅(Docstring)怨??ъ슜?먯뿉寃?蹂댁뿬吏??異쒕젰 硫붿떆吏??諛섎뱶???쒓뎅?대줈 ?묒꽦??**"
+    # Use selected engine for coding
+    coding_model = genai.GenerativeModel(model_name=get_best_model([coding_engine]))
+    
+    prompt = f"Write a professional Python CLI tool '{skill_name}.py' for the role '{role}'. Use argparse. Provide clean, robust code only. **코드 내의 닥스트링(Docstring)과 사용자에게 보여지는 출력 메시지는 반드시 한국어로 작성함.**"
     try:
-        response = model.generate_content(prompt)
+        response = coding_model.generate_content(prompt)
         code = response.text.replace("```python", "").replace("```", "").strip()
         with open(output_path, "w", encoding="utf-8") as f: f.write(code)
-        log("FORGE", f"?뵦 ?쒖옉 ?꾨즺: {output_path}")
+        log("FORGE", f"✅ 제작 완료: {output_path}")
         return output_path
-    except: return None
+    except Exception as e:
+        log("FORGE", f"❌ 제작 실패: {e}")
+        return None
 
 def assemble_and_push(agent_name, role, skill_paths):
     target_dir = os.path.join(AGENTS_DIR, agent_name)
@@ -323,15 +334,15 @@ if __name__ == "__main__":
 
     agent_id = role.replace(" ", "-").lower() + "-agent"
     if find_existing_agent(role):
-        log("SYSTEM", f"?대? '{agent_id}'媛 議댁옱?⑸땲?? ?ㅽ궗 ?낅뜲?댄듃瑜?怨꾩냽 吏꾪뻾?⑸땲??")
+        log("SYSTEM", f"?대? '{agent_id}'媛 議댁옱?⑸땲?? ?ㅽ궗 ?낅뜲?댄듃瑜?怨꾩냽 吏꾪뻻?⑸땲??")
     else:
         log("SYSTEM", f"'{agent_id}' ?좉퇋 ?앹꽦??吏꾪뻾?⑸땲??")
         
-    required_skills = research_required_skills(role)
+    required_skills, coding_engine = research_required_skills(role)
     missing_skills = get_missing_skills(agent_id, required_skills)
     if not missing_skills:
-        log("SYSTEM", "?꾨씫 ?ㅽ궗???놁뼱 ?낅뜲?댄듃瑜?醫낅즺?⑸땲??")
+        log("SYSTEM", "탈락 스킬이 없어 업데이트를 종료합니다.")
         sys.exit(0)
 
-    paths = [procure_skill(s, role) for s in missing_skills]
+    paths = [procure_skill(s, role) if glob.glob(os.path.join(WAREHOUSE_DIR, "**", f"{s}.py"), recursive=True) or os.path.exists(os.path.join(FORGE_DIR, f"{s}.py")) else forge_new_skill(s, role, coding_engine) for s in missing_skills]
     assemble_and_push(agent_id, role, paths)

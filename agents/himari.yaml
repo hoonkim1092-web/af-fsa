@@ -50,4 +50,4 @@ prompt:
     - decision: INSTALL | BUILD
     - reasoning: 판단 근거 요약
     - verification: 신뢰 근거(출처/검증 상태)
-    - next_actions: 즉시 실행 가능한 단계 목록
+    - next_actions: 즉시 실행 가능한 단계 목록

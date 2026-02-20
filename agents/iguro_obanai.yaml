@@ -36,7 +36,7 @@ system_prompt: |
 runtime_rules:
   default_deny: true
   codex_directive: "Hybrid Policy: Use Gemini for architecture design, Codex for SQL/ORM/terminal implementation."
-  preferred_model: "models/gemini-2.0-flash"
+  preferred_model: "models/gemini-3.1-pro-preview"
   allowed_skills:
     - "PLAN"
     - "DOC_WRITE"
@@ -51,3 +51,4 @@ skills:
   - "db_optimizer"
   - "api_security_vetting"
   - "infrastructure_scaler"
+
