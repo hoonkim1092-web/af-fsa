@@ -1,27 +1,75 @@
 import argparse
-import sys
+
+
+def _analyze_query(query):
+    q = str(query or "").strip()
+    upper = q.upper()
+    recommendations = []
+    severity = "info"
+
+    if not q:
+        return {
+            "ok": False,
+            "reason": "empty_query",
+            "recommendations": ["Provide a SQL statement in `query`."],
+            "severity": "error",
+        }
+
+    if "SELECT *" in upper:
+        severity = "warning"
+        recommendations.append("Avoid `SELECT *`; select only required columns.")
+    if "WHERE" not in upper and upper.startswith("SELECT"):
+        severity = "warning"
+        recommendations.append("Missing `WHERE` on SELECT can trigger full table scans.")
+    if "ORDER BY" in upper and "LIMIT" not in upper:
+        recommendations.append("Consider `LIMIT` with `ORDER BY` for bounded pagination.")
+
+    if not recommendations:
+        recommendations.append("No obvious anti-pattern detected with basic static checks.")
+
+    return {"ok": True, "severity": severity, "query": q, "recommendations": recommendations}
+
 
 def optimize_db(query):
-    """
-    데이터베이스 쿼리를 분석하고 최적화 제안을 출력합니다.
-    """
-    print(f"🐍 [이구로 오바나이] 쿼리 분석을 시작한다: '{query}'")
-    print("... 카부라마루가 실행 계획을 훑어보고 있군.")
-    
-    # 단순화된 최적화 로직 (데모용)
-    if "SELECT *" in query.upper():
-        print("❌ [경고] 'SELECT *'는 데이터의 독이다. 필요한 컬럼만 명시해라. 네놈은 인덱스 효율이 뭔지도 모르나?")
-    elif "WHERE" not in query.upper():
-        print("⚠️ [위험] WHERE 절 없는 쿼리는 서버 전체를 장례식장으로 만든다. 당장 멈춰라.")
-    else:
-        print("✅ [판정] 최소한의 예의는 갖춘 쿼리군. 하지만 인덱스 스캔 여부는 다시 확인해라.")
+    analysis = _analyze_query(query)
+    if not analysis.get("ok"):
+        print("[db_optimizer] invalid query input.")
+        return analysis
+
+    print(f"[db_optimizer] analyzing query: {analysis['query']}")
+    for item in analysis.get("recommendations", []):
+        print(f"- {item}")
+    return analysis
+
+
+def propose(ctx):
+    query = str((ctx or {}).get("query") or "SELECT id FROM table WHERE id = ?")
+    preview = _analyze_query(query)
+    return {"ok": True, "skill": "db_optimizer", "operation": "analyze", "preview": preview}
+
+
+def apply(ctx):
+    query = str((ctx or {}).get("query") or "").strip()
+    if not query:
+        return {"ok": False, "reason": "missing_query", "hint": "Pass `query` in context."}
+    result = optimize_db(query)
+    return {"ok": bool(result.get("ok")), "result": result}
+
+
+def test(ctx):
+    sample = apply({"query": "SELECT * FROM users"})
+    if not sample.get("ok"):
+        return {"ok": False, "reason": "sample_analysis_failed", "detail": sample}
+    recs = sample.get("result", {}).get("recommendations", [])
+    return {"ok": any("SELECT *" in r for r in recs), "detail": sample}
+
 
 def main():
-    parser = argparse.ArgumentParser(description="이구로 오바나이의 DB 최적화 도구")
-    parser.add_argument("query", help="최적화할 SQL 쿼리")
+    parser = argparse.ArgumentParser(description="Run lightweight SQL optimization checks.")
+    parser.add_argument("query", help="SQL query to analyze")
     args = parser.parse_args()
-    
     optimize_db(args.query)
+
 
 if __name__ == "__main__":
     main()

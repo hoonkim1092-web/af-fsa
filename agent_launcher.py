@@ -461,7 +461,7 @@ class ModelRouter:
             providers = [p.strip() for p in provider_raw.split(",") if p.strip()]
             for provider in providers:
                 if provider == "codex" and OPENAI_API_KEY:
-                    return "codex-gpt-5"
+                    return "codex-5.3"
                 if provider == "claude":
                     return "claude-4.6"
         
@@ -1673,7 +1673,13 @@ class AgentRunner:
         if default_deny and allowed_skills_raw and not allowed_local and not allowed_tools:
             unresolved = sorted([x for x in allowed_skills_raw if x and x not in known_local])
             if unresolved:
-                print(f"⚠️ [Policy] allowed_skills 항목이 로드/선언된 스킬과 매칭되지 않음: {unresolved}")
+                # Fallback: Treat unresolved allowed_skills as allowed_tools (function names)
+                allowed_tools.update(unresolved)
+
+        if default_deny and approval_skills_raw and not approval_local and not approval_tools:
+            unresolved_app = sorted([x for x in approval_skills_raw if x and x not in known_local])
+            if unresolved_app:
+                approval_tools.update(unresolved_app)
 
         return {
             "enforce_allow": enforce_allow,
@@ -1700,9 +1706,9 @@ class AgentRunner:
         if tname and tname in allowed_tools:
             return True
 
-        # Explicitly allowed local skills.
+        # Explicitly allowed local skills unlock all their functions.
         if sid and sid in policy.get("allowed_local", set()):
-            return True if allow_all_local else (tname in baseline_tools)
+            return True
 
         # Safe fallback: loaded skills can still execute canonical entrypoints.
         if sid and sid in policy.get("loaded_local", set()) and tname in baseline_tools:
@@ -1807,7 +1813,7 @@ class AgentRunner:
             print("⚠️ [Runner] openai 패키지가 없어 Codex 경로를 사용할 수 없습니다.")
             return False
 
-        codex_model = model_name if is_codex_model(model_name) else "codex-gpt-5"
+        codex_model = model_name if is_codex_model(model_name) else "codex-5.3"
         tools = ", ".join(sorted({t.__name__ for t in tool_functions})) if tool_functions else "none"
         prompt = (
             f"{sys_prompt}\n\n"

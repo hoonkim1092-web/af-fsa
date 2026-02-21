@@ -109,6 +109,53 @@ def search(ctx, query, category="general"):
     return {"ok": True, "results": results}
 
 
+def propose(ctx):
+    operation = str((ctx or {}).get("operation") or (ctx or {}).get("op") or "retrieve").strip().lower()
+    return {
+        "ok": True,
+        "skill": "core_memory",
+        "operation": operation,
+        "supported_operations": ["store", "retrieve", "search"],
+        "required_fields": {
+            "store": ["key", "value"],
+            "retrieve": ["key"],
+            "search": ["query"],
+        },
+    }
+
+
+def apply(ctx):
+    payload = ctx if isinstance(ctx, dict) else {}
+    operation = str(payload.get("operation") or payload.get("op") or "").strip().lower()
+    category = str(payload.get("category") or "general")
+
+    if operation == "store":
+        key = str(payload.get("key") or "").strip()
+        if not key:
+            return {"ok": False, "reason": "missing_key"}
+        if "value" not in payload:
+            return {"ok": False, "reason": "missing_value"}
+        return store(payload, key, payload.get("value"), category)
+
+    if operation == "retrieve":
+        key = str(payload.get("key") or "").strip()
+        if not key:
+            return {"ok": False, "reason": "missing_key"}
+        return retrieve(payload, key, category)
+
+    if operation == "search":
+        query = str(payload.get("query") or payload.get("key") or "").strip()
+        if not query:
+            return {"ok": False, "reason": "missing_query"}
+        return search(payload, query, category)
+
+    return {
+        "ok": False,
+        "reason": "invalid_operation",
+        "supported_operations": ["store", "retrieve", "search"],
+    }
+
+
 def test(ctx):
     res_store = store(ctx, "test_key_123", "test_value_456", "test_cat")
     if not res_store.get("ok"):

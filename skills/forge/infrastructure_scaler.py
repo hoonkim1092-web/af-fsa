@@ -1,23 +1,79 @@
 import argparse
 
-def scale_report(traffic):
-    """
-    트래픽 부하에 따른 확장 전략 리포트를 생성합니다.
-    """
-    print(f"🐍 [이구로 오바나이] 트래픽 부하 예측: {traffic} TPS")
-    
-    if traffic > 1000:
-        print("🚀 [전략] 단일 서버로는 무리다. k8s 오토스케일링과 Read Replica를 즉시 투입해라.")
-        print("카부라마루가 서버들의 비명 소리를 듣고 싶어 하지 않으니까.")
+
+def _build_scale_plan(traffic):
+    try:
+        tps = int(traffic)
+    except Exception:
+        return {"ok": False, "reason": "invalid_traffic", "hint": "Provide integer `traffic` (TPS)."}
+
+    if tps < 0:
+        return {"ok": False, "reason": "invalid_traffic", "hint": "Traffic must be non-negative."}
+
+    if tps >= 1000:
+        actions = [
+            "Enable horizontal scaling for app workers.",
+            "Add read replicas for read-heavy database workload.",
+            "Introduce queue-based async processing for heavy jobs.",
+        ]
+        tier = "high"
+    elif tps >= 300:
+        actions = [
+            "Prepare auto-scaling thresholds.",
+            "Add cache layer for repeated reads.",
+            "Track p95 latency and error budget continuously.",
+        ]
+        tier = "medium"
     else:
-        print("🛡️ [전략] 현재 구성으로도 견딜 순 있겠지만, 리소스 모니터링은 게을리하지 마라.")
+        actions = [
+            "Current setup is likely sufficient.",
+            "Keep baseline monitoring for CPU, memory, and error rate.",
+            "Review capacity monthly or after feature releases.",
+        ]
+        tier = "low"
+
+    return {"ok": True, "traffic_tps": tps, "tier": tier, "actions": actions}
+
+
+def scale_report(traffic):
+    report = _build_scale_plan(traffic)
+    if not report.get("ok"):
+        print("[infrastructure_scaler] invalid traffic input.")
+        return report
+
+    print(f"[infrastructure_scaler] traffic: {report['traffic_tps']} TPS, tier={report['tier']}")
+    for action in report.get("actions", []):
+        print(f"- {action}")
+    return report
+
+
+def propose(ctx):
+    traffic = (ctx or {}).get("traffic", 200)
+    preview = _build_scale_plan(traffic)
+    return {"ok": True, "skill": "infrastructure_scaler", "operation": "capacity_plan", "preview": preview}
+
+
+def apply(ctx):
+    if "traffic" not in (ctx or {}):
+        return {"ok": False, "reason": "missing_traffic", "hint": "Pass integer `traffic` in context."}
+    result = scale_report((ctx or {}).get("traffic"))
+    return {"ok": bool(result.get("ok")), "result": result}
+
+
+def test(ctx):
+    sample = apply({"traffic": 1200})
+    if not sample.get("ok"):
+        return {"ok": False, "reason": "sample_plan_failed", "detail": sample}
+    actions = sample.get("result", {}).get("actions", [])
+    return {"ok": len(actions) >= 3, "detail": sample}
+
 
 def main():
-    parser = argparse.ArgumentParser(description="이구로 오바나이의 인프라 확장 도구")
-    parser.add_argument("traffic", type=int, help="예상 초당 트랜잭션 수 (TPS)")
+    parser = argparse.ArgumentParser(description="Generate a basic infrastructure scaling plan.")
+    parser.add_argument("traffic", type=int, help="Expected TPS")
     args = parser.parse_args()
-    
     scale_report(args.traffic)
+
 
 if __name__ == "__main__":
     main()
