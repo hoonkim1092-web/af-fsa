@@ -10,8 +10,9 @@ if "%TARGET%"=="" set TARGET=all
 set AGENT=%4
 
 if "%AGENT%"=="" (
-  powershell -ExecutionPolicy Bypass -File scripts\sync_easy.ps1 -Action %ACTION% -Backend %BACKEND% -Target %TARGET%
+  powershell -ExecutionPolicy Bypass -File "%~dp0scripts\sync_easy.ps1" -Action %ACTION% -Backend %BACKEND% -Target %TARGET%
 ) else (
-  powershell -ExecutionPolicy Bypass -File scripts\sync_easy.ps1 -Action %ACTION% -Backend %BACKEND% -Target %TARGET% -Agent %AGENT%
+  powershell -ExecutionPolicy Bypass -File "%~dp0scripts\sync_easy.ps1" -Action %ACTION% -Backend %BACKEND% -Target %TARGET% -Agent %AGENT%
 )
 exit /b %ERRORLEVEL%
+
