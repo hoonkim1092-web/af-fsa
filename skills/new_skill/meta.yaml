@@ -1,0 +1,9 @@
+capabilities:
+- new_skill
+id: new_skill
+name: new_skill
+source: external_cache
+source_path: D:\agent-factory\skills\_external_cache\test_external_repo\external_demo_skill.py
+status: active
+updated_at: '2026-02-22T04:19:55'
+version: 1.0.0

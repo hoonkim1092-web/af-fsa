@@ -1701,17 +1701,25 @@ class AgentRunner:
         allowed_tools = policy.get("allowed_tools", set())
         baseline_tools = policy.get("baseline_tools", {"propose", "apply", "test"})
         allow_all_local = bool(policy.get("allow_all_local", False))
+        allowed_local = policy.get("allowed_local", set())
 
         # Global tool allow-list has highest priority.
         if tname and tname in allowed_tools:
             return True
 
         # Explicitly allowed local skills unlock all their functions.
-        if sid and sid in policy.get("allowed_local", set()):
+        if sid and sid in allowed_local:
             return True
 
-        # Safe fallback: loaded skills can still execute canonical entrypoints.
-        if sid and sid in policy.get("loaded_local", set()) and tname in baseline_tools:
+        # Safe fallback: loaded skills can execute canonical entrypoints only
+        # when no explicit allow-list was configured.
+        if (
+            sid
+            and sid in policy.get("loaded_local", set())
+            and tname in baseline_tools
+            and not allowed_local
+            and not allowed_tools
+        ):
             return True
 
         return False
@@ -2245,10 +2253,18 @@ class AgentFactory:
             # 3) Build only unresolved needs
             unresolved = [need for need in initial_targets if need not in resolved_needs]
 
-            # 3-A) External search/download/install for unresolved needs
-            if unresolved:
-                print(f"🌐 [Factory] 외부 스킬 검색/설치 대상: {unresolved}")
-                ext_installed_map = self.research.search_external_and_install(unresolved, reqs=reqs, registry=self.registry)
+            # 3-A) External search/download/install only when evidence has candidates.
+            unresolved_for_external = []
+            for need in unresolved:
+                target = targets.get(need, {}) if isinstance(targets, dict) else {}
+                cands = target.get("candidates", []) if isinstance(target, dict) else []
+                if isinstance(cands, list) and cands:
+                    unresolved_for_external.append(need)
+            if unresolved_for_external:
+                print(f"🌐 [Factory] 외부 스킬 검색/설치 대상: {unresolved_for_external}")
+                ext_installed_map = self.research.search_external_and_install(
+                    unresolved_for_external, reqs=reqs, registry=self.registry
+                )
                 ext_skill_ids = list(dict.fromkeys([safe_id(str(sid)) for sid in ext_installed_map.values() if str(sid).strip()]))
                 if ext_skill_ids:
                     installable_ext = [sid for sid in ext_skill_ids if self.registry.is_installable(sid)]
@@ -2263,7 +2279,7 @@ class AgentFactory:
                     if installable_ext and not allow_skill_change:
                         print("⏭️ [Approval] 사용자 미승인으로 외부 스킬 설치를 건너뜁니다.")
                     print(f"📦 [Factory] 외부 스킬 설치: {installable_ext} -> agent.skills={installed}")
-                    for need in unresolved:
+                    for need in unresolved_for_external:
                         if need in ext_installed_map:
                             resolved_needs.add(need)
                     agent = self.agent_mgr.get_or_create(role_spec)
@@ -2313,7 +2329,14 @@ class AgentFactory:
                 agent = self.agent_mgr.get_or_create(role_spec)
 
         # Always execute the selected agent so the task can be handled even when build pipeline is unavailable.
-        run_metrics = self.runner.run(agent, task_input, run_id=run_id) or {}
+        try:
+            run_metrics = self.runner.run(agent, task_input, run_id=run_id) or {}
+        except TypeError as e:
+            # Backward-compat for tests/mocks or older runner call signatures.
+            if "unexpected keyword argument 'run_id'" in str(e):
+                run_metrics = self.runner.run(agent, task_input) or {}
+            else:
+                raise
         append_dashboard_run(
             {
                 "ts": now_iso(),

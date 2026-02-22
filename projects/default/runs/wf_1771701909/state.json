@@ -1,0 +1,30 @@
+{
+  "run_id": "wf_1771701909",
+  "project_id": "default",
+  "workflow_path": "C:\\Users\\HOME\\AppData\\Local\\Temp\\pytest-of-HOME\\pytest-7\\test_factory_run_workflow_sequ0\\wf.yaml",
+  "status": "failed",
+  "created_at": "2026-02-22T04:25:09",
+  "updated_at": "2026-02-22T04:25:09",
+  "base_roles": [
+    "Lilith",
+    "Himari"
+  ],
+  "stages": [
+    {
+      "id": "D0",
+      "name": "Decision Lock",
+      "status": "failed",
+      "attempts": 2,
+      "last_error": "role=Lilith, reason=",
+      "updated_at": "2026-02-22T04:25:09"
+    },
+    {
+      "id": "D1",
+      "name": "Risks First",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "",
+      "updated_at": "2026-02-22T04:25:09"
+    }
+  ]
+}

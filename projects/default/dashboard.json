@@ -186,6 +186,206 @@
       "reason": "runner_error:Exception",
       "latency_ms": 30422,
       "approval_rejects": 0
+    },
+    {
+      "ts": "2026-02-22T04:23:31",
+      "type": "single_run",
+      "project_id": "default",
+      "role": "General",
+      "task": "track issues",
+      "skills_loaded": [],
+      "ok": false,
+      "reason": "",
+      "latency_ms": 0,
+      "approval_rejects": 0
+    },
+    {
+      "ts": "2026-02-22T04:23:31",
+      "type": "single_run",
+      "project_id": "default",
+      "role": "General",
+      "task": "do something new",
+      "skills_loaded": [],
+      "ok": false,
+      "reason": "",
+      "latency_ms": 0,
+      "approval_rejects": 0
+    },
+    {
+      "ts": "2026-02-22T04:23:52",
+      "type": "single_run",
+      "project_id": "default",
+      "role": "General",
+      "task": "track issues",
+      "skills_loaded": [],
+      "ok": false,
+      "reason": "",
+      "latency_ms": 0,
+      "approval_rejects": 0
+    },
+    {
+      "ts": "2026-02-22T04:23:52",
+      "type": "single_run",
+      "project_id": "default",
+      "role": "General",
+      "task": "do something new",
+      "skills_loaded": [],
+      "ok": false,
+      "reason": "",
+      "latency_ms": 0,
+      "approval_rejects": 0
+    },
+    {
+      "ts": "2026-02-22T04:23:52",
+      "type": "workflow_run",
+      "project_id": "default",
+      "workflow_path": "D:\\agent-factory\\.pytest_tmp\\test_factory_run_workflow_sequ0\\wf.yaml",
+      "stage_count": 2,
+      "run_count": 2,
+      "base_roles": [
+        "Lilith",
+        "Himari"
+      ],
+      "ok": false,
+      "state_path": "D:\\agent-factory\\projects\\default\\runs\\wf_1771701832\\state.json"
+    },
+    {
+      "ts": "2026-02-22T04:25:09",
+      "type": "single_run",
+      "project_id": "default",
+      "role": "General",
+      "task": "track issues",
+      "skills_loaded": [],
+      "ok": false,
+      "reason": "",
+      "latency_ms": 0,
+      "approval_rejects": 0
+    },
+    {
+      "ts": "2026-02-22T04:25:09",
+      "type": "single_run",
+      "project_id": "default",
+      "role": "General",
+      "task": "do something new",
+      "skills_loaded": [],
+      "ok": false,
+      "reason": "",
+      "latency_ms": 0,
+      "approval_rejects": 0
+    },
+    {
+      "ts": "2026-02-22T04:25:09",
+      "type": "workflow_run",
+      "project_id": "default",
+      "workflow_path": "C:\\Users\\HOME\\AppData\\Local\\Temp\\pytest-of-HOME\\pytest-7\\test_factory_run_workflow_sequ0\\wf.yaml",
+      "stage_count": 2,
+      "run_count": 2,
+      "base_roles": [
+        "Lilith",
+        "Himari"
+      ],
+      "ok": false,
+      "state_path": "D:\\agent-factory\\projects\\default\\runs\\wf_1771701909\\state.json"
+    },
+    {
+      "ts": "2026-02-22T04:25:29",
+      "type": "single_run",
+      "project_id": "default",
+      "role": "General",
+      "task": "track issues",
+      "skills_loaded": [],
+      "ok": false,
+      "reason": "",
+      "latency_ms": 0,
+      "approval_rejects": 0
+    },
+    {
+      "ts": "2026-02-22T04:25:29",
+      "type": "single_run",
+      "project_id": "default",
+      "role": "General",
+      "task": "do something new",
+      "skills_loaded": [],
+      "ok": false,
+      "reason": "",
+      "latency_ms": 0,
+      "approval_rejects": 0
+    },
+    {
+      "ts": "2026-02-22T04:26:05",
+      "type": "single_run",
+      "project_id": "default",
+      "role": "General",
+      "task": "track issues",
+      "skills_loaded": [],
+      "ok": false,
+      "reason": "",
+      "latency_ms": 0,
+      "approval_rejects": 0
+    },
+    {
+      "ts": "2026-02-22T04:26:05",
+      "type": "single_run",
+      "project_id": "default",
+      "role": "General",
+      "task": "do something new",
+      "skills_loaded": [],
+      "ok": false,
+      "reason": "",
+      "latency_ms": 0,
+      "approval_rejects": 0
+    },
+    {
+      "ts": "2026-02-22T04:27:39",
+      "type": "workflow_run",
+      "project_id": "default",
+      "workflow_path": "C:\\Users\\HOME\\AppData\\Local\\Temp\\pytest-of-HOME\\pytest-8\\test_factory_run_workflow_sequ0\\wf.yaml",
+      "stage_count": 2,
+      "run_count": 2,
+      "base_roles": [
+        "Lilith",
+        "Himari"
+      ],
+      "ok": false,
+      "state_path": "D:\\agent-factory\\projects\\default\\runs\\wf_1771702059\\state.json"
+    },
+    {
+      "ts": "2026-02-22T04:27:52",
+      "type": "single_run",
+      "project_id": "default",
+      "role": "General",
+      "task": "track issues",
+      "skills_loaded": [],
+      "ok": false,
+      "reason": "",
+      "latency_ms": 0,
+      "approval_rejects": 0
+    },
+    {
+      "ts": "2026-02-22T04:27:52",
+      "type": "single_run",
+      "project_id": "default",
+      "role": "General",
+      "task": "do something new",
+      "skills_loaded": [],
+      "ok": false,
+      "reason": "",
+      "latency_ms": 0,
+      "approval_rejects": 0
+    },
+    {
+      "ts": "2026-02-22T04:27:52",
+      "type": "workflow_run",
+      "project_id": "default",
+      "workflow_path": "C:\\Users\\HOME\\AppData\\Local\\Temp\\pytest-of-HOME\\pytest-9\\test_factory_run_workflow_sequ0\\wf.yaml",
+      "stage_count": 2,
+      "run_count": 2,
+      "base_roles": [
+        "Lilith",
+        "Himari"
+      ],
+      "ok": false,
+      "state_path": "D:\\agent-factory\\projects\\default\\runs\\wf_1771702072\\state.json"
     }
   ]
 }

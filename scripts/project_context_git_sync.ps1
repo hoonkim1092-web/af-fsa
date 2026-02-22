@@ -34,8 +34,8 @@ function Parse-ProjectInputs([string]$Single, [string]$Multi) {
     if ($Multi) {
         $items += ($Multi -split "," | ForEach-Object { $_.Trim() } | Where-Object { $_ })
     }
-    $items = $items | Where-Object { $_ } | Select-Object -Unique
-    if ($items.Count -eq 0) {
+    $items = @($items | Where-Object { $_ } | Select-Object -Unique)
+    if (@($items).Count -eq 0) {
         throw "Provide -Project or -Projects (comma separated)."
     }
     return $items
@@ -102,7 +102,7 @@ $projectPaths = @()
 foreach ($p in $projectInputs) {
     $projectPaths += (Resolve-ProjectPath -RepoRoot $repoRoot -ProjectInput $p)
 }
-$projectPaths = $projectPaths | Select-Object -Unique
+$projectPaths = @($projectPaths | Select-Object -Unique)
 
 $agentId = Safe-Id $Agent
 $results = @()

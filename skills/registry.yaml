@@ -1,5 +1,16 @@
 install_candidates: {}
 skills:
+  abc:
+    capabilities:
+    - abc
+    id: abc
+    last_test_ok: true
+    meta_path: C:\Users\HOME\AppData\Local\Temp\pytest-of-HOME\pytest-9\test_register_built_updates_sk0\skills\abc\meta.yaml
+    name: abc
+    path: C:\Users\HOME\AppData\Local\Temp\pytest-of-HOME\pytest-9\test_register_built_updates_sk0\skills\abc\skill.py
+    status: active
+    updated_at: '2026-02-22T04:27:52'
+    version: 0.1.0
   ai_funnel_routing:
     capabilities:
     - AI_FUNNEL_ROUTING
@@ -131,6 +142,17 @@ skills:
     path: skills/liability_traceability_design/skill.py
     status: active
     updated_at: '2026-02-20T02:22:54'
+    version: 1.0.0
+  new_skill:
+    capabilities:
+    - new_skill
+    id: new_skill
+    last_test_ok: true
+    meta_path: skills/new_skill/meta.yaml
+    name: new_skill
+    path: skills/new_skill/skill.py
+    status: active
+    updated_at: '2026-02-22T04:19:55'
     version: 1.0.0
   perform_web_design_review:
     capabilities:
