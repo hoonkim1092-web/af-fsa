@@ -4,13 +4,12 @@ import subprocess
 import argparse
 import re
 import json
-import google.generativeai as genai
+import yaml
+
+from core.llm_engine import LLMEngine
 from dotenv import load_dotenv
 
 load_dotenv()
-api_key = os.getenv("GOOGLE_API_KEY")
-if api_key:
-    genai.configure(api_key=api_key)
 
 FACTORY_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -30,7 +29,7 @@ def decompose_project(project_description):
     """
     print_message("Lilith", "프로젝트 명세 분석 중... 멍청한 계획이 아니길 바라지.")
     
-    model = genai.GenerativeModel("gemini-2.0-flash")
+    llm = LLMEngine(model_name="gemini-2.0-flash")
     prompt = f"""
     당신은 Logi-Mind 프로젝트의 수석 PM인 Lilith입니다.
     사용자가 다음 프로젝트를 요청했습니다: "{project_description}"
@@ -38,15 +37,11 @@ def decompose_project(project_description):
     이 프로젝트를 완수하기 위해 필요한 하위 에이전트들의 역할(Role) 목록을 추천해주세요. 
     반드시 '필수' 롤과 '권장/선택' 롤로 구분해서 JSON 형태로만 응답하세요.
     예: {{"roles": [{{"role": "Chef", "type": "필수", "reason": "메뉴 구상 및 레시피 작성"}}, {{"role": "Manager", "type": "필수", "reason": "예산 및 진행 검수"}}]}}
-    출력은 마크다운 코드 블록 없이 순수 JSON 문자열만 출력하세요.
+    단순 JSON 객체만 반환하세요.
     """
     
     try:
-        response = model.generate_content(prompt)
-        # Clean markdown codeblocks if model didn't listen
-        json_str = re.sub(r"^```(?:json)?\s*", "", response.text.strip())
-        json_str = re.sub(r"\s*```$", "", json_str)
-        data = json.loads(json_str)
+        data = llm.generate_json(prompt)
         return data.get("roles", [])
     except Exception as e:
         print_message("Lilith", f"분석 중 에러 났어. 다시 똑바로 입력해. 에러: {e}")
@@ -122,16 +117,36 @@ def hot_upgrade_agent(role, missing_capability, project_desc):
     print_message("Lilith", f"[비상 사태] '{role}' 녀석이 '{missing_capability}' 제안부터 막히고 있어. 멍청하게 굴지 말고 툴을 쥐어줘야겠네.")
     print_message("Lilith", f"Himari! '{role}' 한테 당장 <<{missing_capability}>> 특화 스킬 하나 구워와. 당장!")
     
-    # 히마리 스킬 생성 (factory_manager.py의 forge_new_skill 모방 또는 직접 genai 호출)
     print_message("Himari", f"오더 접수. '{role}' 을 위한 <<{missing_capability}>> 긴급 파츠(스킬) 주조 공정 가동 중...")
     
-    # (실제 환경에서는 factory_manager의 forge_new_skill 함수나 CLI를 호출해 skills/forge 에 새 .py를 떨어뜨리고 yaml을 업데이트해야 함. 여기선 데모 콘솔로 대체)
-    import time
-    time.sleep(2)
+    # 팩토리 매니저를 서브프로세스로 호출해 실제 스킬 설치 진행
+    agent_id = role.replace(" ", "-").lower() + "-agent"
     
-    print_message("Himari", f"주조 완료. <<{missing_capability}_playbook.py>> 를 '{role}' 의 코어에 핫 리로딩(Hot-Reloading) 주입했습니다.")
-    print_message("Lilith", f"좋아. 야 '{role}'! 스킬 하나 머리에 꽂아 줬으니까 이제 똑바로 '{missing_capability}' 해서 다시 가져와.")
-    return True
+    # 내부적으로 factory_manager를 호출하되, missing_capability를 강제 주입하는 로직이 필요함.
+    # 현재 factory_manager.py는 role을 주면 알아서 research해서 설치하는 구조임.
+    # 일단은 Himari가 다시 그 role 전체 스킬을 스캔 후 보강하는 형태로 실행
+    cmd = [sys.executable, "-u", "factory_manager.py", role]
+    
+    try:
+        process = subprocess.Popen(cmd, cwd=FACTORY_DIR, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding='utf-8')
+        for line in iter(process.stdout.readline, ''):
+            if "[SYS" not in line and "[GIT" not in line: # 불필요한 로그 필터링
+                sys.stdout.write("  " + line)
+        process.stdout.close()
+        process.wait()
+        
+        if process.returncode == 0:
+            print_message("Himari", f"주조 및 조립 완료. '{role}' 의 코어에 핫 리로딩(Hot-Reloading) 주입했습니다.")
+            print_message("Lilith", f"좋아. 야 '{role}'! 스킬 하나 머리에 꽂아 줬으니까 이제 똑바로 '{missing_capability}' 해서 다시 가져와.")
+            return True
+        else:
+            print_message("Himari", f"스킬 주조 실패. (Return code: {process.returncode})")
+            print_message("Lilith", "히마리 너마저 이따위로 할 거야? 닥치고 다시 디버깅해.")
+            return False
+            
+    except Exception as e:
+        print_message("Himari", f"스킬 주조 시스템 에러: {e}")
+        return False
 
 def run_swarm_council(roles, project_desc):
     """
@@ -141,71 +156,126 @@ def run_swarm_council(roles, project_desc):
     print("\n" + "="*60)
     print_message("Lilith", "모두 주목. 에이전트 팩토리 생산 끝났다. 지금부터 진짜배기 '티키타카 의결(Swarm Council)' 루프 시작한다. 너희 산출물, 내가 다 하나하나 뜯어본다.")
     
-    # 시연을 위해 셰프(혹은 첫 번째 롤)가 제안하고 릴리트가 돌려까는 구조 구현
-    target_role = roles[0] if roles else "Worker"
+    # Stateful Project Board 초기화
+    project_board = {
+        "project_description": project_desc,
+        "roles": roles,
+        "history": [],
+        "current_status": "Planning"
+    }
+
+    # 정책 파일 로드 (Defense Logic 용)
+    policy_path = os.path.join(FACTORY_DIR, "projects", "default", "policies.yaml")
+    policy_text = ""
+    try:
+        if os.path.exists(policy_path):
+            with open(policy_path, "r", encoding="utf-8") as f:
+                policy_text = f.read()
+    except Exception as e:
+        print_message("System", f"Policy load failed: {e}")
+
+    llm = LLMEngine(model_name="gemini-2.0-flash")
     
-    model = genai.GenerativeModel("gemini-2.0-flash")
-    
-    # 루프 상태 변수
     is_approved = False
     loop_count = 0
     max_loops = 3
     
+    # 둥글게 돌아가며 제안을 받을 수도 있지만, 여기서는 첫 번째 역할을 대표로 사용.
+    target_role = roles[0] if roles else "Worker"
     print_message("Lilith", f"첫 빠따, '{target_role}'. '{project_desc}' 의 전체적인 뼈대랑 예산안/원가율 당장 보고해.")
     
     while not is_approved and loop_count < max_loops:
         loop_count += 1
         print(f"\n--- [Swarm iteration {loop_count}] ---")
         
-        # 1. 대상 에이전트(셰프)의 제안 생성
+        # 1. 대상 에이전트의 제안 생성 (JSON 포맷 강제)
         worker_prompt = f"""
         당신은 방금 생성된 최고 수준의 '{target_role}' 에이전트입니다.
         이번 프로젝트는 "{project_desc}" 입니다.
+        프로젝트 보드 히스토리: {json.dumps(project_board['history'], ensure_ascii=False)}
+        
         프로젝트 성공을 위해 릴리트(매니저/PM)에게 다음과 같이 초안을 보고하세요.
-        - 예상 예산/원가율: (최초엔 높게, 예를 들어 45% 등으로 제출하여 릴리트에게 혼나도록 유도)
+        - 예상 예산/원가율: (최초엔 높게 제출하여 릴리트에게 혼나도록 유도)
         - 핵심 전략: (1~2줄)
         - 필요한 지원: (스킬이 더 필요하다고 징징대기)
-        응답은 3~5줄 이내로 매우 직관적으로 작성하세요.
-        """
-        response_worker = model.generate_content(worker_prompt).text.strip()
-        print_message(target_role, response_worker)
         
-        # 2. 릴리트(PM)의 검열 및 피드백 (티키타카)
-        lilith_prompt = f"""
+        오직 JSON 객체만 반환하세요.
+        """
+        
+        worker_response_data = llm.generate_json(worker_prompt)
+        response_worker_text = json.dumps(worker_response_data, ensure_ascii=False, indent=2)
+        print_message(target_role, response_worker_text)
+        
+        # 상태 업데이트
+        project_board["history"].append({"role": target_role, "type": "proposal", "content": worker_response_data})
+        
+        # 2. 릴리트(PM)의 검열 초안 작성
+        lilith_draft_prompt = f"""
         당신은 깐깐하고 독설을 내뱉는 PM 'Lilith'입니다.
-        다음은 당신의 하위 역할인 '{target_role}' 이(가) 가져온 산출물입니다.
+        다음은 하위 역할 '{target_role}' 의 산출물입니다.
+        {response_worker_text}
         
-        [산출물]
-        {response_worker}
-        
-        [행동 지침]
-        1. 첫 번째(<2) 루프에서는 무조건 "원가율이 너무 높다", "마진이 안 남는다", "스킬도 없는 녀석"이라며 거절(Reject)하고 날서게 비판하세요. 
-        2. 만약 산출물에서 '어떤 기술/지식이 부족하다'고 하면 "그럼 당장 히마리한테 스킬 구워오라고 할 테니 다시 해"라고 말하세요.
-        3. 세 번째(>=2) 수정본이면(이전 피드백이 반영됐다 치고) "원가율 30% 이하로 맞췄네. 이건 통과. 당장 팔아(Pass)"라고 승인하세요.
-        
+        1. 첫 번째(<2) 루프에서는 원가율, 마진, 스킬 부족을 이유로 무조건 거절(Reject)하고 날서게 비판하세요. 
+        2. 스킬 부족을 징징거리면 "그럼 당장 히마리한테 스킬 구워오라고 할 테니 다시 해"라고 지시하세요.
+        3. 세 번째(>=2) 루프면 "원가율 30% 이하로 맞췄네. 이건 통과. 당장 팔아(Pass)"라고 승인하세요.
         현재 루프 횟수: {loop_count}.
-        응답은 반드시 1. 심사평(독설), 2. 부족한 스킬 지적, 3. 최종결론(Reject 또는 Pass)을 짧게 포함하세요.
-        """
-        response_lilith = model.generate_content(lilith_prompt).text.strip()
-        print_message("Lilith", response_lilith)
         
-        # 3. 상태 체크 (문자열 파싱)
-        if "Pass" in response_lilith or "통과" in response_lilith:
+        오직 JSON 객체로 응답하세요. 키: "critique", "missing_skill" (선택), "decision" ("Reject" 또는 "Pass")
+        """
+        lilith_draft_data = llm.generate_json(lilith_draft_prompt)
+        
+        # 3. Lilith Defense Logic (Self-Validation against Policies)
+        print_message("System", "(Lilith is self-validating her decision against project policies...)")
+        defense_prompt = f"""
+        Review the following PM decision against the project policies to ensure it is structurally sound and safe.
+        Project Policies: {policy_text}
+        PM Draft Decision: {json.dumps(lilith_draft_data, ensure_ascii=False)}
+        
+        If the decision violates strict_quality_gate or other policies, correct it.
+        Return the Final PM Decision as a JSON object with keys: "verified_critique", "verified_decision", "missing_skill".
+        """
+        lilith_final_data = llm.generate_json(defense_prompt)
+        
+        # Defense Fallback
+        if not lilith_final_data:
+            lilith_final_data = {
+                "verified_critique": lilith_draft_data.get("critique", "정책 검증 실패. 다시 분석해."),
+                "verified_decision": lilith_draft_data.get("decision", "Reject"),
+                "missing_skill": lilith_draft_data.get("missing_skill", "")
+            }
+
+        response_lilith_text = f"[{lilith_final_data.get('verified_decision', 'Reject')}] {lilith_final_data.get('verified_critique', '')}"
+        print_message("Lilith", response_lilith_text)
+        
+        project_board["history"].append({"role": "Lilith", "type": "decision", "content": lilith_final_data})
+        
+        # 4. 상태 트리거 실행
+        decision = str(lilith_final_data.get("verified_decision", "")).strip().lower()
+        
+        if "pass" in decision or "통과" in decision:
             is_approved = True
             break
-        elif "Reject" in response_lilith or "거절" in response_lilith or "다시 해" in response_lilith:
-            # 동적 스킬 업그레이드 트리거
-            print_message("System", f"[{target_role}] 에이전트가 릴리트의 심사를 통과하지 못했습니다. (Capability 부족 의심)")
-            hot_upgrade_agent(target_role, "원가율 최적화 및 ROI 마진 방어 분석", project_desc)
+        elif "reject" in decision or "거절" in decision:
+            missing_skill = lilith_final_data.get("missing_skill", "")
+            if missing_skill and len(missing_skill) > 2:
+                print_message("System", f"[{target_role}] 에이전트 능력 부족 감지: {missing_skill}")
+                hot_upgrade_agent(target_role, missing_skill, project_desc)
         else:
-            # 기본 대기
             pass
 
     if is_approved:
+        project_board["current_status"] = "Approved"
         print("\n" + "="*60)
-        print_message("Lilith", f"최종 심사 완료. '{project_desc}' 의 기획안과 팩토리 조립 파트너십 모두 합격선 돌파했다. 당장 현장에 배포해.")
+        print_message("Lilith", f"최종 심사 완료. '{project_desc}' 기획안과 파트너십 합격선 돌파. 당장 배포해.")
     else:
-        print_message("Lilith", "이 따위로 할 거면 다 엎어. 3번이나 기회를 줬는데 기각(Reject). 데드라인 초과로 프로젝트 폐기.")
+        project_board["current_status"] = "Rejected"
+        print_message("Lilith", "이 따위로 할 거면 다 엎어. 3번이나 기회를 줬는데 기각(Reject). 데드라인 초과로 폐기.")
+        
+    # 최종 보드 상태 저장 (디버그/기록용)
+    try:
+        with open("project_board_state.json", "w", encoding="utf-8") as f:
+            json.dump(project_board, f, ensure_ascii=False, indent=2)
+    except Exception: pass
 
 def main():
     parser = argparse.ArgumentParser(description="Logi-Mind Multi-Agent Project Orchestrator")

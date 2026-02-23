@@ -1,0 +1,52 @@
+{
+  "project_description": "새로운 프리미엄 라면 브랜드 런칭 프로젝트",
+  "roles": [
+    "Chef",
+    "Marketer"
+  ],
+  "history": [
+    {
+      "role": "Chef",
+      "type": "proposal",
+      "content": {}
+    },
+    {
+      "role": "Lilith",
+      "type": "decision",
+      "content": {
+        "verified_critique": "정책 검증 실패. 다시 분석해.",
+        "verified_decision": "Reject",
+        "missing_skill": ""
+      }
+    },
+    {
+      "role": "Chef",
+      "type": "proposal",
+      "content": {}
+    },
+    {
+      "role": "Lilith",
+      "type": "decision",
+      "content": {
+        "verified_critique": "정책 검증 실패. 다시 분석해.",
+        "verified_decision": "Reject",
+        "missing_skill": ""
+      }
+    },
+    {
+      "role": "Chef",
+      "type": "proposal",
+      "content": {}
+    },
+    {
+      "role": "Lilith",
+      "type": "decision",
+      "content": {
+        "verified_critique": "정책 검증 실패. 다시 분석해.",
+        "verified_decision": "Reject",
+        "missing_skill": ""
+      }
+    }
+  ],
+  "current_status": "Rejected"
+}
