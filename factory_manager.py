@@ -49,8 +49,7 @@ else:
 log("SYSTEM", f"??{selected_model_name} ?붿쭊?쇰줈 {role} ?쒖옉 怨듭젙 ?쒖옉")
 
 model = genai.GenerativeModel(
-    model_name=selected_model_name,
-    tools=[{'google_search_retrieval': {}}]
+    model_name=selected_model_name
 )
 
 SENSITIVE_PATTERNS = [
