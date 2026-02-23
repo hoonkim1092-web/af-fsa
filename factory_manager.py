@@ -11,6 +11,7 @@ from core.llm_engine import LLMEngine
 from core.research_engine import query_notebooklm, generate_deep_research_prompt
 from core.git_manager import git_configure_and_push
 from core.security_scanner import security_scan
+from core.skill_registry import check_skill_exists, register_skill, rebuild_registry_from_disk
 
 FACTORY_ROOT = os.getcwd()
 AGENT_PROJECT_ROOT = os.getenv("AGENT_PROJECT_ROOT")
@@ -43,19 +44,19 @@ def get_random_signature(agent_config: dict) -> str:
     return ""
 
 def sync_warehouse():
-    log("WAREHOUSE", "?벀 理쒖떊 ?ㅽ궗 ??μ냼 ?숆린??以?..")
+    log("WAREHOUSE", "코어 최신 스킬 저장소 동기화 중...")
     if not os.path.exists(WAREHOUSE_DIR):
         try:
             subprocess.run(["git", "clone", ANTIGRAVITY_REPO_URL, WAREHOUSE_DIR], check=True)
-            log("WAREHOUSE", "???ㅽ궗 李쎄퀬 ?ㅼ슫濡쒕뱶 ?꾨즺")
+            log("WAREHOUSE", "코어 스킬 창고 다운로드 완료")
         except Exception as e:
-            log("WAREHOUSE", f"?좑툘 ?ㅼ슫濡쒕뱶 ?ㅽ뙣: {e}")
+            log("WAREHOUSE", f"스킬 다운로드 실패: {e}")
     else:
         try:
             subprocess.run(["git", "-C", WAREHOUSE_DIR, "pull"], check=True)
-            log("WAREHOUSE", "??理쒖떊 ?ㅽ궗 ?낅뜲?댄듃 ?꾨즺")
+            log("WAREHOUSE", "코어 최신 스킬 업데이트 완료")
         except Exception as e:
-            log("WAREHOUSE", f"?좑툘 ?낅뜲?댄듃 ?ㅽ뙣(濡쒖뺄 紐⑤뱶): {e}")
+            log("WAREHOUSE", f"스킬 업데이트 실패(로컬 모드): {e}")
 
 def find_existing_agent(role):
     agent_name = role.replace(" ", "-").lower() + "-agent"
@@ -75,10 +76,10 @@ def load_agent_config(agent_name):
         with open(config_path, "r", encoding="utf-8") as f:
             return yaml.safe_load(f)
     except ImportError:
-        log("SYSTEM", "?좑툘 PyYAML not installed. Returning None.")
+        log("SYSTEM", "스킬 PyYAML not installed. Returning None.")
         return None
     except Exception as e:
-        log("SYSTEM", f"?좑툘 Error loading agent config: {e}")
+        log("SYSTEM", f"스킬 Error loading agent config: {e}")
         return None
 
 
@@ -176,14 +177,24 @@ def get_missing_skills(agent_name, required_skills):
     return missing
 
 def procure_skill(skill_name, role):
+    # Check Registry first using semantic matching
+    purpose_desc = f"Skill intended for {role} to handle {skill_name}"
+    existing_skill_path = check_skill_exists(skill_name, purpose_desc)
+    
+    if existing_skill_path and os.path.exists(existing_skill_path):
+        log("REGISTRY", f"Reusing existing skill from registry: {existing_skill_path}")
+        return existing_skill_path
+
     found = glob.glob(os.path.join(WAREHOUSE_DIR, "**", f"{skill_name}.py"), recursive=True)
-    if found: return found[0]
+    if found: 
+        register_skill(skill_name, purpose_desc, found[0])
+        return found[0]
     
     forge_path = os.path.join(FORGE_DIR, f"{skill_name}.py")
-    if os.path.exists(forge_path): return forge_path
+    if os.path.exists(forge_path): 
+        register_skill(skill_name, purpose_desc, forge_path)
+        return forge_path
 
-    # Extract coding_engine through arguments or context if needed
-    # For now, we assume provide_skill is called within a context that knows coding_engine
     return forge_new_skill(skill_name, role)
 
 def forge_new_skill(skill_name, role, coding_engine="gemini-2.0-flash"):
@@ -199,6 +210,10 @@ def forge_new_skill(skill_name, role, coding_engine="gemini-2.0-flash"):
         code = code.replace("```python", "").replace("```", "").strip()
         with open(output_path, "w", encoding="utf-8") as f: f.write(code)
         log("FORGE", f"✅ Forge complete: {output_path}")
+        
+        # Register the new skill
+        register_skill(skill_name, f"Dynamically forged skill for {role}", output_path)
+        
         return output_path
     except Exception as e:
         log("FORGE", f"❌ Forge failed: {e}")
@@ -220,7 +235,7 @@ def assemble_and_push(agent_name, role, skill_paths, selected_model="gemini-2.0-
 
     CORE_SKILLS_DIR = os.path.join(FACTORY_ROOT, "skills", "core")
     if os.path.exists(CORE_SKILLS_DIR):
-        log("ASSEMBLE", f"?쭬 Cortex(Core Skills) ?묒옱 以?..")
+        log("ASSEMBLE", f"🧠 Cortex(Core Skills) 탑재 중...")
         for core_skill in glob.glob(os.path.join(CORE_SKILLS_DIR, "*.py")):
             shutil.copy2(core_skill, tools_dir)
 
@@ -242,6 +257,9 @@ if __name__ == "__main__":
     role = sys.argv[1]
     selected_model = sys.argv[2] if len(sys.argv) > 2 else "gemini-2.0-flash"
 
+    # Auto-initialize registry if empty
+    rebuild_registry_from_disk(FORGE_DIR, WAREHOUSE_DIR)
+
     sync_warehouse()
 
     agent_id = role.replace(" ", "-").lower() + "-agent"
@@ -254,5 +272,5 @@ if __name__ == "__main__":
         log("SYSTEM", "No missing skills. Update complete.")
         sys.exit(0)
 
-    paths = [procure_skill(s, role) if glob.glob(os.path.join(WAREHOUSE_DIR, "**", f"{s}.py"), recursive=True) or os.path.exists(os.path.join(FORGE_DIR, f"{s}.py")) else forge_new_skill(s, role, coding_engine) for s in missing_skills]
+    paths = [procure_skill(s, role) for s in missing_skills]
     assemble_and_push(agent_id, role, paths, selected_model)

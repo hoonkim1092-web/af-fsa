@@ -36,7 +36,7 @@ def test_factory_reuses_verified_skill(monkeypatch):
     factory.builder.build_skill = lambda **kwargs: build_calls.append(kwargs) or (False, None, {"last_test_detail": {"reason": "should_not_build"}})
     factory.runner.run = lambda run_agent, task_input: runner_calls.append((run_agent, task_input))
 
-    factory.run(task_input="track issues", role_spec="General")
+    factory.run(task_input="track issues", role_spec="General", enable_build=True)
 
     assert install_calls == [["issue_tracker"]]
     assert build_calls == []
@@ -87,7 +87,7 @@ def test_factory_builds_unresolved_skill_and_registers(monkeypatch):
     factory.registry.is_installable = lambda _sid: True
     factory.runner.run = lambda run_agent, task_input: runner_calls.append((run_agent, task_input))
 
-    factory.run(task_input="do something new", role_spec="General")
+    factory.run(task_input="do something new", role_spec="General", enable_build=True)
 
     assert register_calls and register_calls[0][0] == "new_skill"
     assert workflow_calls == [["new_skill"]]
@@ -112,7 +112,7 @@ def test_factory_run_workflow_sequences_roles(monkeypatch, tmp_path):
     )
 
     calls = []
-    factory.run = lambda task_input, role_spec="General": calls.append((role_spec, task_input))
+    factory.run = lambda task_input, role_spec="General": (calls.append((role_spec, task_input)), {"ok": True})[1]
 
     factory.run_workflow(task_input="deliver demo", workflow_path=str(wf), role_specs=["Lilith", "Himari"])
 

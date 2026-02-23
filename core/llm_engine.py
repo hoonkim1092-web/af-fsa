@@ -44,11 +44,11 @@ class LLMEngine:
             print(f"[LLMEngine Error] JSON parsing failed: {e}\nRaw Text: {text}")
             return {}
         except Exception as e:
-            print(f"[LLMEngine Error] JSON generation failed: {e}")
+            print(f"[LLMEngine Error] JSON generation failed: {type(e).__name__}: {str(e)}")
             return {}
 
 def get_best_model(fallback_list=None):
     """(기존 model_utils 대체/통합 가능성 고려용)"""
     if fallback_list:
         return fallback_list[0]
-    return "gemini-3.1-pro-preview" # Fallback
+    return "gemini-2.0-flash" # Fallback

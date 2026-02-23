@@ -15,6 +15,9 @@ import shutil
 from datetime import datetime
 from dotenv import load_dotenv
 
+from core.executor import run_skill_safely
+from core.policy import resolve_quality_gate_policy
+
 import google.generativeai as genai
 try:
     from openai import OpenAI
@@ -223,44 +226,7 @@ def ensure_registry_files():
     if not os.path.exists(WORKFLOW_PATH):
         write_yaml(WORKFLOW_PATH, {"capability_to_skill": {}, "updated_at": now_iso()})
 
-# =============================================================================
-# Utils
-# =============================================================================
-def now_iso() -> str:
-    return datetime.now().isoformat(timespec="seconds")
-
-def safe_id(text: str) -> str:
-    t = (text or "").strip().lower()
-    t = re.sub(r"[^a-z0-9_]+", "_", t)
-    t = re.sub(r"_+", "_", t).strip("_")
-    return (t[:60] if t else "skill")
-
-def strip_code_fences(s: str) -> str:
-    s = (s or "").strip()
-    s = re.sub(r"^```(?:json|python)?\s*", "", s)
-    s = re.sub(r"\s*```$", "", s)
-    return s.strip()
-
-def safe_json_load(s: str) -> dict:
-    s = strip_code_fences(s)
-    try:
-        return json.loads(s)
-    except Exception:
-        m = re.search(r"\{.*\}", s, re.S)
-        return json.loads(m.group(0)) if m else {}
-
-def read_yaml(path: str) -> dict:
-    if not os.path.exists(path):
-        return {}
-    with open(path, "r", encoding="utf-8") as f:
-        return yaml.safe_load(f) or {}
-
-def write_yaml(path: str, data: dict):
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, "w", encoding="utf-8") as f:
-        yaml.dump(data, f, allow_unicode=True, default_flow_style=False)
-
-def write_text(path: str, content: str):
+# (Duplicate utility block removed by Audit Remediation)
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w", encoding="utf-8") as f:
         f.write(content)
@@ -562,21 +528,21 @@ try:
         try:
             ts = __import__("datetime").datetime.utcnow().isoformat()
             with builtins.open(AUDIT_PATH, "a", encoding="utf-8") as f:
-                f.write(f"[{{ts}}] {{line}}\\n")
+                f.write(f"[{ts}] {line}\\n")
         except Exception:
             pass
 
     _orig_connect = _socket.socket.connect
-    def _logged_connect(self, address):
-        _audit(f"socket.connect address={{address}}")
-        return _orig_connect(self, address)
-    _socket.socket.connect = _logged_connect
+    def _blocked_connect(self, address):
+        _audit(f"BLOCKED socket.connect address={address}")
+        raise PermissionError(f"Network access is blocked in the sandbox. (address={address})")
+    _socket.socket.connect = _blocked_connect
 
     _orig_create_connection = _socket.create_connection
-    def _logged_create_connection(address, *args, **kwargs):
-        _audit(f"socket.create_connection address={{address}}")
-        return _orig_create_connection(address, *args, **kwargs)
-    _socket.create_connection = _logged_create_connection
+    def _blocked_create_connection(address, *args, **kwargs):
+        _audit(f"BLOCKED socket.create_connection address={address}")
+        raise PermissionError(f"Network access is blocked in the sandbox. (address={address})")
+    _socket.create_connection = _blocked_create_connection
 except Exception:
     pass
 
@@ -640,22 +606,37 @@ except Exception as e:
 """
 
     try:
-        # ??-I ?좎? / -S ?쒓굅 => ?꾩옱 ?섍꼍??site-packages(pandas/numpy) ?ъ슜 媛??
-        p = subprocess.run(
-            [sys.executable, "-I", "-c", runner],
-            capture_output=True,
-            text=True,
+        # Save runner script to a temporary file
+        temp_runner_path = os.path.join(ARTIFACTS_DIR, f"temp_runner_{int(time.time())}.py")
+        with open(temp_runner_path, "w", encoding="utf-8") as f:
+            f.write(runner)
+
+        # Execute using Safe Action Executor
+        exec_result = run_skill_safely(
+            role="Skill_Test",
+            skill_path=temp_runner_path,
+            args=[],
             timeout=timeout_sec,
-            env=build_child_env(),   # 최소 allowlist만 전달
-            cwd=ARTIFACTS_DIR,        # ???묒뾽 ?붾젆?좊━ 怨좎젙
+            workdir=ARTIFACTS_DIR,
         )
-    except subprocess.TimeoutExpired:
-        return False, {"ok": False, "reason": "timeout"}, "timeout"
+        
+        # Clean up temp file
+        if os.path.exists(temp_runner_path):
+            os.remove(temp_runner_path)
+
+        if exec_result["status"] == "failed" and "timeout" in exec_result["error"].lower():
+            return False, {"ok": False, "reason": "timeout"}, "timeout"
+        elif exec_result["status"] == "failed":
+            return False, {"ok": False, "reason": "runner_error", "error": exec_result["error"]}, exec_result["error"]
+            
+        p_stdout = exec_result["stdout"]
+        p_stderr = exec_result["stderr"]
+        
     except Exception as e:
         return False, {"ok": False, "reason": "runner_error", "error": str(e)}, str(e)
 
-    out = (p.stdout or "").strip()
-    err = (p.stderr or "").strip()
+    out = p_stdout.strip()
+    err = p_stderr.strip()
     if not out:
         return False, {"ok": False, "reason": "empty_output"}, err
 
@@ -1535,24 +1516,28 @@ class RegistryManager:
         return installed
 
     def _quality_gate_policy(self) -> dict:
-        policies = read_project_policies()
-        qg = policies.get("quality_gate", {}) if isinstance(policies, dict) else {}
-        if not isinstance(qg, dict):
-            qg = {}
+        qg = resolve_quality_gate_policy(read_project_policies())
         return {
             "default_stage_on_build": str(qg.get("default_stage_on_build", "candidate")),
             "auto_promote_sequence": [safe_id(str(s)) for s in (qg.get("auto_promote_sequence") or ["canary", "active"])],
-            "installable_statuses": [safe_id(str(s)) for s in (qg.get("installable_statuses") or ["canary", "active"])],
+            "installable_statuses": [safe_id(str(s)) for s in (qg.get("installable_statuses") or ["active"])],
         }
 
     def apply_quality_gate(self, meta: dict) -> dict:
         qg = self._quality_gate_policy()
         stage = safe_id(qg.get("default_stage_on_build", "candidate"))
         sequence = [s for s in qg.get("auto_promote_sequence", []) if s in ("candidate", "canary", "active")]
+        
+        # If it's a valid default stage, keep it instead of overwriting loops
         if stage not in ("candidate", "canary", "active"):
             stage = "candidate"
-        for s in sequence:
-            stage = s
+            
+        # In a real pipeline, stage advancement happens progressively via tests.
+        # Since this applies the INITIAL gate, we just lock it to the default
+        # or the first step of the promotion sequence.
+        if sequence and stage not in sequence:
+            stage = sequence[0]
+            
         patched = dict(meta or {})
         patched["status"] = stage
         patched["quality_stage"] = stage
@@ -1564,7 +1549,7 @@ class RegistryManager:
         item = (lock.get("skills", {}) or {}).get(safe_id(skill_id), {})
         status = safe_id(str(item.get("status", "")))
         qg = self._quality_gate_policy()
-        installable = set(qg.get("installable_statuses", ["canary", "active"]))
+        installable = set(qg.get("installable_statuses", ["active"]))
         return status in installable
 
     def ensure_lock_for_existing_skill(self, skill_id: str):
@@ -2198,9 +2183,9 @@ class AgentFactory:
         data["updated_at"] = now_iso()
         _safe_write_json(state_path, data)
 
-    def run(self, task_input: str, role_spec: str = "General"):
+    def run(self, task_input: str, role_spec: str = "General", enable_build: bool = False):
         run_id = f"run_{int(time.time())}"
-        print(f"\n🚀 RUN={run_id}")
+        print(f"\nRUN={run_id}")
         print(f"- Role: {role_spec}")
         print(f"- Task: {task_input}")
 
@@ -2210,18 +2195,20 @@ class AgentFactory:
 
         skills = reqs.get("missing_skills", [])
         initial_targets = list(dict.fromkeys([safe_id(s) for s in skills] + file_missing))
-        
-        # [Build Phase]
-        if initial_targets:
-            print(f"\n🧱 Needed skills: {initial_targets}")
+
+        skipped_build_targets: list[str] = []
+        if initial_targets and not enable_build:
+            skipped_build_targets = list(initial_targets)
+            print(f"\n[RunOnly] build disabled, skipping: {skipped_build_targets}")
+
+        if initial_targets and enable_build:
+            print(f"\n[Build] Needed skills: {initial_targets}")
             built_metas: list[dict] = []
 
-            # 1) Research reusable local skills and evidence
             research = self.research.research(agent, reqs, build_targets=initial_targets)
             evidence_pack = research.get("evidence_pack", {}) if isinstance(research, dict) else {}
             targets = evidence_pack.get("targets", {}) if isinstance(evidence_pack, dict) else {}
 
-            # 2) Install verified top candidates first
             reusable: list[str] = []
             resolved_needs: set[str] = set()
             for need in initial_targets:
@@ -2239,21 +2226,19 @@ class AgentFactory:
                 installable_reuse = [sid for sid in reusable if self.registry.is_installable(sid)]
                 blocked_reuse = [sid for sid in reusable if sid not in installable_reuse]
                 if blocked_reuse:
-                    print(f"⛔ [QualityGate] 설치 보류(상태 미달): {blocked_reuse}")
+                    print(f"[QualityGate] install blocked: {blocked_reuse}")
                 approval_policy = self._read_approval_policy()
                 allow_skill_change = True
                 if installable_reuse and approval_policy.get("require_skill_change_approval", False):
-                    allow_skill_change = self._ask_skill_change_approval(role_spec, installable_reuse, "기존 스킬 설치")
+                    allow_skill_change = self._ask_skill_change_approval(role_spec, installable_reuse, "reuse skill install")
                 installed = self.agent_mgr.install_skills(role_spec, installable_reuse) if (installable_reuse and allow_skill_change) else []
                 if installable_reuse and not allow_skill_change:
-                    print("⏭️ [Approval] 사용자 미승인으로 기존 스킬 설치를 건너뜁니다.")
-                print(f"📦 [Factory] 기존 스킬 설치: {installable_reuse} -> agent.skills={installed}")
+                    print("[Approval] reuse install skipped by user.")
+                print(f"[Factory] reused install: {installable_reuse} -> agent.skills={installed}")
                 agent = self.agent_mgr.get_or_create(role_spec)
 
-            # 3) Build only unresolved needs
             unresolved = [need for need in initial_targets if need not in resolved_needs]
 
-            # 3-A) External search/download/install only when evidence has candidates.
             unresolved_for_external = []
             for need in unresolved:
                 target = targets.get(need, {}) if isinstance(targets, dict) else {}
@@ -2261,7 +2246,7 @@ class AgentFactory:
                 if isinstance(cands, list) and cands:
                     unresolved_for_external.append(need)
             if unresolved_for_external:
-                print(f"🌐 [Factory] 외부 스킬 검색/설치 대상: {unresolved_for_external}")
+                print(f"[Factory] external lookup targets: {unresolved_for_external}")
                 ext_installed_map = self.research.search_external_and_install(
                     unresolved_for_external, reqs=reqs, registry=self.registry
                 )
@@ -2270,26 +2255,25 @@ class AgentFactory:
                     installable_ext = [sid for sid in ext_skill_ids if self.registry.is_installable(sid)]
                     blocked_ext = [sid for sid in ext_skill_ids if sid not in installable_ext]
                     if blocked_ext:
-                        print(f"⛔ [QualityGate] 외부 스킬 설치 보류(상태 미달): {blocked_ext}")
+                        print(f"[QualityGate] external install blocked: {blocked_ext}")
                     approval_policy = self._read_approval_policy()
                     allow_skill_change = True
                     if installable_ext and approval_policy.get("require_skill_change_approval", False):
-                        allow_skill_change = self._ask_skill_change_approval(role_spec, installable_ext, "외부 스킬 설치")
+                        allow_skill_change = self._ask_skill_change_approval(role_spec, installable_ext, "external skill install")
                     installed = self.agent_mgr.install_skills(role_spec, installable_ext) if (installable_ext and allow_skill_change) else []
                     if installable_ext and not allow_skill_change:
-                        print("⏭️ [Approval] 사용자 미승인으로 외부 스킬 설치를 건너뜁니다.")
-                    print(f"📦 [Factory] 외부 스킬 설치: {installable_ext} -> agent.skills={installed}")
+                        print("[Approval] external install skipped by user.")
+                    print(f"[Factory] external install: {installable_ext} -> agent.skills={installed}")
                     for need in unresolved_for_external:
                         if need in ext_installed_map:
                             resolved_needs.add(need)
                     agent = self.agent_mgr.get_or_create(role_spec)
                 else:
-                    print("ℹ️ [Factory] 외부 설치 가능한 후보를 찾지 못했습니다.")
+                    print("[Factory] no installable external candidates.")
 
-            # 3-B) Build only unresolved needs after external install
             unresolved = [need for need in initial_targets if need not in resolved_needs]
             if unresolved:
-                print(f"🛠️ [Factory] 신규 빌드 대상: {unresolved}")
+                print(f"[Factory] new build targets: {unresolved}")
 
             built_skill_ids: list[str] = []
             for need in unresolved:
@@ -2306,9 +2290,9 @@ class AgentFactory:
                     self.registry.register_built(meta, skill_dir)
                     built_metas.append(meta)
                     built_skill_ids.append(sid)
-                    print(f"✅ [Factory] 빌드 성공: {sid}")
+                    print(f"[Factory] build success: {sid}")
                 else:
-                    print(f"⚠️ [Factory] 빌드 실패: {need} | detail={meta.get('last_test_detail')}")
+                    print(f"[Factory] build failed: {need} | detail={meta.get('last_test_detail')}")
 
             if built_metas:
                 self.registry.workflow_apply(built_metas)
@@ -2317,26 +2301,25 @@ class AgentFactory:
                 installable_new = [sid for sid in built_skill_ids if self.registry.is_installable(sid)]
                 blocked_new = [sid for sid in built_skill_ids if sid not in installable_new]
                 if blocked_new:
-                    print(f"⛔ [QualityGate] 신규 스킬 설치 보류(상태 미달): {blocked_new}")
+                    print(f"[QualityGate] new install blocked: {blocked_new}")
                 approval_policy = self._read_approval_policy()
                 allow_skill_change = True
                 if installable_new and approval_policy.get("require_skill_change_approval", False):
-                    allow_skill_change = self._ask_skill_change_approval(role_spec, installable_new, "신규 스킬 설치")
+                    allow_skill_change = self._ask_skill_change_approval(role_spec, installable_new, "new skill install")
                 installed = self.agent_mgr.install_skills(role_spec, installable_new) if (installable_new and allow_skill_change) else []
                 if installable_new and not allow_skill_change:
-                    print("⏭️ [Approval] 사용자 미승인으로 신규 스킬 설치를 건너뜁니다.")
-                print(f"📦 [Factory] 신규 스킬 설치: {installable_new} -> agent.skills={installed}")
+                    print("[Approval] new install skipped by user.")
+                print(f"[Factory] new install: {installable_new} -> agent.skills={installed}")
                 agent = self.agent_mgr.get_or_create(role_spec)
 
-        # Always execute the selected agent so the task can be handled even when build pipeline is unavailable.
         try:
             run_metrics = self.runner.run(agent, task_input, run_id=run_id) or {}
         except TypeError as e:
-            # Backward-compat for tests/mocks or older runner call signatures.
             if "unexpected keyword argument 'run_id'" in str(e):
                 run_metrics = self.runner.run(agent, task_input) or {}
             else:
                 raise
+
         append_dashboard_run(
             {
                 "ts": now_iso(),
@@ -2349,6 +2332,8 @@ class AgentFactory:
                 "reason": str(run_metrics.get("reason", "")),
                 "latency_ms": int(run_metrics.get("latency_ms", 0) or 0),
                 "approval_rejects": int(run_metrics.get("approval_rejects", 0) or 0),
+                "build_enabled": bool(enable_build),
+                "missing_skills_detected": skipped_build_targets,
             }
         )
         return {
@@ -2357,6 +2342,8 @@ class AgentFactory:
             "reason": str(run_metrics.get("reason", "")),
             "latency_ms": int(run_metrics.get("latency_ms", 0) or 0),
             "approval_rejects": int(run_metrics.get("approval_rejects", 0) or 0),
+            "build_enabled": bool(enable_build),
+            "missing_skills_detected": skipped_build_targets,
         }
 
     def run_workflow(self, task_input: str, workflow_path: str | None = None, role_specs: list[str] | None = None):
@@ -2466,6 +2453,8 @@ if __name__ == "__main__":
         task_input="Check current skills",
         role_spec="General",
     )
+
+
 
 
 

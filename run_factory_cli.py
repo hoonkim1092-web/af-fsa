@@ -26,6 +26,7 @@ def main():
     parser.add_argument("--workflow", "-w", type=str, help="워크플로우 YAML 경로")
     parser.add_argument("--agents", "-a", type=str, help="워크플로우 실행 에이전트 목록(쉼표 구분)")
 
+    parser.add_argument("--build", action="store_true", help="Build missing skills before run")
     args = parser.parse_args()
 
     project_id = _safe_project_id(args.project)
@@ -70,7 +71,7 @@ def main():
             roles = [x.strip() for x in (args.agents or "").split(",") if x.strip()]
             factory.run_workflow(task_input=task, workflow_path=args.workflow, role_specs=roles)
         else:
-            factory.run(task_input=task, role_spec=role)
+            factory.run(task_input=task, role_spec=role, enable_build=bool(args.build))
     except KeyboardInterrupt:
         print("\n사용자가 실행을 중단했습니다.")
     except Exception as e:
