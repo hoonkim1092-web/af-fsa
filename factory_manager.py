@@ -9,9 +9,17 @@ from dotenv import load_dotenv
 from model_utils import get_best_model
 
 FACTORY_ROOT = os.getcwd()
-AGENTS_DIR = os.path.join(FACTORY_ROOT, "agents")
+AGENT_PROJECT_ROOT = os.getenv("AGENT_PROJECT_ROOT")
+
+if AGENT_PROJECT_ROOT:
+    AGENTS_DIR = os.path.join(AGENT_PROJECT_ROOT, "agents")
+    FORGE_DIR = os.path.join(AGENT_PROJECT_ROOT, "skills", "forge")
+else:
+    AGENTS_DIR = os.path.join(FACTORY_ROOT, "agents")
+    FORGE_DIR = os.path.join(FACTORY_ROOT, "skills", "forge")
+
+# WAREHOUSE_DIR는 기존에 만들어둔 공용 스킬 저장소이므로 글로벌 팩토리 폴더를 우선 유지.
 WAREHOUSE_DIR = os.path.join(FACTORY_ROOT, "skills", "warehouse")
-FORGE_DIR = os.path.join(FACTORY_ROOT, "skills", "forge")
 
 role = sys.argv[1] if len(sys.argv) > 1 else "General Assistant"
 selected_model_name = sys.argv[2] if len(sys.argv) > 2 else "gemini-3-flash-preview"

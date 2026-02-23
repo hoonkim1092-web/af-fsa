@@ -76,14 +76,20 @@ def confirm_roles_with_user(roles, project_description):
         else:
             print_message("Lilith", "수정할 거면 '수정 [역할들]' 이라고 치고, 아니면 'yes' 라고 쳐. 미루지 마.")
 
-def instruct_himari_to_forge(roles):
+def instruct_himari_to_forge(roles, target_dir=None):
     """
     Lilith가 확정된 롤을 Himari에게 넘겨 팩토리 로직을 실행하도록 지시합니다.
+    target_dir가 주어지면 해당 폴더 내의 agents/, skills/ 에 격리 생성됩니다.
     """
     print_message("Lilith", f"Himari! 당장 일어나. '{', '.join(roles)}' 에이전트들이 필요하다. 명확한 페르소나와 실무용 플레이북 스킬을 빈틈없이 구워오도록.")
     print_message("Himari", "지시 확인했습니다. 각 도메인 분석 및 팩토리 생산 라인을 가동합니다...")
     
     success_roles = []
+    
+    env = os.environ.copy()
+    if target_dir:
+        env["AGENT_PROJECT_ROOT"] = os.path.abspath(target_dir)
+        print_message("System", f"프로젝트 격리 모드 활성화: 타겟 디렉토리 = {env['AGENT_PROJECT_ROOT']}")
     
     for role in roles:
         print("\n" + "="*50)
@@ -93,7 +99,7 @@ def instruct_himari_to_forge(roles):
         cmd = [sys.executable, "factory_manager.py", role]
         try:
             # We stream the output to the console so Boss can see Himari at work
-            process = subprocess.Popen(cmd, cwd=FACTORY_DIR, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding='utf-8')
+            process = subprocess.Popen(cmd, cwd=FACTORY_DIR, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding='utf-8', env=env)
             for line in iter(process.stdout.readline, ''):
                 sys.stdout.write(line)
             process.stdout.close()
@@ -205,14 +211,17 @@ def main():
     parser = argparse.ArgumentParser(description="Logi-Mind Multi-Agent Project Orchestrator")
     parser.add_argument("--project", "-p", type=str, help="시작할 프로젝트 설명 (예: '일식 레스토랑 오픈해')")
     parser.add_argument("--roles", "-r", type=str, help="명시적 롤 지정 (콤마로 구분, 예: 'Chef, Manager')")
+    parser.add_argument("--dir", "-d", type=str, help="에이전트를 생성할 타겟 로컬 디렉토리 경로 (프로젝트 격리 모드용)")
     
     args = parser.parse_args()
     
     project_desc = args.project
     explicit_roles = args.roles
+    target_dir = args.dir
     
     print("\n" + "#"*60)
     print(" 🚀 [Logi-Mind V22.0] Multi-Agent Swarm Orchestrator")
+    print(f" 📂 Target Directory: {target_dir if target_dir else '글로벌 팩토리 (Global Mode)'}")
     print("#"*60 + "\n")
     
     if not project_desc and not explicit_roles:
@@ -234,7 +243,7 @@ def main():
         print_message("Lilith", "롤이 없잖아. 프로젝트 취소.")
         return
         
-    completed_roles = instruct_himari_to_forge(final_roles)
+    completed_roles = instruct_himari_to_forge(final_roles, target_dir)
     
     if len(completed_roles) == len(final_roles):
         print_message("Lilith", "모든 에이전트 생산 완료. 이제 얘네들끼리 피 터지게 검증(Swarm)하는 단계로 넘어갈 준비가 됐다.")
