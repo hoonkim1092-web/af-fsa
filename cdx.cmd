@@ -29,3 +29,4 @@ setlocal
 >>"%CDX_LOG_FILE%" echo [%DATE% %TIME%] %*
 endlocal
 exit /b 0
+
