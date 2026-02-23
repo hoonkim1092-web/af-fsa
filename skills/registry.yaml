@@ -5,11 +5,11 @@ skills:
     - abc
     id: abc
     last_test_ok: true
-    meta_path: D:\agent-factory\tests\_tmp\af-test-d0ea049e\skills\abc\meta.yaml
+    meta_path: D:\agent-factory\tests\_tmp\af-test-1c55c3f8\skills\abc\meta.yaml
     name: abc
-    path: D:\agent-factory\tests\_tmp\af-test-d0ea049e\skills\abc\skill.py
+    path: D:\agent-factory\tests\_tmp\af-test-1c55c3f8\skills\abc\skill.py
     status: canary
-    updated_at: '2026-02-24T02:35:56'
+    updated_at: '2026-02-24T03:07:26'
     version: 0.1.0
   ai_funnel_routing:
     capabilities:
