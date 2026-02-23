@@ -107,7 +107,11 @@ def find_existing_agent(role):
 def load_agent_config(agent_name):
     config_path = os.path.join(AGENTS_DIR, f"{agent_name}.yaml")
     if not os.path.exists(config_path):
-        return None
+        global_path = os.path.join(FACTORY_ROOT, "agents", f"{agent_name}.yaml")
+        if os.path.exists(global_path):
+            config_path = global_path
+        else:
+            return None
     try:
         import yaml
         with open(config_path, "r", encoding="utf-8") as f:

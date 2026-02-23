@@ -30,7 +30,7 @@ def decompose_project(project_description):
     """
     print_message("Lilith", "프로젝트 명세 분석 중... 멍청한 계획이 아니길 바라지.")
     
-    model = genai.GenerativeModel("gemini-2.5-flash")
+    model = genai.GenerativeModel("gemini-2.0-flash")
     prompt = f"""
     당신은 Logi-Mind 프로젝트의 수석 PM인 Lilith입니다.
     사용자가 다음 프로젝트를 요청했습니다: "{project_description}"
@@ -96,7 +96,7 @@ def instruct_himari_to_forge(roles, target_dir=None):
         print_message("Himari", f"'{role}' 에이전트 생산 공정 시작...")
         
         # Call factory_manager.py for each role
-        cmd = [sys.executable, "factory_manager.py", role]
+        cmd = [sys.executable, "-u", "factory_manager.py", role]
         try:
             # We stream the output to the console so Boss can see Himari at work
             process = subprocess.Popen(cmd, cwd=FACTORY_DIR, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding='utf-8', env=env)
@@ -144,7 +144,7 @@ def run_swarm_council(roles, project_desc):
     # 시연을 위해 셰프(혹은 첫 번째 롤)가 제안하고 릴리트가 돌려까는 구조 구현
     target_role = roles[0] if roles else "Worker"
     
-    model = genai.GenerativeModel("gemini-2.5-flash")
+    model = genai.GenerativeModel("gemini-2.0-flash")
     
     # 루프 상태 변수
     is_approved = False
