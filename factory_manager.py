@@ -165,7 +165,14 @@ def research_required_skills(role):
         system_instruction = himari_config.get("prompt", {}).get("system_ko", "")
 
         log("RESEARCH", "?뵊 [鍮꾨? ?쒓퀬] NotebookLM?먯꽌 愿??吏?앹쓣 ?먯깋?⑸땲??..")
-        query = f"Key Python CLI tools and skills required for: {role}. Architecture recommendations?"
+        query = f"""
+        Target Role/Domain: {role}
+        Based on our strategic guidelines & business constraints, please provide:
+        1. Mission Context: Exact responsibilities, KPIs, and goals for this role (applicable to ANY industry: IT, Sales, Logistics, HR, Marketing, etc.).
+        2. Domain Logic & Process: What specific knowledge, industry standards, workflows, OR non-IT strategic methodologies must this role command? (Focus on cost-efficiency, process optimization, and value creation).
+        3. Essential Skills: What specific tools, frameworks, skills, operations, or even soft-skill methodologies are required? (Completely unconstrained from software development).
+        Return highly specific, actionable insights tailored to the exact domain context.
+        """.strip()
         notebook_insight = _query_notebooklm(query)
         
         if notebook_insight:
@@ -178,26 +185,27 @@ def research_required_skills(role):
             {system_instruction}
             
             [?ъ슜???붿껌]
-            Role: {role}
+            Target Role/Domain: {role}
             
-            ????븷???꾨꼍?섍쾶 ?섑뻾?섍린 ?꾪빐 ?꾩슂??**Python CLI ?꾧뎄(Skill) 2~3媛?*瑜?異붿쿇?댁쨾.
+            이 역할(또는 부서/산업군)의 목표를 완벽하게 달성하기 위해 필요한 **핵심 스킬/도구/실무 방법론(Skill) 2~3개**를 추천해줘.
+            (IT/SW 개발에 절대 국한되지 않음. 물류 최적화, 영업 전략, 마케팅 자동화, 재무 분석 등 해당 도메인 본연의 필수 역량을 제안할 것.)
             
-            [異쒕젰 ?뺤떇]
+            [출력 형식]
             ?덉쓽 遺꾩꽍 寃곌낵(JSON)?먯꽌 `recommended_tools` 由ъ뒪?몃쭔 異붿텧?댁꽌 ?ъ슜??嫄곗빞.
-            ?섏?留??덉쓽 洹?"珥덉쿇?ъ쟻??遺꾩꽍"???ｊ퀬 ?띠쑝?덇퉴, **JSON 釉붾줉**?쇰줈 寃곌낵瑜?以?
+            ?섏?留??덉쓽 洹?"珥덉쿿?ъ쟻??遺꾩꽍"???ｊ퀬 ?띠쑝?덇퉴, **JSON 釉붾줉**?쇰줈 寃곌낵瑜?以?
             
             ```json
             {{
                 "thought_process": "히마리의 분석 내용 (한국어, 반말, 압도적으로)",
-                "recommended_tools": ["tool_name_a", "tool_name_b"],
+                "recommended_tools": ["industry_skill_a", "industry_skill_b"],
                 "coding_engine": "gemini-3.1-pro-preview | codex-5.3"
             }}
             ```
-            도구 이름은 반드시 **영어, snake_case**여야 함.
-            `coding_engine`은 이 도구들을 코딩할 때 어떤 엔진이 더 적합할지 히마리가 판단해서 결정함.
+            스킬 이름은 반드시 **영어, snake_case** 형태로 추상화할 것 (예: market_trend_analysis, inventory_control).
+            `coding_engine`은 이 스킬을 작동 방식을 시뮬레이션 하거나 자동화할 때 사용할 엔진.
             """
         else:
-            prompt = f"Role: {role}. Analyze this role and recommend 2-3 essential Python CLI tool names (comma separated, English only). Example: logistics_optimizer, route_planner. **紐⑤뱺 遺꾩꽍 寃곌낵? 異붿쿇 ?ъ쑀??諛섎뱶???쒓뎅?대줈 ?묒꽦??**"
+            prompt = f"Role/Domain: {role}. Analyze this non-IT or general business role and recommend 2-3 essential tools/skills/methodologies (comma separated, English snake_case only). Absolutely not limited to IT; could be sales, logistics, HR, etc. Example: inventory_optimization, negotiation_strategy. **紐⑤뱺 遺꾩꽍 寃곌낵? 異붿쿿 ?ъ쑀??諛섎뱶???쒓뎅?대줈 ?묒꽦??**"
 
         response = model.generate_content(prompt)
         text = response.text
@@ -223,9 +231,9 @@ def research_required_skills(role):
             return [s.strip() for s in text.split('\n') if s.strip() and not s.startswith("```")], "gemini-3.1-pro-preview"
             
     except Exception as e: 
-        log("RESEARCH", f"❌ 리서치 오류: {e}")
+        log("RESEARCH", f"🆘 [히마리가 뻗었습니다!] 원인: {e}")
         with open("debug.log", "a", encoding="utf-8") as f:
-            f.write(f"ERROR: {e}\n")
+            f.write(f"ERROR (HIMARI DOWN): {e}\n")
         return ["core_module"], "gemini-3.1-pro-preview"
 
 def normalize_skill_id(value):

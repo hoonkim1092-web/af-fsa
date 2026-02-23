@@ -10,6 +10,7 @@ with warnings.catch_warnings():
     import google.generativeai as genai
 from dotenv import load_dotenv
 from model_utils import get_best_model
+from repo_shortcuts import handle_repo_shortcut
 
 sys.stdout.reconfigure(encoding="utf-8")
 
@@ -80,6 +81,8 @@ def handle_command(linker: SmartLinker, user_input: str) -> bool:
         return True
     if user_input.lower() in ["exit", "quit"]:
         return False
+    if handle_repo_shortcut(user_input):
+        return True
 
     plan = linker.analyze_and_route(user_input)
     role_name = plan["role_name"]
