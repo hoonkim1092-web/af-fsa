@@ -16,3 +16,8 @@ env/
 # --- 🏭 에이전트 결과물 (선택 사항) ---
 # 만약 생성된 에이전트 파일들을 깃에 올리기 싫다면 아래 주석을 푸세요
 # agents/
+
+# --- Runtime/Test Artifacts ---
+projects/default/runs/
+pytest_out*.txt
+tests/_tmp_probe/
