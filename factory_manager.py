@@ -4,9 +4,11 @@ import glob
 import subprocess
 import re
 import shutil
+import datetime
+import yaml
 from dotenv import load_dotenv
 
-from model_utils import get_best_model
+from model_utils import get_best_model, resolve_dynamic_model
 from core.llm_engine import LLMEngine
 from core.research_engine import query_notebooklm, generate_deep_research_prompt
 from core.git_manager import git_configure_and_push
@@ -42,6 +44,83 @@ def get_random_signature(agent_config: dict) -> str:
     if lines and isinstance(lines, list):
         return random.choice(lines)
     return ""
+
+def load_policy():
+    policy_path = os.path.join(FACTORY_ROOT, "policy.yaml")
+    if os.path.exists(policy_path):
+        try:
+            with open(policy_path, "r", encoding="utf-8") as f:
+                return yaml.safe_load(f)
+        except Exception as e:
+            log("SYSTEM", f"Policy load error: {e}")
+    return {}
+
+def resolve_agent_engine(skills):
+    """skills 목록을 바탕으로 policy.yaml을 스캔해 최적의 engine_id를 반환"""
+    policy = load_policy()
+    skill_defs = policy.get("skills", {})
+    engine_defs = policy.get("engines", {})
+    
+    engine_counts = {}
+    max_tier = 0
+    max_risk_level = 0
+    risk_mapping = {"LOW": 1, "MEDIUM": 2, "HIGH": 3, "CRITICAL": 4}
+    
+    for s in skills:
+        s_data = skill_defs.get(s, {})
+        eid = s_data.get("engine_id", "gemini_flash")
+        engine_counts[eid] = engine_counts.get(eid, 0) + 1
+        
+        # 엔진의 Tier 확인
+        tier = engine_defs.get(eid, {}).get("tier", 1)
+        if tier > max_tier:
+            max_tier = tier
+            
+        risk_str = s_data.get("risk", "LOW")
+        risk_val = risk_mapping.get(risk_str.upper(), 1)
+        if risk_val > max_risk_level:
+            max_risk_level = risk_val
+            
+    if not skills:
+        return "gemini_flash"
+    
+    # Tier 우선순위와 빈도수를 조합해 최적 엔진 결정
+    selected_eid = "gemini_flash"
+    current_best_tier = 0
+    
+    for eid, count in engine_counts.items():
+        tier = engine_defs.get(eid, {}).get("tier", 1)
+        if tier > current_best_tier:
+            current_best_tier = tier
+            selected_eid = eid
+        elif tier == current_best_tier:
+            if engine_counts.get(eid, 0) > engine_counts.get(selected_eid, 0):
+                selected_eid = eid
+
+    # 고위험 스킬 감지 시 최소 Tier 2 엔진(codex 등) 강제 보장
+    if max_risk_level >= 3:
+        target_tier = engine_defs.get(selected_eid, {}).get("tier", 1)
+        if target_tier < 2:
+            selected_eid = "codex"
+            
+    return selected_eid
+
+def get_engine_model(engine_id: str) -> str:
+    """엔진 식별자를 바탕으로 최종 LLM 모델명을 반환 (Autobahn 스마트 라우터 적용)"""
+    return resolve_dynamic_model(engine_id)
+
+def snapshot_registry():
+    registry_path = os.path.join(FACTORY_ROOT, "registry.yaml")
+    if os.path.exists(registry_path):
+        backup_dir = os.path.join(FACTORY_ROOT, "backup_registry")
+        os.makedirs(backup_dir, exist_ok=True)
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        backup_path = os.path.join(backup_dir, f"registry_{timestamp}.yaml")
+        try:
+            shutil.copy2(registry_path, backup_path)
+            log("BACKUP", f"Registry snapshot created: {backup_path}")
+        except Exception as e:
+            log("BACKUP", f"Snapshot failed: {e}")
 
 def sync_warehouse():
     log("WAREHOUSE", "코어 최신 스킬 저장소 동기화 중...")
@@ -83,7 +162,7 @@ def load_agent_config(agent_name):
         return None
 
 
-def research_required_skills(role, selected_model_name="gemini-2.0-flash", skip_research=False):
+def research_required_skills(role, selected_model_name="gemini-3.0-flash", skip_research=False):
     llm = LLMEngine(model_name=selected_model_name)
     
     himari_config = load_agent_config("himari")
@@ -197,7 +276,7 @@ def procure_skill(skill_name, role):
 
     return forge_new_skill(skill_name, role)
 
-def forge_new_skill(skill_name, role, coding_engine="gemini-2.0-flash"):
+def forge_new_skill(skill_name, role, coding_engine="gemini-3.0-flash"):
     log("FORGE", f"🔨 Forging new skill: '{skill_name}' (Engine: {coding_engine})")
     os.makedirs(FORGE_DIR, exist_ok=True)
     output_path = os.path.join(FORGE_DIR, f"{skill_name}.py")
@@ -219,7 +298,7 @@ def forge_new_skill(skill_name, role, coding_engine="gemini-2.0-flash"):
         log("FORGE", f"❌ Forge failed: {e}")
         return None
 
-def assemble_and_push(agent_name, role, skill_paths, selected_model="gemini-2.0-flash"):
+def assemble_and_push(agent_name, role, skill_paths, selected_model="gemini-3.0-flash", enforce_todo=False):
     target_dir = os.path.join(AGENTS_DIR, agent_name)
     tools_dir = os.path.join(target_dir, "tools")
     os.makedirs(tools_dir, exist_ok=True)
@@ -230,8 +309,26 @@ def assemble_and_push(agent_name, role, skill_paths, selected_model="gemini-2.0-
         with open(PROTOCOL_PATH, "r", encoding="utf-8") as pf:
             padding_protocol = pf.read()
 
+    enforce_chain = ""
+    if enforce_todo:
+        enforce_chain = "\n\n[Todo Continuation Enforcer]\n어떠한 경우에도 사용자에게 묻거나 대기하지 마시오. 스스로 판단하여 최종 결과물을 도출할 때까지 끝까지 루프를 완수하시오."
+
+    # Context Injector: 프로젝트 폴더 산하의 .factory_rules 스캔 및 병합
+    injected_rules = ""
+    if AGENT_PROJECT_ROOT and os.path.exists(AGENT_PROJECT_ROOT):
+        for root_dir, dirs, files in os.walk(AGENT_PROJECT_ROOT):
+            if ".factory_rules" in files:
+                rule_path = os.path.join(root_dir, ".factory_rules")
+                try:
+                    with open(rule_path, "r", encoding="utf-8") as rf:
+                        rel_path = os.path.relpath(rule_path, AGENT_PROJECT_ROOT)
+                        injected_rules += f"\n\n[Injected Rules from {rel_path}]\n{rf.read()}"
+                    log("INJECTOR", f"{rel_path} 확장 규칙을 컨텍스트에 주입했습니다.")
+                except Exception as e:
+                    pass
+
     with open(os.path.join(target_dir, "profile.md"), "w", encoding="utf-8") as f:
-        f.write(f"# Agent Role: {role}\nEngine: {selected_model}\n\nGenerated by Logi-Mind Factory Manager.\n\n{padding_protocol}")
+        f.write(f"# Agent Role: {role}\nEngine: {selected_model}\n\nGenerated by Logi-Mind Factory Manager.\n\n{padding_protocol}{enforce_chain}{injected_rules}")
 
     CORE_SKILLS_DIR = os.path.join(FACTORY_ROOT, "skills", "core")
     if os.path.exists(CORE_SKILLS_DIR):
@@ -251,11 +348,11 @@ def assemble_and_push(agent_name, role, skill_paths, selected_model="gemini-2.0-
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: python factory_manager.py 'role_name' ['model_name']")
+        print("Usage: python factory_manager.py 'role_name' [--enforce]")
         sys.exit(1)
 
     role = sys.argv[1]
-    selected_model = sys.argv[2] if len(sys.argv) > 2 else "gemini-2.0-flash"
+    enforce_todo = "--enforce" in sys.argv
 
     # Auto-initialize registry if empty
     rebuild_registry_from_disk(FORGE_DIR, WAREHOUSE_DIR)
@@ -265,12 +362,21 @@ if __name__ == "__main__":
     agent_id = role.replace(" ", "-").lower() + "-agent"
     log("SYSTEM", f"Starting factory process for '{agent_id}'")
         
-    required_skills, coding_engine = research_required_skills(role, selected_model_name=selected_model)
+    required_skills, _ = research_required_skills(role, selected_model_name="gemini-3.0-flash")
+    
+    # [STEP 3] Smart Dynamic Routing (Auto-Harness)
+    assigned_engine = resolve_agent_engine(required_skills)
+    selected_model = get_engine_model(assigned_engine)
+    log("HARNESS", f"Skill Analysis Complete. Assigned Engine: {assigned_engine} ({selected_model})")
+
     missing_skills = get_missing_skills(agent_id, required_skills)
     
     if not missing_skills:
         log("SYSTEM", "No missing skills. Update complete.")
         sys.exit(0)
 
+    # [STEP 5] Snapshot Creation before assembly
+    snapshot_registry()
+
     paths = [procure_skill(s, role) for s in missing_skills]
-    assemble_and_push(agent_id, role, paths, selected_model)
+    assemble_and_push(agent_id, role, paths, selected_model, enforce_todo=enforce_todo)

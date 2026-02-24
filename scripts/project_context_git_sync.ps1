@@ -120,9 +120,9 @@ foreach ($projectPath in $projectPaths) {
 
     if ($Mode -eq "pull") {
         if ($Branch) {
-            if ($NoRebase) { git -C $projectPath pull origin $Branch } else { git -C $projectPath pull --rebase origin $Branch }
+            if ($NoRebase) { git -C $projectPath pull origin $Branch } else { git -C $projectPath pull --rebase --autostash origin $Branch }
         } else {
-            if ($NoRebase) { git -C $projectPath pull } else { git -C $projectPath pull --rebase }
+            if ($NoRebase) { git -C $projectPath pull } else { git -C $projectPath pull --rebase --autostash }
         }
         if ($LASTEXITCODE -ne 0) {
             $results += [pscustomobject]@{

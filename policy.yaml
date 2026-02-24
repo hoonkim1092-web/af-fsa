@@ -1,0 +1,60 @@
+# Logi-Mind Agent Factory - Universal Single Policy Engine
+# 스킬별 리스크 등급 및 모델 라우팅 엔진(engine_id) 정의
+
+engines:
+  gemini_flash:
+    tier: 1
+    description: "Economy/Speed"
+  codex:
+    tier: 2
+    description: "Precision/Code"
+  research_pro:
+    tier: 3
+    description: "Reasoning/Logic"
+
+skills:
+  # 데이터 수집 및 관찰 특화
+  read_file:
+    risk: LOW
+    engine_id: gemini_flash
+  read_system_info:
+    risk: LOW
+    engine_id: gemini_flash
+    
+  # 정밀 조작 및 코드 작성 특화
+  write_file:
+    risk: HIGH
+    engine_id: codex
+  delete_file:
+    risk: HIGH
+    engine_id: codex
+  run_command:
+    risk: CRITICAL
+    engine_id: codex
+    
+  # 범용 추론 및 기획 특화
+  web_search:
+    risk: LOW
+    engine_id: research_pro
+  project_planning:
+    risk: MEDIUM
+    engine_id: research_pro
+    
+  # 기타 혼합 스킬
+  data_visualize:
+    risk: MEDIUM
+    engine_id: codex
+  issue_tracker:
+    risk: LOW
+    engine_id: research_pro
+
+  # [Phase 5] IDE 도구 및 외부 MCP 서버 플러그인
+  ast_grep:
+    risk: LOW
+    engine_id: codex
+  lsp_hover:
+    risk: LOW
+    engine_id: codex
+  mcp_exa_search:
+    risk: MEDIUM
+    engine_id: research_pro

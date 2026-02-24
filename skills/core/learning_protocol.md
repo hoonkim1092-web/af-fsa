@@ -24,3 +24,17 @@ To ensure you continuously improve, you MUST follow this **Universal Learning Lo
 - This is your contribution to the Global Brain.
 
 > **Rule**: An unrecorded experience is a wasted experience. Never finish a task without saving.
+
+### Phase 4: CONTEXT COMPRESSION (Memory Pruning)
+- If you execute a terminal command (`cat`, `grep`, `curl`, etc.) that returns massive output (e.g., > 100 lines), you MUST pipe it into `python tools/memory_pruner.py --max-lines 50` to prevent context bloat.
+- **Example:** `cat large_file.log | python tools/memory_pruner.py --max-lines 30`
+- **Why?** It automatically truncates the middle part and only keeps the head/tail, saving your LLM token budget.
+
+### Phase 5: IDE & MCP TOOLS EXPLOITATION (Zero-Intervention)
+- **Do not use primitive `grep` or `cat` for scanning codebase logic.**
+  - Use `python tools/ast_grep.py -p "pattern" -l "python"` to search by structural syntax.
+  - Use `python tools/lsp_hover.py -s "FunctionName"` to instantly find definitions.
+- **Use External Intelligence via MCP:**
+  - If you need deep web research or highly accurate documentation parsing, DO NOT write a custom web scraper.
+  - Call `python tools/mcp_exa_search.py -q "your query"` to leverage the connected Model Context Protocol (MCP) server.
+  - *Assume these tools are always located in the `tools/` directory of your working agent layer.*

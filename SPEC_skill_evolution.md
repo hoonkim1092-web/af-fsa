@@ -1,56 +1,56 @@
-﻿# SPEC: Skill Evolution Rebuild
-
-## Document Info
-- File: `SPEC_skill_evolution.md`
-- Target branch: `codex-rebuild-skill-evolution`
-- Goal: Re-implement the agreed skill-evolution execution safety model with minimal changes.
-
-## Scope
-- Primary target: Python skill runner in `agent_launcher.py`.
-- Keep behavior changes minimal and localized to runner/sandbox logic.
-- No large refactor without explicit approval.
-
-## Functional Requirements
-1. Runner flag change
-- Ensure Python runner does **not** use `-S`.
-- Keep environment compatible with `pandas`/`numpy` imports.
-
-2. File system access policy
-- Allow file access only under:
-  - `./data/`
-  - `./artifacts/`
-- Block all other paths immediately, including:
-  - parent traversal (`../`, `..\\`)
-  - absolute paths outside allowed roots
-  - symlink-based escapes outside allowed roots
-
-3. Static AST gate (pre-execution)
-- Deny dangerous imports:
-  - `os`
-  - `subprocess`
-  - `socket`
-- Optionally restrict `sys` when needed by implementation policy.
-
-4. Dangerous call blocking
-- Deny calls/patterns that enable dynamic code execution or import bypass:
-  - `eval`
-  - `exec`
-  - `compile`
-  - `__import__`
-- Block open-path bypass patterns so `open` cannot access paths outside allowed roots.
-
-## Test Requirements (pytest)
-1. `pandas` import succeeds in runner execution.
-2. Path traversal is blocked (e.g., `../../...`).
-3. Forbidden import is blocked (`os`/`subprocess`/`socket`).
-4. Read/write inside `data/` and `artifacts/` succeeds.
-
-## Acceptance Criteria
-- All four pytest cases pass.
-- Runner still executes valid skill code.
-- Out-of-scope behavior remains unchanged.
-
-## Implementation Constraints
-- Minimize code churn.
-- Avoid broad architecture changes.
-- Keep existing interfaces unless required for safety/testability.
+﻿# SPEC: Skill Evolution Rebuild
+
+## Document Info
+- File: `SPEC_skill_evolution.md`
+- Target branch: `codex-rebuild-skill-evolution`
+- Goal: Re-implement the agreed skill-evolution execution safety model with minimal changes.
+
+## Scope
+- Primary target: Python skill runner in `agent_launcher.py`.
+- Keep behavior changes minimal and localized to runner/sandbox logic.
+- No large refactor without explicit approval.
+
+## Functional Requirements
+1. Runner flag change
+- Ensure Python runner does **not** use `-S`.
+- Keep environment compatible with `pandas`/`numpy` imports.
+
+2. File system access policy
+- Allow file access only under:
+  - `./data/`
+  - `./artifacts/`
+- Block all other paths immediately, including:
+  - parent traversal (`../`, `..\\`)
+  - absolute paths outside allowed roots
+  - symlink-based escapes outside allowed roots
+
+3. Static AST gate (pre-execution)
+- Deny dangerous imports:
+  - `os`
+  - `subprocess`
+  - `socket`
+- Optionally restrict `sys` when needed by implementation policy.
+
+4. Dangerous call blocking
+- Deny calls/patterns that enable dynamic code execution or import bypass:
+  - `eval`
+  - `exec`
+  - `compile`
+  - `__import__`
+- Block open-path bypass patterns so `open` cannot access paths outside allowed roots.
+
+## Test Requirements (pytest)
+1. `pandas` import succeeds in runner execution.
+2. Path traversal is blocked (e.g., `../../...`).
+3. Forbidden import is blocked (`os`/`subprocess`/`socket`).
+4. Read/write inside `data/` and `artifacts/` succeeds.
+
+## Acceptance Criteria
+- All four pytest cases pass.
+- Runner still executes valid skill code.
+- Out-of-scope behavior remains unchanged.
+
+## Implementation Constraints
+- Minimize code churn.
+- Avoid broad architecture changes.
+- Keep existing interfaces unless required for safety/testability.
