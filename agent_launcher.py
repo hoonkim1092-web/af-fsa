@@ -13,7 +13,8 @@ import inspect
 import functools
 import shutil
 from datetime import datetime
-from dotenv import load_dotenv
+import getpass
+from config.schema import factory_config
 
 from core.executor import run_skill_safely
 from core.policy import resolve_quality_gate_policy
@@ -24,6 +25,8 @@ try:
 except Exception:
     OpenAI = None
 from model_utils import get_best_model
+from core.registry import ToolRegistry
+from core.hooks.base import TodoContinuationEnforcer
 
 # Reconfigure stdout for Windows
 try:
@@ -54,12 +57,10 @@ def safe_generate(model, prompt, **kwargs):
     raise RuntimeError("Quota exceeded after retries")
 
 # =============================================================================
-# 0) ENV / PATH
-# =============================================================================
-load_dotenv(override=True)
-
-GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+# config.schema is loaded at top
+global_project_root = os.getenv("AGENT_PROJECT_ROOT", None)
+GOOGLE_API_KEY = factory_config.google_api_key
+OPENAI_API_KEY = factory_config.openai_api_key
 if not GOOGLE_API_KEY and not OPENAI_API_KEY:
     raise RuntimeError("Neither GOOGLE_API_KEY nor OPENAI_API_KEY found in env/.env")
 if GOOGLE_API_KEY:
@@ -1850,6 +1851,7 @@ class AgentRunner:
         return False
 
     def load_skills(self, agent: dict) -> list:
+        # Legacy support
         loaded_skills = []
         skill_ids = agent.get("skills", [])
         for sid in skill_ids:
@@ -1857,9 +1859,7 @@ class AgentRunner:
             skill_py, _skill_meta = resolve_skill_paths(sid)
             if not skill_py:
                  continue
-            
             try:
-                # Dynamic import
                 spec = importlib.util.spec_from_file_location(f"skills.{sid}", skill_py)
                 if spec and spec.loader:
                     module = importlib.util.module_from_spec(spec)
@@ -1872,15 +1872,15 @@ class AgentRunner:
                 print(f"⚠️ [Runner] 스킬 로드 실패 ({sid}): {e}")
         return loaded_skills
 
-    def convert_to_tools(self, modules: list) -> dict:
-        tools = {}
-        for mod in modules:
-            for attr_name in dir(mod):
-                if attr_name.startswith("_"): continue
-                attr = getattr(mod, attr_name)
-                if callable(attr):
-                    tools[attr_name] = attr 
-        return tools
+    def build_tool_registry(self, module_list: list, ctx: dict, policy: dict) -> ToolRegistry:
+        """Adapts legacy modules into the precise V2 Tool Registry"""
+        registry = ToolRegistry(agent_name=ctx["agent"].get("name", "unknown"), factory_root=BASE_DIR)
+        
+        legacy_tool_funcs = self._build_tool_functions(module_list, ctx, policy)
+        for fn in legacy_tool_funcs:
+            registry.mount_tool(fn.__name__, fn)
+            
+        return registry
 
     def run(self, agent: dict, task_input: str, run_id: str | None = None):
         print(f"\n🚀 [Runner] 에이전트 실행 시작: {agent.get('name')}")
@@ -1931,8 +1931,16 @@ class AgentRunner:
             return result
         loaded_skill_ids = [safe_id(str(getattr(m, "__skill_id__", ""))) for m in modules]
         policy = self._build_policy(agent, loaded_skill_ids)
-        tool_functions = self._build_tool_functions(modules, ctx, policy)
+        registry = self.build_tool_registry(modules, ctx, policy)
+        tool_functions = registry.get_active_tools()
         self._list_approval_required_tools(tool_functions, policy)
+        
+        # Continuation Hook Enforcement
+        enforcer = TodoContinuationEnforcer()
+        if not enforcer.pre_execute({"intent": "refactoring", "has_approved_plan": True}): # Hardcoded mock context for now
+            result = {"ok": False, "reason": "continuation_hook_blocked"}
+            _flush_trace(result)
+            return result
 
         # 3. Chat Session
         model_name = self.mr.pick("chat") or "gemini-2.0-flash"

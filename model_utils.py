@@ -7,11 +7,10 @@ import urllib.request
 import urllib.error
 import urllib.parse
 import google.generativeai as genai
-from dotenv import load_dotenv
+from config.schema import factory_config
 
 sys.stdout.reconfigure(encoding='utf-8')
 
-load_dotenv()
 api_key = os.getenv("GOOGLE_API_KEY")
 if api_key:
     genai.configure(api_key=api_key)

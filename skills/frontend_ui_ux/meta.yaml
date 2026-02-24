@@ -1,0 +1,12 @@
+id: frontend_ui_ux
+name: Frontend UI/UX Master
+version: 1.0.0
+capabilities:
+  - ui
+  - ux
+  - design
+  - frontend
+  - frontend_ui_ux
+status: active
+source: builtin
+last_test_ok: true
