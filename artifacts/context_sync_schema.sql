@@ -1,16 +1,16 @@
--- Context sync table for cross-device project continuity.
--- Apply once in Supabase SQL Editor.
--- Note: "project_id" stores scope key:
--- - project scope: <project_id>
--- - agent scope: <project_id>__agent__<agent_id>
-
-create table if not exists project_context_sync (
-  project_id text primary key,
-  source_machine text not null default 'unknown',
-  updated_at timestamptz not null default now(),
-  payload jsonb not null,
-  payload_hash text
-);
-
-create index if not exists idx_project_context_sync_updated_at
-  on project_context_sync (updated_at desc);
+-- Context sync table for cross-device project continuity.
+-- Apply once in Supabase SQL Editor.
+-- Note: "project_id" stores scope key:
+-- - project scope: <project_id>
+-- - agent scope: <project_id>__agent__<agent_id>
+
+create table if not exists project_context_sync (
+  project_id text primary key,
+  source_machine text not null default 'unknown',
+  updated_at timestamptz not null default now(),
+  payload jsonb not null,
+  payload_hash text
+);
+
+create index if not exists idx_project_context_sync_updated_at
+  on project_context_sync (updated_at desc);

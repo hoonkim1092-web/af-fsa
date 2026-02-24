@@ -37,15 +37,16 @@ class HashlineEditor:
             
         return "\n".join(formatted_lines)
 
-    @classmethod
-    def apply_hashline_edit(cls, file_path: str, target_hash: str, new_content: str, operation: str = "replace") -> bool:
+    def apply_hashline_edit(cls, file_path: str, target_hash: str, new_content: str, operation: str = "replace") -> dict:
         """
         Applies an edit targeting a specific line hash.
         operation: 'replace', 'insert_before', 'insert_after', 'delete'
+        Returns a dictionary with 'ok', 'error', and optional 'context' for agent recovery.
         """
         if not os.path.exists(file_path):
-            print(f"[HashlineEditor] Error: File {file_path} not found.")
-            return False
+            err = f"[HashlineEditor] Error: File {file_path} not found."
+            print(err)
+            return {"ok": False, "error": err}
             
         with open(file_path, 'r', encoding='utf-8') as f:
             lines = f.readlines()
@@ -58,8 +59,23 @@ class HashlineEditor:
                 break
                 
         if target_idx == -1:
-            print(f"[HashlineEditor] Error: Hash {target_hash} not found in {file_path}. The file may have been modified.")
-            return False
+            err = f"[HashlineEditor] Error: Hash {target_hash} not found in {file_path}."
+            print(err)
+            # Provide surrounding context hint if possible. Since we don't know where the hash was,
+            # we provide a quick snippet of the current file with hashes so the agent can quickly remap.
+            context_hint = cls.format_file_with_hashes(file_path)
+            # Truncate to first 30 lines if too long to save tokens
+            lines_hint = context_hint.split("\n")
+            if len(lines_hint) > 30:
+                hint_str = "\n".join(lines_hint[:15] + ["... (truncated) ..."] + lines_hint[-15:])
+            else:
+                hint_str = context_hint
+                
+            return {
+                "ok": False, 
+                "error": f"{err} The file may have been modified by another process. Please check the current file context and try again with the new correct hash.",
+                "context": hint_str
+            }
             
         # Ensure new_content ends with a newline if it's not a deletion
         if new_content and not new_content.endswith('\n'):
@@ -74,8 +90,9 @@ class HashlineEditor:
         elif operation == "insert_after":
             lines.insert(target_idx + 1, new_content)
         else:
-            print(f"[HashlineEditor] Unknown operation: {operation}")
-            return False
+            err = f"[HashlineEditor] Unknown operation: {operation}"
+            print(err)
+            return {"ok": False, "error": err}
             
         # Write back atomically
         temp_path = file_path + ".tmp"
@@ -83,5 +100,6 @@ class HashlineEditor:
             f.writelines(lines)
             
         os.replace(temp_path, file_path)
-        print(f"[HashlineEditor] Successfully applied '{operation}' via Hash {target_hash}.")
-        return True
+        msg = f"[HashlineEditor] Successfully applied '{operation}' via Hash {target_hash}."
+        print(msg)
+        return {"ok": True, "message": msg}

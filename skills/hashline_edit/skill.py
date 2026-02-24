@@ -20,13 +20,17 @@ class HashlineEditSkill:
         Mutates a file safely using the unique line hash.
         Valid operations: replace, delete, insert_after, insert_before.
         """
-        success = HashlineEditor.apply_hashline_edit(
+        result = HashlineEditor.apply_hashline_edit(
             file_path=file_path, 
             target_hash=target_hash, 
             new_content=new_content, 
             operation=operation
         )
-        if success:
-            return {"ok": True, "message": f"Successfully applied '{operation}' via Hash {target_hash}."}
+        if result.get("ok"):
+            return {"ok": True, "message": result.get("message")}
         else:
-            return {"ok": False, "error": f"Failed to apply edit to {file_path}. Hash not found or invalid operation."}
+            return {
+                "ok": False, 
+                "error": result.get("error"), 
+                "hint_context": result.get("context", "")
+            }

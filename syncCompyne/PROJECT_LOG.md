@@ -1,71 +1,71 @@
-# Project Log
-
-## 2026-02-19 Session
-
-### Conversation Summary
-- Confirmed that project-level conversation/context/progress can be tracked in Markdown.
-- Confirmed that agents can also follow project-level logging rules.
-- Reviewed current agent list (YAML agents and folder-based agents) and skill status.
-- Explained how "missing skills" are detected (role/task analysis, fallback keyword rules, declared-vs-file checks).
-- Explained what a skill contains in plain terms (purpose, input, action, test, capability tags).
-- Agreed to move context/prompt/logging rules into project agent operations.
-
-### Current Agent Snapshot
-- YAML agents:
-  - `agents/himari.yaml`
-  - `agents/lilith.yaml`
-  - `agents/saiba_midori.yaml`
-  - `agents/tanjiro_logimind_planning_director.yaml`
-  - `agents/deadbyte.yaml`
-- Folder-based agents:
-  - `agents/himari-test-agent-agent/`
-  - `agents/stock-analyst-agent/`
-  - `agents/test-assistant-agent/`
-
-### Skill Snapshot (Today)
-- `deadbyte`: `issue_tracker`
-- `himari`: `Library Evaluation`, `Architecture Design`, `Technology Strategy`, `research_assistant`
-  - Registry-confirmed: `research_assistant`
-- `lilith`: no `skills` field
-- `saiba_midori`: `generate_image`, `perform_web_design_review`, `create_design_system`, `user_flow_optimization`, `research_assistant`
-  - Registry-confirmed: all listed skills
-- `tanjiro_logimind_planning_director`: multiple custom skills + `research_assistant`
-  - Registry-confirmed: `research_assistant`
-- Folder-based agents (3): `tools/` directories are currently empty
-
-### Agreed Direction
-- Manage context/prompt/progress as project agent rules:
-  - `AGENTS.md`: operating rules
-  - `agents/*.yaml`: role and prompt definitions
-  - `PROJECT_LOG.md`: session history
-
-### Next Actions
-- Add rule set to `AGENTS.md`:
-  - Update `PROJECT_LOG.md` before and after major work
-  - Record status and next action at session end
-  - Timestamp key decisions
-- Optionally add `PROMPT_SCHEMA.md` and `CONTEXT_SCHEMA.md` for fixed input structure.
-
-### Cross-PC Continuation Guide
-1. On another PC, pull latest repo changes and open `PROJECT_LOG.md` first.
-2. Continue in the same date section with only 4 items:
-   - Goal today
-   - Changes made
-   - Decisions made
-   - Next action
-3. If agent/skill changed, update related files together:
-   - Agent files: `agents/*.yaml`
-   - Skill registry: `skills/registry.yaml`
-
-### Timeline
-- 16:49 [SYSTEM] Added log command workflow
-- 16:53 [SYSTEM] Workspace command added
-- 16:59 [AUTO] end-of-session | branch=codex-rebuild-skill-evolution | modified=0, staged=0, untracked=5
-- 17:05 [SYSTEM] Shared memory pipeline enabled
-- 17:07 [SYSTEM] Built shared memory system (SQLite + migrate-log + memory-first read)
-- 17:10 [SUMMARY] Session summary: added per-project workspace context CLI, memory-first read flow, log+memory dual write, and migration from PROJECT_LOG to shared SQLite memory.
-- 17:10 [DECISION] Decision: use SQLite shared memory as default backend, keep PROJECT_LOG.md for human-readable audit, and separate context by project_path.
-- 17:10 [NEXT] Next action: enforce startup read and end-of-session auto snapshot in AGENTS.md so every agent resumes with latest shared context.
-- 17:11 [WORK] Added root AGENTS.md with required startup read, end-of-session auto snapshot, and NEXT logging rules.
-- 17:11 [DECISION] Summary policy updated: avoid hard compression; use light summaries with change/why/state/next in 3-6 lines.
-- 17:15 [NEXT] User requested branch workflow: save current state and push on a new branch.
+# Project Log
+
+## 2026-02-19 Session
+
+### Conversation Summary
+- Confirmed that project-level conversation/context/progress can be tracked in Markdown.
+- Confirmed that agents can also follow project-level logging rules.
+- Reviewed current agent list (YAML agents and folder-based agents) and skill status.
+- Explained how "missing skills" are detected (role/task analysis, fallback keyword rules, declared-vs-file checks).
+- Explained what a skill contains in plain terms (purpose, input, action, test, capability tags).
+- Agreed to move context/prompt/logging rules into project agent operations.
+
+### Current Agent Snapshot
+- YAML agents:
+  - `agents/himari.yaml`
+  - `agents/lilith.yaml`
+  - `agents/saiba_midori.yaml`
+  - `agents/tanjiro_logimind_planning_director.yaml`
+  - `agents/deadbyte.yaml`
+- Folder-based agents:
+  - `agents/himari-test-agent-agent/`
+  - `agents/stock-analyst-agent/`
+  - `agents/test-assistant-agent/`
+
+### Skill Snapshot (Today)
+- `deadbyte`: `issue_tracker`
+- `himari`: `Library Evaluation`, `Architecture Design`, `Technology Strategy`, `research_assistant`
+  - Registry-confirmed: `research_assistant`
+- `lilith`: no `skills` field
+- `saiba_midori`: `generate_image`, `perform_web_design_review`, `create_design_system`, `user_flow_optimization`, `research_assistant`
+  - Registry-confirmed: all listed skills
+- `tanjiro_logimind_planning_director`: multiple custom skills + `research_assistant`
+  - Registry-confirmed: `research_assistant`
+- Folder-based agents (3): `tools/` directories are currently empty
+
+### Agreed Direction
+- Manage context/prompt/progress as project agent rules:
+  - `AGENTS.md`: operating rules
+  - `agents/*.yaml`: role and prompt definitions
+  - `PROJECT_LOG.md`: session history
+
+### Next Actions
+- Add rule set to `AGENTS.md`:
+  - Update `PROJECT_LOG.md` before and after major work
+  - Record status and next action at session end
+  - Timestamp key decisions
+- Optionally add `PROMPT_SCHEMA.md` and `CONTEXT_SCHEMA.md` for fixed input structure.
+
+### Cross-PC Continuation Guide
+1. On another PC, pull latest repo changes and open `PROJECT_LOG.md` first.
+2. Continue in the same date section with only 4 items:
+   - Goal today
+   - Changes made
+   - Decisions made
+   - Next action
+3. If agent/skill changed, update related files together:
+   - Agent files: `agents/*.yaml`
+   - Skill registry: `skills/registry.yaml`
+
+### Timeline
+- 16:49 [SYSTEM] Added log command workflow
+- 16:53 [SYSTEM] Workspace command added
+- 16:59 [AUTO] end-of-session | branch=codex-rebuild-skill-evolution | modified=0, staged=0, untracked=5
+- 17:05 [SYSTEM] Shared memory pipeline enabled
+- 17:07 [SYSTEM] Built shared memory system (SQLite + migrate-log + memory-first read)
+- 17:10 [SUMMARY] Session summary: added per-project workspace context CLI, memory-first read flow, log+memory dual write, and migration from PROJECT_LOG to shared SQLite memory.
+- 17:10 [DECISION] Decision: use SQLite shared memory as default backend, keep PROJECT_LOG.md for human-readable audit, and separate context by project_path.
+- 17:10 [NEXT] Next action: enforce startup read and end-of-session auto snapshot in AGENTS.md so every agent resumes with latest shared context.
+- 17:11 [WORK] Added root AGENTS.md with required startup read, end-of-session auto snapshot, and NEXT logging rules.
+- 17:11 [DECISION] Summary policy updated: avoid hard compression; use light summaries with change/why/state/next in 3-6 lines.
+- 17:15 [NEXT] User requested branch workflow: save current state and push on a new branch.

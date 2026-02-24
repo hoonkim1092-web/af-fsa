@@ -13,6 +13,19 @@ class SkillConfig(BaseModel):
     risk: str
     engine_id: str
 
+class ExperimentalConfig(BaseModel):
+    hashline_hints_enabled: bool = Field(default=True)
+    template_input_enforced: bool = Field(default=True)
+
+class BackgroundTasksConfig(BaseModel):
+    max_concurrent_agents: int = Field(default=5)
+    heartbeat_timeout_sec: int = Field(default=300)
+    circuit_breaker_max_fails: int = Field(default=3)
+
+class HooksConfig(BaseModel):
+    event_bus_enabled: bool = Field(default=True)
+    truncation_max_length: int = Field(default=16000)
+
 class PolicyConfig(BaseModel):
     engines: Dict[str, EngineConfig] = Field(default_factory=dict)
     skills: Dict[str, SkillConfig] = Field(default_factory=dict)
@@ -25,6 +38,9 @@ class AgentFactoryConfig(BaseSettings):
     pythonioencoding: str = Field("utf-8")
     
     policy: PolicyConfig = Field(default_factory=PolicyConfig)
+    experimental: ExperimentalConfig = Field(default_factory=ExperimentalConfig)
+    background_tasks: BackgroundTasksConfig = Field(default_factory=BackgroundTasksConfig)
+    hooks: HooksConfig = Field(default_factory=HooksConfig)
 
     model_config = SettingsConfigDict(
         env_file=".env",

@@ -130,6 +130,7 @@ Author: Himari (Super Research Architect)
             "ok": True,
             "message": f"Research report generated for '{topic}'",
             "report_path": filepath,
+            "content_preview": report_content[:2000]
         }
     except Exception as e:
         return {"ok": False, "error": str(e)}

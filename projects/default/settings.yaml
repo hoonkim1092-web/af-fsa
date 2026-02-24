@@ -1,3 +1,6 @@
-agent_overrides: {}
-skill_overrides:
-  prefer_project_skills: true
+agent_overrides:
+  backend_architect:
+    runtime_rules:
+      default_deny: true
+    skills_add:
+    - core_memory
