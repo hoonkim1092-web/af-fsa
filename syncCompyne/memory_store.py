@@ -1,194 +1,194 @@
-import sqlite3
-from dataclasses import dataclass
-from datetime import date, timedelta
-from pathlib import Path
-
-
-@dataclass
-class MemoryEntry:
-    entry_time: str
-    entry_type: str
-    message: str
-    source: str
-
-
-def ensure_db(db_path: Path) -> None:
-    db_path.parent.mkdir(parents=True, exist_ok=True)
-    with sqlite3.connect(str(db_path)) as conn:
-        conn.execute(
-            """
-            CREATE TABLE IF NOT EXISTS projects (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                project_path TEXT NOT NULL UNIQUE,
-                project_name TEXT NOT NULL,
-                created_at TEXT NOT NULL DEFAULT (datetime('now'))
-            )
-            """
-        )
-        conn.execute(
-            """
-            CREATE TABLE IF NOT EXISTS memory_entries (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                project_id INTEGER NOT NULL,
-                session_date TEXT NOT NULL,
-                entry_time TEXT NOT NULL,
-                entry_type TEXT NOT NULL,
-                message TEXT NOT NULL,
-                source TEXT NOT NULL DEFAULT 'workspace_context_cli',
-                created_at TEXT NOT NULL DEFAULT (datetime('now')),
-                UNIQUE(project_id, session_date, entry_time, entry_type, message, source),
-                FOREIGN KEY(project_id) REFERENCES projects(id)
-            )
-            """
-        )
-        conn.execute(
-            "CREATE INDEX IF NOT EXISTS idx_memory_lookup ON memory_entries(project_id, session_date, entry_time)"
-        )
-        conn.commit()
-
-
-def _get_project_id(conn: sqlite3.Connection, project_path: Path) -> int:
-    p = str(project_path.resolve())
-    name = project_path.resolve().name
-    conn.execute(
-        """
-        INSERT INTO projects(project_path, project_name)
-        VALUES(?, ?)
-        ON CONFLICT(project_path) DO UPDATE SET project_name=excluded.project_name
-        """,
-        (p, name),
-    )
-    row = conn.execute("SELECT id FROM projects WHERE project_path = ?", (p,)).fetchone()
-    if not row:
-        raise RuntimeError("failed to resolve project id")
-    return int(row[0])
-
-
-def add_entry(
-    db_path: Path,
-    project_path: Path,
-    session_date: date,
-    entry_time: str,
-    entry_type: str,
-    message: str,
-    source: str = "workspace_context_cli",
-) -> None:
-    ensure_db(db_path)
-    with sqlite3.connect(str(db_path)) as conn:
-        project_id = _get_project_id(conn, project_path)
-        exists = conn.execute(
-            """
-            SELECT 1
-            FROM memory_entries
-            WHERE project_id = ?
-              AND session_date = ?
-              AND entry_time = ?
-              AND entry_type = ?
-              AND message = ?
-            LIMIT 1
-            """,
-            (project_id, session_date.isoformat(), entry_time, entry_type.upper(), message),
-        ).fetchone()
-        if exists:
-            return
-        conn.execute(
-            """
-            INSERT OR IGNORE INTO memory_entries(
-                project_id, session_date, entry_time, entry_type, message, source
-            ) VALUES (?, ?, ?, ?, ?, ?)
-            """,
-            (project_id, session_date.isoformat(), entry_time, entry_type.upper(), message, source),
-        )
-        conn.commit()
-
-
-def _period_start_end(today: date, period: str, from_day: date | None, to_day: date | None) -> tuple[date | None, date | None]:
-    if period == "all":
-        return None, None
-    if period == "today":
-        return today, today
-    if period == "7d":
-        return today - timedelta(days=6), today
-    if period == "30d":
-        return today - timedelta(days=29), today
-    if period == "custom":
-        return from_day, to_day
-    return None, None
-
-
-def pick_latest_session_day(
-    db_path: Path,
-    project_path: Path,
-    explicit_day: date | None,
-    period: str,
-    from_day: date | None,
-    to_day: date | None,
-    today: date,
-) -> date | None:
-    ensure_db(db_path)
-    with sqlite3.connect(str(db_path)) as conn:
-        project_id = _get_project_id(conn, project_path)
-        if explicit_day:
-            row = conn.execute(
-                """
-                SELECT session_date
-                FROM memory_entries
-                WHERE project_id = ? AND session_date = ?
-                LIMIT 1
-                """,
-                (project_id, explicit_day.isoformat()),
-            ).fetchone()
-            return explicit_day if row else None
-
-        start_day, end_day = _period_start_end(today, period, from_day, to_day)
-        if period == "custom" and (not start_day or not end_day):
-            return None
-
-        if start_day and end_day:
-            row = conn.execute(
-                """
-                SELECT MAX(session_date)
-                FROM memory_entries
-                WHERE project_id = ? AND session_date BETWEEN ? AND ?
-                """,
-                (project_id, start_day.isoformat(), end_day.isoformat()),
-            ).fetchone()
-        else:
-            row = conn.execute(
-                """
-                SELECT MAX(session_date)
-                FROM memory_entries
-                WHERE project_id = ?
-                """,
-                (project_id,),
-            ).fetchone()
-        if not row or not row[0]:
-            return None
-        return date.fromisoformat(str(row[0]))
-
-
-def read_entries_for_day(
-    db_path: Path,
-    project_path: Path,
-    session_day: date,
-    hhmm: str | None = None,
-    limit: int = 20,
-) -> list[MemoryEntry]:
-    ensure_db(db_path)
-    with sqlite3.connect(str(db_path)) as conn:
-        project_id = _get_project_id(conn, project_path)
-        params: list[object] = [project_id, session_day.isoformat()]
-        query = """
-            SELECT entry_time, entry_type, message, source
-            FROM memory_entries
-            WHERE project_id = ? AND session_date = ?
-        """
-        if hhmm:
-            query += " AND entry_time <= ?"
-            params.append(hhmm)
-        query += " ORDER BY entry_time ASC, id ASC"
-        rows = conn.execute(query, tuple(params)).fetchall()
-        entries = [MemoryEntry(str(r[0]), str(r[1]), str(r[2]), str(r[3])) for r in rows]
-        if limit > 0 and len(entries) > limit:
-            entries = entries[-limit:]
-        return entries
+import sqlite3
+from dataclasses import dataclass
+from datetime import date, timedelta
+from pathlib import Path
+
+
+@dataclass
+class MemoryEntry:
+    entry_time: str
+    entry_type: str
+    message: str
+    source: str
+
+
+def ensure_db(db_path: Path) -> None:
+    db_path.parent.mkdir(parents=True, exist_ok=True)
+    with sqlite3.connect(str(db_path)) as conn:
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS projects (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                project_path TEXT NOT NULL UNIQUE,
+                project_name TEXT NOT NULL,
+                created_at TEXT NOT NULL DEFAULT (datetime('now'))
+            )
+            """
+        )
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS memory_entries (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                project_id INTEGER NOT NULL,
+                session_date TEXT NOT NULL,
+                entry_time TEXT NOT NULL,
+                entry_type TEXT NOT NULL,
+                message TEXT NOT NULL,
+                source TEXT NOT NULL DEFAULT 'workspace_context_cli',
+                created_at TEXT NOT NULL DEFAULT (datetime('now')),
+                UNIQUE(project_id, session_date, entry_time, entry_type, message, source),
+                FOREIGN KEY(project_id) REFERENCES projects(id)
+            )
+            """
+        )
+        conn.execute(
+            "CREATE INDEX IF NOT EXISTS idx_memory_lookup ON memory_entries(project_id, session_date, entry_time)"
+        )
+        conn.commit()
+
+
+def _get_project_id(conn: sqlite3.Connection, project_path: Path) -> int:
+    p = str(project_path.resolve())
+    name = project_path.resolve().name
+    conn.execute(
+        """
+        INSERT INTO projects(project_path, project_name)
+        VALUES(?, ?)
+        ON CONFLICT(project_path) DO UPDATE SET project_name=excluded.project_name
+        """,
+        (p, name),
+    )
+    row = conn.execute("SELECT id FROM projects WHERE project_path = ?", (p,)).fetchone()
+    if not row:
+        raise RuntimeError("failed to resolve project id")
+    return int(row[0])
+
+
+def add_entry(
+    db_path: Path,
+    project_path: Path,
+    session_date: date,
+    entry_time: str,
+    entry_type: str,
+    message: str,
+    source: str = "workspace_context_cli",
+) -> None:
+    ensure_db(db_path)
+    with sqlite3.connect(str(db_path)) as conn:
+        project_id = _get_project_id(conn, project_path)
+        exists = conn.execute(
+            """
+            SELECT 1
+            FROM memory_entries
+            WHERE project_id = ?
+              AND session_date = ?
+              AND entry_time = ?
+              AND entry_type = ?
+              AND message = ?
+            LIMIT 1
+            """,
+            (project_id, session_date.isoformat(), entry_time, entry_type.upper(), message),
+        ).fetchone()
+        if exists:
+            return
+        conn.execute(
+            """
+            INSERT OR IGNORE INTO memory_entries(
+                project_id, session_date, entry_time, entry_type, message, source
+            ) VALUES (?, ?, ?, ?, ?, ?)
+            """,
+            (project_id, session_date.isoformat(), entry_time, entry_type.upper(), message, source),
+        )
+        conn.commit()
+
+
+def _period_start_end(today: date, period: str, from_day: date | None, to_day: date | None) -> tuple[date | None, date | None]:
+    if period == "all":
+        return None, None
+    if period == "today":
+        return today, today
+    if period == "7d":
+        return today - timedelta(days=6), today
+    if period == "30d":
+        return today - timedelta(days=29), today
+    if period == "custom":
+        return from_day, to_day
+    return None, None
+
+
+def pick_latest_session_day(
+    db_path: Path,
+    project_path: Path,
+    explicit_day: date | None,
+    period: str,
+    from_day: date | None,
+    to_day: date | None,
+    today: date,
+) -> date | None:
+    ensure_db(db_path)
+    with sqlite3.connect(str(db_path)) as conn:
+        project_id = _get_project_id(conn, project_path)
+        if explicit_day:
+            row = conn.execute(
+                """
+                SELECT session_date
+                FROM memory_entries
+                WHERE project_id = ? AND session_date = ?
+                LIMIT 1
+                """,
+                (project_id, explicit_day.isoformat()),
+            ).fetchone()
+            return explicit_day if row else None
+
+        start_day, end_day = _period_start_end(today, period, from_day, to_day)
+        if period == "custom" and (not start_day or not end_day):
+            return None
+
+        if start_day and end_day:
+            row = conn.execute(
+                """
+                SELECT MAX(session_date)
+                FROM memory_entries
+                WHERE project_id = ? AND session_date BETWEEN ? AND ?
+                """,
+                (project_id, start_day.isoformat(), end_day.isoformat()),
+            ).fetchone()
+        else:
+            row = conn.execute(
+                """
+                SELECT MAX(session_date)
+                FROM memory_entries
+                WHERE project_id = ?
+                """,
+                (project_id,),
+            ).fetchone()
+        if not row or not row[0]:
+            return None
+        return date.fromisoformat(str(row[0]))
+
+
+def read_entries_for_day(
+    db_path: Path,
+    project_path: Path,
+    session_day: date,
+    hhmm: str | None = None,
+    limit: int = 20,
+) -> list[MemoryEntry]:
+    ensure_db(db_path)
+    with sqlite3.connect(str(db_path)) as conn:
+        project_id = _get_project_id(conn, project_path)
+        params: list[object] = [project_id, session_day.isoformat()]
+        query = """
+            SELECT entry_time, entry_type, message, source
+            FROM memory_entries
+            WHERE project_id = ? AND session_date = ?
+        """
+        if hhmm:
+            query += " AND entry_time <= ?"
+            params.append(hhmm)
+        query += " ORDER BY entry_time ASC, id ASC"
+        rows = conn.execute(query, tuple(params)).fetchall()
+        entries = [MemoryEntry(str(r[0]), str(r[1]), str(r[2]), str(r[3])) for r in rows]
+        if limit > 0 and len(entries) > limit:
+            entries = entries[-limit:]
+        return entries
