@@ -1,0 +1,6 @@
+agent_overrides:
+  backend_architect:
+    runtime_rules:
+      default_deny: true
+    skills_add:
+    - core_memory

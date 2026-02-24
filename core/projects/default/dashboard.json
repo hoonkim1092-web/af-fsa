@@ -1,0 +1,63 @@
+{
+  "project_id": "default",
+  "runs": [
+    {
+      "ts": "2026-02-25T02:40:13",
+      "type": "single_run",
+      "project_id": "default",
+      "role": "General",
+      "task": "track issues",
+      "skills_loaded": [],
+      "ok": false,
+      "reason": "",
+      "latency_ms": 0,
+      "approval_rejects": 0,
+      "build_enabled": true,
+      "missing_skills_detected": []
+    },
+    {
+      "ts": "2026-02-25T02:40:13",
+      "type": "single_run",
+      "project_id": "default",
+      "role": "General",
+      "task": "do something new",
+      "skills_loaded": [],
+      "ok": false,
+      "reason": "",
+      "latency_ms": 0,
+      "approval_rejects": 0,
+      "build_enabled": true,
+      "missing_skills_detected": []
+    },
+    {
+      "ts": "2026-02-25T02:40:14",
+      "type": "single_run",
+      "project_id": "default",
+      "role": "General",
+      "task": "x",
+      "skills_loaded": [],
+      "ok": true,
+      "reason": "gemini",
+      "latency_ms": 1,
+      "approval_rejects": 0,
+      "build_enabled": false,
+      "missing_skills_detected": [
+        "new_skill"
+      ]
+    },
+    {
+      "ts": "2026-02-25T02:40:14",
+      "type": "single_run",
+      "project_id": "default",
+      "role": "General",
+      "task": "x",
+      "skills_loaded": [],
+      "ok": true,
+      "reason": "gemini",
+      "latency_ms": 1,
+      "approval_rejects": 0,
+      "build_enabled": true,
+      "missing_skills_detected": []
+    }
+  ]
+}
