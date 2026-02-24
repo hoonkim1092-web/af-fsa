@@ -1,261 +1,1484 @@
-install_candidates: {}
 skills:
   abc:
+    id: abc
+    skill_id: abc
+    name: abc
+    skill_name: abc
+    purpose: ''
+    path: D:\agent-factory\tests\_tmp\af-test-1c55c3f8\skills\abc\skill.py
+    meta_path: D:\agent-factory\tests\_tmp\af-test-1c55c3f8\skills\abc\meta.yaml
+    version: 0.1.0
+    status: canary
     capabilities:
     - abc
-    id: abc
-    last_test_ok: true
-    meta_path: D:\agent-factory\tests\_tmp\af-test-1c55c3f8\skills\abc\meta.yaml
-    name: abc
-    path: D:\agent-factory\tests\_tmp\af-test-1c55c3f8\skills\abc\skill.py
-    status: canary
+    dependencies: []
     updated_at: '2026-02-24T03:07:26'
-    version: 0.1.0
+    last_test_ok: true
   ai_funnel_routing:
-    capabilities:
-    - AI_FUNNEL_ROUTING
     id: ai_funnel_routing
-    last_test_ok: true
-    meta_path: skills/ai_funnel_routing/meta.yaml
+    skill_id: ai_funnel_routing
     name: ai_funnel_routing
+    skill_name: ai_funnel_routing
+    purpose: ''
     path: skills/ai_funnel_routing/skill.py
-    status: active
-    updated_at: '2026-02-20T02:22:54'
+    meta_path: skills/ai_funnel_routing/meta.yaml
     version: 1.0.0
+    status: active
+    capabilities:
+    - ai_funnel_routing
+    dependencies: []
+    updated_at: '2026-02-20T02:22:54'
+    last_test_ok: true
   api_security_vetting:
-    capabilities: []
     id: api_security_vetting
-    last_test_ok: true
+    skill_id: api_security_vetting
     name: api_security_vetting
-    path: skills/forge/api_security_vetting.py
-    status: active
-    updated_at: '2026-02-20T02:22:54'
+    skill_name: api_security_vetting
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\forge\api_security_vetting.py
+    meta_path: ''
     version: 1.0.0
+    status: active
+    capabilities:
+    - api_security_vetting
+    dependencies: []
+    updated_at: '2026-02-24T15:05:02'
+    last_test_ok: true
   core_memory:
-    capabilities:
-    - MEMORY_READ
-    - MEMORY_WRITE
-    - MEMORY_SEARCH
     id: core_memory
-    last_test_ok: true
-    meta_path: skills/core_memory/meta.yaml
+    skill_id: core_memory
     name: Core Memory (Korean)
+    skill_name: Core Memory (Korean)
+    purpose: ''
     path: skills/core_memory/skill.py
+    meta_path: skills/core_memory/meta.yaml
+    version: 1.0.0
     status: active
+    capabilities:
+    - memory_read
+    - memory_write
+    - memory_search
+    dependencies: []
     updated_at: '2026-02-14T21:13:00'
-    version: 1.0.0
+    last_test_ok: true
   create_design_system:
-    capabilities:
-    - DESIGN_SYSTEM
-    - CSS
-    - JSON
     id: create_design_system
-    last_test_ok: true
-    meta_path: skills/create_design_system/meta.yaml
+    skill_id: create_design_system
     name: Create Design System
+    skill_name: Create Design System
+    purpose: ''
     path: skills/create_design_system/skill.py
-    status: active
-    updated_at: '2026-02-12T18:10:00'
+    meta_path: skills/create_design_system/meta.yaml
     version: 1.0.0
+    status: active
+    capabilities:
+    - design_system
+    - css
+    - json
+    dependencies: []
+    updated_at: '2026-02-12T18:10:00'
+    last_test_ok: true
   css_styling:
-    capabilities:
-    - CSS_STYLING
     id: css_styling
-    last_test_ok: true
-    meta_path: skills/css_styling/meta.yaml
+    skill_id: css_styling
     name: css_styling
+    skill_name: css_styling
+    purpose: ''
     path: skills/css_styling/skill.py
-    status: active
-    updated_at: '2026-02-20T02:22:54'
+    meta_path: skills/css_styling/meta.yaml
     version: 1.0.0
+    status: active
+    capabilities:
+    - css_styling
+    dependencies: []
+    updated_at: '2026-02-20T02:22:54'
+    last_test_ok: true
   data_visualize:
-    capabilities:
-    - DATA_VISUALIZE
     id: data_visualize
-    last_test_ok: true
-    meta_path: skills/data_visualize/meta.yaml
+    skill_id: data_visualize
     name: Data Visualization
+    skill_name: Data Visualization
+    purpose: ''
     path: skills/data_visualize/skill.py
-    status: active
-    updated_at: '2026-02-12T15:40:00'
+    meta_path: skills/data_visualize/meta.yaml
     version: 1.0.0
+    status: active
+    capabilities:
+    - data_visualize
+    dependencies: []
+    updated_at: '2026-02-12T15:40:00'
+    last_test_ok: true
   db_optimizer:
-    capabilities: []
     id: db_optimizer
-    last_test_ok: true
+    skill_id: db_optimizer
     name: db_optimizer
-    path: skills/forge/db_optimizer.py
-    status: active
-    updated_at: '2026-02-20T02:22:54'
+    skill_name: db_optimizer
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\forge\db_optimizer.py
+    meta_path: ''
     version: 1.0.0
+    status: active
+    capabilities:
+    - db_optimizer
+    dependencies: []
+    updated_at: '2026-02-24T15:05:02'
+    last_test_ok: true
   generate_image:
-    capabilities:
-    - IMAGE_GEN
-    - SVG
     id: generate_image
-    last_test_ok: true
-    meta_path: skills/generate_image/meta.yaml
+    skill_id: generate_image
     name: Generate Image (SVG)
+    skill_name: Generate Image (SVG)
+    purpose: ''
     path: skills/generate_image/skill.py
+    meta_path: skills/generate_image/meta.yaml
+    version: 1.0.0
     status: active
+    capabilities:
+    - image_gen
+    - svg
+    dependencies: []
     updated_at: '2026-02-12T18:10:00'
-    version: 1.0.0
+    last_test_ok: true
   gherkin_sdd_authoring:
-    capabilities:
-    - GHERKIN_SDD_AUTHORING
     id: gherkin_sdd_authoring
-    last_test_ok: true
-    meta_path: skills/gherkin_sdd_authoring/meta.yaml
+    skill_id: gherkin_sdd_authoring
     name: gherkin_sdd_authoring
+    skill_name: gherkin_sdd_authoring
+    purpose: ''
     path: skills/gherkin_sdd_authoring/skill.py
-    status: active
-    updated_at: '2026-02-20T02:22:54'
+    meta_path: skills/gherkin_sdd_authoring/meta.yaml
     version: 1.0.0
+    status: active
+    capabilities:
+    - gherkin_sdd_authoring
+    dependencies: []
+    updated_at: '2026-02-20T02:22:54'
+    last_test_ok: true
   infrastructure_scaler:
-    capabilities: []
     id: infrastructure_scaler
-    last_test_ok: true
+    skill_id: infrastructure_scaler
     name: infrastructure_scaler
-    path: skills/forge/infrastructure_scaler.py
-    status: active
-    updated_at: '2026-02-20T02:22:54'
+    skill_name: infrastructure_scaler
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\forge\infrastructure_scaler.py
+    meta_path: ''
     version: 1.0.0
+    status: active
+    capabilities:
+    - infrastructure_scaler
+    dependencies: []
+    updated_at: '2026-02-24T15:05:02'
+    last_test_ok: true
   issue_tracker:
-    capabilities:
-    - ISSUE_READ
-    - ISSUE_WRITE
     id: issue_tracker
-    last_test_ok: true
-    meta_path: skills/issue_tracker/meta.yaml
+    skill_id: issue_tracker
     name: Issue Tracker
+    skill_name: Issue Tracker
+    purpose: ''
     path: skills/issue_tracker/skill.py
-    status: active
-    updated_at: '2026-02-12T15:40:00'
+    meta_path: skills/issue_tracker/meta.yaml
     version: 1.0.0
-  liability_traceability_design:
+    status: active
     capabilities:
-    - LIABILITY_TRACEABILITY_DESIGN
-    id: liability_traceability_design
+    - issue_read
+    - issue_write
+    dependencies: []
+    updated_at: '2026-02-12T15:40:00'
     last_test_ok: true
-    meta_path: skills/liability_traceability_design/meta.yaml
+  liability_traceability_design:
+    id: liability_traceability_design
+    skill_id: liability_traceability_design
     name: liability_traceability_design
+    skill_name: liability_traceability_design
+    purpose: ''
     path: skills/liability_traceability_design/skill.py
-    status: active
-    updated_at: '2026-02-20T02:22:54'
+    meta_path: skills/liability_traceability_design/meta.yaml
     version: 1.0.0
+    status: active
+    capabilities:
+    - liability_traceability_design
+    dependencies: []
+    updated_at: '2026-02-20T02:22:54'
+    last_test_ok: true
   new_skill:
+    id: new_skill
+    skill_id: new_skill
+    name: new_skill
+    skill_name: new_skill
+    purpose: ''
+    path: skills/new_skill/skill.py
+    meta_path: skills/new_skill/meta.yaml
+    version: 1.0.0
+    status: active
     capabilities:
     - new_skill
-    id: new_skill
-    last_test_ok: true
-    meta_path: skills/new_skill/meta.yaml
-    name: new_skill
-    path: skills/new_skill/skill.py
-    status: active
+    dependencies: []
     updated_at: '2026-02-22T04:19:55'
-    version: 1.0.0
+    last_test_ok: true
   perform_web_design_review:
-    capabilities:
-    - DESIGN_REVIEW
-    - CHECKLIST
-    - AUDIT
     id: perform_web_design_review
-    last_test_ok: true
-    meta_path: skills/perform_web_design_review/meta.yaml
+    skill_id: perform_web_design_review
     name: Perform Web Design Review
+    skill_name: Perform Web Design Review
+    purpose: ''
     path: skills/perform_web_design_review/skill.py
-    status: active
-    updated_at: '2026-02-12T18:15:00'
+    meta_path: skills/perform_web_design_review/meta.yaml
     version: 1.0.0
+    status: active
+    capabilities:
+    - design_review
+    - checklist
+    - audit
+    dependencies: []
+    updated_at: '2026-02-12T18:15:00'
+    last_test_ok: true
   react_coding:
-    capabilities:
-    - REACT_CODING
     id: react_coding
-    last_test_ok: true
-    meta_path: skills/react_coding/meta.yaml
+    skill_id: react_coding
     name: react_coding
+    skill_name: react_coding
+    purpose: ''
     path: skills/react_coding/skill.py
-    status: active
-    updated_at: '2026-02-20T02:22:54'
+    meta_path: skills/react_coding/meta.yaml
     version: 1.0.0
+    status: active
+    capabilities:
+    - react_coding
+    dependencies: []
+    updated_at: '2026-02-20T02:22:54'
+    last_test_ok: true
   research_assistant:
-    capabilities:
-    - RESEARCH
     id: research_assistant
-    last_test_ok: true
-    meta_path: skills/research_assistant/meta.yaml
+    skill_id: research_assistant
     name: Research Assistant
+    skill_name: Research Assistant
+    purpose: ''
     path: skills/research_assistant/skill.py
+    meta_path: skills/research_assistant/meta.yaml
+    version: 1.0.0
     status: active
+    capabilities:
+    - research
+    dependencies: []
     updated_at: '2026-02-12T15:55:00'
-    version: 1.0.0
+    last_test_ok: true
   roi_defense_modeling:
-    capabilities:
-    - ROI_DEFENSE_MODELING
     id: roi_defense_modeling
-    last_test_ok: true
-    meta_path: skills/roi_defense_modeling/meta.yaml
+    skill_id: roi_defense_modeling
     name: roi_defense_modeling
+    skill_name: roi_defense_modeling
+    purpose: ''
     path: skills/roi_defense_modeling/skill.py
-    status: active
-    updated_at: '2026-02-20T02:22:54'
+    meta_path: skills/roi_defense_modeling/meta.yaml
     version: 1.0.0
+    status: active
+    capabilities:
+    - roi_defense_modeling
+    dependencies: []
+    updated_at: '2026-02-20T02:22:54'
+    last_test_ok: true
   state_machine_exception_planning:
-    capabilities:
-    - STATE_MACHINE_EXCEPTION_PLANNING
     id: state_machine_exception_planning
-    last_test_ok: true
-    meta_path: skills/state_machine_exception_planning/meta.yaml
+    skill_id: state_machine_exception_planning
     name: state_machine_exception_planning
+    skill_name: state_machine_exception_planning
+    purpose: ''
     path: skills/state_machine_exception_planning/skill.py
-    status: active
-    updated_at: '2026-02-20T02:22:54'
+    meta_path: skills/state_machine_exception_planning/meta.yaml
     version: 1.0.0
+    status: active
+    capabilities:
+    - state_machine_exception_planning
+    dependencies: []
+    updated_at: '2026-02-20T02:22:54'
+    last_test_ok: true
   stitch_design:
-    capabilities:
-    - STITCH_DESIGN
-    - AI_UI_GEN
-    - CODE_SPEC
     id: stitch_design
-    last_test_ok: true
-    meta_path: skills/stitch_design/meta.yaml
+    skill_id: stitch_design
     name: Stitch AI Design Tool
+    skill_name: Stitch AI Design Tool
+    purpose: ''
     path: skills/stitch_design/skill.py
+    meta_path: skills/stitch_design/meta.yaml
+    version: 1.0.0
     status: active
+    capabilities:
+    - stitch_design
+    - ai_ui_gen
+    - code_spec
+    dependencies: []
     updated_at: '2026-02-13T02:10:00'
-    version: 1.0.0
+    last_test_ok: true
   trigger_rule_design:
-    capabilities:
-    - TRIGGER_RULE_DESIGN
     id: trigger_rule_design
-    last_test_ok: true
-    meta_path: skills/trigger_rule_design/meta.yaml
+    skill_id: trigger_rule_design
     name: trigger_rule_design
+    skill_name: trigger_rule_design
+    purpose: ''
     path: skills/trigger_rule_design/skill.py
-    status: active
-    updated_at: '2026-02-20T02:22:54'
+    meta_path: skills/trigger_rule_design/meta.yaml
     version: 1.0.0
+    status: active
+    capabilities:
+    - trigger_rule_design
+    dependencies: []
+    updated_at: '2026-02-20T02:22:54'
+    last_test_ok: true
   user_flow_optimization:
-    capabilities:
-    - USER_FLOW
-    - MERMAID
-    - DIAGRAM
     id: user_flow_optimization
-    last_test_ok: true
-    meta_path: skills/user_flow_optimization/meta.yaml
+    skill_id: user_flow_optimization
     name: User Flow Optimization
+    skill_name: User Flow Optimization
+    purpose: ''
     path: skills/user_flow_optimization/skill.py
-    status: active
-    updated_at: '2026-02-12T18:15:00'
+    meta_path: skills/user_flow_optimization/meta.yaml
     version: 1.0.0
-  zero_integration_parsing_spec:
+    status: active
     capabilities:
-    - ZERO_INTEGRATION_PARSING_SPEC
-    id: zero_integration_parsing_spec
+    - user_flow
+    - mermaid
+    - diagram
+    dependencies: []
+    updated_at: '2026-02-12T18:15:00'
     last_test_ok: true
-    meta_path: skills/zero_integration_parsing_spec/meta.yaml
+  zero_integration_parsing_spec:
+    id: zero_integration_parsing_spec
+    skill_id: zero_integration_parsing_spec
     name: zero_integration_parsing_spec
+    skill_name: zero_integration_parsing_spec
+    purpose: ''
     path: skills/zero_integration_parsing_spec/skill.py
-    status: active
-    updated_at: '2026-02-20T02:22:54'
+    meta_path: skills/zero_integration_parsing_spec/meta.yaml
     version: 1.0.0
+    status: active
+    capabilities:
+    - zero_integration_parsing_spec
+    dependencies: []
+    updated_at: '2026-02-20T02:22:54'
+    last_test_ok: true
+  core_module:
+    id: core_module
+    skill_id: core_module
+    name: core_module
+    skill_name: core_module
+    purpose: Skill intended for System Admin (Uses run_command tool) to handle core_module
+    path: D:\hoonProJect\agent-factory\skills\forge\core_module.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - core_module
+    dependencies: []
+    updated_at: '2026-02-24T15:05:18'
+    last_test_ok: true
+  database_performance_tuning:
+    id: database_performance_tuning
+    skill_id: database_performance_tuning
+    name: database_performance_tuning
+    skill_name: database_performance_tuning
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\forge\database_performance_tuning.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - database_performance_tuning
+    dependencies: []
+    updated_at: '2026-02-24T15:05:02'
+    last_test_ok: true
+  edomae_sushi_shikomi_playbook:
+    id: edomae_sushi_shikomi_playbook
+    skill_id: edomae_sushi_shikomi_playbook
+    name: edomae_sushi_shikomi_playbook
+    skill_name: edomae_sushi_shikomi_playbook
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\forge\edomae_sushi_shikomi_playbook.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - edomae_sushi_shikomi_playbook
+    dependencies: []
+    updated_at: '2026-02-24T15:05:02'
+    last_test_ok: true
+  omakase_service_pacing_control:
+    id: omakase_service_pacing_control
+    skill_id: omakase_service_pacing_control
+    name: omakase_service_pacing_control
+    skill_name: omakase_service_pacing_control
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\forge\omakase_service_pacing_control.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - omakase_service_pacing_control
+    dependencies: []
+    updated_at: '2026-02-24T15:05:02'
+    last_test_ok: true
+  perishable_inventory_control:
+    id: perishable_inventory_control
+    skill_id: perishable_inventory_control
+    name: perishable_inventory_control
+    skill_name: perishable_inventory_control
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\forge\perishable_inventory_control.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - perishable_inventory_control
+    dependencies: []
+    updated_at: '2026-02-24T15:05:02'
+    last_test_ok: true
+  precision_knife_techniques:
+    id: precision_knife_techniques
+    skill_id: precision_knife_techniques
+    name: precision_knife_techniques
+    skill_name: precision_knife_techniques
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\forge\precision_knife_techniques.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - precision_knife_techniques
+    dependencies: []
+    updated_at: '2026-02-24T15:05:02'
+    last_test_ok: true
+  scalable_api_architecture:
+    id: scalable_api_architecture
+    skill_id: scalable_api_architecture
+    name: scalable_api_architecture
+    skill_name: scalable_api_architecture
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\forge\scalable_api_architecture.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - scalable_api_architecture
+    dependencies: []
+    updated_at: '2026-02-24T15:05:03'
+    last_test_ok: true
+  seasonal_ingredient_procurement:
+    id: seasonal_ingredient_procurement
+    skill_id: seasonal_ingredient_procurement
+    name: seasonal_ingredient_procurement
+    skill_name: seasonal_ingredient_procurement
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\forge\seasonal_ingredient_procurement.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - seasonal_ingredient_procurement
+    dependencies: []
+    updated_at: '2026-02-24T15:05:03'
+    last_test_ok: true
+  seasonal_omakase_inventory_optimization:
+    id: seasonal_omakase_inventory_optimization
+    skill_id: seasonal_omakase_inventory_optimization
+    name: seasonal_omakase_inventory_optimization
+    skill_name: seasonal_omakase_inventory_optimization
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\forge\seasonal_omakase_inventory_optimization.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - seasonal_omakase_inventory_optimization
+    dependencies: []
+    updated_at: '2026-02-24T15:05:03'
+    last_test_ok: true
+  zero_downtime_deployment_playbook:
+    id: zero_downtime_deployment_playbook
+    skill_id: zero_downtime_deployment_playbook
+    name: zero_downtime_deployment_playbook
+    skill_name: zero_downtime_deployment_playbook
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\forge\zero_downtime_deployment_playbook.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - zero_downtime_deployment_playbook
+    dependencies: []
+    updated_at: '2026-02-24T15:05:03'
+    last_test_ok: true
+  evaluation_example:
+    id: evaluation_example
+    skill_id: evaluation_example
+    name: evaluation_example
+    skill_name: evaluation_example
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\advanced-evaluation\scripts\evaluation_example.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - evaluation_example
+    dependencies: []
+    updated_at: '2026-02-24T15:05:03'
+    last_test_ok: true
+  compression_evaluator:
+    id: compression_evaluator
+    skill_id: compression_evaluator
+    name: compression_evaluator
+    skill_name: compression_evaluator
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\context-compression\scripts\compression_evaluator.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - compression_evaluator
+    dependencies: []
+    updated_at: '2026-02-24T15:05:03'
+    last_test_ok: true
+  degradation_detector:
+    id: degradation_detector
+    skill_id: degradation_detector
+    name: degradation_detector
+    skill_name: degradation_detector
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\context-degradation\scripts\degradation_detector.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - degradation_detector
+    dependencies: []
+    updated_at: '2026-02-24T15:05:03'
+    last_test_ok: true
+  context_manager:
+    id: context_manager
+    skill_id: context_manager
+    name: context_manager
+    skill_name: context_manager
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\context-fundamentals\scripts\context_manager.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - context_manager
+    dependencies: []
+    updated_at: '2026-02-24T15:05:03'
+    last_test_ok: true
+  compaction:
+    id: compaction
+    skill_id: compaction
+    name: compaction
+    skill_name: compaction
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\context-optimization\scripts\compaction.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - compaction
+    dependencies: []
+    updated_at: '2026-02-24T15:05:03'
+    last_test_ok: true
+  pack:
+    id: pack
+    skill_id: pack
+    name: pack
+    skill_name: pack
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\xlsx\scripts\office\pack.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - pack
+    dependencies: []
+    updated_at: '2026-02-24T15:05:13'
+    last_test_ok: true
+  unpack:
+    id: unpack
+    skill_id: unpack
+    name: unpack
+    skill_name: unpack
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\xlsx\scripts\office\unpack.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - unpack
+    dependencies: []
+    updated_at: '2026-02-24T15:05:13'
+    last_test_ok: true
+  validate:
+    id: validate
+    skill_id: validate
+    name: validate
+    skill_name: validate
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\xlsx\scripts\office\validate.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - validate
+    dependencies: []
+    updated_at: '2026-02-24T15:05:14'
+    last_test_ok: true
+  base:
+    id: base
+    skill_id: base
+    name: base
+    skill_name: base
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\xlsx\scripts\office\validators\base.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - base
+    dependencies: []
+    updated_at: '2026-02-24T15:05:14'
+    last_test_ok: true
+  docx:
+    id: docx
+    skill_id: docx
+    name: docx
+    skill_name: docx
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\xlsx\scripts\office\validators\docx.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - docx
+    dependencies: []
+    updated_at: '2026-02-24T15:05:14'
+    last_test_ok: true
+  pptx:
+    id: pptx
+    skill_id: pptx
+    name: pptx
+    skill_name: pptx
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\xlsx\scripts\office\validators\pptx.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - pptx
+    dependencies: []
+    updated_at: '2026-02-24T15:05:14'
+    last_test_ok: true
+  redlining:
+    id: redlining
+    skill_id: redlining
+    name: redlining
+    skill_name: redlining
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\xlsx\scripts\office\validators\redlining.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - redlining
+    dependencies: []
+    updated_at: '2026-02-24T15:05:15'
+    last_test_ok: true
+  init:
+    id: init
+    skill_id: init
+    name: init
+    skill_name: __init__
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\xlsx\scripts\office\validators\__init__.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - init
+    dependencies: []
+    updated_at: '2026-02-24T15:05:15'
+    last_test_ok: true
+  accept_changes:
+    id: accept_changes
+    skill_id: accept_changes
+    name: accept_changes
+    skill_name: accept_changes
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\docx\scripts\accept_changes.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - accept_changes
+    dependencies: []
+    updated_at: '2026-02-24T15:05:04'
+    last_test_ok: true
+  comment:
+    id: comment
+    skill_id: comment
+    name: comment
+    skill_name: comment
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\docx\scripts\comment.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - comment
+    dependencies: []
+    updated_at: '2026-02-24T15:05:04'
+    last_test_ok: true
+  document:
+    id: document
+    skill_id: document
+    name: document
+    skill_name: document
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\docx\scripts\document.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - document
+    dependencies: []
+    updated_at: '2026-02-24T15:05:04'
+    last_test_ok: true
+  utilities:
+    id: utilities
+    skill_id: utilities
+    name: utilities
+    skill_name: utilities
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\docx\scripts\utilities.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - utilities
+    dependencies: []
+    updated_at: '2026-02-24T15:05:04'
+    last_test_ok: true
+  soffice:
+    id: soffice
+    skill_id: soffice
+    name: soffice
+    skill_name: soffice
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\xlsx\scripts\office\soffice.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - soffice
+    dependencies: []
+    updated_at: '2026-02-24T15:05:13'
+    last_test_ok: true
+  merge_runs:
+    id: merge_runs
+    skill_id: merge_runs
+    name: merge_runs
+    skill_name: merge_runs
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\xlsx\scripts\office\helpers\merge_runs.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - merge_runs
+    dependencies: []
+    updated_at: '2026-02-24T15:05:14'
+    last_test_ok: true
+  simplify_redlines:
+    id: simplify_redlines
+    skill_id: simplify_redlines
+    name: simplify_redlines
+    skill_name: simplify_redlines
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\xlsx\scripts\office\helpers\simplify_redlines.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - simplify_redlines
+    dependencies: []
+    updated_at: '2026-02-24T15:05:14'
+    last_test_ok: true
+  evaluator:
+    id: evaluator
+    skill_id: evaluator
+    name: evaluator
+    skill_name: evaluator
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\evaluation\scripts\evaluator.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - evaluator
+    dependencies: []
+    updated_at: '2026-02-24T15:05:05'
+    last_test_ok: true
+  filesystem_context:
+    id: filesystem_context
+    skill_id: filesystem_context
+    name: filesystem_context
+    skill_name: filesystem_context
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\filesystem-context\scripts\filesystem_context.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - filesystem_context
+    dependencies: []
+    updated_at: '2026-02-24T15:05:05'
+    last_test_ok: true
+  sandbox_manager:
+    id: sandbox_manager
+    skill_id: sandbox_manager
+    name: sandbox_manager
+    skill_name: sandbox_manager
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\hosted-agents\scripts\sandbox_manager.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - sandbox_manager
+    dependencies: []
+    updated_at: '2026-02-24T15:05:05'
+    last_test_ok: true
+  connections:
+    id: connections
+    skill_id: connections
+    name: connections
+    skill_name: connections
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\mcp-builder\scripts\connections.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - connections
+    dependencies: []
+    updated_at: '2026-02-24T15:05:05'
+    last_test_ok: true
+  evaluation:
+    id: evaluation
+    skill_id: evaluation
+    name: evaluation
+    skill_name: evaluation
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\mcp-builder\scripts\evaluation.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - evaluation
+    dependencies: []
+    updated_at: '2026-02-24T15:05:05'
+    last_test_ok: true
+  memory_store:
+    id: memory_store
+    skill_id: memory_store
+    name: memory_store
+    skill_name: memory_store
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\memory-systems\scripts\memory_store.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - memory_store
+    dependencies: []
+    updated_at: '2026-02-24T15:05:05'
+    last_test_ok: true
+  coordination:
+    id: coordination
+    skill_id: coordination
+    name: coordination
+    skill_name: coordination
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\multi-agent-patterns\scripts\coordination.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - coordination
+    dependencies: []
+    updated_at: '2026-02-24T15:05:05'
+    last_test_ok: true
+  ask_question:
+    id: ask_question
+    skill_id: ask_question
+    name: ask_question
+    skill_name: ask_question
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\notebooklm\scripts\ask_question.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - ask_question
+    dependencies: []
+    updated_at: '2026-02-24T15:05:06'
+    last_test_ok: true
+  auth_manager:
+    id: auth_manager
+    skill_id: auth_manager
+    name: auth_manager
+    skill_name: auth_manager
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\notebooklm\scripts\auth_manager.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - auth_manager
+    dependencies: []
+    updated_at: '2026-02-24T15:05:06'
+    last_test_ok: true
+  browser_session:
+    id: browser_session
+    skill_id: browser_session
+    name: browser_session
+    skill_name: browser_session
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\notebooklm\scripts\browser_session.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - browser_session
+    dependencies: []
+    updated_at: '2026-02-24T15:05:06'
+    last_test_ok: true
+  browser_utils:
+    id: browser_utils
+    skill_id: browser_utils
+    name: browser_utils
+    skill_name: browser_utils
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\notebooklm\scripts\browser_utils.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - browser_utils
+    dependencies: []
+    updated_at: '2026-02-24T15:05:06'
+    last_test_ok: true
+  cleanup_manager:
+    id: cleanup_manager
+    skill_id: cleanup_manager
+    name: cleanup_manager
+    skill_name: cleanup_manager
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\notebooklm\scripts\cleanup_manager.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - cleanup_manager
+    dependencies: []
+    updated_at: '2026-02-24T15:05:06'
+    last_test_ok: true
+  config:
+    id: config
+    skill_id: config
+    name: config
+    skill_name: config
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\notebooklm\scripts\config.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - config
+    dependencies: []
+    updated_at: '2026-02-24T15:05:06'
+    last_test_ok: true
+  notebook_manager:
+    id: notebook_manager
+    skill_id: notebook_manager
+    name: notebook_manager
+    skill_name: notebook_manager
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\notebooklm\scripts\notebook_manager.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - notebook_manager
+    dependencies: []
+    updated_at: '2026-02-24T15:05:06'
+    last_test_ok: true
+  run:
+    id: run
+    skill_id: run
+    name: run
+    skill_name: run
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\notebooklm\scripts\run.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - run
+    dependencies: []
+    updated_at: '2026-02-24T15:05:06'
+    last_test_ok: true
+  setup_environment:
+    id: setup_environment
+    skill_id: setup_environment
+    name: setup_environment
+    skill_name: setup_environment
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\notebooklm\scripts\setup_environment.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - setup_environment
+    dependencies: []
+    updated_at: '2026-02-24T15:05:06'
+    last_test_ok: true
+  check_bounding_boxes:
+    id: check_bounding_boxes
+    skill_id: check_bounding_boxes
+    name: check_bounding_boxes
+    skill_name: check_bounding_boxes
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\pdf\scripts\check_bounding_boxes.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - check_bounding_boxes
+    dependencies: []
+    updated_at: '2026-02-24T15:05:07'
+    last_test_ok: true
+  check_bounding_boxes_test:
+    id: check_bounding_boxes_test
+    skill_id: check_bounding_boxes_test
+    name: check_bounding_boxes_test
+    skill_name: check_bounding_boxes_test
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\pdf\scripts\check_bounding_boxes_test.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - check_bounding_boxes_test
+    dependencies: []
+    updated_at: '2026-02-24T15:05:07'
+    last_test_ok: true
+  check_fillable_fields:
+    id: check_fillable_fields
+    skill_id: check_fillable_fields
+    name: check_fillable_fields
+    skill_name: check_fillable_fields
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\pdf\scripts\check_fillable_fields.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - check_fillable_fields
+    dependencies: []
+    updated_at: '2026-02-24T15:05:07'
+    last_test_ok: true
+  convert_pdf_to_images:
+    id: convert_pdf_to_images
+    skill_id: convert_pdf_to_images
+    name: convert_pdf_to_images
+    skill_name: convert_pdf_to_images
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\pdf\scripts\convert_pdf_to_images.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - convert_pdf_to_images
+    dependencies: []
+    updated_at: '2026-02-24T15:05:07'
+    last_test_ok: true
+  create_validation_image:
+    id: create_validation_image
+    skill_id: create_validation_image
+    name: create_validation_image
+    skill_name: create_validation_image
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\pdf\scripts\create_validation_image.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - create_validation_image
+    dependencies: []
+    updated_at: '2026-02-24T15:05:07'
+    last_test_ok: true
+  extract_form_field_info:
+    id: extract_form_field_info
+    skill_id: extract_form_field_info
+    name: extract_form_field_info
+    skill_name: extract_form_field_info
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\pdf\scripts\extract_form_field_info.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - extract_form_field_info
+    dependencies: []
+    updated_at: '2026-02-24T15:05:07'
+    last_test_ok: true
+  extract_form_structure:
+    id: extract_form_structure
+    skill_id: extract_form_structure
+    name: extract_form_structure
+    skill_name: extract_form_structure
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\pdf\scripts\extract_form_structure.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - extract_form_structure
+    dependencies: []
+    updated_at: '2026-02-24T15:05:07'
+    last_test_ok: true
+  fill_fillable_fields:
+    id: fill_fillable_fields
+    skill_id: fill_fillable_fields
+    name: fill_fillable_fields
+    skill_name: fill_fillable_fields
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\pdf\scripts\fill_fillable_fields.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - fill_fillable_fields
+    dependencies: []
+    updated_at: '2026-02-24T15:05:07'
+    last_test_ok: true
+  fill_pdf_form_with_annotations:
+    id: fill_pdf_form_with_annotations
+    skill_id: fill_pdf_form_with_annotations
+    name: fill_pdf_form_with_annotations
+    skill_name: fill_pdf_form_with_annotations
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\pdf\scripts\fill_pdf_form_with_annotations.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - fill_pdf_form_with_annotations
+    dependencies: []
+    updated_at: '2026-02-24T15:05:08'
+    last_test_ok: true
+  session_catchup:
+    id: session_catchup
+    skill_id: session_catchup
+    name: session_catchup
+    skill_name: session-catchup
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\planning-with-files\scripts\session-catchup.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - session_catchup
+    dependencies: []
+    updated_at: '2026-02-24T15:05:08'
+    last_test_ok: true
+  add_slide:
+    id: add_slide
+    skill_id: add_slide
+    name: add_slide
+    skill_name: add_slide
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\pptx\scripts\add_slide.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - add_slide
+    dependencies: []
+    updated_at: '2026-02-24T15:05:09'
+    last_test_ok: true
+  clean:
+    id: clean
+    skill_id: clean
+    name: clean
+    skill_name: clean
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\pptx\scripts\clean.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - clean
+    dependencies: []
+    updated_at: '2026-02-24T15:05:09'
+    last_test_ok: true
+  inventory:
+    id: inventory
+    skill_id: inventory
+    name: inventory
+    skill_name: inventory
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\pptx\scripts\inventory.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - inventory
+    dependencies: []
+    updated_at: '2026-02-24T15:05:09'
+    last_test_ok: true
+  rearrange:
+    id: rearrange
+    skill_id: rearrange
+    name: rearrange
+    skill_name: rearrange
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\pptx\scripts\rearrange.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - rearrange
+    dependencies: []
+    updated_at: '2026-02-24T15:05:09'
+    last_test_ok: true
+  replace:
+    id: replace
+    skill_id: replace
+    name: replace
+    skill_name: replace
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\pptx\scripts\replace.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - replace
+    dependencies: []
+    updated_at: '2026-02-24T15:05:09'
+    last_test_ok: true
+  thumbnail:
+    id: thumbnail
+    skill_id: thumbnail
+    name: thumbnail
+    skill_name: thumbnail
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\pptx\scripts\thumbnail.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - thumbnail
+    dependencies: []
+    updated_at: '2026-02-24T15:05:09'
+    last_test_ok: true
+  pipeline_template:
+    id: pipeline_template
+    skill_id: pipeline_template
+    name: pipeline_template
+    skill_name: pipeline_template
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\project-development\scripts\pipeline_template.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - pipeline_template
+    dependencies: []
+    updated_at: '2026-02-24T15:05:11'
+    last_test_ok: true
+  init_skill:
+    id: init_skill
+    skill_id: init_skill
+    name: init_skill
+    skill_name: init_skill
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\skill-creator\scripts\init_skill.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - init_skill
+    dependencies: []
+    updated_at: '2026-02-24T15:05:11'
+    last_test_ok: true
+  package_skill:
+    id: package_skill
+    skill_id: package_skill
+    name: package_skill
+    skill_name: package_skill
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\skill-creator\scripts\package_skill.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - package_skill
+    dependencies: []
+    updated_at: '2026-02-24T15:05:11'
+    last_test_ok: true
+  quick_validate:
+    id: quick_validate
+    skill_id: quick_validate
+    name: quick_validate
+    skill_name: quick_validate
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\skill-creator\scripts\quick_validate.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - quick_validate
+    dependencies: []
+    updated_at: '2026-02-24T15:05:12'
+    last_test_ok: true
+  easing:
+    id: easing
+    skill_id: easing
+    name: easing
+    skill_name: easing
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\slack-gif-creator\core\easing.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - easing
+    dependencies: []
+    updated_at: '2026-02-24T15:05:12'
+    last_test_ok: true
+  frame_composer:
+    id: frame_composer
+    skill_id: frame_composer
+    name: frame_composer
+    skill_name: frame_composer
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\slack-gif-creator\core\frame_composer.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - frame_composer
+    dependencies: []
+    updated_at: '2026-02-24T15:05:12'
+    last_test_ok: true
+  gif_builder:
+    id: gif_builder
+    skill_id: gif_builder
+    name: gif_builder
+    skill_name: gif_builder
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\slack-gif-creator\core\gif_builder.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - gif_builder
+    dependencies: []
+    updated_at: '2026-02-24T15:05:12'
+    last_test_ok: true
+  validators:
+    id: validators
+    skill_id: validators
+    name: validators
+    skill_name: validators
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\slack-gif-creator\core\validators.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - validators
+    dependencies: []
+    updated_at: '2026-02-24T15:05:12'
+    last_test_ok: true
+  description_generator:
+    id: description_generator
+    skill_id: description_generator
+    name: description_generator
+    skill_name: description_generator
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\tool-design\scripts\description_generator.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - description_generator
+    dependencies: []
+    updated_at: '2026-02-24T15:05:12'
+    last_test_ok: true
+  core:
+    id: core
+    skill_id: core
+    name: core
+    skill_name: core
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\ui-ux-pro-max\scripts\core.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - core
+    dependencies: []
+    updated_at: '2026-02-24T15:05:12'
+    last_test_ok: true
+  search:
+    id: search
+    skill_id: search
+    name: search
+    skill_name: search
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\ui-ux-pro-max\scripts\search.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - search
+    dependencies: []
+    updated_at: '2026-02-24T15:05:13'
+    last_test_ok: true
+  with_server:
+    id: with_server
+    skill_id: with_server
+    name: with_server
+    skill_name: with_server
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\webapp-testing\scripts\with_server.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - with_server
+    dependencies: []
+    updated_at: '2026-02-24T15:05:13'
+    last_test_ok: true
+  recalc:
+    id: recalc
+    skill_id: recalc
+    name: recalc
+    skill_name: recalc
+    purpose: Legacy auto-registered skill.
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\xlsx\scripts\recalc.py
+    meta_path: ''
+    version: 1.0.0
+    status: active
+    capabilities:
+    - recalc
+    dependencies: []
+    updated_at: '2026-02-24T15:05:13'
+    last_test_ok: true
+install_candidates: {}
