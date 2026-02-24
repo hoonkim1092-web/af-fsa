@@ -1,5 +1,5 @@
 # Agent Skill Registry Dashboard
-**Last Updated:** 2026-02-24 15:05:18
+**Last Updated:** 2026-02-24 15:07:50
 
 ## Registered Skills Overview
 
@@ -39,7 +39,7 @@
 | **convert_pdf_to_images** | Legacy auto-registered skill. | `None` | `convert_pdf_to_images` |
 | **coordination** | Legacy auto-registered skill. | `None` | `coordination` |
 | **core** | Legacy auto-registered skill. | `None` | `core` |
-| **core_module** | Skill intended for System Admin (Uses run_command tool) to handle core_module | `None` | `core_module` |
+| **core_module** | Skill intended for System Admin to handle core_module | `None` | `core_module` |
 | **create_validation_image** | Legacy auto-registered skill. | `None` | `create_validation_image` |
 | **css_styling** | N/A | `None` | `css_styling` |
 | **database_performance_tuning** | Legacy auto-registered skill. | `None` | `database_performance_tuning` |

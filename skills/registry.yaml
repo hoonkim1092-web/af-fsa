@@ -361,7 +361,7 @@ skills:
     skill_id: core_module
     name: core_module
     skill_name: core_module
-    purpose: Skill intended for System Admin (Uses run_command tool) to handle core_module
+    purpose: Skill intended for System Admin to handle core_module
     path: D:\hoonProJect\agent-factory\skills\forge\core_module.py
     meta_path: ''
     version: 1.0.0
@@ -369,7 +369,7 @@ skills:
     capabilities:
     - core_module
     dependencies: []
-    updated_at: '2026-02-24T15:05:18'
+    updated_at: '2026-02-24T15:07:50'
     last_test_ok: true
   database_performance_tuning:
     id: database_performance_tuning
@@ -587,14 +587,14 @@ skills:
     name: pack
     skill_name: pack
     purpose: Legacy auto-registered skill.
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\xlsx\scripts\office\pack.py
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\pptx\scripts\office\pack.py
     meta_path: ''
     version: 1.0.0
     status: active
     capabilities:
     - pack
     dependencies: []
-    updated_at: '2026-02-24T15:05:13'
+    updated_at: '2026-02-24T15:07:44'
     last_test_ok: true
   unpack:
     id: unpack
@@ -602,14 +602,14 @@ skills:
     name: unpack
     skill_name: unpack
     purpose: Legacy auto-registered skill.
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\xlsx\scripts\office\unpack.py
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\pptx\scripts\office\unpack.py
     meta_path: ''
     version: 1.0.0
     status: active
     capabilities:
     - unpack
     dependencies: []
-    updated_at: '2026-02-24T15:05:13'
+    updated_at: '2026-02-24T15:07:44'
     last_test_ok: true
   validate:
     id: validate
@@ -617,14 +617,14 @@ skills:
     name: validate
     skill_name: validate
     purpose: Legacy auto-registered skill.
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\xlsx\scripts\office\validate.py
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\pptx\scripts\office\validate.py
     meta_path: ''
     version: 1.0.0
     status: active
     capabilities:
     - validate
     dependencies: []
-    updated_at: '2026-02-24T15:05:14'
+    updated_at: '2026-02-24T15:07:44'
     last_test_ok: true
   base:
     id: base
@@ -632,14 +632,14 @@ skills:
     name: base
     skill_name: base
     purpose: Legacy auto-registered skill.
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\xlsx\scripts\office\validators\base.py
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\pptx\scripts\office\validators\base.py
     meta_path: ''
     version: 1.0.0
     status: active
     capabilities:
     - base
     dependencies: []
-    updated_at: '2026-02-24T15:05:14'
+    updated_at: '2026-02-24T15:07:45'
     last_test_ok: true
   docx:
     id: docx
@@ -647,14 +647,14 @@ skills:
     name: docx
     skill_name: docx
     purpose: Legacy auto-registered skill.
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\xlsx\scripts\office\validators\docx.py
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\pptx\scripts\office\validators\docx.py
     meta_path: ''
     version: 1.0.0
     status: active
     capabilities:
     - docx
     dependencies: []
-    updated_at: '2026-02-24T15:05:14'
+    updated_at: '2026-02-24T15:07:45'
     last_test_ok: true
   pptx:
     id: pptx
@@ -662,14 +662,14 @@ skills:
     name: pptx
     skill_name: pptx
     purpose: Legacy auto-registered skill.
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\xlsx\scripts\office\validators\pptx.py
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\pptx\scripts\office\validators\pptx.py
     meta_path: ''
     version: 1.0.0
     status: active
     capabilities:
     - pptx
     dependencies: []
-    updated_at: '2026-02-24T15:05:14'
+    updated_at: '2026-02-24T15:07:45'
     last_test_ok: true
   redlining:
     id: redlining
@@ -677,14 +677,14 @@ skills:
     name: redlining
     skill_name: redlining
     purpose: Legacy auto-registered skill.
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\xlsx\scripts\office\validators\redlining.py
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\pptx\scripts\office\validators\redlining.py
     meta_path: ''
     version: 1.0.0
     status: active
     capabilities:
     - redlining
     dependencies: []
-    updated_at: '2026-02-24T15:05:15'
+    updated_at: '2026-02-24T15:07:45'
     last_test_ok: true
   init:
     id: init
@@ -692,14 +692,14 @@ skills:
     name: init
     skill_name: __init__
     purpose: Legacy auto-registered skill.
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\xlsx\scripts\office\validators\__init__.py
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\xlsx\scripts\office\helpers\__init__.py
     meta_path: ''
     version: 1.0.0
     status: active
     capabilities:
     - init
     dependencies: []
-    updated_at: '2026-02-24T15:05:15'
+    updated_at: '2026-02-24T15:07:46'
     last_test_ok: true
   accept_changes:
     id: accept_changes
@@ -767,14 +767,14 @@ skills:
     name: soffice
     skill_name: soffice
     purpose: Legacy auto-registered skill.
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\xlsx\scripts\office\soffice.py
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\pptx\scripts\office\soffice.py
     meta_path: ''
     version: 1.0.0
     status: active
     capabilities:
     - soffice
     dependencies: []
-    updated_at: '2026-02-24T15:05:13'
+    updated_at: '2026-02-24T15:07:44'
     last_test_ok: true
   merge_runs:
     id: merge_runs
@@ -782,14 +782,14 @@ skills:
     name: merge_runs
     skill_name: merge_runs
     purpose: Legacy auto-registered skill.
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\xlsx\scripts\office\helpers\merge_runs.py
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\pptx\scripts\office\helpers\merge_runs.py
     meta_path: ''
     version: 1.0.0
     status: active
     capabilities:
     - merge_runs
     dependencies: []
-    updated_at: '2026-02-24T15:05:14'
+    updated_at: '2026-02-24T15:07:45'
     last_test_ok: true
   simplify_redlines:
     id: simplify_redlines
@@ -797,14 +797,14 @@ skills:
     name: simplify_redlines
     skill_name: simplify_redlines
     purpose: Legacy auto-registered skill.
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\xlsx\scripts\office\helpers\simplify_redlines.py
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\pptx\scripts\office\helpers\simplify_redlines.py
     meta_path: ''
     version: 1.0.0
     status: active
     capabilities:
     - simplify_redlines
     dependencies: []
-    updated_at: '2026-02-24T15:05:14'
+    updated_at: '2026-02-24T15:07:45'
     last_test_ok: true
   evaluator:
     id: evaluator
@@ -1472,13 +1472,13 @@ skills:
     name: recalc
     skill_name: recalc
     purpose: Legacy auto-registered skill.
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\xlsx\scripts\recalc.py
+    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\xlsx\recalc.py
     meta_path: ''
     version: 1.0.0
     status: active
     capabilities:
     - recalc
     dependencies: []
-    updated_at: '2026-02-24T15:05:13'
+    updated_at: '2026-02-24T15:07:46'
     last_test_ok: true
 install_candidates: {}
