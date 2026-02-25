@@ -22,7 +22,7 @@ def main():
     parser.add_argument("--project", "-p", type=str, required=True, help="프로젝트 ID (필수)")
     parser.add_argument("--role", "-r", type=str, help="에이전트 역할 (예: 'Saiba Midori', 'Backend Dev')")
     parser.add_argument("--task", "-t", type=str, help="에이전트에게 요청할 작업 내용")
-    parser.add_argument("--model", "-m", type=str, default="gemini-2.0-flash", help="사용할 AI 모델")
+    parser.add_argument("--model", "-m", type=str, default=None, help="사용할 AI 모델")
     parser.add_argument("--workflow", "-w", type=str, help="워크플로우 YAML 경로")
     parser.add_argument("--agents", "-a", type=str, help="워크플로우 실행 에이전트 목록(쉼표 구분)")
 

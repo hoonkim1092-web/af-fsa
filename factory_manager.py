@@ -160,7 +160,10 @@ def load_agent_config(agent_name):
         return None
 
 
-def research_required_skills(role, selected_model_name="gemini-3.0-flash", skip_research=False):
+def research_required_skills(role, selected_model_name=None, skip_research=False):
+    if selected_model_name is None:
+        selected_model_name = resolve_dynamic_model("research_pro")
+    
     llm = LLMEngine(model_name=selected_model_name)
     
     himari_config = load_agent_config("himari")
@@ -274,7 +277,10 @@ def procure_skill(skill_name, role):
 
     return forge_new_skill(skill_name, role)
 
-def forge_new_skill(skill_name, role, coding_engine="gemini-3.0-flash"):
+def forge_new_skill(skill_name, role, coding_engine=None):
+    if coding_engine is None:
+        coding_engine = resolve_dynamic_model("codex")
+        
     log("FORGE", f"🔨 Forging new skill: '{skill_name}' (Engine: {coding_engine})")
     os.makedirs(FORGE_DIR, exist_ok=True)
     output_path = os.path.join(FORGE_DIR, f"{skill_name}.py")
@@ -296,7 +302,9 @@ def forge_new_skill(skill_name, role, coding_engine="gemini-3.0-flash"):
         log("FORGE", f"❌ Forge failed: {e}")
         return None
 
-def assemble_and_push(agent_name, role, skill_paths, selected_model="gemini-3.0-flash", enforce_todo=False):
+def assemble_and_push(agent_name, role, skill_paths, selected_model=None, enforce_todo=False):
+    if selected_model is None:
+        selected_model = resolve_dynamic_model("codex")
     target_dir = os.path.join(AGENTS_DIR, agent_name)
     tools_dir = os.path.join(target_dir, "tools")
     os.makedirs(tools_dir, exist_ok=True)
@@ -360,7 +368,7 @@ if __name__ == "__main__":
     agent_id = role.replace(" ", "-").lower() + "-agent"
     log("SYSTEM", f"Starting factory process for '{agent_id}'")
         
-    required_skills, _ = research_required_skills(role, selected_model_name="gemini-3.0-flash")
+    required_skills, _ = research_required_skills(role)
     
     # [STEP 3] Smart Dynamic Routing (Auto-Harness)
     assigned_engine = resolve_agent_engine(required_skills)

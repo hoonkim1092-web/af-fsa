@@ -19,7 +19,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: accept_changes
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\docx\scripts\accept_changes.py
+    path: skills/warehouse/skills/docx/scripts/accept_changes.py
     purpose: Legacy auto-registered skill.
     skill_id: accept_changes
     skill_name: accept_changes
@@ -34,7 +34,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: add_slide
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\pptx\scripts\add_slide.py
+    path: skills/warehouse/skills/pptx/scripts/add_slide.py
     purpose: Legacy auto-registered skill.
     skill_id: add_slide
     skill_name: add_slide
@@ -79,7 +79,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: ask_question
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\notebooklm\scripts\ask_question.py
+    path: skills/warehouse/skills/notebooklm/scripts/ask_question.py
     purpose: Legacy auto-registered skill.
     skill_id: ask_question
     skill_name: ask_question
@@ -94,7 +94,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: auth_manager
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\notebooklm\scripts\auth_manager.py
+    path: skills/warehouse/skills/notebooklm/scripts/auth_manager.py
     purpose: Legacy auto-registered skill.
     skill_id: auth_manager
     skill_name: auth_manager
@@ -109,7 +109,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: base
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\xlsx\scripts\office\validators\base.py
+    path: skills/warehouse/skills/xlsx/scripts/office/validators/base.py
     purpose: Legacy auto-registered skill.
     skill_id: base
     skill_name: base
@@ -124,7 +124,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: browser_session
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\notebooklm\scripts\browser_session.py
+    path: skills/warehouse/skills/notebooklm/scripts/browser_session.py
     purpose: Legacy auto-registered skill.
     skill_id: browser_session
     skill_name: browser_session
@@ -139,7 +139,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: browser_utils
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\notebooklm\scripts\browser_utils.py
+    path: skills/warehouse/skills/notebooklm/scripts/browser_utils.py
     purpose: Legacy auto-registered skill.
     skill_id: browser_utils
     skill_name: browser_utils
@@ -154,7 +154,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: check_bounding_boxes
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\pdf\scripts\check_bounding_boxes.py
+    path: skills/warehouse/skills/pdf/scripts/check_bounding_boxes.py
     purpose: Legacy auto-registered skill.
     skill_id: check_bounding_boxes
     skill_name: check_bounding_boxes
@@ -169,7 +169,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: check_bounding_boxes_test
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\pdf\scripts\check_bounding_boxes_test.py
+    path: skills/warehouse/skills/pdf/scripts/check_bounding_boxes_test.py
     purpose: Legacy auto-registered skill.
     skill_id: check_bounding_boxes_test
     skill_name: check_bounding_boxes_test
@@ -184,7 +184,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: check_fillable_fields
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\pdf\scripts\check_fillable_fields.py
+    path: skills/warehouse/skills/pdf/scripts/check_fillable_fields.py
     purpose: Legacy auto-registered skill.
     skill_id: check_fillable_fields
     skill_name: check_fillable_fields
@@ -199,7 +199,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: clean
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\pptx\scripts\clean.py
+    path: skills/warehouse/skills/pptx/scripts/clean.py
     purpose: Legacy auto-registered skill.
     skill_id: clean
     skill_name: clean
@@ -214,7 +214,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: cleanup_manager
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\notebooklm\scripts\cleanup_manager.py
+    path: skills/warehouse/skills/notebooklm/scripts/cleanup_manager.py
     purpose: Legacy auto-registered skill.
     skill_id: cleanup_manager
     skill_name: cleanup_manager
@@ -229,7 +229,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: comment
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\docx\scripts\comment.py
+    path: skills/warehouse/skills/docx/scripts/comment.py
     purpose: Legacy auto-registered skill.
     skill_id: comment
     skill_name: comment
@@ -244,7 +244,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: compaction
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\context-optimization\scripts\compaction.py
+    path: skills/warehouse/skills/context-optimization/scripts/compaction.py
     purpose: Legacy auto-registered skill.
     skill_id: compaction
     skill_name: compaction
@@ -259,7 +259,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: compression_evaluator
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\context-compression\scripts\compression_evaluator.py
+    path: skills/warehouse/skills/context-compression/scripts/compression_evaluator.py
     purpose: Legacy auto-registered skill.
     skill_id: compression_evaluator
     skill_name: compression_evaluator
@@ -274,7 +274,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: config
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\notebooklm\scripts\config.py
+    path: skills/warehouse/skills/notebooklm/scripts/config.py
     purpose: Legacy auto-registered skill.
     skill_id: config
     skill_name: config
@@ -289,7 +289,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: connections
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\mcp-builder\scripts\connections.py
+    path: skills/warehouse/skills/mcp-builder/scripts/connections.py
     purpose: Legacy auto-registered skill.
     skill_id: connections
     skill_name: connections
@@ -304,7 +304,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: context_manager
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\context-fundamentals\scripts\context_manager.py
+    path: skills/warehouse/skills/context-fundamentals/scripts/context_manager.py
     purpose: Legacy auto-registered skill.
     skill_id: context_manager
     skill_name: context_manager
@@ -319,7 +319,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: convert_pdf_to_images
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\pdf\scripts\convert_pdf_to_images.py
+    path: skills/warehouse/skills/pdf/scripts/convert_pdf_to_images.py
     purpose: Legacy auto-registered skill.
     skill_id: convert_pdf_to_images
     skill_name: convert_pdf_to_images
@@ -334,7 +334,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: coordination
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\multi-agent-patterns\scripts\coordination.py
+    path: skills/warehouse/skills/multi-agent-patterns/scripts/coordination.py
     purpose: Legacy auto-registered skill.
     skill_id: coordination
     skill_name: coordination
@@ -349,7 +349,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: core
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\ui-ux-pro-max\scripts\core.py
+    path: skills/warehouse/skills/ui-ux-pro-max/scripts/core.py
     purpose: Legacy auto-registered skill.
     skill_id: core
     skill_name: core
@@ -413,7 +413,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: create_validation_image
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\pdf\scripts\create_validation_image.py
+    path: skills/warehouse/skills/pdf/scripts/create_validation_image.py
     purpose: Legacy auto-registered skill.
     skill_id: create_validation_image
     skill_name: create_validation_image
@@ -488,7 +488,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: degradation_detector
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\context-degradation\scripts\degradation_detector.py
+    path: skills/warehouse/skills/context-degradation/scripts/degradation_detector.py
     purpose: Legacy auto-registered skill.
     skill_id: degradation_detector
     skill_name: degradation_detector
@@ -503,7 +503,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: description_generator
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\tool-design\scripts\description_generator.py
+    path: skills/warehouse/skills/tool-design/scripts/description_generator.py
     purpose: Legacy auto-registered skill.
     skill_id: description_generator
     skill_name: description_generator
@@ -518,7 +518,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: document
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\docx\scripts\document.py
+    path: skills/warehouse/skills/docx/scripts/document.py
     purpose: Legacy auto-registered skill.
     skill_id: document
     skill_name: document
@@ -533,7 +533,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: docx
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\xlsx\scripts\office\validators\docx.py
+    path: skills/warehouse/skills/xlsx/scripts/office/validators/docx.py
     purpose: Legacy auto-registered skill.
     skill_id: docx
     skill_name: docx
@@ -548,7 +548,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: easing
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\slack-gif-creator\core\easing.py
+    path: skills/warehouse/skills/slack-gif-creator/core/easing.py
     purpose: Legacy auto-registered skill.
     skill_id: easing
     skill_name: easing
@@ -578,7 +578,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: evaluation
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\mcp-builder\scripts\evaluation.py
+    path: skills/warehouse/skills/mcp-builder/scripts/evaluation.py
     purpose: Legacy auto-registered skill.
     skill_id: evaluation
     skill_name: evaluation
@@ -593,7 +593,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: evaluation_example
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\advanced-evaluation\scripts\evaluation_example.py
+    path: skills/warehouse/skills/advanced-evaluation/scripts/evaluation_example.py
     purpose: Legacy auto-registered skill.
     skill_id: evaluation_example
     skill_name: evaluation_example
@@ -608,7 +608,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: evaluator
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\evaluation\scripts\evaluator.py
+    path: skills/warehouse/skills/evaluation/scripts/evaluator.py
     purpose: Legacy auto-registered skill.
     skill_id: evaluator
     skill_name: evaluator
@@ -623,7 +623,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: extract_form_field_info
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\pdf\scripts\extract_form_field_info.py
+    path: skills/warehouse/skills/pdf/scripts/extract_form_field_info.py
     purpose: Legacy auto-registered skill.
     skill_id: extract_form_field_info
     skill_name: extract_form_field_info
@@ -638,7 +638,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: extract_form_structure
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\pdf\scripts\extract_form_structure.py
+    path: skills/warehouse/skills/pdf/scripts/extract_form_structure.py
     purpose: Legacy auto-registered skill.
     skill_id: extract_form_structure
     skill_name: extract_form_structure
@@ -653,7 +653,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: filesystem_context
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\filesystem-context\scripts\filesystem_context.py
+    path: skills/warehouse/skills/filesystem-context/scripts/filesystem_context.py
     purpose: Legacy auto-registered skill.
     skill_id: filesystem_context
     skill_name: filesystem_context
@@ -668,7 +668,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: fill_fillable_fields
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\pdf\scripts\fill_fillable_fields.py
+    path: skills/warehouse/skills/pdf/scripts/fill_fillable_fields.py
     purpose: Legacy auto-registered skill.
     skill_id: fill_fillable_fields
     skill_name: fill_fillable_fields
@@ -683,7 +683,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: fill_pdf_form_with_annotations
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\pdf\scripts\fill_pdf_form_with_annotations.py
+    path: skills/warehouse/skills/pdf/scripts/fill_pdf_form_with_annotations.py
     purpose: Legacy auto-registered skill.
     skill_id: fill_pdf_form_with_annotations
     skill_name: fill_pdf_form_with_annotations
@@ -698,7 +698,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: frame_composer
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\slack-gif-creator\core\frame_composer.py
+    path: skills/warehouse/skills/slack-gif-creator/core/frame_composer.py
     purpose: Legacy auto-registered skill.
     skill_id: frame_composer
     skill_name: frame_composer
@@ -744,7 +744,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: gif_builder
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\slack-gif-creator\core\gif_builder.py
+    path: skills/warehouse/skills/slack-gif-creator/core/gif_builder.py
     purpose: Legacy auto-registered skill.
     skill_id: gif_builder
     skill_name: gif_builder
@@ -774,7 +774,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: init
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\xlsx\scripts\office\validators\__init__.py
+    path: skills/warehouse/skills/xlsx/scripts/office/validators/__init__.py
     purpose: Legacy auto-registered skill.
     skill_id: init
     skill_name: __init__
@@ -789,7 +789,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: init_skill
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\skill-creator\scripts\init_skill.py
+    path: skills/warehouse/skills/skill-creator/scripts/init_skill.py
     purpose: Legacy auto-registered skill.
     skill_id: init_skill
     skill_name: init_skill
@@ -804,7 +804,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: inventory
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\pptx\scripts\inventory.py
+    path: skills/warehouse/skills/pptx/scripts/inventory.py
     purpose: Legacy auto-registered skill.
     skill_id: inventory
     skill_name: inventory
@@ -850,7 +850,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: memory_store
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\memory-systems\scripts\memory_store.py
+    path: skills/warehouse/skills/memory-systems/scripts/memory_store.py
     purpose: Legacy auto-registered skill.
     skill_id: memory_store
     skill_name: memory_store
@@ -865,7 +865,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: merge_runs
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\xlsx\scripts\office\helpers\merge_runs.py
+    path: skills/warehouse/skills/xlsx/scripts/office/helpers/merge_runs.py
     purpose: Legacy auto-registered skill.
     skill_id: merge_runs
     skill_name: merge_runs
@@ -895,7 +895,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: notebook_manager
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\notebooklm\scripts\notebook_manager.py
+    path: skills/warehouse/skills/notebooklm/scripts/notebook_manager.py
     purpose: Legacy auto-registered skill.
     skill_id: notebook_manager
     skill_name: notebook_manager
@@ -925,7 +925,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: pack
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\xlsx\scripts\office\pack.py
+    path: skills/warehouse/skills/xlsx/scripts/office/pack.py
     purpose: Legacy auto-registered skill.
     skill_id: pack
     skill_name: pack
@@ -940,7 +940,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: package_skill
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\skill-creator\scripts\package_skill.py
+    path: skills/warehouse/skills/skill-creator/scripts/package_skill.py
     purpose: Legacy auto-registered skill.
     skill_id: package_skill
     skill_name: package_skill
@@ -987,7 +987,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: pipeline_template
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\project-development\scripts\pipeline_template.py
+    path: skills/warehouse/skills/project-development/scripts/pipeline_template.py
     purpose: Legacy auto-registered skill.
     skill_id: pipeline_template
     skill_name: pipeline_template
@@ -1002,7 +1002,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: pptx
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\xlsx\scripts\office\validators\pptx.py
+    path: skills/warehouse/skills/xlsx/scripts/office/validators/pptx.py
     purpose: Legacy auto-registered skill.
     skill_id: pptx
     skill_name: pptx
@@ -1032,7 +1032,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: quick_validate
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\skill-creator\scripts\quick_validate.py
+    path: skills/warehouse/skills/skill-creator/scripts/quick_validate.py
     purpose: Legacy auto-registered skill.
     skill_id: quick_validate
     skill_name: quick_validate
@@ -1062,7 +1062,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: rearrange
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\pptx\scripts\rearrange.py
+    path: skills/warehouse/skills/pptx/scripts/rearrange.py
     purpose: Legacy auto-registered skill.
     skill_id: rearrange
     skill_name: rearrange
@@ -1077,7 +1077,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: recalc
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\xlsx\scripts\recalc.py
+    path: skills/warehouse/skills/xlsx/scripts/recalc.py
     purpose: Legacy auto-registered skill.
     skill_id: recalc
     skill_name: recalc
@@ -1092,7 +1092,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: redlining
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\xlsx\scripts\office\validators\redlining.py
+    path: skills/warehouse/skills/xlsx/scripts/office/validators/redlining.py
     purpose: Legacy auto-registered skill.
     skill_id: redlining
     skill_name: redlining
@@ -1107,7 +1107,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: replace
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\pptx\scripts\replace.py
+    path: skills/warehouse/skills/pptx/scripts/replace.py
     purpose: Legacy auto-registered skill.
     skill_id: replace
     skill_name: replace
@@ -1152,7 +1152,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: run
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\notebooklm\scripts\run.py
+    path: skills/warehouse/skills/notebooklm/scripts/run.py
     purpose: Legacy auto-registered skill.
     skill_id: run
     skill_name: run
@@ -1167,7 +1167,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: sandbox_manager
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\hosted-agents\scripts\sandbox_manager.py
+    path: skills/warehouse/skills/hosted-agents/scripts/sandbox_manager.py
     purpose: Legacy auto-registered skill.
     skill_id: sandbox_manager
     skill_name: sandbox_manager
@@ -1197,7 +1197,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: search
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\ui-ux-pro-max\scripts\search.py
+    path: skills/warehouse/skills/ui-ux-pro-max/scripts/search.py
     purpose: Legacy auto-registered skill.
     skill_id: search
     skill_name: search
@@ -1242,7 +1242,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: session_catchup
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\planning-with-files\scripts\session-catchup.py
+    path: skills/warehouse/skills/planning-with-files/scripts/session-catchup.py
     purpose: Legacy auto-registered skill.
     skill_id: session_catchup
     skill_name: session-catchup
@@ -1257,7 +1257,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: setup_environment
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\notebooklm\scripts\setup_environment.py
+    path: skills/warehouse/skills/notebooklm/scripts/setup_environment.py
     purpose: Legacy auto-registered skill.
     skill_id: setup_environment
     skill_name: setup_environment
@@ -1272,7 +1272,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: simplify_redlines
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\xlsx\scripts\office\helpers\simplify_redlines.py
+    path: skills/warehouse/skills/xlsx/scripts/office/helpers/simplify_redlines.py
     purpose: Legacy auto-registered skill.
     skill_id: simplify_redlines
     skill_name: simplify_redlines
@@ -1287,7 +1287,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: soffice
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\xlsx\scripts\office\soffice.py
+    path: skills/warehouse/skills/xlsx/scripts/office/soffice.py
     purpose: Legacy auto-registered skill.
     skill_id: soffice
     skill_name: soffice
@@ -1334,7 +1334,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: thumbnail
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\pptx\scripts\thumbnail.py
+    path: skills/warehouse/skills/pptx/scripts/thumbnail.py
     purpose: Legacy auto-registered skill.
     skill_id: thumbnail
     skill_name: thumbnail
@@ -1364,7 +1364,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: unpack
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\xlsx\scripts\office\unpack.py
+    path: skills/warehouse/skills/xlsx/scripts/office/unpack.py
     purpose: Legacy auto-registered skill.
     skill_id: unpack
     skill_name: unpack
@@ -1396,7 +1396,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: utilities
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\docx\scripts\utilities.py
+    path: skills/warehouse/skills/docx/scripts/utilities.py
     purpose: Legacy auto-registered skill.
     skill_id: utilities
     skill_name: utilities
@@ -1411,7 +1411,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: validate
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\xlsx\scripts\office\validate.py
+    path: skills/warehouse/skills/xlsx/scripts/office/validate.py
     purpose: Legacy auto-registered skill.
     skill_id: validate
     skill_name: validate
@@ -1426,7 +1426,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: validators
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\slack-gif-creator\core\validators.py
+    path: skills/warehouse/skills/slack-gif-creator/core/validators.py
     purpose: Legacy auto-registered skill.
     skill_id: validators
     skill_name: validators
@@ -1441,7 +1441,7 @@ skills:
     last_test_ok: true
     meta_path: ''
     name: with_server
-    path: D:\hoonProJect\agent-factory\skills\warehouse\skills\webapp-testing\scripts\with_server.py
+    path: skills/warehouse/skills/webapp-testing/scripts/with_server.py
     purpose: Legacy auto-registered skill.
     skill_id: with_server
     skill_name: with_server

@@ -134,78 +134,75 @@ def get_best_model(priority_list=None):
         
     return "models/gemini-2.0-flash"
 
+def find_latest_model(tag: str, available_models: list) -> str:
+    """
+    관련 모델 태그(예: 'gemini-*-pro')를 기반으로 가용한 최신 버전을 동적으로 검색합니다.
+    """
+    import re
+    
+    # 태그를 정규식 패턴으로 변환 (e.g. gemini-*-pro -> gemini-[\d.]+ -pro)
+    pattern = tag.replace("-*", r"-[\d\.]+")
+    pattern = pattern.replace("*", r"[\d\.]+")
+    
+    matches = []
+    for m in available_models:
+        m_name = m.replace("models/", "")
+        if re.search(pattern, m_name):
+            # 버전 숫자 추출 (e.g. 3.1, 2.0)
+            ver_match = re.search(r"(\d+\.\d+|\d+)", m_name)
+            version = float(ver_match.group(1)) if ver_match else 0.0
+            # experimental/preview 모델은 후순위로 밀되, 버전이 높으면 우선
+            priority = 0
+            if "exp" in m_name: priority = -1
+            elif "preview" in m_name: priority = 1 # Preview는 최신 기능을 포함하므로 우선순위 부여 가능
+            
+            matches.append({
+                "name": m_name,
+                "version": version,
+                "priority": priority
+            })
+            
+    if not matches:
+        return tag.replace("*", "2.0") # Fallback
+        
+    # 버전 -> 우선순위 순으로 정렬
+    matches.sort(key=lambda x: (x["version"], x["priority"]), reverse=True)
+    return matches[0]["name"]
+
 def resolve_dynamic_model(engine_id: str) -> str:
     """
     [Autobahn Engine] API 키 유무를 기반으로 최적의 모델명(String)을 동적으로 맵핑합니다.
-    - 우선순위 1: 배정된 엔진의 주력 벤더 API 키가 있을 경우 해당 최고 모델 즉시 배정
-    - 우선순위 2: 주력 벤더 키가 없으나 다른 벤더 키가 있을 경우 그쪽 최고 모델로 우회 (Fallback)
-    - 우선순위 3: 모든 API 키가 누락되었을 경우 분야별 최신 무료 티어 모델로 강등 (All-Empty)
+    - 하드코딩 없이 find_latest_model()을 통해 최신 버전을 자동 추적합니다.
     """
+    available = get_available_models()
     keys = {
         "google": bool(os.getenv("GOOGLE_API_KEY")),
         "openai": bool(os.getenv("OPENAI_API_KEY")),
         "anthropic": bool(os.getenv("ANTHROPIC_API_KEY"))
     }
     
-    # [조건 3] API 키가 한 개도 없을 경우 (최신 무료 티어로 통일)
+    # [조건 3] API 키가 한 개도 없을 경우
     if not any(keys.values()):
-        if engine_id == "gemini_flash": return "gemini-3.0-flash" 
-        elif engine_id == "codex": return "claude-4.5-haiku-latest"
-        elif engine_id == "research_pro": return "gpt-4.1-mini"
-        return "gemini-3.0-flash"
+        if engine_id == "gemini_flash": return find_latest_model("gemini-*-flash", available)
+        elif engine_id == "codex": return find_latest_model("gemini-*-pro", available)
+        elif engine_id == "research_pro": return find_latest_model("gemini-*-pro", available)
+        return "gemini-2.0-flash"
 
-    # [조건 1 & 2] 엔진별 최적 벤더 탐색 및 우회 로직
+    # [조건 1 & 2] 엔진별 최적 벤더 탐색 (V22.0 Gold Standard 전용)
     if engine_id == "gemini_flash":
-        if keys["google"]:
-            models = get_available_models()
-            for m in models:
-                if "gemini" in m and "flash" in m and "exp" not in m:
-                    return m.replace("models/", "")
-            return "gemini-3.0-flash"
-        elif keys["anthropic"]:
-            models = fetch_anthropic_models()
-            for m in models:
-                if "haiku" in m: return m
-            return "claude-4.5-haiku-latest"
-        elif keys["openai"]:
-            models = fetch_openai_models()
-            for m in models:
-                if "mini" in m: return m
-            return "gpt-4.1-mini"
+        if keys["google"]: return find_latest_model("gemini-3.0-flash", available)
+        elif keys["openai"]: return "gpt-4o-mini"
         
     elif engine_id == "codex":
-        if keys["anthropic"]:
-            models = fetch_anthropic_models()
-            for m in models:
-                if "sonnet" in m: return m
-            return "claude-4.6-sonnet-latest"
-        elif keys["openai"]:
-            models = fetch_openai_models()
-            for m in models:
-                if "codex" in m or "pro" in m: return m
-            return "gpt-5.3-codex"
-        elif keys["google"]:
-            models = get_available_models()
-            for m in models:
-                if "pro" in m and "exp" not in m: return m.replace("models/", "")
-            return "gemini-3.1-pro"
+        # Stage 2: GPT-5 Codex 5.3 (Implementation Priority)
+        if keys["openai"]: 
+            # 모델 리스트에서 gpt-5 or codex-5.3 검색, 없으면 해당 이름으로 직접 시도
+            return "gpt-5-codex-5.3"
+        elif keys["google"]: return find_latest_model("gemini-3.1-pro", available)
         
     elif engine_id == "research_pro":
-        if keys["openai"]:
-            models = fetch_openai_models()
-            for m in models:
-                if m.startswith("o") or "pro" in m: return m
-            return "o3"
-        elif keys["anthropic"]:
-            models = fetch_anthropic_models()
-            for m in models:
-                if "opus" in m or "sonnet" in m: return m
-            return "claude-4.6-opus-latest"
-        elif keys["google"]:
-            models = get_available_models()
-            for m in models:
-                if "pro" in m and "exp" not in m: return m.replace("models/", "")
-            return "gemini-3.1-pro"
+        # Stage 1: Gemini 3.0 (Architecture/Reasoning Priority)
+        if keys["google"]: return find_latest_model("gemini-3.0-pro", available)
+        elif keys["openai"]: return "o3-mini" # Fallback
 
-    # 알 수 없는 엔진이거나 매칭 실패 시 fallback
-    return "gemini-2.0-flash"
+    return find_latest_model("gemini-3.0-flash", available)

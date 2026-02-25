@@ -21,3 +21,8 @@ env/
 projects/default/runs/
 pytest_out*.txt
 tests/_tmp_probe/
+tmp*/
+.tmp_validation*/
+
+# --- 🎯 Developer Context Rules (DO NOT DEPLOY) ---
+.gemini_dev_rules.md

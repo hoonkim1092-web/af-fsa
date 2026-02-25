@@ -33,7 +33,10 @@ def parse_mentions(text: str) -> List[str]:
     return list(set(matches))
 
 
-def decompose_roles(project_description: str, model_name: str = "gemini-3.0-flash") -> List[str]:
+def decompose_roles(project_description: str, model_name: str | None = None) -> List[str]:
+    if model_name is None:
+        from model_utils import resolve_dynamic_model
+        model_name = resolve_dynamic_model("research_pro")
     llm = LLMEngine(model_name=model_name)
     prompt = f"""
 You are Lilith, a PM orchestrator for a multi-agent factory.
@@ -89,8 +92,8 @@ def forge_roles(roles: List[str], target_dir: str | None = None, is_ghost_pilot:
     def _forge_single_role(role_arg) -> bool:
         role_name, is_gp, enforce = role_arg
         print_message("System", f"--- Analyzing Role: {role_name} ---")
-        # [STEP 1] 지시 흡수 (임시 스킬셋 파싱)
-        required_skills, _ = research_required_skills(role_name, selected_model_name="gemini-3.0-flash", skip_research=True)
+        # [STEP 1] 지시 흡수 (임시 스킬셋 파싱) - Dynamic Model Resolution Applied
+        required_skills, _ = research_required_skills(role_name, skip_research=True)
         
         max_risk = 1
         skill_risk_tags = []
