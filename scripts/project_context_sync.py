@@ -1,5 +1,6 @@
 import argparse
 import base64
+import fnmatch
 import hashlib
 import json
 import os
@@ -9,6 +10,10 @@ import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
+
+DEFAULT_EXCLUDE_GLOBS = (
+    "docs/task.md",
+)
 
 
 def load_dotenv_simple(root: Path) -> None:
@@ -165,10 +170,25 @@ def try_read_json(path: Path) -> dict:
 def _include_text_file(project_root: Path, files: dict[str, str], rel: str) -> None:
     p = project_root / rel
     if p.exists() and p.is_file():
+        if rel in files:
+            return
         files[rel] = b64e(read_text(p))
 
 
-def _include_tree(project_root: Path, files: dict[str, str], root_rel: str, exts: tuple[str, ...]) -> None:
+def _is_excluded(rel: str, patterns: tuple[str, ...]) -> bool:
+    if not patterns:
+        return False
+    rel_norm = str(rel).replace("\\", "/").lower()
+    return any(fnmatch.fnmatch(rel_norm, pat) for pat in patterns)
+
+
+def _include_tree(
+    project_root: Path,
+    files: dict[str, str],
+    root_rel: str,
+    exts: tuple[str, ...],
+    exclude_globs: tuple[str, ...] = (),
+) -> None:
     root = project_root / root_rel
     if not root.exists():
         return
@@ -178,17 +198,44 @@ def _include_tree(project_root: Path, files: dict[str, str], root_rel: str, exts
         if p.suffix.lower() not in exts:
             continue
         rel = p.relative_to(project_root).as_posix()
+        if rel in files or _is_excluded(rel, exclude_globs):
+            continue
         files[rel] = b64e(read_text(p))
 
 
-def _include_root_files(project_root: Path, files: dict[str, str], exts: tuple[str, ...]) -> None:
+def _include_root_files(
+    project_root: Path,
+    files: dict[str, str],
+    exts: tuple[str, ...],
+    exclude_globs: tuple[str, ...] = (),
+) -> None:
     for p in project_root.glob("*"):
         if not p.is_file():
             continue
         if p.suffix.lower() not in exts:
             continue
         rel = p.relative_to(project_root).as_posix()
+        if rel in files or _is_excluded(rel, exclude_globs):
+            continue
         files[rel] = b64e(read_text(p))
+
+
+def _parse_exclude_globs() -> tuple[str, ...]:
+    raw = str(os.getenv("CONTEXT_SYNC_EXCLUDE", "")).strip()
+    parsed = [p.strip().replace("\\", "/").lower() for p in raw.split(",") if p.strip()]
+    return tuple(dict.fromkeys([*DEFAULT_EXCLUDE_GLOBS, *parsed]))
+
+
+def _apply_exclude_globs(files: dict[str, str], patterns: tuple[str, ...]) -> dict[str, str]:
+    if not files or not patterns:
+        return files
+    kept: dict[str, str] = {}
+    for rel, content in files.items():
+        rel_norm = str(rel).replace("\\", "/")
+        if _is_excluded(rel_norm, patterns):
+            continue
+        kept[rel_norm] = content
+    return kept
 
 
 def _collect_run_files(project_root: Path, files: dict[str, str], run_limit: int, agent_id: str | None) -> None:
@@ -204,6 +251,8 @@ def _collect_run_files(project_root: Path, files: dict[str, str], run_limit: int
                     continue
                 if f.name in ("chat_trace.json", "state.json") or f.name.endswith("_meta.yaml") or f.name.endswith("_skill.py"):
                     rel = f.relative_to(project_root).as_posix()
+                    if rel in files:
+                        continue
                     files[rel] = b64e(read_text(f))
         return
 
@@ -222,12 +271,15 @@ def _collect_run_files(project_root: Path, files: dict[str, str], run_limit: int
             f = run_dir / name
             if f.exists() and f.is_file():
                 rel = f.relative_to(project_root).as_posix()
+                if rel in files:
+                    continue
                 files[rel] = b64e(read_text(f))
         kept += 1
 
 
 def collect_snapshot(project_root: Path, project_id: str, agent_id: str | None, run_limit: int) -> dict:
     files: dict[str, str] = {}
+    exclude_globs = _parse_exclude_globs()
 
     # Project shared context files.
     for rel in [
@@ -242,9 +294,11 @@ def collect_snapshot(project_root: Path, project_id: str, agent_id: str | None, 
 
     # Agent profile file (project-local).
     if agent_id:
-        _include_text_file(project_root, files, f"agents/{agent_id}.yaml")
+        rel = f"agents/{agent_id}.yaml"
+        if not _is_excluded(rel, exclude_globs):
+            _include_text_file(project_root, files, rel)
     else:
-        _include_tree(project_root, files, "agents", (".yaml", ".yml", ".md", ".txt"))
+        _include_tree(project_root, files, "agents", (".yaml", ".yml", ".md", ".txt"), exclude_globs=exclude_globs)
 
     # Memory: agent-scoped by default, fallback legacy for migration.
     mem_root = project_root / "data" / "memory"
@@ -281,15 +335,16 @@ def collect_snapshot(project_root: Path, project_id: str, agent_id: str | None, 
     _collect_run_files(project_root, files, run_limit=run_limit, agent_id=agent_id)
 
     # Project artifacts (work outputs) in text formats.
-    _include_tree(project_root, files, "artifacts", (".json", ".yaml", ".yml", ".md", ".txt", ".csv", ".log", ".sql", ".py"))
-    _include_tree(project_root, files, "data", (".json", ".yaml", ".yml", ".md", ".txt", ".csv", ".log", ".sql", ".py"))
-    _include_tree(project_root, files, "runs", (".json", ".yaml", ".yml", ".md", ".txt", ".csv", ".log", ".sql", ".py"))
-    _include_tree(project_root, files, "docs", (".json", ".yaml", ".yml", ".md", ".txt"))
-    _include_tree(project_root, files, "planning", (".json", ".yaml", ".yml", ".md", ".txt"))
-    _include_tree(project_root, files, "syncCompyne", (".json", ".yaml", ".yml", ".md", ".txt", ".py", ".csv", ".log", ".sql"))
-    _include_tree(project_root, files, "inbox", (".json", ".yaml", ".yml", ".md", ".txt", ".csv"))
-    _include_tree(project_root, files, "processed", (".json", ".yaml", ".yml", ".md", ".txt", ".csv"))
-    _include_root_files(project_root, files, (".md", ".json", ".yaml", ".yml", ".txt", ".log"))
+    _include_tree(project_root, files, "artifacts", (".json", ".yaml", ".yml", ".md", ".txt", ".csv", ".log", ".sql", ".py"), exclude_globs=exclude_globs)
+    _include_tree(project_root, files, "data", (".json", ".yaml", ".yml", ".md", ".txt", ".csv", ".log", ".sql", ".py"), exclude_globs=exclude_globs)
+    _include_tree(project_root, files, "runs", (".json", ".yaml", ".yml", ".md", ".txt", ".csv", ".log", ".sql", ".py"), exclude_globs=exclude_globs)
+    _include_tree(project_root, files, "docs", (".json", ".yaml", ".yml", ".md", ".txt"), exclude_globs=exclude_globs)
+    _include_tree(project_root, files, "planning", (".json", ".yaml", ".yml", ".md", ".txt"), exclude_globs=exclude_globs)
+    _include_tree(project_root, files, "syncCompyne", (".json", ".yaml", ".yml", ".md", ".txt", ".py", ".csv", ".log", ".sql"), exclude_globs=exclude_globs)
+    _include_tree(project_root, files, "inbox", (".json", ".yaml", ".yml", ".md", ".txt", ".csv"), exclude_globs=exclude_globs)
+    _include_tree(project_root, files, "processed", (".json", ".yaml", ".yml", ".md", ".txt", ".csv"), exclude_globs=exclude_globs)
+    _include_root_files(project_root, files, (".md", ".json", ".yaml", ".yml", ".txt", ".log"), exclude_globs=exclude_globs)
+    files = _apply_exclude_globs(files, exclude_globs)
 
     digest_src = json.dumps(files, sort_keys=True, ensure_ascii=False).encode("utf-8")
     digest = hashlib.sha256(digest_src).hexdigest()

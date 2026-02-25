@@ -1,4 +1,6 @@
 import importlib
+import os
+import time
 import types
 
 
@@ -75,3 +77,36 @@ def test_system_prompt_and_signature_resolution(monkeypatch):
     assert runner._resolve_system_prompt(agent) == "nested-prompt"
     sigs = runner._resolve_signature_lines(agent)
     assert sigs == ["sig-a", "sig-b"]
+
+
+def test_load_skills_uses_cache_and_invalidates_on_file_change(monkeypatch, tmp_path):
+    al = _load_launcher(monkeypatch)
+    runner = al.AgentRunner(al.ModelRouter())
+
+    skill_path = tmp_path / "cache_skill.py"
+    skill_path.write_text("COUNTER = 1\ndef apply(ctx):\n    return {'counter': COUNTER}\n", encoding="utf-8")
+
+    import core.agent_runner as ar
+
+    def _resolve(sid: str):
+        if sid == "cache_skill":
+            return str(skill_path), None
+        return None, None
+
+    monkeypatch.setattr(ar, "resolve_skill_paths", _resolve)
+    agent = {"skills": ["cache_skill"]}
+
+    loaded_first = runner.load_skills(agent)
+    loaded_second = runner.load_skills(agent)
+    assert loaded_first and loaded_second
+    assert loaded_first[0] is loaded_second[0]
+    assert int(getattr(loaded_second[0], "COUNTER", 0)) == 1
+
+    time.sleep(1.1)
+    skill_path.write_text("COUNTER = 2\ndef apply(ctx):\n    return {'counter': COUNTER}\n", encoding="utf-8")
+    os.utime(skill_path, None)
+
+    loaded_third = runner.load_skills(agent)
+    assert loaded_third
+    assert loaded_third[0] is not loaded_second[0]
+    assert int(getattr(loaded_third[0], "COUNTER", 0)) == 2

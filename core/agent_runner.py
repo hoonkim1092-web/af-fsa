@@ -3,6 +3,7 @@ import time
 import json
 import subprocess
 import sys
+import builtins
 import google.generativeai as genai
 try:
     from openai import OpenAI
@@ -17,30 +18,40 @@ from core.policy_runtime import PolicyRuntime
 from core.hooks.event_bus import HookEventBus, IntentGateHook, TodoContinuationEnforcer, ToolOutputTruncator
 from core.llm_engine import get_best_model
 
+
+def _safe_print(*args, **kwargs):
+    enc = getattr(sys.stdout, "encoding", None) or "utf-8"
+    parts = []
+    for a in args:
+        text = str(a)
+        try:
+            text.encode(enc)
+        except Exception:
+            text = text.encode(enc, errors="replace").decode(enc, errors="replace")
+        parts.append(text)
+    builtins.print(*parts, **kwargs)
+
+
 class ModelRouter:
     def pick(self, stage: str, agent_config: dict = None) -> str:
-        if stage == "chat":
-            forced = (os.getenv("AGENT_CHAT_MODEL") or "").strip()
-            if forced:
-                return forced
-            provider_raw = (os.getenv("AGENT_CHAT_PROVIDER") or "").strip().lower()
-            providers = [p.strip() for p in provider_raw.split(",") if p.strip()]
-            for provider in providers:
-                if provider == "codex" and OPENAI_API_KEY:
-                    return "codex-5.3"
-                if provider == "claude":
-                    return "claude-4.6"
+        from model_utils import resolve_dynamic_model
         
-        # Check Agent-specific high-end preference
-        if agent_config and agent_config.get("preferred_model"):
-            return get_best_model([agent_config["preferred_model"], "gemini-3.1-pro-preview", "gemini-1.5-pro"])
-
-        # Stage 3 (Requirement/Reasoning) -> 3.1 Pro
-        if stage in ("requirement", "reasoning"):
-            return get_best_model(["gemini-3.1-pro-preview", "gemini-2.0-pro", "gemini-1.5-pro"])
+        # [Override] Environment variable priority
+        forced = (os.getenv("AGENT_CHAT_MODEL") or "").strip()
+        if forced:
+            return forced
+            
+        # [Gold Standard Mapping]
+        if stage in ("requirement", "reasoning", "agent_create"):
+            # Stage 1: Architecture/Reasoning -> Gemini 3.0 (research_pro)
+            return resolve_dynamic_model("research_pro")
         
-        # Stage 2 (Flash/Normalization) -> 3 Flash
-        return get_best_model(["gemini-3-flash-preview", "gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"])
+        if stage in ("builder", "chat"):
+            # Stage 2: Coding/Implementation -> GPT-5 Codex 5.3 (codex)
+            return resolve_dynamic_model("codex")
+            
+        # Default: Gemini 3.0 Flash (gemini_flash)
+        return resolve_dynamic_model("gemini_flash")
 
 # =============================================================================
 
@@ -57,6 +68,8 @@ class GitManager:
 class AgentRunner:
     def __init__(self, model_router: ModelRouter):
         self.mr = model_router
+        # Cache loaded skill modules by file mtime to avoid repeated import cost per run.
+        self._skill_module_cache: dict[str, tuple[str, float, object]] = {}
 
     def _resolve_system_prompt(self, agent: dict) -> str:
         direct = str(agent.get("system_ko", "")).strip()
@@ -170,9 +183,9 @@ class AgentRunner:
 
     def _ask_tool_approval(self, fname: str, skill_id: str) -> bool:
         try:
-            print("\n[승인 요청]")
-            print(f"- 도구: {fname}")
-            print(f"- 스킬: {skill_id if skill_id else 'unknown'}")
+            _safe_print("\n[승인 요청]")
+            _safe_print(f"- 도구: {fname}")
+            _safe_print(f"- 스킬: {skill_id if skill_id else 'unknown'}")
             ans = input("위 도구 실행을 허용할까요? (yes/no): ").strip().lower()
             return ans in ("y", "yes")
         except Exception:
@@ -187,10 +200,10 @@ class AgentRunner:
                 needs.append((sid or "unknown", fname))
         if not needs:
             return
-        print("\n[정책 안내] 사용자 승인이 필요한 도구 목록")
+        _safe_print("\n[정책 안내] 사용자 승인이 필요한 도구 목록")
         for sid, fname in needs:
-            print(f"- 스킬 `{sid}` / 도구 `{fname}`")
-        print("실행 시마다 yes/y로 승인해야 진행됩니다.")
+            _safe_print(f"- 스킬 `{sid}` / 도구 `{fname}`")
+        _safe_print("실행 시마다 yes/y로 승인해야 진행됩니다.")
 
     def _make_tool_wrapper(self, func, ctx: dict):
         # Deprecated: Extracted to core.tool_runtime.ToolRuntimeWrapper
@@ -217,10 +230,10 @@ class AgentRunner:
 
     def _run_with_codex(self, model_name: str, sys_prompt: str, task_input: str, tool_functions: list) -> bool:
         if not OPENAI_API_KEY:
-            print("⚠️ [Runner] OPENAI_API_KEY가 없어 Codex 경로를 사용할 수 없습니다.")
+            _safe_print("⚠️ [Runner] OPENAI_API_KEY가 없어 Codex 경로를 사용할 수 없습니다.")
             return False
         if OpenAI is None:
-            print("⚠️ [Runner] openai 패키지가 없어 Codex 경로를 사용할 수 없습니다.")
+            _safe_print("⚠️ [Runner] openai 패키지가 없어 Codex 경로를 사용할 수 없습니다.")
             return False
 
         codex_model = model_name if is_codex_model(model_name) else "codex-5.3"
@@ -252,17 +265,17 @@ class AgentRunner:
                         text = ""
 
                 if text.strip():
-                    print(f"🤖 {text.strip()}")
+                    _safe_print(f"🤖 {text.strip()}")
                     return True
                 return False
             except Exception as e:
                 msg = str(e).lower()
                 if "429" in msg or "rate" in msg or "quota" in msg:
                     wait = 5 * (i + 1)
-                    print(f"⏳ [Quota] Codex API 사용량 제한. {wait}초 대기 중... ({i+1}/3)")
+                    _safe_print(f"⏳ [Quota] Codex API 사용량 제한. {wait}초 대기 중... ({i+1}/3)")
                     time.sleep(wait)
                     continue
-                print(f"⚠️ [Runner] Codex 실행 오류: {e}")
+                _safe_print(f"⚠️ [Runner] Codex 실행 오류: {e}")
                 return False
         return False
 
@@ -276,16 +289,28 @@ class AgentRunner:
             if not skill_py:
                  continue
             try:
+                cur_mtime = float(os.path.getmtime(skill_py))
+            except Exception:
+                cur_mtime = -1.0
+
+            cached = self._skill_module_cache.get(sid)
+            if cached:
+                cached_path, cached_mtime, cached_module = cached
+                if cached_path == skill_py and cached_mtime == cur_mtime:
+                    loaded_skills.append(cached_module)
+                    continue
+            try:
                 spec = importlib.util.spec_from_file_location(f"skills.{sid}", skill_py)
                 if spec and spec.loader:
                     module = importlib.util.module_from_spec(spec)
                     sys.modules[f"skills.{sid}"] = module
                     spec.loader.exec_module(module)
                     setattr(module, "__skill_id__", sid)
+                    self._skill_module_cache[sid] = (skill_py, cur_mtime, module)
                     loaded_skills.append(module)
-                    print(f"✅ [Runner] 스킬 로드 성공: {sid}")
+                    _safe_print(f"✅ [Runner] 스킬 로드 성공: {sid}")
             except Exception as e:
-                print(f"⚠️ [Runner] 스킬 로드 실패 ({sid}): {e}")
+                _safe_print(f"⚠️ [Runner] 스킬 로드 실패 ({sid}): {e}")
         return loaded_skills
 
     def build_tool_registry(self, module_list: list, ctx: dict, policy: dict) -> ToolRegistry:
@@ -294,7 +319,7 @@ class AgentRunner:
         return wrapper.build_registry(module_list, ctx, policy, is_allowed_fn=self._is_tool_allowed)
 
     def run(self, agent: dict, task_input: str, run_id: str | None = None):
-        print(f"\n🚀 [Runner] 에이전트 실행 시작: {agent.get('name')}")
+        _safe_print(f"\n🚀 [Runner] 에이전트 실행 시작: {agent.get('name')}")
         started = time.time()
         run_id = run_id or f"run_{int(started)}"
         run_dir = os.path.join(RUNS_DIR, run_id)
@@ -334,8 +359,8 @@ class AgentRunner:
         }
         ok_ctx, msg_ctx = validate_context_with_schema(ctx)
         if not ok_ctx:
-            print(f"⚠️ [ContextSchema] 컨텍스트 검증 실패: {msg_ctx}")
-            print("에이전트 실행을 중단합니다.")
+            _safe_print(f"⚠️ [ContextSchema] 컨텍스트 검증 실패: {msg_ctx}")
+            _safe_print("에이전트 실행을 중단합니다.")
             result = {"ok": False, "reason": f"context_schema:{msg_ctx}", "latency_ms": int((time.time() - started) * 1000), "approval_rejects": approval_rejects}
             _append_trace("error", {"stage": "context_schema", "message": str(msg_ctx)})
             _flush_trace(result)
@@ -384,22 +409,22 @@ class AgentRunner:
         if sigs:
             import random
             greeting = random.choice(sigs)
-            print(f"💬 [Agent] {greeting}")
+            _safe_print(f"💬 [Agent] {greeting}")
             sys_prompt += f"\n\n[Signature]\n{greeting}"
 
         if self._agent_prefers_codex(agent, model_name):
             codex_ok = self._run_with_codex(model_name, sys_prompt, task_input, tool_functions)
             if codex_ok:
-                print("✅ Agent Execution Finished.")
+                _safe_print("✅ Agent Execution Finished.")
                 result = {"ok": True, "reason": "codex", "latency_ms": int((time.time() - started) * 1000), "approval_rejects": approval_rejects}
                 _append_trace("assistant", {"channel": "codex", "note": "codex path completed"})
                 _flush_trace(result)
                 return result
-            print("⚠️ [Runner] Codex 경로 실패, Gemini 경로로 폴백합니다.")
+            _safe_print("⚠️ [Runner] Codex 경로 실패, Gemini 경로로 폴백합니다.")
 
         if not GOOGLE_API_KEY:
-            print("⚠️ [Runner] GOOGLE_API_KEY가 없어 Gemini 경로를 사용할 수 없습니다.")
-            print("에이전트가 응답을 생성하지 못했습니다.")
+            _safe_print("⚠️ [Runner] GOOGLE_API_KEY가 없어 Gemini 경로를 사용할 수 없습니다.")
+            _safe_print("에이전트가 응답을 생성하지 못했습니다.")
             result = {"ok": False, "reason": "missing_google_api_key", "latency_ms": int((time.time() - started) * 1000), "approval_rejects": approval_rejects}
             _append_trace("error", {"stage": "bootstrap", "message": "missing_google_api_key"})
             _flush_trace(result)
@@ -423,7 +448,7 @@ class AgentRunner:
                 except Exception as e:
                     if "429" in str(e) or "quota" in str(e).lower() or "resource exhausted" in str(e).lower():
                         wait = 5 * (i + 1) # 5s, 10s, 15s
-                        print(f"⏳ [Quota] API 사용량 초과 (429). {wait}초 대기 중... ({i+1}/{max_retries})")
+                        _safe_print(f"⏳ [Quota] API 사용량 초과 (429). {wait}초 대기 중... ({i+1}/{max_retries})")
                         time.sleep(wait)
                         continue
                     raise e
@@ -441,7 +466,7 @@ class AgentRunner:
                 
                 # 1. Output Text
                 if part.text:
-                    print(f"🤖 {part.text}")
+                    _safe_print(f"🤖 {part.text}")
                     _append_trace("assistant", {"text": str(part.text)})
                     # If model thinks it's done or asking question, we might stop
                     # But if it also has function call (rare in Gemini part[0]), check that.
@@ -451,7 +476,7 @@ class AgentRunner:
                     fc = part.function_call
                     fname = fc.name
                     fargs = dict(fc.args)
-                    print(f"🛠️ [Tool] {fname}({fargs})")
+                    _safe_print(f"🛠️ [Tool] {fname}({fargs})")
                     _append_trace("tool_call", {"name": str(fname), "args": fargs})
                     
                     # Find tool wrapper
@@ -461,7 +486,7 @@ class AgentRunner:
                             skill_id = safe_id(str(getattr(tool_func, "_skill_id", "")))
                             if self._requires_tool_approval(policy, skill_id, fname):
                                 if not self._ask_tool_approval(fname, skill_id):
-                                    print(f"⏭️ [Policy] 사용자 미승인으로 도구 실행을 건너뜁니다: {fname}")
+                                    _safe_print(f"⏭️ [Policy] 사용자 미승인으로 도구 실행을 건너뜁니다: {fname}")
                                     approval_rejects += 1
                                     _append_trace("tool_reject", {"name": str(fname), "skill_id": str(skill_id)})
                                     response = safe_send("해당 도구는 승인되지 않았습니다. 다른 방법으로 진행하세요.")
@@ -473,7 +498,7 @@ class AgentRunner:
                             if isinstance(res_obj, dict):
                                 res_obj = bus.run_post_execute(agent_state, res_obj)
                             
-                            print(f"  -> Result: {str(res_obj)[:100]}...")
+                            _safe_print(f"  -> Result: {str(res_obj)[:100]}...")
                             _append_trace("tool_result", {"name": str(fname), "result": str(res_obj)[:800]})
                             
                             # Send result back
@@ -485,11 +510,11 @@ class AgentRunner:
                             )
                             continue # Continue loop with new response
                         except Exception as e:
-                            print(f"⚠️ Tool Execution Error: {e}")
+                            _safe_print(f"⚠️ Tool Execution Error: {e}")
                             _append_trace("error", {"stage": "tool_execution", "tool": str(fname), "message": str(e)})
                             break
                     else:
-                        print(f"⚠️ Tool not found: {fname}")
+                        _safe_print(f"⚠️ Tool not found: {fname}")
                         _append_trace("error", {"stage": "tool_lookup", "tool": str(fname), "message": "not_found"})
                         break
                 
@@ -497,15 +522,15 @@ class AgentRunner:
                 if not part.function_call:
                     break
             
-            print("✅ Agent Execution Finished.")
+            _safe_print("✅ Agent Execution Finished.")
             result = {"ok": True, "reason": "gemini", "latency_ms": int((time.time() - started) * 1000), "approval_rejects": approval_rejects}
             _flush_trace(result)
             return result
 
         except Exception as e:
-            print(f"⚠️ [Runner] 실행 중 오류: {e}")
+            _safe_print(f"⚠️ [Runner] 실행 중 오류: {e}")
             # Fallback output
-            print("에이전트가 응답을 생성하지 못했습니다.")
+            _safe_print("에이전트가 응답을 생성하지 못했습니다.")
             result = {"ok": False, "reason": f"runner_error:{type(e).__name__}", "latency_ms": int((time.time() - started) * 1000), "approval_rejects": approval_rejects}
             _append_trace("error", {"stage": "runner", "message": str(e)})
             _flush_trace(result)
