@@ -6,8 +6,7 @@ import re
 import shutil
 import datetime
 import yaml
-from dotenv import load_dotenv
-
+from config.schema import factory_config
 from model_utils import get_best_model, resolve_dynamic_model
 from core.llm_engine import LLMEngine
 from core.research_engine import query_notebooklm, generate_deep_research_prompt
@@ -30,7 +29,6 @@ WAREHOUSE_DIR = os.path.join(FACTORY_ROOT, "skills", "warehouse")
 ANTIGRAVITY_REPO_URL = "https://github.com/guanyang/antigravity-skills.git"
 
 sys.stdout.reconfigure(encoding='utf-8')
-load_dotenv()
 
 def log(step, msg):
     print(f"[{step}] {msg}")

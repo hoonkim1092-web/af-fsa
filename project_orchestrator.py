@@ -9,13 +9,15 @@ from typing import List
 
 from core.llm_engine import LLMEngine
 from core.swarm_council import SwarmCouncil
-from dotenv import load_dotenv
 
-# 새로 추가된 의존성 모듈
+# [P0] 중앙 설정 검증기 도입 (Zod -> Pydantic 패턴)
+# 이 모듈이 임포트되는 순간 모델/DB 키/정책(policy)이 완벽하지 않으면 팩토리는 즉시 중단(Fail-Fast)됩니다.
+from config.schema import factory_config
+from core.intent import IntentGate
+from core.hooks.base import TodoContinuationEnforcer
+
 from factory_manager import research_required_skills, load_policy
 from utils.audit_logger import log_audit_event
-
-load_dotenv()
 
 FACTORY_DIR = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_BOARD_PATH = os.path.join(FACTORY_DIR, "project_board_state.json")
@@ -207,11 +209,23 @@ def main():
         enforce_todo = True
         print_message("System", "⚡ [Ghost-Pilot] 모드 감지: 사용자의 개입 없이 병렬 파이프라인으로 전면 자율화합니다!")
     else:
-        print_message("Wizard", "작업 강제 완수 (Enforce): 에이전트가 도중에 질문하지 않고 자율적으로 끝까지 완수하도록 할까요? (기본:Y) [Y/N]")
-        ans = input("[System] Y/N: ").strip().upper()
-        if ans != 'N':
+        # P1 IntentGate Integration
+        print_message("IntentGate", "Classifying user intent to determine optimal workflow...")
+        classifier = IntentGate()
+        intent_res = classifier.classify(project_desc)
+        intent = intent_res.get("intent", "trivial")
+        print_message("IntentGate", f"Diagnosed Intent: {intent.upper()} (Confidence: {intent_res.get('confidence', 0)}%)")
+        print_message("IntentGate", f"Reasoning: {intent_res.get('reasoning', '')}")
+
+        if intent in ["refactoring", "greenfield"]:
+            print_message("System", f"⚠️ Complex Intent ({intent}) detected. Enforcing Todo-Enforced Planning workflow.")
             enforce_todo = True
-            print_message("System", "🛡️ Todo Continuation Enforcer 활성화: 핑퐁 멈춤 방지.")
+        else:
+            print_message("Wizard", "작업 강제 완수 (Enforce): 에이전트가 도중에 질문하지 않고 자율적으로 끝까지 완수하도록 할까요? (기본:Y) [Y/N]")
+            ans = input("[System] Y/N: ").strip().upper()
+            if ans != 'N':
+                enforce_todo = True
+                print_message("System", "🛡️ Todo Continuation Enforcer 활성화: 핑퐁 멈춤 방지.")
 
     if not roles:
         print_message("Lilith", "No explicit roles given. Decomposing roles with LLM.")
@@ -228,6 +242,16 @@ def main():
             print_message("Lilith", f"Forge partial success ({len(built)}/{len(roles)}). Continue council run.")
         else:
             print_message("Lilith", "All roles forged.")
+
+    if enforce_todo:
+        checker = TodoContinuationEnforcer()
+        state = {
+            "intent": intent if 'intent' in locals() else "greenfield",
+            "workspace": args.dir or FACTORY_DIR
+        }
+        if not checker.pre_execute(state):
+            print_message("Lilith", "Task blocked by Todo Enforcer. Please generate a plan first.")
+            return
 
     council = SwarmCouncil(factory_dir=FACTORY_DIR)
     board = council.run(

@@ -1,0 +1,11 @@
+id: hashline_edit
+name: Safe Hashline Code Editor
+version: 1.0.0
+capabilities:
+  - edit
+  - mutate
+  - code_edit
+  - hashline
+status: active
+source: builtin
+last_test_ok: true

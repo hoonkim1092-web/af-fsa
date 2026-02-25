@@ -1,0 +1,53 @@
+name: V2.0 Factory CI Baseline
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - main
+      - dev
+
+jobs:
+  test-and-lint:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11"]
+
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          pip install pytest pytest-cov black mypy pydantic pydantic-settings
+          
+      - name: Code Formatting Check (Black)
+        run: |
+          black --check config core utils
+          
+      - name: Static Type Checking (MyPy)
+        run: |
+          mypy core/ config/ utils/ --ignore-missing-imports
+          
+      - name: Run Schema Tests
+        run: |
+          # Test if the Pydantic schema can load fallback configs without crashing
+          python -c "from config.schema import factory_config; print('Schema Validation PASSED')"
+          
+      - name: Prevent Master Commits
+        if: github.event_name == 'pull_request' && github.base_ref == 'master'
+        run: |
+          echo "Direct PRs to master are blocked by Logi-Mind architecture rules."
+          echo "Please target 'dev' first."
+          exit 1

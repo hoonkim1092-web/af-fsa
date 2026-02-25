@@ -18,11 +18,23 @@ function To-Mode([string]$a) {
 }
 
 function To-ProjectArgs([string]$t) {
-    $key = ""
-    if ($null -ne $t) { $key = $t.Trim().ToLower() }
+    $raw = ""
+    if ($null -ne $t) { $raw = $t.Trim() }
+    if (-not $raw) { $raw = "all" }
+
+    $key = $raw.ToLower()
     switch ($key) {
         "all" { return @{ IsMulti = $true; Value = "logi-mind-v22,agent-factory" } }
-        default { return @{ IsMulti = $false; Value = $t } }
+        default {
+            $items = @($raw -split "," | ForEach-Object { $_.Trim() } | Where-Object { $_ } | Select-Object -Unique)
+            if (@($items).Count -gt 1) {
+                return @{ IsMulti = $true; Value = ($items -join ",") }
+            }
+            if (@($items).Count -eq 1) {
+                return @{ IsMulti = $false; Value = $items[0] }
+            }
+            return @{ IsMulti = $true; Value = "logi-mind-v22,agent-factory" }
+        }
     }
 }
 

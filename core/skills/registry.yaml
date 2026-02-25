@@ -1,0 +1,13 @@
+install_candidates: {}
+skills:
+  abc:
+    capabilities:
+    - abc
+    id: abc
+    last_test_ok: true
+    meta_path: D:\agent-factory\tests\_tmp\af-test-eaf9e865\skills\abc\meta.yaml
+    name: abc
+    path: D:\agent-factory\tests\_tmp\af-test-eaf9e865\skills\abc\skill.py
+    status: canary
+    updated_at: '2026-02-25T02:40:14'
+    version: 0.1.0

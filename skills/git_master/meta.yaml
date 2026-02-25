@@ -1,0 +1,11 @@
+id: git_master
+name: Git Master Pipeline
+version: 1.0.0
+capabilities:
+  - git
+  - vcs
+  - version_control
+  - git_master
+status: active
+source: builtin
+last_test_ok: true

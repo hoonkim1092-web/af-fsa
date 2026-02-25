@@ -5,6 +5,12 @@ import types
 def _load_launcher(monkeypatch):
     monkeypatch.setenv("GOOGLE_API_KEY", "test-key")
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    import core.config_paths
+    importlib.reload(core.config_paths)
+    import core.utils
+    importlib.reload(core.utils)
+    import core.agent_runner
+    importlib.reload(core.agent_runner)
     import agent_launcher
     return importlib.reload(agent_launcher)
 
@@ -30,14 +36,15 @@ def apply(ctx):
     )
     ctx = {"data_dir": ".", "artifacts_dir": ".", "agent": {}}
     policy = runner._build_policy({"runtime_rules": {}}, ["issue_tracker"])
-    tools = runner._build_tool_functions([mod], ctx, policy)
+    registry = runner.build_tool_registry([mod], ctx, policy)
+    tools = registry.get_active_tools()
     names = [t.__name__ for t in tools]
 
     # imported callable(datetime) must not be exposed as a tool
-    assert "apply" in names
+    assert "issue_tracker_apply" in names
     assert "datetime" not in names
 
-    apply_tool = next(t for t in tools if t.__name__ == "apply")
+    apply_tool = next(t for t in tools if t.__name__ == "issue_tracker_apply")
     res = apply_tool(command="list")
     assert res["ok"] is True
     assert res["command"] == "list"
@@ -51,7 +58,8 @@ def test_runtime_rule_default_deny(monkeypatch):
     ctx = {"data_dir": ".", "artifacts_dir": ".", "agent": {}}
     agent = {"runtime_rules": {"default_deny": True, "allowed_skills": ["alpha"]}}
     policy = runner._build_policy(agent, ["alpha", "beta"])
-    tools = runner._build_tool_functions([m1, m2], ctx, policy)
+    registry = runner.build_tool_registry([m1, m2], ctx, policy)
+    tools = registry.get_active_tools()
     skill_ids = [getattr(t, "_skill_id", "") for t in tools]
     assert "alpha" in skill_ids
     assert "beta" not in skill_ids

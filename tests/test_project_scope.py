@@ -7,6 +7,12 @@ def _load_launcher(monkeypatch, project_root):
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     monkeypatch.setenv("AGENT_PROJECT_ROOT", str(project_root))
     monkeypatch.setenv("AGENT_PROJECT_ID", "proj_test")
+    import core.config_paths
+    importlib.reload(core.config_paths)
+    import core.utils
+    importlib.reload(core.utils)
+    import core.agent_runner
+    importlib.reload(core.agent_runner)
     import agent_launcher
     return importlib.reload(agent_launcher)
 

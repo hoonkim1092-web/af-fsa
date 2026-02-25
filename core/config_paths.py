@@ -1,0 +1,59 @@
+import os
+import re
+import google.generativeai as genai
+from config.schema import factory_config
+
+def _boot_safe_id(text: str) -> str:
+    t = (text or "").strip().lower()
+    t = re.sub(r"[^a-z0-9_]+", "_", t)
+    t = re.sub(r"_+", "_", t).strip("_")
+    return t or "default"
+
+global_project_root = os.getenv("AGENT_PROJECT_ROOT", None)
+GOOGLE_API_KEY = factory_config.google_api_key
+OPENAI_API_KEY = factory_config.openai_api_key
+if not GOOGLE_API_KEY and not OPENAI_API_KEY:
+    raise RuntimeError("Neither GOOGLE_API_KEY nor OPENAI_API_KEY found in env/.env")
+if GOOGLE_API_KEY:
+    genai.configure(api_key=GOOGLE_API_KEY)
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# [Project Specific Path Resolution]
+PROJECTS_DIR = os.path.join(BASE_DIR, "projects")
+GLOBAL_AGENTS_DIR = os.path.join(BASE_DIR, "agents")
+SKILLS_DIR = os.path.join(BASE_DIR, "skills")
+GLOBAL_RUNS_DIR = os.path.join(BASE_DIR, "runs")
+
+def _boot_safe_id(text: str) -> str:
+    t = (text or "").strip().lower()
+    t = re.sub(r"[^a-z0-9_]+", "_", t)
+    t = re.sub(r"_+", "_", t).strip("_")
+    return t or "default"
+
+_proj_id_env = _boot_safe_id(os.environ.get("AGENT_PROJECT_ID", "").strip()) if os.environ.get("AGENT_PROJECT_ID") else ""
+_proj_root_env = os.environ.get("AGENT_PROJECT_ROOT", "").strip()
+if _proj_root_env:
+    PROJECT_ROOT = os.path.abspath(_proj_root_env)
+    PROJECT_ID = _proj_id_env or _boot_safe_id(os.path.basename(PROJECT_ROOT))
+else:
+    PROJECT_ID = _proj_id_env or "default"
+    PROJECT_ROOT = os.path.abspath(os.path.join(PROJECTS_DIR, PROJECT_ID))
+
+AGENTS_DIR = os.path.join(PROJECT_ROOT, "agents")
+RUNS_DIR = os.path.join(PROJECT_ROOT, "runs")
+DATA_DIR = os.path.join(PROJECT_ROOT, "data")
+ARTIFACTS_DIR = os.path.join(PROJECT_ROOT, "artifacts")
+PROJECT_SKILLS_DIR = os.path.join(PROJECT_ROOT, "skills")
+EXTERNAL_CACHE_DIR = os.path.join(SKILLS_DIR, "_external_cache")
+PROJECT_SETTINGS_PATH = os.path.join(PROJECT_ROOT, "settings.yaml")
+POLICIES_PATH = os.path.join(PROJECT_ROOT, "policies.yaml")
+CONTEXT_SCHEMA_PATH = os.path.join(PROJECT_ROOT, "context_schema.yaml")
+SKILL_LOCK_PATH = os.path.join(PROJECT_ROOT, "skill-lock.yaml")
+DASHBOARD_PATH = os.path.join(PROJECT_ROOT, "dashboard.json")
+PROJECT_WORKFLOW_PATH = os.path.join(PROJECT_ROOT, "workflow.yaml")
+
+REGISTRY_PATH = os.path.join(SKILLS_DIR, "registry.yaml")
+WORKFLOW_PATH = os.path.join(SKILLS_DIR, "workflow_registry.yaml")
+
+for d in [PROJECTS_DIR, GLOBAL_AGENTS_DIR, GLOBAL_RUNS_DIR, AGENTS_DIR, SKILLS_DIR, RUNS_DIR, DATA_DIR, ARTIFACTS_DIR, PROJECT_SKILLS_DIR, EXTERNAL_CACHE_DIR]:
+    os.makedirs(d, exist_ok=True)

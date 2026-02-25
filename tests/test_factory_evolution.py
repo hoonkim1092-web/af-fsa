@@ -4,6 +4,12 @@ import importlib
 def _load_launcher(monkeypatch):
     monkeypatch.setenv("GOOGLE_API_KEY", "test-key")
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    import core.config_paths
+    importlib.reload(core.config_paths)
+    import core.utils
+    importlib.reload(core.utils)
+    import core.agent_runner
+    importlib.reload(core.agent_runner)
     import agent_launcher
     return importlib.reload(agent_launcher)
 
