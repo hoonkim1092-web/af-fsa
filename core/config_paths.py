@@ -39,6 +39,17 @@ else:
     PROJECT_ID = _proj_id_env or "default"
     PROJECT_ROOT = os.path.abspath(os.path.join(PROJECTS_DIR, PROJECT_ID))
 
+_global_user_key_raw = os.environ.get("AGENT_GLOBAL_USER_KEY", "").strip()
+GLOBAL_USER_KEY = _boot_safe_id(_global_user_key_raw) if _global_user_key_raw else ""
+GLOBAL_STORAGE_ID = f"global_{GLOBAL_USER_KEY}" if GLOBAL_USER_KEY else ""
+_global_root_env = os.environ.get("AGENT_GLOBAL_PROJECT_ROOT", "").strip()
+if _global_root_env:
+    GLOBAL_PROJECT_ROOT = os.path.abspath(_global_root_env)
+elif GLOBAL_STORAGE_ID:
+    GLOBAL_PROJECT_ROOT = os.path.abspath(os.path.join(PROJECTS_DIR, GLOBAL_STORAGE_ID))
+else:
+    GLOBAL_PROJECT_ROOT = PROJECT_ROOT
+
 AGENTS_DIR = os.path.join(PROJECT_ROOT, "agents")
 RUNS_DIR = os.path.join(PROJECT_ROOT, "runs")
 DATA_DIR = os.path.join(PROJECT_ROOT, "data")
@@ -52,8 +63,31 @@ SKILL_LOCK_PATH = os.path.join(PROJECT_ROOT, "skill-lock.yaml")
 DASHBOARD_PATH = os.path.join(PROJECT_ROOT, "dashboard.json")
 PROJECT_WORKFLOW_PATH = os.path.join(PROJECT_ROOT, "workflow.yaml")
 
+GLOBAL_AGENTS_PATH = os.path.join(GLOBAL_PROJECT_ROOT, "agents")
+GLOBAL_RUNS_PATH = os.path.join(GLOBAL_PROJECT_ROOT, "runs")
+GLOBAL_DATA_DIR = os.path.join(GLOBAL_PROJECT_ROOT, "data")
+GLOBAL_ARTIFACTS_DIR = os.path.join(GLOBAL_PROJECT_ROOT, "artifacts")
+GLOBAL_MEMORY_DIR = os.path.join(GLOBAL_DATA_DIR, "memory")
+
 REGISTRY_PATH = os.path.join(SKILLS_DIR, "registry.yaml")
 WORKFLOW_PATH = os.path.join(SKILLS_DIR, "workflow_registry.yaml")
 
-for d in [PROJECTS_DIR, GLOBAL_AGENTS_DIR, GLOBAL_RUNS_DIR, AGENTS_DIR, SKILLS_DIR, RUNS_DIR, DATA_DIR, ARTIFACTS_DIR, PROJECT_SKILLS_DIR, EXTERNAL_CACHE_DIR]:
+for d in [
+    PROJECTS_DIR,
+    GLOBAL_AGENTS_DIR,
+    GLOBAL_RUNS_DIR,
+    AGENTS_DIR,
+    SKILLS_DIR,
+    RUNS_DIR,
+    DATA_DIR,
+    ARTIFACTS_DIR,
+    PROJECT_SKILLS_DIR,
+    EXTERNAL_CACHE_DIR,
+    GLOBAL_PROJECT_ROOT,
+    GLOBAL_AGENTS_PATH,
+    GLOBAL_RUNS_PATH,
+    GLOBAL_DATA_DIR,
+    GLOBAL_ARTIFACTS_DIR,
+    GLOBAL_MEMORY_DIR,
+]:
     os.makedirs(d, exist_ok=True)

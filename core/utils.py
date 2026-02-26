@@ -141,7 +141,6 @@ def sha256_text(text: str) -> str:
 
 # --- Core Constants (Moved from agent_launcher) ---
 MAX_ITERATIONS = 3
-TEST_TIMEOUT_SEC = 10
 CHILD_ENV_PASSTHROUGH = {
     "PATH", "SYSTEMROOT", "WINDIR", "TEMP", "TMP",
     "PYTHONIOENCODING", "PYTHONUTF8",
@@ -193,7 +192,7 @@ def quick_guard(code: str) -> tuple[bool, list[str]]:
                 vios.append(f"Forbidden call: {name}")
     return (len(vios) == 0), vios
 
-def run_isolated(skill_py_path: str, timeout_sec: int = TEST_TIMEOUT_SEC) -> tuple[bool, dict, str]:
+def run_isolated(skill_py_path: str, timeout_sec: int = 10) -> tuple[bool, dict, str]:
     skill_abs = os.path.abspath(skill_py_path)
     data_abs = os.path.abspath(DATA_DIR)
     art_abs = os.path.abspath(ARTIFACTS_DIR)
@@ -273,9 +272,8 @@ def build_child_env() -> dict:
     return {k: os.environ.get(k) for k in CHILD_ENV_PASSTHROUGH if os.environ.get(k)}
 
 def get_random_signature(agent_config: dict) -> str:
-    """YAML 설정에서 무작위 시그니처 대사를 반환합니다."""
+    """무작위 시그니처 대사를 반환합니다."""
     import random
-    # persona 하위 혹은 최상위에 signature_lines가 있을 수 있음 (표준화 진행됨)
     lines = agent_config.get("signature_lines")
     if not lines and "persona" in agent_config:
         lines = agent_config["persona"].get("signature_lines")
@@ -336,18 +334,6 @@ def to_portable_path(path_text: str) -> str:
         pass
     return abs_p.replace("\\", "/")
 
-def is_portable_rel_path(path_text: str) -> bool:
-    p = str(path_text or "").strip()
-    if not p:
-        return False
-    # Reject absolute paths (e.g., D:\..., /home/...)
-    if os.path.isabs(p):
-        return False
-    # Reject drive-letter style even if os.path.isabs misses it in edge cases.
-    if re.match(r"^[a-zA-Z]:[/\\\\]", p):
-        return False
-    return True
-
 def resolve_skill_paths(skill_id: str) -> tuple[str | None, str | None]:
     sid = safe_id(skill_id)
     settings = read_project_settings()
@@ -365,7 +351,6 @@ def resolve_skill_paths(skill_id: str) -> tuple[str | None, str | None]:
     for py_path, meta_path in ordered:
         if os.path.exists(py_path):
             return py_path, (meta_path if os.path.exists(meta_path) else None)
-    # Backward compatibility: allow legacy forge single-file skills.
     forge_py = os.path.join(SKILLS_DIR, "forge", f"{sid}.py")
     if os.path.exists(forge_py):
         return forge_py, None
@@ -410,27 +395,9 @@ def validate_context_with_schema(ctx: dict) -> tuple[bool, str]:
             return False, f"context type mismatch: {key} expected {tname}"
     return True, "ok"
 
-def read_skill_lock() -> dict:
-    data = read_yaml(SKILL_LOCK_PATH)
-    if not isinstance(data, dict):
-        return {"skills": {}}
-    data.setdefault("skills", {})
-    return data
-
-def lock_skill_state(skill_id: str, meta: dict):
-    lock = read_skill_lock()
-    lock.setdefault("skills", {})
-    lock["skills"][safe_id(skill_id)] = {
-        "version": str(meta.get("version", "0.1.0")),
-        "status": str(meta.get("status", "candidate")),
-        "updated_at": now_iso(),
-    }
-    write_yaml(SKILL_LOCK_PATH, lock)
-
 def append_dashboard_run(entry: dict):
     global _DASHBOARD_CACHE
     path = DASHBOARD_PATH
-    stat_sig = None
     try:
         st = os.stat(path)
         stat_sig = (int(st.st_mtime_ns), int(st.st_size))
@@ -457,7 +424,6 @@ def append_dashboard_run(entry: dict):
     data.setdefault("project_id", PROJECT_ID)
     data.setdefault("runs", [])
     data["runs"].append(entry)
-    # Keep recent 300 entries to avoid unbounded growth.
     data["runs"] = data["runs"][-300:]
     with open(path, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
@@ -471,6 +437,143 @@ def _safe_write_json(path: str, data: dict):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
+
+# --- Core Memory & Intel Helpers ---
+
+def _to_epoch(ts: object, fallback: float = 0.0) -> float:
+    raw = str(ts or "").strip()
+    if not raw:
+        return fallback
+    try:
+        raw = raw.replace("Z", "+00:00")
+        return datetime.fromisoformat(raw).timestamp()
+    except Exception:
+        return fallback
+
+def _iter_recent_json_files(root: str, max_files: int) -> list[str]:
+    if not root or not os.path.isdir(root):
+        return []
+    rows: list[tuple[float, str]] = []
+    for dirpath, _dirnames, filenames in os.walk(root):
+        for name in filenames:
+            if not str(name).lower().endswith(".json"):
+                continue
+            p = os.path.join(dirpath, name)
+            try:
+                mt = float(os.path.getmtime(p))
+            except Exception:
+                mt = 0.0
+            rows.append((mt, p))
+    rows.sort(key=lambda x: x[0], reverse=True)
+    return [p for _mt, p in rows[: max(1, int(max_files or 300))]]
+
+def _memory_value_to_text(value: object) -> str:
+    if isinstance(value, str):
+        return value
+    try:
+        return json.dumps(value, ensure_ascii=False)
+    except Exception:
+        return str(value)
+
+def _load_core_json(path: str) -> tuple[dict, float]:
+    if not os.path.exists(path):
+        return {}, 0.0
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        if not isinstance(data, dict):
+            return {}, 0.0
+    except Exception:
+        return {}, 0.0
+    try:
+        mt = float(os.path.getmtime(path))
+    except Exception:
+        mt = 0.0
+    return data, mt
+
+def read_core_memory(agent_id: str | None = None, max_items: int = 10, max_files_per_root: int = 300) -> dict:
+    """
+    Reads structured memory records with Local -> Global priority.
+    Returns a compact dict suitable for prompt briefing.
+    """
+    from core.config_paths import DATA_DIR, GLOBAL_MEMORY_DIR
+
+    aid = safe_id(agent_id) if agent_id else "general"
+    selected: dict[str, tuple[str, str, float, str]] = {}
+    # token -> (display_key, value_text, epoch, scope)
+
+    def absorb_record(scope: str, file_path: str):
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            if not isinstance(data, dict):
+                return
+        except Exception:
+            return
+
+        key_raw = str(data.get("key") or os.path.splitext(os.path.basename(file_path))[0]).strip()
+        value_raw = data.get("value")
+        if not key_raw or value_raw is None:
+            return
+
+        category = str(data.get("category") or os.path.basename(os.path.dirname(file_path)) or "general").strip() or "general"
+        token = f"{category.lower()}::{key_raw.lower()}"
+        display_key = key_raw if category.lower() == "general" else f"{category}.{key_raw}"
+        value_text = _memory_value_to_text(value_raw)
+        try:
+            mt = float(os.path.getmtime(file_path))
+        except Exception:
+            mt = 0.0
+        epoch = _to_epoch(data.get("updated_at") or data.get("created_at"), fallback=mt)
+
+        prev = selected.get(token)
+        if prev is None:
+            selected[token] = (display_key, value_text, epoch, scope)
+            return
+
+        prev_epoch, prev_scope = prev[2], prev[3]
+        if scope == "local" and prev_scope == "global":
+            selected[token] = (display_key, value_text, epoch, scope)
+            return
+        if scope == prev_scope and epoch >= prev_epoch:
+            selected[token] = (display_key, value_text, epoch, scope)
+
+    # Backward compatibility: optional single core.json maps.
+    global_core, gcore_ts = _load_core_json(os.path.join(GLOBAL_MEMORY_DIR, aid, "core.json"))
+    local_core, lcore_ts = _load_core_json(os.path.join(DATA_DIR, "memory", aid, "core.json"))
+    merged_core = dict(global_core)
+    merged_core.update(local_core)
+    for k, v in merged_core.items():
+        key = str(k).strip()
+        if not key:
+            continue
+        token = f"core::{key.lower()}"
+        scope = "local" if key in local_core else "global"
+        epoch = lcore_ts if scope == "local" else gcore_ts
+        selected[token] = (key, _memory_value_to_text(v), epoch, scope)
+
+    # Structured memory records.
+    root_plan = [
+        ("global", os.path.join(GLOBAL_MEMORY_DIR, aid)),
+        ("global", os.path.join(GLOBAL_MEMORY_DIR, "general")),
+        ("local", os.path.join(DATA_DIR, "memory", aid)),
+        ("local", os.path.join(DATA_DIR, "memory", "general")),
+    ]
+    seen_files: set[str] = set()
+    for scope, root in root_plan:
+        for p in _iter_recent_json_files(root, max_files=max_files_per_root):
+            abs_p = os.path.abspath(p)
+            if abs_p in seen_files:
+                continue
+            seen_files.add(abs_p)
+            absorb_record(scope, abs_p)
+
+    rows = list(selected.values())
+    rows.sort(key=lambda x: x[2], reverse=True)
+    out: dict[str, str] = {}
+    for display_key, value_text, _epoch, _scope in rows[: max(1, int(max_items or 10))]:
+        out[display_key] = value_text[:500]
+    return out
 
 # =============================================================================
 

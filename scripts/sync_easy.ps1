@@ -75,4 +75,33 @@ if ($proj.IsMulti) {
         & python $dbScript --project $proj.Value --mode $mode
     }
 }
-exit $LASTEXITCODE
+if ($LASTEXITCODE -ne 0) {
+    exit $LASTEXITCODE
+}
+
+$globalUserKey = ""
+if ($env:AGENT_GLOBAL_USER_KEY) {
+    $globalUserKey = $env:AGENT_GLOBAL_USER_KEY.Trim()
+}
+if (-not $globalUserKey) {
+    $envFile = Join-Path $repoRoot ".env"
+    if (Test-Path $envFile) {
+        $line = Get-Content $envFile | Where-Object { $_ -match '^\s*AGENT_GLOBAL_USER_KEY\s*=' } | Select-Object -First 1
+        if ($line) {
+            $parts = $line -split "=", 2
+            if ($parts.Length -eq 2) {
+                $globalUserKey = $parts[1].Trim().Trim('"').Trim("'")
+            }
+        }
+    }
+}
+
+if ($globalUserKey) {
+    Write-Host "[SYNC GLOBAL] syncing global profile for user_key=$globalUserKey (mode=$mode)..."
+    & python $dbScript --mode $mode --scope global --user-key $globalUserKey
+    if ($LASTEXITCODE -ne 0) {
+        exit $LASTEXITCODE
+    }
+}
+
+exit 0

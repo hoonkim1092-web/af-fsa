@@ -127,6 +127,23 @@ def resolve_project_root(repo_root: Path, project_input: str) -> tuple[str, Path
     return sync_id, chosen
 
 
+def resolve_global_root(repo_root: Path, user_key: str) -> tuple[str, Path]:
+    projects_root = repo_root / "projects"
+    projects_root.mkdir(parents=True, exist_ok=True)
+
+    safe_user = safe_id(user_key)
+    if not safe_user:
+        raise ValueError("invalid_user_key")
+
+    env_root = str(os.getenv("AGENT_GLOBAL_PROJECT_ROOT", "")).strip()
+    if env_root:
+        root = Path(env_root).expanduser().resolve()
+    else:
+        root = (projects_root / f"global_{safe_user}").resolve()
+    root.mkdir(parents=True, exist_ok=True)
+    return safe_user, root
+
+
 def read_text(path: Path) -> str:
     raw = path.read_bytes()
     for enc in ("utf-8", "utf-8-sig", "cp949", "utf-16", "latin-1"):
@@ -360,6 +377,50 @@ def collect_snapshot(project_root: Path, project_id: str, agent_id: str | None, 
     }
 
 
+def collect_global_snapshot(global_root: Path, user_key: str, run_limit: int) -> dict:
+    files: dict[str, str] = {}
+    exclude_globs = _parse_exclude_globs()
+
+    # Global memory files are the primary source of cross-project continuity.
+    _include_tree(global_root, files, "data/memory", (".json",), exclude_globs=exclude_globs)
+
+    # Optional lightweight global artifacts/notes.
+    _include_tree(global_root, files, "artifacts/global", (".json", ".yaml", ".yml", ".md", ".txt"), exclude_globs=exclude_globs)
+    _include_tree(global_root, files, "docs/global", (".json", ".yaml", ".yml", ".md", ".txt"), exclude_globs=exclude_globs)
+
+    # Include recent run traces only for global profile (bounded by run_limit).
+    runs_root = global_root / "runs"
+    if runs_root.exists():
+        traces = sorted(runs_root.glob("*/chat_trace.json"), key=lambda p: p.stat().st_mtime, reverse=True)
+        kept = 0
+        for trace in traces:
+            if kept >= max(0, run_limit):
+                break
+            run_dir = trace.parent
+            for name in ("chat_trace.json", "state.json"):
+                f = run_dir / name
+                if not f.exists() or not f.is_file():
+                    continue
+                rel = f.relative_to(global_root).as_posix()
+                if rel in files or _is_excluded(rel, exclude_globs):
+                    continue
+                files[rel] = b64e(read_text(f))
+            kept += 1
+
+    files = _apply_exclude_globs(files, exclude_globs)
+    digest_src = json.dumps(files, sort_keys=True, ensure_ascii=False).encode("utf-8")
+    digest = hashlib.sha256(digest_src).hexdigest()
+    return {
+        "schema_version": 1,
+        "captured_at": now_iso(),
+        "scope": "global",
+        "user_key": safe_id(user_key),
+        "file_count": len(files),
+        "sha256": digest,
+        "files": files,
+    }
+
+
 def write_snapshot(project_root: Path, payload: dict, overwrite: bool = True) -> tuple[int, int]:
     files = payload.get("files", {}) if isinstance(payload, dict) else {}
     written = 0
@@ -411,6 +472,8 @@ def main():
     parser.add_argument("--project", "-p", default="", help="single project id")
     parser.add_argument("--projects", default="", help="multiple project ids (comma separated)")
     parser.add_argument("--agent", "-a", default="", help="optional agent id/name for agent-scoped sync")
+    parser.add_argument("--scope", choices=["default", "project", "agent", "global"], default="default", help="sync scope")
+    parser.add_argument("--user-key", default="", help="global user key (used with --scope global)")
     parser.add_argument("--mode", "-m", choices=["push", "pull"], required=True, help="sync mode")
     parser.add_argument("--table", default="", help="Supabase table name")
     parser.add_argument("--run-limit", type=int, default=100, help="max run chat traces to include on push")
@@ -420,32 +483,172 @@ def main():
     repo_root = Path(__file__).resolve().parents[1]
     load_dotenv_simple(repo_root)
     agent_id = safe_id(args.agent) if str(args.agent or "").strip() else None
+    scope_mode = str(args.scope or "default").strip().lower()
+    if scope_mode == "default":
+        scope_mode = "agent" if agent_id else "project"
+    if scope_mode == "agent" and not agent_id:
+        raise SystemExit("--scope agent requires --agent")
+
+    def _resolve_supabase_fields(env_map: dict[str, str]) -> tuple[str, str, str, str]:
+        sb_url = str(env_map.get("SUPABASE_URL", os.getenv("SUPABASE_URL", ""))).strip().rstrip("/")
+        sb_key = str(env_map.get("SUPABASE_KEY", os.getenv("SUPABASE_KEY", ""))).strip()
+        table = (
+            str(args.table or "").strip()
+            or str(env_map.get("CONTEXT_SYNC_TABLE", "")).strip()
+            or str(os.getenv("CONTEXT_SYNC_TABLE", "")).strip()
+            or "project_context_sync"
+        )
+        machine = str(env_map.get("SYNC_MACHINE_ID", os.getenv("SYNC_MACHINE_ID", socket.gethostname()))).strip()
+        return sb_url, sb_key, table, machine
+
+    results: list[dict] = []
+
+    if scope_mode == "global":
+        user_key_input = str(args.user_key or os.getenv("AGENT_GLOBAL_USER_KEY", "")).strip()
+        if not user_key_input:
+            raise SystemExit("--scope global requires --user-key or AGENT_GLOBAL_USER_KEY")
+
+        try:
+            user_key, global_root = resolve_global_root(repo_root, user_key_input)
+        except Exception as e:
+            print(json.dumps({"ok": False, "items": [{"ok": False, "mode": args.mode, "scope": "global", "error": str(e)}]}, ensure_ascii=False, indent=2))
+            return
+
+        scope_key = f"user:{user_key}"
+        env_map = load_dotenv_override(global_root / ".env")
+        sb_url, sb_key, table, machine = _resolve_supabase_fields(env_map)
+        if not sb_url or not sb_key:
+            print(
+                json.dumps(
+                    {
+                        "ok": False,
+                        "items": [
+                            {
+                                "ok": False,
+                                "mode": args.mode,
+                                "scope": "global",
+                                "user_key": user_key,
+                                "scope_key": scope_key,
+                                "error": "missing_supabase_env",
+                            }
+                        ],
+                    },
+                    ensure_ascii=False,
+                    indent=2,
+                )
+            )
+            return
+
+        headers = {
+            "apikey": sb_key,
+            "Authorization": f"Bearer {sb_key}",
+            "Content-Type": "application/json",
+        }
+
+        if args.mode == "push":
+            try:
+                payload = collect_global_snapshot(global_root=global_root, user_key=user_key, run_limit=args.run_limit)
+                row = {
+                    "project_id": scope_key,
+                    "source_machine": machine,
+                    "updated_at": now_iso(),
+                    "payload": payload,
+                    "payload_hash": payload.get("sha256"),
+                }
+                upsert_headers = dict(headers)
+                upsert_headers["Prefer"] = "resolution=merge-duplicates,return=representation"
+                url = f"{sb_url}/rest/v1/{table}?on_conflict=project_id"
+                res = http_json("POST", url, upsert_headers, [row])
+                results.append(
+                    {
+                        "ok": True,
+                        "mode": "push",
+                        "scope": "global",
+                        "user_key": user_key,
+                        "scope_key": scope_key,
+                        "global_root": str(global_root),
+                        "result": res,
+                    }
+                )
+            except Exception as e:
+                results.append(
+                    {
+                        "ok": False,
+                        "mode": "push",
+                        "scope": "global",
+                        "user_key": user_key,
+                        "scope_key": scope_key,
+                        "error": str(e),
+                    }
+                )
+        else:
+            try:
+                q = urllib.parse.quote(scope_key, safe="")
+                url = f"{sb_url}/rest/v1/{table}?project_id=eq.{q}&select=project_id,source_machine,updated_at,payload&limit=1"
+                rows = http_json("GET", url, headers, None) or []
+                if not rows:
+                    results.append(
+                        {
+                            "ok": False,
+                            "mode": "pull",
+                            "scope": "global",
+                            "user_key": user_key,
+                            "scope_key": scope_key,
+                            "error": "not_found",
+                        }
+                    )
+                else:
+                    row = rows[0]
+                    payload = row.get("payload", {}) if isinstance(row, dict) else {}
+                    written, skipped = write_snapshot(global_root, payload, overwrite=(not args.no_overwrite))
+                    results.append(
+                        {
+                            "ok": True,
+                            "mode": "pull",
+                            "scope": "global",
+                            "user_key": user_key,
+                            "scope_key": scope_key,
+                            "global_root": str(global_root),
+                            "source_machine": row.get("source_machine"),
+                            "updated_at": row.get("updated_at"),
+                            "written": written,
+                            "skipped": skipped,
+                        }
+                    )
+            except Exception as e:
+                results.append(
+                    {
+                        "ok": False,
+                        "mode": "pull",
+                        "scope": "global",
+                        "user_key": user_key,
+                        "scope_key": scope_key,
+                        "error": str(e),
+                    }
+                )
+
+        print(json.dumps({"ok": all(r.get("ok", False) for r in results), "items": results}, ensure_ascii=False, indent=2))
+        return
+
     project_inputs = parse_project_inputs(args.project, args.projects)
     if not project_inputs:
         raise SystemExit("provide --project or --projects")
 
-    results: list[dict] = []
     for project_input in project_inputs:
         project_id, project_root = resolve_project_root(repo_root, project_input)
-        scope_key = make_scope_key(project_id, agent_id)
-        # Priority: project-local .env > repo-root .env > process env
-        proj_env = load_dotenv_override(project_root / ".env")
-        sb_url = str(proj_env.get("SUPABASE_URL", os.getenv("SUPABASE_URL", ""))).strip().rstrip("/")
-        sb_key = str(proj_env.get("SUPABASE_KEY", os.getenv("SUPABASE_KEY", ""))).strip()
-        table = (
-            str(args.table or "").strip()
-            or str(proj_env.get("CONTEXT_SYNC_TABLE", "")).strip()
-            or str(os.getenv("CONTEXT_SYNC_TABLE", "")).strip()
-            or "project_context_sync"
-        )
-        machine = str(proj_env.get("SYNC_MACHINE_ID", os.getenv("SYNC_MACHINE_ID", socket.gethostname()))).strip()
+        snapshot_agent = agent_id if scope_mode == "agent" else None
+        scope_key = make_scope_key(project_id, snapshot_agent)
+
+        env_map = load_dotenv_override(project_root / ".env")
+        sb_url, sb_key, table, machine = _resolve_supabase_fields(env_map)
         if not sb_url or not sb_key:
             results.append(
                 {
                     "ok": False,
                     "mode": args.mode,
+                    "scope": scope_mode,
                     "project_id": project_id,
-                    "agent_id": agent_id,
+                    "agent_id": snapshot_agent,
                     "scope_key": scope_key,
                     "error": "missing_supabase_env",
                 }
@@ -460,7 +663,7 @@ def main():
 
         if args.mode == "push":
             try:
-                payload = collect_snapshot(project_root=project_root, project_id=project_id, agent_id=agent_id, run_limit=args.run_limit)
+                payload = collect_snapshot(project_root=project_root, project_id=project_id, agent_id=snapshot_agent, run_limit=args.run_limit)
                 row = {
                     "project_id": scope_key,  # stored as scope key for backward-compatible schema
                     "source_machine": machine,
@@ -476,8 +679,9 @@ def main():
                     {
                         "ok": True,
                         "mode": "push",
+                        "scope": scope_mode,
                         "project_id": project_id,
-                        "agent_id": agent_id,
+                        "agent_id": snapshot_agent,
                         "scope_key": scope_key,
                         "result": res,
                     }
@@ -487,8 +691,9 @@ def main():
                     {
                         "ok": False,
                         "mode": "push",
+                        "scope": scope_mode,
                         "project_id": project_id,
-                        "agent_id": agent_id,
+                        "agent_id": snapshot_agent,
                         "scope_key": scope_key,
                         "error": str(e),
                     }
@@ -504,8 +709,9 @@ def main():
                     {
                         "ok": False,
                         "mode": "pull",
+                        "scope": scope_mode,
                         "project_id": project_id,
-                        "agent_id": agent_id,
+                        "agent_id": snapshot_agent,
                         "scope_key": scope_key,
                         "error": "not_found",
                     }
@@ -518,8 +724,9 @@ def main():
                 {
                     "ok": True,
                     "mode": "pull",
+                    "scope": scope_mode,
                     "project_id": project_id,
-                    "agent_id": agent_id,
+                    "agent_id": snapshot_agent,
                     "scope_key": scope_key,
                     "source_machine": row.get("source_machine"),
                     "updated_at": row.get("updated_at"),
@@ -532,8 +739,9 @@ def main():
                 {
                     "ok": False,
                     "mode": "pull",
+                    "scope": scope_mode,
                     "project_id": project_id,
-                    "agent_id": agent_id,
+                    "agent_id": snapshot_agent,
                     "scope_key": scope_key,
                     "error": str(e),
                 }
