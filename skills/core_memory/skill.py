@@ -22,19 +22,89 @@ def _agent_id_from_ctx(ctx):
     return "general"
 
 
-def _get_memory_path(ctx):
+def _resolve_scope(value, default="hybrid"):
+    v = str(value or "").strip().lower()
+    if v in ("local", "global", "hybrid"):
+        return v
+    return default
+
+
+def _default_store_scope(ctx):
+    if not isinstance(ctx, dict):
+        return "local"
+    project_id = str(ctx.get("project_id") or "").strip().lower()
+    if project_id == "agent-factory":
+        return "global"
+    return "local"
+
+
+def _get_local_data_dir(ctx):
     data_dir = ctx.get("data_dir", ".")
+    return os.path.abspath(str(data_dir))
+
+
+def _get_global_data_dir(ctx):
+    if not isinstance(ctx, dict):
+        return None
+    raw = str(ctx.get("global_data_dir") or "").strip()
+    if raw:
+        return os.path.abspath(raw)
+    return None
+
+
+def _memory_roots(ctx, scope):
+    scope = _resolve_scope(scope, default="hybrid")
     agent_id = _agent_id_from_ctx(ctx)
-    return os.path.join(data_dir, "memory", agent_id)
+    roots = []
+
+    if scope in ("local", "hybrid"):
+        local_data = _get_local_data_dir(ctx)
+        roots.append({"root": os.path.join(local_data, "memory", agent_id), "source": "local", "legacy": False})
+        roots.append({"root": os.path.join(local_data, "memory"), "source": "local", "legacy": True})
+
+    if scope in ("global", "hybrid"):
+        global_data = _get_global_data_dir(ctx)
+        if global_data:
+            roots.append({"root": os.path.join(global_data, "memory", agent_id), "source": "global", "legacy": False})
+            roots.append({"root": os.path.join(global_data, "memory"), "source": "global", "legacy": True})
+
+    return roots
+
+
+def _category_dirs(ctx, category, scope):
+    dirs = []
+    for item in _memory_roots(ctx, scope):
+        dirs.append(
+            {
+                "dir": os.path.join(item["root"], category),
+                "source": item["source"],
+                "legacy": item["legacy"],
+            }
+        )
+    return dirs
 
 
 def _legacy_memory_path(ctx):
-    data_dir = ctx.get("data_dir", ".")
+    data_dir = _get_local_data_dir(ctx)
     return os.path.join(data_dir, "memory")
 
 
-def store(ctx, key, value, category="general"):
-    memory_dir = _get_memory_path(ctx)
+def _store_root(ctx, scope):
+    scope = _resolve_scope(scope, default=_default_store_scope(ctx))
+    if scope == "global":
+        global_data = _get_global_data_dir(ctx)
+        if not global_data:
+            return None, "global"
+        return os.path.join(global_data, "memory", _agent_id_from_ctx(ctx)), "global"
+    local_data = _get_local_data_dir(ctx)
+    return os.path.join(local_data, "memory", _agent_id_from_ctx(ctx)), "local"
+
+
+def store(ctx, key, value, category="general", scope=None):
+    memory_dir, store_scope = _store_root(ctx, scope)
+    if not memory_dir:
+        return {"ok": False, "error": "global_memory_unavailable"}
+
     category_dir = os.path.join(memory_dir, category)
     os.makedirs(category_dir, exist_ok=True)
 
@@ -49,6 +119,7 @@ def store(ctx, key, value, category="general"):
         "value": value,
         "category": category,
         "agent_id": _agent_id_from_ctx(ctx),
+        "memory_scope": store_scope,
         "created_at": ts,
         "updated_at": ts,
     }
@@ -56,60 +127,66 @@ def store(ctx, key, value, category="general"):
     try:
         with open(file_path, "w", encoding="utf-8") as f:
             json.dump(record, f, ensure_ascii=False, indent=2)
-        return {"ok": True, "path": file_path}
+        return {"ok": True, "path": file_path, "scope": store_scope}
     except Exception as e:
         return {"ok": False, "error": str(e)}
 
 
-def retrieve(ctx, key, category="general"):
+def retrieve(ctx, key, category="general", scope="hybrid"):
     safe_key = "".join([c for c in key if c.isalnum() or c in (" ", "_", "-")]).strip()
     if not safe_key:
         safe_key = "unnamed_memory"
 
-    primary = os.path.join(_get_memory_path(ctx), category, f"{safe_key}.json")
-    legacy = os.path.join(_legacy_memory_path(ctx), category, f"{safe_key}.json")
-
-    for idx, file_path in enumerate([primary, legacy]):
+    for entry in _category_dirs(ctx, category, scope):
+        file_path = os.path.join(entry["dir"], f"{safe_key}.json")
         if not os.path.exists(file_path):
             continue
         try:
             with open(file_path, "r", encoding="utf-8") as f:
                 data = json.load(f)
-            return {"ok": True, "data": data, "legacy": bool(idx == 1)}
+            return {
+                "ok": True,
+                "data": data,
+                "source": entry["source"],
+                "legacy": bool(entry["legacy"]),
+                "scope": _resolve_scope(scope, default="hybrid"),
+            }
         except Exception as e:
             return {"ok": False, "error": str(e)}
 
-    return {"ok": False, "error": "not_found"}
+    return {"ok": False, "error": "not_found", "scope": _resolve_scope(scope, default="hybrid")}
 
 
-def search(ctx, query, category="general"):
+def search(ctx, query, category="general", scope="hybrid"):
     query_lower = str(query).lower()
     results = []
     seen = set()
 
-    candidate_dirs = [
-        os.path.join(_get_memory_path(ctx), category),
-        os.path.join(_legacy_memory_path(ctx), category),
-    ]
-    for category_dir in candidate_dirs:
+    for entry in _category_dirs(ctx, category, scope):
+        category_dir = entry["dir"]
         if not os.path.exists(category_dir):
             continue
         for file_path in glob.glob(os.path.join(category_dir, "*.json")):
-            if file_path in seen:
+            key_path = os.path.abspath(file_path)
+            if key_path in seen:
                 continue
-            seen.add(file_path)
+            seen.add(key_path)
             try:
                 with open(file_path, "r", encoding="utf-8") as f:
                     data = json.load(f)
                 if query_lower in str(data.get("key", "")).lower() or query_lower in str(data.get("value", "")).lower():
-                    results.append(data)
+                    row = dict(data)
+                    row["source"] = entry["source"]
+                    row["legacy"] = bool(entry["legacy"])
+                    results.append(row)
             except Exception:
                 continue
 
-    return {"ok": True, "results": results}
+    return {"ok": True, "results": results, "scope": _resolve_scope(scope, default="hybrid")}
 
 
 def propose(ctx):
+    store_default_scope = _default_store_scope(ctx)
     operation = str((ctx or {}).get("operation") or (ctx or {}).get("op") or "retrieve").strip().lower()
     return {
         "ok": True,
@@ -121,6 +198,14 @@ def propose(ctx):
             "retrieve": ["key"],
             "search": ["query"],
         },
+        "optional_fields": {
+            "scope": (
+                "local|global|hybrid "
+                f"(store default={store_default_scope}; "
+                "project_id=agent-factory -> global, otherwise local; "
+                "retrieve/search default=hybrid)"
+            )
+        },
     }
 
 
@@ -128,6 +213,7 @@ def apply(ctx):
     payload = ctx if isinstance(ctx, dict) else {}
     operation = str(payload.get("operation") or payload.get("op") or "").strip().lower()
     category = str(payload.get("category") or "general")
+    scope = str(payload.get("scope") or "").strip().lower()
 
     if operation == "store":
         key = str(payload.get("key") or "").strip()
@@ -135,19 +221,19 @@ def apply(ctx):
             return {"ok": False, "reason": "missing_key"}
         if "value" not in payload:
             return {"ok": False, "reason": "missing_value"}
-        return store(payload, key, payload.get("value"), category)
+        return store(payload, key, payload.get("value"), category, scope=(scope or None))
 
     if operation == "retrieve":
         key = str(payload.get("key") or "").strip()
         if not key:
             return {"ok": False, "reason": "missing_key"}
-        return retrieve(payload, key, category)
+        return retrieve(payload, key, category, scope=(scope or "hybrid"))
 
     if operation == "search":
         query = str(payload.get("query") or payload.get("key") or "").strip()
         if not query:
             return {"ok": False, "reason": "missing_query"}
-        return search(payload, query, category)
+        return search(payload, query, category, scope=(scope or "hybrid"))
 
     return {
         "ok": False,

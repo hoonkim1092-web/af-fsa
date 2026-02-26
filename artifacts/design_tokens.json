@@ -1,12 +1,12 @@
-{
-  "color": {
-    "primary": "#ff0000",
-    "secondary": "#2ecc71",
-    "background": "#ffffff",
-    "text": "#333333"
-  },
-  "font": {
-    "base": "Roboto",
-    "size": "16px"
-  }
+{
+  "color": {
+    "primary": "#ff0000",
+    "secondary": "#2ecc71",
+    "background": "#ffffff",
+    "text": "#333333"
+  },
+  "font": {
+    "base": "Roboto",
+    "size": "16px"
+  }
 }

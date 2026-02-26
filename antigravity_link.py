@@ -2,6 +2,8 @@
 import sys
 import subprocess
 import json
+import re
+from datetime import datetime
 
 import warnings
 
@@ -38,6 +40,90 @@ def resolve_python_exec() -> str:
     return "python"
 
 
+def safe_id(text: str, fallback: str = "") -> str:
+    t = str(text or "").strip().lower()
+    t = re.sub(r"[^a-z0-9_]+", "_", t)
+    t = re.sub(r"_+", "_", t).strip("_")
+    return t or fallback
+
+
+def safe_key(text: str, fallback: str = "entry") -> str:
+    cleaned = "".join([c for c in str(text or "") if c.isalnum() or c in (" ", "_", "-")]).strip()
+    if not cleaned:
+        return fallback
+    return cleaned[:120]
+
+
+def _truncate(text: str, limit: int) -> str:
+    s = str(text or "")
+    if len(s) <= limit:
+        return s
+    return s[: max(0, limit - 3)].rstrip() + "..."
+
+
+def resolve_global_memory_dir() -> tuple[str | None, str | None]:
+    raw_user = os.getenv("AGENT_GLOBAL_USER_KEY", "").strip()
+    user_key = safe_id(raw_user, fallback="")
+    if not user_key:
+        return None, None
+
+    override_root = os.getenv("AGENT_GLOBAL_PROJECT_ROOT", "").strip()
+    if override_root:
+        global_root = os.path.abspath(os.path.expanduser(override_root))
+    else:
+        global_root = os.path.abspath(os.path.join(current_dir, "projects", f"global_{user_key}"))
+    memory_dir = os.path.join(global_root, "data", "memory", "antigravity", "routing")
+    os.makedirs(memory_dir, exist_ok=True)
+    return user_key, memory_dir
+
+
+def mirror_global_memory(user_input: str, plan: dict, exit_code: int) -> None:
+    user_key, memory_dir = resolve_global_memory_dir()
+    if not user_key or not memory_dir:
+        return
+
+    now = datetime.utcnow().isoformat() + "Z"
+    role_name = str((plan or {}).get("role_name") or "General Assistant")
+    model_name = str((plan or {}).get("actual_model") or "")
+    reason = str((plan or {}).get("reason") or "")
+
+    summary = (
+        f"user={_truncate(user_input, 240)} | "
+        f"role={_truncate(role_name, 80)} | "
+        f"model={_truncate(model_name, 80)} | "
+        f"reason={_truncate(reason, 140)} | "
+        f"exit={int(exit_code)}"
+    )
+
+    key_base = safe_key(f"antigravity {role_name} {user_input}", fallback="antigravity_entry")
+    stamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S_%f")
+    file_path = os.path.join(memory_dir, f"{safe_id(key_base, fallback='entry')}_{stamp}.json")
+    record = {
+        "key": key_base,
+        "value": summary,
+        "category": "routing",
+        "agent_id": "antigravity",
+        "memory_scope": "global",
+        "source": "antigravity_link",
+        "global_user_key": user_key,
+        "details": {
+            "user_input": _truncate(user_input, 1200),
+            "role_name": role_name,
+            "actual_model": model_name,
+            "reason": reason,
+            "exit_code": int(exit_code),
+        },
+        "created_at": now,
+        "updated_at": now,
+    }
+    try:
+        with open(file_path, "w", encoding="utf-8") as f:
+            json.dump(record, f, ensure_ascii=False, indent=2)
+    except Exception:
+        # Best-effort mirror only.
+        return
+
+
 class SmartLinker:
     def __init__(self):
         self.gatekeeper = genai.GenerativeModel(get_best_model(["gemini-2.0-flash", "gemini-1.5-flash"]))
@@ -46,13 +132,13 @@ class SmartLinker:
         print("[Antigravity] analyzing request and selecting model...")
 
         prompt = f"""
-User Request: "{user_input}"
+User Request: \"{user_input}\"
 
 Analyze the request and return JSON only:
 {{
-  "role_name": "English role name (e.g., Logistics Manager)",
-  "model_choice": "GEMINI_3_PRO|GEMINI_1_5_PRO|GEMINI_2_FLASH",
-  "reason": "short reason"
+  \"role_name\": \"English role name (e.g., Logistics Manager)\",
+  \"model_choice\": \"GEMINI_3_PRO|GEMINI_1_5_PRO|GEMINI_2_FLASH\",
+  \"reason\": \"short reason\"
 }}
 """
         try:
@@ -93,7 +179,8 @@ def handle_command(linker: SmartLinker, user_input: str) -> bool:
     print("Launching factory manager...\n")
 
     factory_path = os.path.join(current_dir, "factory_manager.py")
-    subprocess.run([resolve_python_exec(), factory_path, role_name, selected_model])
+    proc = subprocess.run([resolve_python_exec(), factory_path, role_name, selected_model], check=False)
+    mirror_global_memory(user_input=user_input, plan=plan, exit_code=int(proc.returncode))
     print("\nDone.\n")
     return True
 

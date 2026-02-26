@@ -1,0 +1,17 @@
+{
+  "key": "user EnvironmentSetEnvironmentVariableAGENT_GLOBAL_USER_KEYhoon_main  User  envAGENT_GLOBAL_USER_KEY  hoon_main  envAGEN",
+  "value": "[user] [Environment]::SetEnvironmentVariable(\"AGENT_GLOBAL_USER_KEY\",\"hoon_main\"  ,\"User\")   $env:AGENT_GLOBAL_USER_KEY = \"hoon_main\"   $env:AGENT_GLOBAL_USER_KEY   [Environment]::GetEnvironmentVariable(\"AGENT_GLOBAL_USER_KEY\",\"User\")",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-02-26T15:32:46.472669+00:00",
+  "updated_at": "2026-02-26T15:32:46.472669+00:00",
+  "details": {
+    "text": "[user] [Environment]::SetEnvironmentVariable(\"AGENT_GLOBAL_USER_KEY\",\"hoon_main\"  ,\"User\")\n  $env:AGENT_GLOBAL_USER_KEY = \"hoon_main\"\n  $env:AGENT_GLOBAL_USER_KEY\n  [Environment]::GetEnvironmentVariable(\"AGENT_GLOBAL_USER_KEY\",\"User\")",
+    "event_timestamp": "2026-02-26T14:30:09.499Z",
+    "session_file": "C:/Users/home/.codex/sessions/2026/02/26/rollout-2026-02-26T14-17-53-019c9861-d21e-7892-9d8b-fe2b91c755de.jsonl",
+    "session_line": 816
+  }
+}

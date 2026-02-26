@@ -1,0 +1,17 @@
+{
+  "key": "assistant 맞습니다 목적이 그거라면 서비스화까지 갈 필요 없습니다핵심 리뷰 현재 코드 기준1 Critical 메모리가 프로젝트 루트에 고정됩니다  skillscore_memoryskillpy25CProject",
+  "value": "[assistant] 맞습니다. 목적이 그거라면 서비스화까지 갈 필요 없습니다.  **핵심 리뷰 (현재 코드 기준)** 1. `Critical` 메모리가 프로젝트 루트에 고정됩니다.   [skills/core_memory/skill.py:25](/C:/Project/agent-factory/skills/core_memory/skill.py), [core/agent_runner.py:355](/C:/Project/agent-factory/core/agent_...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-02-26T15:32:46.207397+00:00",
+  "updated_at": "2026-02-26T15:32:46.207397+00:00",
+  "details": {
+    "text": "[assistant] 맞습니다. 목적이 그거라면 서비스화까지 갈 필요 없습니다.\n\n**핵심 리뷰 (현재 코드 기준)**\n1. `Critical` 메모리가 프로젝트 루트에 고정됩니다.  \n[skills/core_memory/skill.py:25](/C:/Project/agent-factory/skills/core_memory/skill.py), [core/agent_runner.py:355](/C:/Project/agent-factory/core/agent_runner.py), [core/config_paths.py:44](/C:/Project/agent-factory/core/config_paths.py)  \n지금은 `ctx.data_dir -> <PROJECT_ROOT>/data`라서 프로젝트 바뀌면 기억도 분리됩니다.\n\n2. `High` `start_db`의 `all` 타깃이 하드코딩입니다.  \n[scripts/sync_easy.ps1:27](/C:/Project/agent-factory/scripts/sync_easy.ps1)  \n`logi-mind-v22,agent-factory`만 기본 동기화라 새 프로젝트는 자동 연속성이 없습니다.\n\n3. `High` DB 스코프 키가 `project_id` 중심입니다.  \n[scripts/project_context_sync.py:383](/C:/Project/agent-factory/scripts/project_context_sync.py), [scripts/project_context_sync.py:430](/C:/Project/agent-factory/scripts/project_context_sync.py)  \n사용자 단위 전역 키가 없어 “어느 프로젝트든 이어쓰기”가 구조적으로 안 됩니다.\n\n4. `Medium` `start_db`는 파일 동기화만 하고, 현재 대화창의 시스템 프롬프트로 즉시 재주입하지 않습니다.  \n[scripts/project_context_sync.py:280](/C:/Project/agent-factory/scripts/project_context_sync.py)  \n즉 “동기화 파일”은 되지만 “현재 채팅 즉시 기억화”는 별도 주입 로직이 필요합니다.\n\n**당장 맞는 최소 방향**\n1. 전역 프로필 하나 고정: `AGENT_PROJECT_ID/AGENT_PROJECT_ROOT`를 한 값으로 통일.\n2. `core_memory`를 `global + local` 읽기(우선순위: local -> global), 쓰기는 옵션화.\n3. `project_context_sync.py`에 `--scope global --user-key <id>` 추가해서 `project_id` 대신 사용자 키로 동기화.\n4. `start_db all` 기본 타깃을 전역 프로필 중심으로 바꾸기.\n5. Codex/Antigravity 시작 시 “전역 메모리 요약 1회 로드”를 프롬프트에 붙이는 훅 추가.\n\n원하면 제가 이 5개를 바로 코드로 최소 수정해서 적용해드릴게요.",
+    "event_timestamp": "2026-02-26T11:47:13.892Z",
+    "session_file": "C:/Users/home/.codex/sessions/2026/02/26/rollout-2026-02-26T14-17-53-019c9861-d21e-7892-9d8b-fe2b91c755de.jsonl",
+    "session_line": 145
+  }
+}

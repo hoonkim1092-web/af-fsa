@@ -16,6 +16,17 @@ if defined CDX_LOG_FILE call :log start %*
 call "%CODEX_PATH%" %*
 set "EXIT_CODE=%ERRORLEVEL%"
 if defined CDX_LOG_FILE call :log exit %EXIT_CODE%
+
+if exist "%~dp0scripts\codex_session_bridge.py" (
+  if /i "%CDX_DEBUG%"=="1" (
+    python "%~dp0scripts\codex_session_bridge.py" --repo-root "%~dp0"
+  ) else (
+    python "%~dp0scripts\codex_session_bridge.py" --repo-root "%~dp0" >nul 2>nul
+  )
+  set "BRIDGE_EXIT=%ERRORLEVEL%"
+  if /i "%CDX_DEBUG%"=="1" echo [CDX] bridge exit: %BRIDGE_EXIT%
+)
+
 exit /b %EXIT_CODE%
 
 :not_found
