@@ -35,14 +35,19 @@ class GitManager:
             print(f"[GitManager] Rollback failed: {e}")
             return False
 
+    def push(self) -> bool:
+        """Pushes current branch to origin."""
+        try:
+            subprocess.run(["git", "push"], check=True, cwd=self.directory)
+            return True
+        except Exception as e:
+            print(f"[GitManager] Push failed: {e}")
+            return False
+
 def git_configure_and_push(directory: str, target_dir: str, agent_name: str, model_name: str, logger=print) -> bool:
     """Legacy function for push integration."""
     mgr = GitManager(directory)
     msg = f"feat: Factory generated/updated {agent_name} using {model_name}"
     if mgr.commit(msg):
-        try:
-            subprocess.run(["git", "push"], check=True, cwd=directory)
-            return True
-        except:
-            return False
+        return mgr.push()
     return False
