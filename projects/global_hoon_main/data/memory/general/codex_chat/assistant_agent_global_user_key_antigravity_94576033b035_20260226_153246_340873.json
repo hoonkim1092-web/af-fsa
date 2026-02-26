@@ -1,17 +1,17 @@
-{
-  "key": "assistant 전역 연속 메모리 흐름까지 이어서 구현했습니다  이제 AGENT_GLOBAL_USER_KEY만 설정하면 antigravity에서 나온 맥락도 전역 메모리에 기록되고 에이전트 실행 시 자동 브리핑됩니",
-  "value": "[assistant] 전역 연속 메모리 흐름까지 이어서 구현했습니다.   이제 `AGENT_GLOBAL_USER_KEY`만 설정하면 `antigravity`에서 나온 맥락도 전역 메모리에 기록되고, 에이전트 실행 시 자동 브리핑됩니다.  적용 파일: - [antigravity_link.py](/C:/Project/agent-factory/antigravity_link.py):64   `mirror_global_memory()` 추가. 사용자 입력/라우팅/실...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-02-26T15:32:46.341414+00:00",
-  "updated_at": "2026-02-26T15:32:46.341414+00:00",
-  "details": {
-    "text": "[assistant] 전역 연속 메모리 흐름까지 이어서 구현했습니다.  \n이제 `AGENT_GLOBAL_USER_KEY`만 설정하면 `antigravity`에서 나온 맥락도 전역 메모리에 기록되고, 에이전트 실행 시 자동 브리핑됩니다.\n\n적용 파일:\n- [antigravity_link.py](/C:/Project/agent-factory/antigravity_link.py):64  \n`mirror_global_memory()` 추가. 사용자 입력/라우팅/실행결과를 `projects/global_<user>/data/memory/antigravity/routing/*.json`에 저장.\n- [core/config_paths.py](/C:/Project/agent-factory/core/config_paths.py):42  \n`AGENT_GLOBAL_USER_KEY`, `GLOBAL_PROJECT_ROOT`, `GLOBAL_MEMORY_DIR` 도입.\n- [skills/core_memory/skill.py](/C:/Project/agent-factory/skills/core_memory/skill.py):25  \n계층형 메모리(`local/global/hybrid`) 적용.\n- [scripts/project_context_sync.py](/C:/Project/agent-factory/scripts/project_context_sync.py):475  \n`--scope global --user-key` 추가, `user:{key}` 스코프 동기화 지원.\n- [scripts/sync_easy.ps1](/C:/Project/agent-factory/scripts/sync_easy.ps1):82  \n`sync ... db ...` 실행 시 전역 키가 있으면 global sync 자동 추가.\n- [core/agent_runner.py](/C:/Project/agent-factory/core/agent_runner.py):500  \n실행 직전 `[Global Context Briefing]` 자동 주입.\n\n검증:\n- `python -m py_compile antigravity_link.py core\\config_paths.py core\\agent_runner.py skills\\core_memory\\skill.py scripts\\project_context_sync.py` 통과.\n- `antigravity_link.py`의 `mirror_global_memory()`로 전역 JSON 생성 확인 후 임시 테스트 폴더 정리 완료.\n\n다음 실행:\n1. 환경변수 설정: `AGENT_GLOBAL_USER_KEY=<고정키>`\n2. 평소처럼 `start_db` / `start_sync` 사용\n3. `antigravity`에서 명령 실행하면 맥락이 전역 memory에 자동 미러링됩니다.",
-    "event_timestamp": "2026-02-26T14:10:09.433Z",
-    "session_file": "C:/Users/home/.codex/sessions/2026/02/26/rollout-2026-02-26T14-17-53-019c9861-d21e-7892-9d8b-fe2b91c755de.jsonl",
-    "session_line": 500
-  }
+{
+  "key": "assistant 전역 연속 메모리 흐름까지 이어서 구현했습니다  이제 AGENT_GLOBAL_USER_KEY만 설정하면 antigravity에서 나온 맥락도 전역 메모리에 기록되고 에이전트 실행 시 자동 브리핑됩니",
+  "value": "[assistant] 전역 연속 메모리 흐름까지 이어서 구현했습니다.   이제 `AGENT_GLOBAL_USER_KEY`만 설정하면 `antigravity`에서 나온 맥락도 전역 메모리에 기록되고, 에이전트 실행 시 자동 브리핑됩니다.  적용 파일: - [antigravity_link.py](/C:/Project/agent-factory/antigravity_link.py):64   `mirror_global_memory()` 추가. 사용자 입력/라우팅/실...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-02-26T15:32:46.341414+00:00",
+  "updated_at": "2026-02-26T15:32:46.341414+00:00",
+  "details": {
+    "text": "[assistant] 전역 연속 메모리 흐름까지 이어서 구현했습니다.  \n이제 `AGENT_GLOBAL_USER_KEY`만 설정하면 `antigravity`에서 나온 맥락도 전역 메모리에 기록되고, 에이전트 실행 시 자동 브리핑됩니다.\n\n적용 파일:\n- [antigravity_link.py](/C:/Project/agent-factory/antigravity_link.py):64  \n`mirror_global_memory()` 추가. 사용자 입력/라우팅/실행결과를 `projects/global_<user>/data/memory/antigravity/routing/*.json`에 저장.\n- [core/config_paths.py](/C:/Project/agent-factory/core/config_paths.py):42  \n`AGENT_GLOBAL_USER_KEY`, `GLOBAL_PROJECT_ROOT`, `GLOBAL_MEMORY_DIR` 도입.\n- [skills/core_memory/skill.py](/C:/Project/agent-factory/skills/core_memory/skill.py):25  \n계층형 메모리(`local/global/hybrid`) 적용.\n- [scripts/project_context_sync.py](/C:/Project/agent-factory/scripts/project_context_sync.py):475  \n`--scope global --user-key` 추가, `user:{key}` 스코프 동기화 지원.\n- [scripts/sync_easy.ps1](/C:/Project/agent-factory/scripts/sync_easy.ps1):82  \n`sync ... db ...` 실행 시 전역 키가 있으면 global sync 자동 추가.\n- [core/agent_runner.py](/C:/Project/agent-factory/core/agent_runner.py):500  \n실행 직전 `[Global Context Briefing]` 자동 주입.\n\n검증:\n- `python -m py_compile antigravity_link.py core\\config_paths.py core\\agent_runner.py skills\\core_memory\\skill.py scripts\\project_context_sync.py` 통과.\n- `antigravity_link.py`의 `mirror_global_memory()`로 전역 JSON 생성 확인 후 임시 테스트 폴더 정리 완료.\n\n다음 실행:\n1. 환경변수 설정: `AGENT_GLOBAL_USER_KEY=<고정키>`\n2. 평소처럼 `start_db` / `start_sync` 사용\n3. `antigravity`에서 명령 실행하면 맥락이 전역 memory에 자동 미러링됩니다.",
+    "event_timestamp": "2026-02-26T14:10:09.433Z",
+    "session_file": "C:/Users/home/.codex/sessions/2026/02/26/rollout-2026-02-26T14-17-53-019c9861-d21e-7892-9d8b-fe2b91c755de.jsonl",
+    "session_line": 500
+  }
 }

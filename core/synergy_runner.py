@@ -193,10 +193,11 @@ def get_synergy_context(tool_names: list[str] | None = None) -> str:
         )
     rendered = ", ".join([f"`{n}`" for n in names])
     return (
-        "\n\n[Synergy Briefing]\n"
-        "You can use OmO synergy tools for deterministic implementation tasks.\n"
-        f"Available synergy tools: {rendered}\n"
-        "Prefer hash-guarded edits for precise refactoring."
+        "\n\n[Synergy & Stability Briefing]\n"
+        "코드 수정 시 발생할 수 있는 라인 밀림(Harness Problem) 방지를 위해\n"
+        "`get_file_with_hashes`로 파일을 읽고 `apply_edit`을 사용하는 것을 강력 추천합니다.\n"
+        f"사용 가능한 시너지 도구: {rendered}\n"
+        "Hash-Anchored 편집은 다중 에이전트 환경에서 가장 안전한 협업 수단입니다."
     )
 
 

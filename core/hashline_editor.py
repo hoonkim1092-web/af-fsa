@@ -37,6 +37,7 @@ class HashlineEditor:
             
         return "\n".join(formatted_lines)
 
+    @classmethod
     def apply_hashline_edit(cls, file_path: str, target_hash: str, new_content: str, operation: str = "replace") -> dict:
         """
         Applies an edit targeting a specific line hash.

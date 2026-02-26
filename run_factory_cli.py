@@ -25,9 +25,11 @@ def main():
     parser.add_argument("--model", "-m", type=str, default=None, help="사용할 AI 모델")
     parser.add_argument("--workflow", "-w", type=str, help="워크플로우 YAML 경로")
     parser.add_argument("--agents", "-a", type=str, help="워크플로우 실행 에이전트 목록(쉼표 구분)")
-
+    parser.add_argument("--mode", choices=["approval", "ultra"], default="approval", help="실행 모드 (기본: approval)")
+    parser.add_argument("--ultra", action="store_true", help="자율 완수(Ultrawork) 모드 활성화 단축키")
     parser.add_argument("--build", action="store_true", help="Build missing skills before run")
     args = parser.parse_args()
+    execution_mode = "ultra" if (args.ultra or args.mode == "ultra") else "approval"
 
     project_id = _safe_project_id(args.project)
     if not project_id:
@@ -71,7 +73,7 @@ def main():
             roles = [x.strip() for x in (args.agents or "").split(",") if x.strip()]
             factory.run_workflow(task_input=task, workflow_path=args.workflow, role_specs=roles)
         else:
-            factory.run(task_input=task, role_spec=role, enable_build=bool(args.build))
+            factory.run(task_input=task, role_spec=role, enable_build=bool(args.build), execution_mode=execution_mode)
     except KeyboardInterrupt:
         print("\n사용자가 실행을 중단했습니다.")
     except Exception as e:

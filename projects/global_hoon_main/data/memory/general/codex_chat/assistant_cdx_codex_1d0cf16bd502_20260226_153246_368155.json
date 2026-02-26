@@ -1,17 +1,17 @@
-{
-  "key": "assistant 이제 cdx 종료 시 Codex 세션 로그를 읽어 전역 메모리에 누적하는 브리지를 추가하겠습니다 중복 방지를 위해 커서 파일도 함께 구현합니다",
-  "value": "[assistant] 이제 `cdx` 종료 시 Codex 세션 로그를 읽어 전역 메모리에 누적하는 브리지를 추가하겠습니다. 중복 방지를 위해 커서 파일도 함께 구현합니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-02-26T15:32:46.368321+00:00",
-  "updated_at": "2026-02-26T15:32:46.368321+00:00",
-  "details": {
-    "text": "[assistant] 이제 `cdx` 종료 시 Codex 세션 로그를 읽어 전역 메모리에 누적하는 브리지를 추가하겠습니다. 중복 방지를 위해 커서 파일도 함께 구현합니다.",
-    "event_timestamp": "2026-02-26T14:15:07.998Z",
-    "session_file": "C:/Users/home/.codex/sessions/2026/02/26/rollout-2026-02-26T14-17-53-019c9861-d21e-7892-9d8b-fe2b91c755de.jsonl",
-    "session_line": 569
-  }
+{
+  "key": "assistant 이제 cdx 종료 시 Codex 세션 로그를 읽어 전역 메모리에 누적하는 브리지를 추가하겠습니다 중복 방지를 위해 커서 파일도 함께 구현합니다",
+  "value": "[assistant] 이제 `cdx` 종료 시 Codex 세션 로그를 읽어 전역 메모리에 누적하는 브리지를 추가하겠습니다. 중복 방지를 위해 커서 파일도 함께 구현합니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-02-26T15:32:46.368321+00:00",
+  "updated_at": "2026-02-26T15:32:46.368321+00:00",
+  "details": {
+    "text": "[assistant] 이제 `cdx` 종료 시 Codex 세션 로그를 읽어 전역 메모리에 누적하는 브리지를 추가하겠습니다. 중복 방지를 위해 커서 파일도 함께 구현합니다.",
+    "event_timestamp": "2026-02-26T14:15:07.998Z",
+    "session_file": "C:/Users/home/.codex/sessions/2026/02/26/rollout-2026-02-26T14-17-53-019c9861-d21e-7892-9d8b-fe2b91c755de.jsonl",
+    "session_line": 569
+  }
 }

@@ -2,34 +2,47 @@ import os
 import subprocess
 import re
 
+class GitManager:
+    """
+    (V22.5) Git Orchestrator
+    Handles commits and rollbacks to provide a safety net for autonomous execution.
+    """
+    def __init__(self, directory: str = None):
+        # Default to factory root if not provided
+        self.directory = directory or os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+    def commit(self, message: str) -> bool:
+        """Saves current state."""
+        try:
+            subprocess.run(["git", "add", "."], check=True, cwd=self.directory)
+            status = subprocess.run(["git", "status", "--porcelain"], capture_output=True, text=True, cwd=self.directory)
+            if not status.stdout.strip():
+                return True
+            subprocess.run(["git", "commit", "-m", message], check=True, cwd=self.directory)
+            return True
+        except Exception as e:
+            print(f"[GitManager] Commit failed: {e}")
+            return False
+
+    def rollback(self) -> bool:
+        """Rolls back to the last committed state."""
+        try:
+            print(f"[GitManager] Rolling back changes in {self.directory}...")
+            subprocess.run(["git", "reset", "--hard", "HEAD"], check=True, cwd=self.directory)
+            subprocess.run(["git", "clean", "-fd"], check=True, cwd=self.directory)
+            return True
+        except Exception as e:
+            print(f"[GitManager] Rollback failed: {e}")
+            return False
 
 def git_configure_and_push(directory: str, target_dir: str, agent_name: str, model_name: str, logger=print) -> bool:
-    """
-    Adds, commits, and pushes changes in a git repository.
-    """
-    logger(f"[GIT] 📤 Preparing to push changes for '{agent_name}'...")
-    try:
-        # We assume the script is executed where the root git directory is accessible, 
-        # or we run it from the target directory if it's a separate repo.
-        # usually FACTORY_ROOT is the repo.
-        subprocess.run(["git", "add", "agents/", "skills/", "core/", "tests/"], check=True, cwd=directory)
-        
-        # Check if there are actual changes before committing
-        status = subprocess.run(["git", "status", "--porcelain"], capture_output=True, text=True, cwd=directory)
-        if not status.stdout.strip():
-            logger("[GIT] ℹ️ No changes detected to commit.")
+    """Legacy function for push integration."""
+    mgr = GitManager(directory)
+    msg = f"feat: Factory generated/updated {agent_name} using {model_name}"
+    if mgr.commit(msg):
+        try:
+            subprocess.run(["git", "push"], check=True, cwd=directory)
             return True
-            
-        subprocess.run(["git", "commit", "-m", f"feat: Factory generated/updated {agent_name} using {model_name}"], check=True, cwd=directory)
-        subprocess.run(["git", "push"], check=True, cwd=directory)
-        logger("[GIT] ✅ Push successful!")
-        return True
-    except subprocess.CalledProcessError as e:
-        logger(f"[GIT Error] ❌ Git command failed with error code {e.returncode}: {e.stderr or e.stdout}")
-        return False
-    except FileNotFoundError:
-        logger("[GIT Error] ❌ Git executable not found on the system.")
-        return False
-    except Exception as e:
-        logger(f"[GIT Error] ❌ Unexpected Error during push: {e}")
-        return False
+        except:
+            return False
+    return False

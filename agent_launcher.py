@@ -101,7 +101,9 @@ from core.manager import AgentManager, RequirementAnalyzer
 from core.researcher import HimariResearchAgent
 from core.builder import SandboxedBuilder
 from core.registry_manager import RegistryManager
-from core.agent_runner import ModelRouter, AgentRunner, GitManager
+from core.agent_runner import ModelRouter, AgentRunner
+from core.git_manager import GitManager
+from core.ultra_loop import UltraLoop
 # Redundant AST and Sandbox logic removed (handled by core.utils and core.executor)
 
 # =============================================================================
@@ -126,6 +128,7 @@ class AgentFactory:
         self.registry = RegistryManager()
         self.git = GitManager()
         self.runner = AgentRunner(self.mr) # Added Runner
+        self.ultra = UltraLoop(self.runner)
 
     def _missing_local_skill_files(self, agent: dict) -> list[str]:
         missing: list[str] = []
@@ -154,8 +157,11 @@ class AgentFactory:
             "require_skill_change_approval": bool(ap.get("require_skill_change_approval", False))
         }
 
-    def _ask_skill_change_approval(self, role_spec: str, skills: list[str], action: str) -> bool:
+    def _ask_skill_change_approval(self, role_spec: str, skills: list[str], action: str, auto_approve: bool = False) -> bool:
         if not skills:
+            return True
+        if auto_approve:
+            print(f"\n[UltraMode] 스킬 자동 승인: {action} ({skills})")
             return True
         print("\n[승인 요청] 스킬 변경")
         print(f"- 대상 에이전트: {role_spec}")
@@ -219,10 +225,11 @@ class AgentFactory:
         data["updated_at"] = now_iso()
         _safe_write_json(state_path, data)
 
-    def run(self, task_input: str, role_spec: str = "General", enable_build: bool = False):
+    def run(self, task_input: str, role_spec: str = "General", enable_build: bool = False, execution_mode: str = "approval"):
         run_id = f"run_{int(time.time())}"
         print(f"\nRUN={run_id}")
         print(f"- Role: {role_spec}")
+        print(f"- Mode: {execution_mode}")
         print(f"- Task: {task_input}")
 
         agent = self.agent_mgr.get_or_create(role_spec)
@@ -265,8 +272,9 @@ class AgentFactory:
                     print(f"[QualityGate] install blocked: {blocked_reuse}")
                 approval_policy = self._read_approval_policy()
                 allow_skill_change = True
+                is_ultra = (execution_mode == "ultra")
                 if installable_reuse and approval_policy.get("require_skill_change_approval", False):
-                    allow_skill_change = self._ask_skill_change_approval(role_spec, installable_reuse, "reuse skill install")
+                    allow_skill_change = self._ask_skill_change_approval(role_spec, installable_reuse, "reuse skill install", auto_approve=is_ultra)
                 installed = self.agent_mgr.install_skills(role_spec, installable_reuse) if (installable_reuse and allow_skill_change) else []
                 if installable_reuse and not allow_skill_change:
                     print("[Approval] reuse install skipped by user.")
@@ -294,8 +302,9 @@ class AgentFactory:
                         print(f"[QualityGate] external install blocked: {blocked_ext}")
                     approval_policy = self._read_approval_policy()
                     allow_skill_change = True
+                    is_ultra = (execution_mode == "ultra")
                     if installable_ext and approval_policy.get("require_skill_change_approval", False):
-                        allow_skill_change = self._ask_skill_change_approval(role_spec, installable_ext, "external skill install")
+                        allow_skill_change = self._ask_skill_change_approval(role_spec, installable_ext, "external skill install", auto_approve=is_ultra)
                     installed = self.agent_mgr.install_skills(role_spec, installable_ext) if (installable_ext and allow_skill_change) else []
                     if installable_ext and not allow_skill_change:
                         print("[Approval] external install skipped by user.")
@@ -340,8 +349,9 @@ class AgentFactory:
                     print(f"[QualityGate] new install blocked: {blocked_new}")
                 approval_policy = self._read_approval_policy()
                 allow_skill_change = True
+                is_ultra = (execution_mode == "ultra")
                 if installable_new and approval_policy.get("require_skill_change_approval", False):
-                    allow_skill_change = self._ask_skill_change_approval(role_spec, installable_new, "new skill install")
+                    allow_skill_change = self._ask_skill_change_approval(role_spec, installable_new, "new skill install", auto_approve=is_ultra)
                 installed = self.agent_mgr.install_skills(role_spec, installable_new) if (installable_new and allow_skill_change) else []
                 if installable_new and not allow_skill_change:
                     print("[Approval] new install skipped by user.")
@@ -349,7 +359,10 @@ class AgentFactory:
                 agent = self.agent_mgr.get_or_create(role_spec)
 
         try:
-            run_metrics = self.runner.run(agent, task_input, run_id=run_id) or {}
+            if execution_mode == "ultra":
+                run_metrics = self.ultra.run_mission(agent, task_input, run_id=run_id) or {}
+            else:
+                run_metrics = self.runner.run(agent, task_input, run_id=run_id, auto_approve=False) or {}
         except TypeError as e:
             if "unexpected keyword argument 'run_id'" in str(e):
                 run_metrics = self.runner.run(agent, task_input) or {}
@@ -485,17 +498,27 @@ class AgentFactory:
 # Example Entry Point
 # =============================================================================
 if __name__ == "__main__":
-    task_arg = " ".join(sys.argv[1:]).strip()
+    import argparse
+    parser = argparse.ArgumentParser(description="Agent Factory CLI")
+    parser.add_argument("task", nargs="*", help="Task description")
+    parser.add_argument("--mode", choices=["approval", "ultra"], default="approval", help="Execution mode")
+    parser.add_argument("--ultra", action="store_true", help="Shortcut for --mode ultra")
+    parser.add_argument("--role", default="General", help="Agent role")
+    parser.add_argument("--build", action="store_true", help="Enable skill building")
     
-    if not task_arg:
-        # Interactively prompt if no CLI args provided
+    args = parser.parse_args()
+    
+    task_input = " ".join(args.task).strip()
+    execution_mode = "ultra" if (args.ultra or args.mode == "ultra") else "approval"
+    
+    if not task_input:
         task_input = prompt_mission_template("Agent Factory")
-    else:
-        task_input = task_arg
         
     AgentFactory().run(
         task_input=task_input,
-        role_spec="General",
+        role_spec=args.role,
+        enable_build=args.build,
+        execution_mode=execution_mode
     )
 
 

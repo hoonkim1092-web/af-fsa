@@ -1,0 +1,17 @@
+{
+    "title": "Autonomous Execution Engine (AEE) Architecture",
+    "summary": "Implementation of dual-mode execution (Approval/Ultra) with Git rollback and Hash-anchored edits for Agent Factory.",
+    "created_at": "2026-02-27T03:22:00Z",
+    "tags": [
+        "aee",
+        "ultrawork",
+        "architecture",
+        "stability",
+        "git_rollback"
+    ],
+    "references": [
+        "d:/agent-factory/core/ultra_loop.py",
+        "d:/agent-factory/core/git_manager.py",
+        "d:/agent-factory/core/hashline_editor.py"
+    ]
+}

@@ -216,7 +216,13 @@ class AgentRunner:
 
     def load_skills(self, agent: dict) -> list:
         loaded_skills = []
-        for sid in agent.get("skills", []):
+        # 기본 스킬(hash_edit) 자동 주입
+        declared_skills = agent.get("skills", [])
+        active_skill_ids = [safe_id(str(s)) for s in declared_skills]
+        if "hash_edit" not in active_skill_ids:
+            active_skill_ids.insert(0, "hash_edit")
+
+        for sid in active_skill_ids:
             sid = safe_id(str(sid))
             skill_py, _ = resolve_skill_paths(sid)
             if not skill_py: continue
@@ -266,8 +272,10 @@ class AgentRunner:
             
         return sys_prompt
 
-    def run(self, agent: dict, task_input: str, run_id: str | None = None):
+    def run(self, agent: dict, task_input: str, run_id: str | None = None, auto_approve: bool = False):
         _safe_print(f"\n🚀 [Runner] 에이전트 실행 시작: {agent.get('name')}")
+        if auto_approve:
+            _safe_print("⚠️ [UltraMode] 자동 승인이 활성화되었습니다. 모든 도구가 즉시 실행됩니다.")
         started = time.time()
         run_id = run_id or f"run_{int(started)}"
         run_dir = os.path.join(RUNS_DIR, run_id)
@@ -362,6 +370,21 @@ class AgentRunner:
         try:
             response = chat.send_message("작업을 시작해주세요.", tool_config={'function_calling_config': 'AUTO'})
             for _ in range(10):
+                # Prepare tool functions (hash_edit comes first for stability)
+                # Re-prioritize tool_functions for each turn to ensure hash_edit is always checked first
+                # This is a temporary reordering for the current turn's tool selection logic.
+                # The original tool_functions list (used for model initialization) remains unchanged.
+                current_turn_tool_functions = []
+                hash_edit_tools = []
+                other_tools = []
+                for tool in tool_functions:
+                    if "hash_edit" in str(getattr(tool, "_skill_id", "")):
+                        hash_edit_tools.append(tool)
+                    else:
+                        other_tools.append(tool)
+                current_turn_tool_functions.extend(hash_edit_tools)
+                current_turn_tool_functions.extend(other_tools)
+
                 if not response.parts:
                     break
                 part = response.parts[0]
@@ -376,7 +399,8 @@ class AgentRunner:
                     tool_func = next((t for t in tool_functions if t.__name__ == fname), None)
                     if tool_func:
                         sid = safe_id(str(getattr(tool_func, "_skill_id", "")))
-                        if self._requires_tool_approval(policy, sid, fname) and not self._ask_tool_approval(fname, sid):
+                        needs_approval = self._requires_tool_approval(policy, sid, fname)
+                        if needs_approval and not auto_approve and not self._ask_tool_approval(fname, sid):
                             approval_rejects += 1
                             _append_trace("tool_reject", {"name": str(fname), "skill_id": str(sid)})
                             response = chat.send_message("해당 도구는 승인되지 않았습니다.")

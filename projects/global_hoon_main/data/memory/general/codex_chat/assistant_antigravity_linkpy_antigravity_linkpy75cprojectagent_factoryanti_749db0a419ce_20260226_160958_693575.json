@@ -1,17 +1,17 @@
-{
-  "key": "assistant 네 조건부로 같이 저장됩니다- antigravity_linkpy가 대화 내용을 전역 메모리 파일로 미러링해야 합니다 antigravity_linkpy75CProjectagent-factoryanti",
-  "value": "[assistant] 네, **조건부로 같이 저장됩니다**.  - `antigravity_link.py`가 대화 내용을 전역 메모리 파일로 미러링해야 합니다: [antigravity_link.py:75](C:\\Project\\agent-factory\\antigravity_link.py:75) - `end_db` 시 `.env`의 `AGENT_GLOBAL_USER_KEY`까지 읽어서 global sync를 수행합니다: [scripts/sync_easy.ps1:...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-02-26T16:09:58.693883+00:00",
-  "updated_at": "2026-02-26T16:09:58.693883+00:00",
-  "details": {
-    "text": "[assistant] 네, **조건부로 같이 저장됩니다**.\n\n- `antigravity_link.py`가 대화 내용을 전역 메모리 파일로 미러링해야 합니다: [antigravity_link.py:75](C:\\Project\\agent-factory\\antigravity_link.py:75)\n- `end_db` 시 `.env`의 `AGENT_GLOBAL_USER_KEY`까지 읽어서 global sync를 수행합니다: [scripts/sync_easy.ps1:87](C:\\Project\\agent-factory\\scripts\\sync_easy.ps1:87)\n- global sync는 전역 `data/memory`를 DB로 올립니다: [scripts/project_context_sync.py:385](C:\\Project\\agent-factory\\scripts\\project_context_sync.py:385)\n\n즉, **Antigravity 채팅의 “요약/기억 레코드”는 올라가고**, 채팅 **원문 전체 로그**는 기본값으로는 안 올라갑니다.",
-    "event_timestamp": "2026-02-26T15:36:41.210Z",
-    "session_file": "C:/Users/home/.codex/sessions/2026/02/26/rollout-2026-02-26T14-17-53-019c9861-d21e-7892-9d8b-fe2b91c755de.jsonl",
-    "session_line": 1616
-  }
+{
+  "key": "assistant 네 조건부로 같이 저장됩니다- antigravity_linkpy가 대화 내용을 전역 메모리 파일로 미러링해야 합니다 antigravity_linkpy75CProjectagent-factoryanti",
+  "value": "[assistant] 네, **조건부로 같이 저장됩니다**.  - `antigravity_link.py`가 대화 내용을 전역 메모리 파일로 미러링해야 합니다: [antigravity_link.py:75](C:\\Project\\agent-factory\\antigravity_link.py:75) - `end_db` 시 `.env`의 `AGENT_GLOBAL_USER_KEY`까지 읽어서 global sync를 수행합니다: [scripts/sync_easy.ps1:...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-02-26T16:09:58.693883+00:00",
+  "updated_at": "2026-02-26T16:09:58.693883+00:00",
+  "details": {
+    "text": "[assistant] 네, **조건부로 같이 저장됩니다**.\n\n- `antigravity_link.py`가 대화 내용을 전역 메모리 파일로 미러링해야 합니다: [antigravity_link.py:75](C:\\Project\\agent-factory\\antigravity_link.py:75)\n- `end_db` 시 `.env`의 `AGENT_GLOBAL_USER_KEY`까지 읽어서 global sync를 수행합니다: [scripts/sync_easy.ps1:87](C:\\Project\\agent-factory\\scripts\\sync_easy.ps1:87)\n- global sync는 전역 `data/memory`를 DB로 올립니다: [scripts/project_context_sync.py:385](C:\\Project\\agent-factory\\scripts\\project_context_sync.py:385)\n\n즉, **Antigravity 채팅의 “요약/기억 레코드”는 올라가고**, 채팅 **원문 전체 로그**는 기본값으로는 안 올라갑니다.",
+    "event_timestamp": "2026-02-26T15:36:41.210Z",
+    "session_file": "C:/Users/home/.codex/sessions/2026/02/26/rollout-2026-02-26T14-17-53-019c9861-d21e-7892-9d8b-fe2b91c755de.jsonl",
+    "session_line": 1616
+  }
 }

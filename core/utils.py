@@ -334,6 +334,13 @@ def to_portable_path(path_text: str) -> str:
         pass
     return abs_p.replace("\\", "/")
 
+def is_portable_rel_path(path_text: str) -> bool:
+    p = str(path_text or "").strip()
+    if not p:
+        return False
+    # Portable path is relative and uses forward slashes
+    return not os.path.isabs(p) and "\\" not in p
+
 def resolve_skill_paths(skill_id: str) -> tuple[str | None, str | None]:
     sid = safe_id(skill_id)
     settings = read_project_settings()

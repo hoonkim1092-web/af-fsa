@@ -1,17 +1,17 @@
-{
-  "key": "assistant 핵심은 antigravity 채팅 로그 파일이 이 리포의 동기화 대상 경로에 실제로 존재하느냐입니다 antigravity_linkpy와 관련 경로를 확인해서 yesno를 명확히 말하겠습니다",
-  "value": "[assistant] 핵심은 “antigravity 채팅 로그 파일이 이 리포의 동기화 대상 경로에 실제로 존재하느냐”입니다. `antigravity_link.py`와 관련 경로를 확인해서 yes/no를 명확히 말하겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-02-26T15:32:46.746784+00:00",
-  "updated_at": "2026-02-26T15:32:46.746784+00:00",
-  "details": {
-    "text": "[assistant] 핵심은 “antigravity 채팅 로그 파일이 이 리포의 동기화 대상 경로에 실제로 존재하느냐”입니다. `antigravity_link.py`와 관련 경로를 확인해서 yes/no를 명확히 말하겠습니다.",
-    "event_timestamp": "2026-02-26T15:24:01.773Z",
-    "session_file": "C:/Users/home/.codex/sessions/2026/02/26/rollout-2026-02-26T14-17-53-019c9861-d21e-7892-9d8b-fe2b91c755de.jsonl",
-    "session_line": 1298
-  }
+{
+  "key": "assistant 핵심은 antigravity 채팅 로그 파일이 이 리포의 동기화 대상 경로에 실제로 존재하느냐입니다 antigravity_linkpy와 관련 경로를 확인해서 yesno를 명확히 말하겠습니다",
+  "value": "[assistant] 핵심은 “antigravity 채팅 로그 파일이 이 리포의 동기화 대상 경로에 실제로 존재하느냐”입니다. `antigravity_link.py`와 관련 경로를 확인해서 yes/no를 명확히 말하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-02-26T15:32:46.746784+00:00",
+  "updated_at": "2026-02-26T15:32:46.746784+00:00",
+  "details": {
+    "text": "[assistant] 핵심은 “antigravity 채팅 로그 파일이 이 리포의 동기화 대상 경로에 실제로 존재하느냐”입니다. `antigravity_link.py`와 관련 경로를 확인해서 yes/no를 명확히 말하겠습니다.",
+    "event_timestamp": "2026-02-26T15:24:01.773Z",
+    "session_file": "C:/Users/home/.codex/sessions/2026/02/26/rollout-2026-02-26T14-17-53-019c9861-d21e-7892-9d8b-fe2b91c755de.jsonl",
+    "session_line": 1298
+  }
 }
