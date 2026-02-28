@@ -1,6 +1,5 @@
 import os
 import re
-import google.generativeai as genai
 from config.schema import factory_config
 
 def _boot_safe_id(text: str) -> str:
@@ -14,8 +13,7 @@ GOOGLE_API_KEY = factory_config.google_api_key
 OPENAI_API_KEY = factory_config.openai_api_key
 if not GOOGLE_API_KEY and not OPENAI_API_KEY:
     raise RuntimeError("Neither GOOGLE_API_KEY nor OPENAI_API_KEY found in env/.env")
-if GOOGLE_API_KEY:
-    genai.configure(api_key=GOOGLE_API_KEY)
+# [New SDK] genai.Client은 각 모듈에서 개별 생성 (config_paths는 경로만 담당)
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # [Project Specific Path Resolution]
@@ -24,11 +22,6 @@ GLOBAL_AGENTS_DIR = os.path.join(BASE_DIR, "agents")
 SKILLS_DIR = os.path.join(BASE_DIR, "skills")
 GLOBAL_RUNS_DIR = os.path.join(BASE_DIR, "runs")
 
-def _boot_safe_id(text: str) -> str:
-    t = (text or "").strip().lower()
-    t = re.sub(r"[^a-z0-9_]+", "_", t)
-    t = re.sub(r"_+", "_", t).strip("_")
-    return t or "default"
 
 _proj_id_env = _boot_safe_id(os.environ.get("AGENT_PROJECT_ID", "").strip()) if os.environ.get("AGENT_PROJECT_ID") else ""
 _proj_root_env = os.environ.get("AGENT_PROJECT_ROOT", "").strip()

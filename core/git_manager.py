@@ -1,6 +1,7 @@
 import os
 import subprocess
 import re
+import time
 
 class GitManager:
     """
@@ -25,11 +26,31 @@ class GitManager:
             return False
 
     def rollback(self) -> bool:
-        """Rolls back to the last committed state."""
+        """Rolls back local changes with a safe default strategy.
+
+        Default: stash all tracked/untracked changes for recovery.
+        Optional destructive mode can be enabled via AGENT_DESTRUCTIVE_ROLLBACK=1.
+        """
         try:
             print(f"[GitManager] Rolling back changes in {self.directory}...")
-            subprocess.run(["git", "reset", "--hard", "HEAD"], check=True, cwd=self.directory)
-            subprocess.run(["git", "clean", "-fd"], check=True, cwd=self.directory)
+            status = subprocess.run(
+                ["git", "status", "--porcelain"],
+                capture_output=True,
+                text=True,
+                cwd=self.directory,
+                check=False,
+            )
+            if not str(status.stdout or "").strip():
+                return True
+
+            destructive = str(os.getenv("AGENT_DESTRUCTIVE_ROLLBACK", "")).strip().lower() in ("1", "true", "yes", "on")
+            if destructive:
+                subprocess.run(["git", "reset", "--hard", "HEAD"], check=True, cwd=self.directory)
+                subprocess.run(["git", "clean", "-fd"], check=True, cwd=self.directory)
+            else:
+                # Safe rollback: stash current (failed) changes instead of deleting
+                ts = int(time.time())
+                subprocess.run(["git", "stash", "push", "-u", "-m", f"FSALoop_Safe_Rollback_{ts}"], check=True, cwd=self.directory)
             return True
         except Exception as e:
             print(f"[GitManager] Rollback failed: {e}")

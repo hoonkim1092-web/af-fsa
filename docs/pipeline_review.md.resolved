@@ -1,0 +1,153 @@
+# 🔬 스킬 리서치 → 등록 파이프라인 정밀 검토 리포트
+
+> 검토일: 2026-03-01 | 검토 범위: 복잡도 상승 시 내구성 분석
+
+---
+
+## 파이프라인 흐름도
+
+```mermaid
+graph LR
+    A[RequirementAnalyzer.analyze] --> B[HimariResearchAgent.research]
+    B --> C{기존 스킬 존재?}
+    C -- Yes --> D[RegistryManager.is_installable]
+    D --> E[AgentManager.install_skills]
+    C -- No --> F[SandboxedBuilder.build_skill]
+    F --> G[RegistryManager.register_built]
+    G --> E
+```
+
+---
+
+## 🔴 치명적 버그 (2건) — 즉시 수정 필요
+
+### BUG-1: [builder.py](file:///d:/agent-factory/core/builder.py) L88 — [model](file:///d:/agent-factory/core/llm_engine.py#56-69) 변수 미정의 (NameError)
+
+```python
+# builder.py:88 — 현재 코드
+res = model.generate_content(base_prompt)  # ❌ 'model'은 어디에도 정의되지 않음!
+```
+
+`_client`와 `_model_name`은 L66-67에서 준비되지만 실제 호출할 때 **[model](file:///d:/agent-factory/core/llm_engine.py#56-69)이라는 변수로 접근**하고 있어서 **100% NameError** 발생합니다.
+
+> [!CAUTION]
+> **이 버그로 인해 스킬 빌드([forge](file:///d:/agent-factory/project_orchestrator.py#82-165))는 현재 절대 성공할 수 없습니다.** 
+> 리서치는 정상 동작하지만, 그 결과로 새 스킬을 만들어야 할 때 반드시 크래시합니다.
+
+**수정안:**
+```python
+# 올바른 호출
+res = _client.models.generate_content(model=_model_name, contents=base_prompt)
+```
+
+---
+
+### BUG-2: [builder.py](file:///d:/agent-factory/core/builder.py) — MAX_ITERATIONS 반복 시 이전 프롬프트 무변경
+
+```python
+for i in range(MAX_ITERATIONS):   # 최대 3~5회 반복
+    res = model.generate_content(base_prompt)  # ← 매번 동일한 프롬프트!
+    code = strip_code_fences(res.text)
+```
+
+빌드 실패 후 **재시도 시에도 이전 실패 피드백 없이 동일한 프롬프트만 보냄** → LLM은 같은 결과를 반복 생성할 확률이 매우 높습니다.
+
+**수정안:** 이전 실패 사유(`guard_block`, `test_stderr`)를 프롬프트에 누적 주입.
+
+---
+
+## 🟡 설계 불일치 (3건) — 복잡도 상승 시 문제
+
+### MISMATCH-1: 이중 파이프라인 존재
+
+| 파이프라인 | 경로 | 용도 |
+|---|---|---|
+| **Pipeline A** | [agent_launcher.py](file:///d:/agent-factory/agent_launcher.py) → [researcher.py](file:///d:/agent-factory/core/researcher.py) → [builder.py](file:///d:/agent-factory/core/builder.py) → [registry_manager.py](file:///d:/agent-factory/core/registry_manager.py) | 메인 실행 경로 |
+| **Pipeline B** | [skill_procurer.py](file:///d:/agent-factory/core/skill_procurer.py) → [skill_registry.py](file:///d:/agent-factory/core/skill_registry.py) → [llm_engine.py](file:///d:/agent-factory/core/llm_engine.py) | [factory_manager.py](file:///d:/agent-factory/factory_manager.py)에서 사용 |
+
+두 파이프라인은 **완전히 독립적**이며 서로를 모릅니다:
+- Pipeline A: `evidence_pack` 기반, [quick_guard](file:///d:/agent-factory/core/security_guard.py#56-80) + [run_isolated](file:///d:/agent-factory/core/security_guard.py#85-160) 안전성 검증
+- Pipeline B: 단순 LLM 프롬프트 1회 생성, 테스트 없음
+
+> [!WARNING]
+> 복잡도가 올라갈수록 "어느 경로로 스킬이 만들어졌는가?"를 추적할 수 없게 됩니다.
+
+---
+
+### MISMATCH-2: 스킬 ID 정규화 불일치
+
+| 모듈 | 함수 | 로직 |
+|---|---|---|
+| [core/utils.py](file:///d:/agent-factory/core/utils.py) | [safe_id()](file:///d:/agent-factory/core/utils.py#25-30) | `re.sub(r"[^a-z0-9_]+", "_", text)` |
+| [skill_procurer.py](file:///d:/agent-factory/core/skill_procurer.py) | [normalize_skill_id()](file:///d:/agent-factory/factory_manager.py#227-232) | `os.path.splitext(os.path.basename(value))[0]` + 동일 regex |
+
+[normalize_skill_id](file:///d:/agent-factory/factory_manager.py#227-232)는 **파일 경로**를 기준으로 basename을 추출한 뒤 정규화 → [safe_id](file:///d:/agent-factory/core/utils.py#25-30)는 **문자열만** 정규화. 동일한 스킬이 두 함수에서 서로 다른 ID를 반환할 수 있습니다.
+
+---
+
+### MISMATCH-3: NotebookLM 리서치가 첫 번째 스킬에만 적용
+
+```python
+# researcher.py:111
+query = generate_deep_research_prompt(f"{missing[0]}. {reqs.get('goal')}")
+```
+
+[missing](file:///d:/agent-factory/factory_manager.py#244-258)이 5개여도 **`missing[0]` 하나에 대해서만** NotebookLM 리서치를 수행합니다. 나머지 4개는 리서치 없이 [_fallback_match](file:///d:/agent-factory/core/researcher.py#47-56)(토큰 교집합)에만 의존합니다.
+
+---
+
+## 🟠 확장성 병목 (4건)
+
+### BOTTLENECK-1: 순차 빌드로 인한 시간 지연
+
+```python
+# agent_launcher.py:281
+for need in unresolved:
+    ok, _code_path, meta = self.builder.build_skill(...)
+```
+
+스킬 5개를 빌드해야 하면 **5 × (MAX_ITERATIONS × LLM호출 + 테스트)** = 최악의 경우 수 분 이상 소요. 병렬 빌드 메커니즘이 없습니다.
+
+### BOTTLENECK-2: 리서치 LLM 호출이 API Key 없으면 무조건 `{}`
+
+```python
+# researcher.py:144
+res = _client.models.generate_content(...) if _client else None
+payload = safe_json_load(res.text if res else "{}")
+```
+
+API Key가 없으면 `_client=None` → `res=None` → `suggestions={}`. **에러 로그도 없이** 조용히 실패하여 모든 스킬이 "unresolved"로 빠져 빌드 루프에 진입합니다.
+
+### BOTTLENECK-3: 레지스트리가 단일 YAML 파일
+
+[registry.yaml](file:///d:/agent-factory/skills/registry.yaml) 하나에 모든 스킬 메타데이터가 적재됩니다. 스킬이 50개를 넘으면 **읽기/쓰기 경합 + 파일 크기 증가**로 성능 저하가 예상됩니다.
+
+### BOTTLENECK-4: [_score_candidate](file:///d:/agent-factory/core/researcher.py#57-88)의 토큰 매칭 한계
+
+```python
+score += min(len(overlap) * 25, 60)  # 최대 60점
+```
+
+`_`로 분리한 토큰 매칭만으로 관련성을 판단합니다. `data_visualize`와 `data_analyzer`는 `data` 토큰이 겹쳐 높은 점수를 받지만, **실제로는 전혀 다른 기능**일 수 있습니다. 시맨틱 유사도가 없습니다.
+
+---
+
+## 📊 종합 판정
+
+| 영역 | 판정 | 근거 |
+|---|---|---|
+| **단순 스킬 (1~2개)** | 🟡 부분 동작 | builder.py 버그로 Forge 실패, 기존 스킬 재사용만 가능 |
+| **복합 스킬 (3~5개)** | 🔴 실패 확실 | 순차 빌드 + 리서치 1건 제한 + Forge 크래시 |
+| **대규모 (5개+)** | 🔴 실패 확실 | 위 문제 + 레지스트리 병목 + 시간 초과 리스크 |
+
+---
+
+## 🛠️ 수정 우선순위
+
+| 순위 | 항목 | 난이도 | 예상 효과 |
+|---|---|---|---|
+| **1** | BUG-1: builder.py [model](file:///d:/agent-factory/core/llm_engine.py#56-69) → `_client.models.generate_content` | 🟢 5분 | Forge 기능 복원 |
+| **2** | BUG-2: 빌드 재시도 시 실패 피드백 주입 | 🟢 15분 | 빌드 성공률 ↑↑ |
+| **3** | MISMATCH-1: 이중 파이프라인 통합 | 🟡 1시간 | 유지보수성 ↑ |
+| **4** | MISMATCH-3: NotebookLM 멀티스킬 리서치 | 🟢 20분 | 리서치 품질 ↑ |
+| **5** | BOTTLENECK-2: API Key 없을 때 에러 로깅 | 🟢 5분 | 디버깅 편의 ↑ |

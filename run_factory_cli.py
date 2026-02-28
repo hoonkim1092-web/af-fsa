@@ -25,11 +25,11 @@ def main():
     parser.add_argument("--model", "-m", type=str, default=None, help="사용할 AI 모델")
     parser.add_argument("--workflow", "-w", type=str, help="워크플로우 YAML 경로")
     parser.add_argument("--agents", "-a", type=str, help="워크플로우 실행 에이전트 목록(쉼표 구분)")
-    parser.add_argument("--mode", choices=["approval", "ultra"], default="approval", help="실행 모드 (기본: approval)")
-    parser.add_argument("--ultra", action="store_true", help="자율 완수(Ultrawork) 모드 활성화 단축키")
+    parser.add_argument("--mode", choices=["approval", "fsa"], default="approval", help="실행 모드 (기본: approval, 자율: fsa)")
+    parser.add_argument("--fsa", action="store_true", help="풀 셀프 자동화(Full Self Automation) 모드 활성화 단축키")
     parser.add_argument("--build", action="store_true", help="Build missing skills before run")
     args = parser.parse_args()
-    execution_mode = "ultra" if (args.ultra or args.mode == "ultra") else "approval"
+    execution_mode = "fsa" if (args.fsa or args.mode == "fsa") else "approval"
 
     project_id = _safe_project_id(args.project)
     if not project_id:

@@ -6,7 +6,8 @@ import subprocess
 import sys
 import builtins
 import importlib.util
-import google.generativeai as genai
+from google import genai  # [New SDK]
+
 try:
     from openai import OpenAI
 except Exception:
@@ -18,7 +19,7 @@ from core.registry import ToolRegistry
 # from core.tool_runtime import ToolRuntimeWrapper # (Checked in Step 644, this import wasn't there exactly, but registry was)
 from core.policy_runtime import PolicyRuntime
 from core.hooks.event_bus import HookEventBus, IntentGateHook, TodoContinuationEnforcer, ToolOutputTruncator
-from core.llm_engine import get_best_model
+from model_utils import get_best_model  # [Skeleton Principle] model_utils의 Triad 우선순위 사용
 
 
 def _safe_print(*args, **kwargs):
@@ -40,10 +41,22 @@ class ModelRouter:
         forced = (os.getenv("AGENT_CHAT_MODEL") or "").strip()
         if forced:
             return forced
-        if stage in ("requirement", "reasoning", "agent_create"):
-            return resolve_dynamic_model("research_pro")
-        if stage in ("builder", "chat"):
-            return resolve_dynamic_model("codex")
+        
+        # [Skeleton/Framework Dev Principle: Elite Synergy Triad]
+        # 1. Framework Development / Forging Brain (The Skeleton)
+        if stage in ("requirement", "research", "agent_create"):
+            return resolve_dynamic_model("researcher_gemini") # Super Researcher
+        
+        if stage == "reasoning":
+            return resolve_dynamic_model("architect_claude") # System Architect
+            
+        if stage in ("builder", "code_gen"):
+            return resolve_dynamic_model("coder_claude") # Lead Coder
+            
+        if stage == "verification":
+            return resolve_dynamic_model("manager_gpt") # Action Verifier
+            
+        # 2. Operational Brain (Release/Output Agents)
         return resolve_dynamic_model("gemini_flash")
 
 # =============================================================================
@@ -205,6 +218,10 @@ class AgentRunner:
                 resp = client.responses.create(model=codex_model, input=prompt)
                 text = getattr(resp, "output_text", "") or ""
                 if text.strip():
+                    # [Constitution] Signature First 강제 검증
+                    if "[Intelligence:" not in text:
+                        _safe_print("⚠️ [Signature Guard] Codex 응답에 시그니처 누락 — 헤더 자동 주입")
+                        text = f"[Intelligence: {codex_model}] {text.strip()}"
                     _safe_print(f"🤖 {text.strip()}")
                     return True
                 return False
@@ -275,7 +292,7 @@ class AgentRunner:
     def run(self, agent: dict, task_input: str, run_id: str | None = None, auto_approve: bool = False):
         _safe_print(f"\n🚀 [Runner] 에이전트 실행 시작: {agent.get('name')}")
         if auto_approve:
-            _safe_print("⚠️ [UltraMode] 자동 승인이 활성화되었습니다. 모든 도구가 즉시 실행됩니다.")
+            _safe_print("⚠️ [FSA Mode] 자동 승인이 활성화되었습니다. 모든 도구가 즉시 실행됩니다.")
         started = time.time()
         run_id = run_id or f"run_{int(started)}"
         run_dir = os.path.join(RUNS_DIR, run_id)
@@ -349,12 +366,29 @@ class AgentRunner:
             return _finalize(_result(False, "hook_blocked"))
 
         model_name = self.mr.pick("chat") or "gemini-2.0-flash"
+        
+        # Determine actual model tag for signature
+        if is_codex_model(model_name):
+            intel_version = model_name
+        elif is_claude_model(model_name):
+            intel_version = model_name
+        else:
+            intel_version = str(model_name).replace("models/", "")
 
         # System Prompt construction
         sys_prompt = self._resolve_system_prompt(agent)
 
         # 4. Prompt Enhancement (Memory + Synergy)
         sys_prompt = self._apply_runtime_intel(agent, sys_prompt, synergy_tools)
+        
+        # [Hallucination Protection & Signature] Inject mandatory engine version signature instruction
+        signature_directive = (
+            f"\n\n[MANDATORY SIGNATURE RULE]\n"
+            f"당신은 현재 '{intel_version}' 엔진으로 구동 중입니다.\n"
+            f"모든 작업의 첫 응답은 반드시 다음 형식을 포함하는 시그니처 대사로 시작하세요:\n"
+            f"\"[Intelligence: {intel_version}] (당신의 시그니처 대사)\"\n"
+        )
+        sys_prompt = signature_directive + sys_prompt
 
         if self._agent_prefers_codex(agent, model_name):
             if self._run_with_codex(model_name, sys_prompt, task_input, tool_functions):
@@ -362,18 +396,33 @@ class AgentRunner:
                 _safe_print("✅ Agent Execution Finished.")
                 return _finalize(_result(True, "codex"))
 
-        gemini_model = model_name if not (is_codex_model(model_name) or is_claude_model(model_name)) else get_best_model(["gemini-2.0-flash", "gemini-1.5-flash"])
+        gemini_model = model_name if not (is_codex_model(intel_version) or is_claude_model(intel_version)) else get_best_model(["gemini-3.1-pro", "gemini-3.0-flash"])
+        
+        _safe_print(f"🧠 [Intelligence] Engine: {intel_version}")
         _append_trace("system", {"channel": "gemini", "model": str(gemini_model), "tool_count": len(tool_functions)})
-        model = genai.GenerativeModel(gemini_model, tools=tool_functions)
-        chat = model.start_chat(history=[{"role": "user", "parts": [sys_prompt + f"\n\nTask: {task_input}"]}])
+        
+        # [New SDK] Client 기반 멀티턴 채팅 루프 (function calling 포함)
+        _api_key = os.getenv("GOOGLE_API_KEY")
+        _client = genai.Client(api_key=_api_key) if _api_key else None
+        if _client is None:
+            _safe_print("⚠️ [Runner] GOOGLE_API_KEY 없음 — Gemini 경로 사용 불가")
+            return _finalize(_result(False, "no_api_key"))
+
+        chat_config = genai.types.GenerateContentConfig(
+            tools=tool_functions,
+            system_instruction=sys_prompt,
+        )
+
+        chat = _client.chats.create(
+            model=gemini_model,
+            config=chat_config,
+            history=[],
+        )
 
         try:
-            response = chat.send_message("작업을 시작해주세요.", tool_config={'function_calling_config': 'AUTO'})
+            response = chat.send_message(f"Task: {task_input}\n\n작업을 시작해주세요.")
             for _ in range(10):
-                # Prepare tool functions (hash_edit comes first for stability)
-                # Re-prioritize tool_functions for each turn to ensure hash_edit is always checked first
-                # This is a temporary reordering for the current turn's tool selection logic.
-                # The original tool_functions list (used for model initialization) remains unchanged.
+                # hash_edit 우선순위 정렬 (안정성 확보)
                 current_turn_tool_functions = []
                 hash_edit_tools = []
                 other_tools = []
@@ -385,15 +434,16 @@ class AgentRunner:
                 current_turn_tool_functions.extend(hash_edit_tools)
                 current_turn_tool_functions.extend(other_tools)
 
-                if not response.parts:
+                if not response.candidates or not response.candidates[0].content.parts:
                     break
-                part = response.parts[0]
-                if part.text:
+                part = response.candidates[0].content.parts[0]
+                if hasattr(part, 'text') and part.text:
                     _safe_print(f"🤖 {part.text}")
                     _append_trace("assistant", {"text": str(part.text)})
-                if part.function_call:
+                if hasattr(part, 'function_call') and part.function_call:
                     fc = part.function_call
-                    fname, fargs = fc.name, dict(fc.args)
+                    fname = fc.name
+                    fargs = dict(fc.args) if fc.args else {}
                     _safe_print(f"🛠️ [Tool] {fname}({fargs})")
                     _append_trace("tool_call", {"name": str(fname), "args": fargs})
                     tool_func = next((t for t in tool_functions if t.__name__ == fname), None)
@@ -410,7 +460,12 @@ class AgentRunner:
                             res_obj = bus.run_post_execute(agent_state, res_obj)
                         _safe_print(f"  -> Result: {str(res_obj)[:100]}...")
                         _append_trace("tool_result", {"name": str(fname), "result": str(res_obj)[:800]})
-                        response = chat.send_message(genai.prototypes.Part(function_response=genai.prototypes.FunctionResponse(name=fname, response={'result': res_obj})))
+                        # [New SDK] function_response를 genai.types로 전송
+                        fn_response_part = genai.types.Part.from_function_response(
+                            name=fname,
+                            response={'result': res_obj}
+                        )
+                        response = chat.send_message(fn_response_part)
                     else:
                         _append_trace("error", {"stage": "tool_lookup", "tool": str(fname), "message": "not_found"})
                         break

@@ -1,5 +1,5 @@
 import os
-import google.generativeai as genai
+from google import genai  # [New SDK]
 from core.utils import (
     safe_id, read_yaml, write_yaml, now_iso, get_random_signature,
     print_agent_msg, safe_json_load, apply_agent_overrides, safe_generate
@@ -27,8 +27,10 @@ class AgentManager:
             write_yaml(path, data)
             return apply_agent_overrides(data, role_spec)
 
-        # Use Gemini 3.0 for Agent Creation (V22.0 Gold Standard)
-        model = genai.GenerativeModel(self.mr.pick("agent_create"))
+        # [New SDK] Client 기반 에이전트 생성 (Triad: agent_create = Gemini Pro)
+        _api_key = os.getenv("GOOGLE_API_KEY")
+        _client = genai.Client(api_key=_api_key) if _api_key else None
+        _model_name = self.mr.pick("agent_create")
         prompt = f"""
 ROLE_SPEC: "{role_spec}"
 JSON 출력:
@@ -39,7 +41,7 @@ JSON 출력:
 2. **system_ko**: 에이전트의 페르소나와 행동 지침을 상세한 한국어로 작성하세요.
 3. **signature_lines**: 에이전트가 대화를 시작할 때 사용할 시그니처 대사(한국어)를 3~5개 작성하세요. 캐릭터의 성격을 잘 드러내야 합니다.
 """
-        res = safe_generate(model, prompt, generation_config={"response_mime_type": "application/json"})
+        res = _client.models.generate_content(model=_model_name, contents=prompt) if _client else None
         data = safe_json_load(res.text)
         data["name"] = data.get("name") or f"agent_{safe_id(role_spec)}"
         data["role"] = data.get("role") or role_spec
@@ -80,8 +82,7 @@ class RequirementAnalyzer:
         sig = get_random_signature(agent)
         print_agent_msg(agent.get("name", "Agent"), f"태스크 분석을 시작합니다... \"{task_input}\"", sig)
         
-        # Use Gemini 3.0 for Requirement Analysis (V22.0 Gold Standard)
-        model = genai.GenerativeModel(self.mr.pick("requirement"))
+        # [New SDK] 요구사항 분석 — client는 아래 try 블록에서 생성
         prompt = f"""
 AgentRole: {agent.get("role")}
 Task: {task_input}
@@ -100,8 +101,12 @@ JSON 출력:
 - data 분석이면 needs_pandas 추가
 """
         try:
-            res = model.generate_content(prompt, generation_config={"response_mime_type": "application/json"})
-            data = safe_json_load(res.text)
+            # [New SDK] Client 기반 요구사항 분석 (Triad: requirement = Gemini Pro)
+            _api_key = os.getenv("GOOGLE_API_KEY")
+            _client = genai.Client(api_key=_api_key) if _api_key else None
+            _model_name = self.mr.pick("requirement")
+            res = _client.models.generate_content(model=_model_name, contents=prompt) if _client else None
+            data = safe_json_load(res.text if res else "{}")
         except Exception as e:
             data = {
                 "goal": task_input,

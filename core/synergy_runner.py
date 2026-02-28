@@ -183,7 +183,7 @@ class SynergyBridge:
 
 def get_synergy_context(tool_names: list[str] | None = None) -> str:
     if tool_names is None:
-        names = ["synergy_omo_hash_edit", "synergy_omo_ultrawork"]
+        names = ["synergy_omo_hash_edit", "synergy_omo_fsa"]
     else:
         names = [str(n).strip() for n in tool_names if str(n).strip()]
     if not names:
@@ -210,11 +210,11 @@ def build_synergy_tools(policy: dict | None = None, is_allowed_fn: Callable | No
         """Apply deterministic file edit with optional SHA-256 guard."""
         return bridge.run_hash_edit(path=path, find=find, replace=replace, count=count, expected_sha256=expected_sha256)
 
-    def synergy_omo_ultrawork(task: str, timeout_sec: int = 120) -> dict:
-        """Delegate complex implementation task to OmO ultrawork runtime if available."""
+    def synergy_omo_fsa(task: str, timeout_sec: int = 120) -> dict:
+        """Delegate complex implementation task to OmO FSA (ultrawork) runtime if available."""
         return bridge.run_ultrawork(task=task, timeout_sec=timeout_sec)
 
-    for fn in [synergy_omo_hash_edit, synergy_omo_ultrawork]:
+    for fn in [synergy_omo_hash_edit, synergy_omo_fsa]:
         fn._skill_id = skill_id  # type: ignore[attr-defined]
         if is_allowed_fn and policy is not None:
             if not is_allowed_fn(policy, skill_id, fn.__name__):

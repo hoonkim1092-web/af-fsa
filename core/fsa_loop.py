@@ -4,9 +4,9 @@ from core.agent_runner import AgentRunner
 from core.git_manager import GitManager
 from core.utils import now_iso
 
-class UltraLoop:
+class FSALoop:
     """
-    (V22.5) Ultrawork Loop Orchestrator with Git Safety
+    (V22.5) Full Self Automation (FSA) Loop Orchestrator with Git Safety
     Implements a Plan -> Work -> Verify -> Rework cycle with automatic rollback.
     """
     def __init__(self, runner: AgentRunner):
@@ -15,7 +15,7 @@ class UltraLoop:
         self.max_cycles = 5
 
     def run_mission(self, agent: dict, task_input: str, run_id: str):
-        print(f"\n🌀 [UltraLoop] 자율 완수 모드(Ultrawork) 시작: {run_id}")
+        print(f"\n🌀 [FSALoop] 풀 셀프 자동화 모드(FSA) 시작: {run_id}")
         
         current_task = task_input
         for cycle in range(1, self.max_cycles + 1):
@@ -34,7 +34,7 @@ class UltraLoop:
             
             # 3. Failure & Rollback logic
             print(f"⚠️ [Cycle {cycle}] 실패 감지: {result.get('reason')}")
-            print(f"⏪ [UltraLoop] 안전을 위해 Git Rollback을 수행합니다.")
+            print(f"⏪ [FSALoop] 안전을 위해 Git Rollback을 수행합니다.")
             
             # Note: GitManager에 rollback 메서드가 구현되어 있다고 가정하거나 
             # 없으면 직접 명령어로 처리 (여기서는 구현되었다고 보고 호출)

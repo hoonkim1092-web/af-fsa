@@ -1,5 +1,5 @@
 import json
-import google.generativeai as genai
+from google import genai  # [New SDK]
 from config.schema import factory_config
 from core.llm_engine import LLMEngine
 
