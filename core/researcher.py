@@ -2,7 +2,7 @@ import os
 import json
 import subprocess
 import sys
-import google.generativeai as genai
+from google import genai  # [New SDK]
 from core.utils import (
     safe_id, read_yaml, write_yaml, now_iso, get_random_signature,
     print_agent_msg, safe_json_load, resolve_skill_paths, resolve_existing_path
@@ -105,10 +105,15 @@ class HimariResearchAgent:
         if missing:
             himari_cfg = read_yaml(os.path.join(AGENTS_DIR, "himari.yaml"))
             sig = get_random_signature(himari_cfg)
-            print_agent_msg("Himari", f"비밀 서고(NotebookLM)에서 '{missing[0]}' 관련 지식을 탐색합니다...", sig)
+            # [MISMATCH-3 FIX] 모든 미싱 스킬에 대해 리서치 (최대 3개)
+            research_targets = missing[:3]
+            skills_label = ", ".join(research_targets)
+            print_agent_msg("Himari", f"비밀 서고(NotebookLM)에서 '{skills_label}' 관련 지식을 탐색합니다...", sig)
             
             from core.research_engine import generate_deep_research_prompt
-            query = generate_deep_research_prompt(f"{missing[0]}. {reqs.get('goal')}")
+            query = generate_deep_research_prompt(
+                f"다음 스킬들에 대한 설계 지침: {skills_label}. 프로젝트 목표: {reqs.get('goal')}"
+            )
             insight = query_notebooklm(query)
             
             if insight and self._approve_notebooklm_insight(insight):
@@ -117,8 +122,12 @@ class HimariResearchAgent:
             elif insight:
                 print("⏭️ [Himari] NotebookLM 근거 반영이 보류되었습니다.")
 
-        # Stage 1: Reasoning Strategy (Gemini 3.0)
-        model = genai.GenerativeModel(self.mr.pick("requirement"))
+        # [New SDK] Client 기반 리서치 (Triad: requirement = Gemini Pro)
+        _api_key = os.getenv("GOOGLE_API_KEY")
+        if not _api_key:
+            print("⚠️ [Himari] GOOGLE_API_KEY 없음 — LLM 리서치를 건너뛰고 fallback 매칭만 수행합니다.")
+        _client = genai.Client(api_key=_api_key) if _api_key else None
+        _model_name = self.mr.pick("requirement")
         prompt = f"""
 너는 리서치 에이전트 Himari다.
 목표: missing_skills에 대해 설치 가능한 로컬 스킬 후보를 추천한다.
@@ -139,8 +148,8 @@ LocalSkillCatalog(JSON): {json.dumps(skill_catalog, ensure_ascii=False)}
         from core.utils import safe_generate
         suggestions: dict[str, list[str]] = {}
         try:
-            res = safe_generate(model, prompt, generation_config={"response_mime_type": "application/json"})
-            payload = safe_json_load(res.text)
+            res = _client.models.generate_content(model=_model_name, contents=prompt) if _client else None
+            payload = safe_json_load(res.text if res else "{}")
             raw = payload.get("suggestions", {}) if isinstance(payload, dict) else {}
             if isinstance(raw, dict):
                 for need, cands in raw.items():
@@ -148,7 +157,8 @@ LocalSkillCatalog(JSON): {json.dumps(skill_catalog, ensure_ascii=False)}
                     values = [safe_id(str(c)) for c in (cands or []) if safe_id(str(c)) in idx]
                     if values:
                         suggestions[k] = list(dict.fromkeys(values))
-        except Exception:
+        except Exception as e:
+            print(f"⚠️ [Himari] LLM 리서치 실패: {type(e).__name__}: {e}")
             suggestions = {}
 
         for need in missing:

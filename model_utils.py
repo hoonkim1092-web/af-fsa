@@ -6,14 +6,13 @@ import sys
 import urllib.request
 import urllib.error
 import urllib.parse
-import google.generativeai as genai
+from google import genai
 from config.schema import factory_config
 
 sys.stdout.reconfigure(encoding='utf-8')
 
-api_key = os.getenv("GOOGLE_API_KEY")
-if api_key:
-    genai.configure(api_key=api_key)
+_google_api_key = os.getenv("GOOGLE_API_KEY")
+_genai_client = genai.Client(api_key=_google_api_key) if _google_api_key else None
 
 CACHE_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "models_cache.json")
 CACHE_EXPIRY = 24 * 60 * 60  # 24 hours in seconds
@@ -62,8 +61,12 @@ def get_available_models(force_refresh=False):
     log("Fetching available models from Google API...")
     try:
         models = []
-        for m in genai.list_models():
-            if 'generateContent' in m.supported_generation_methods:
+        if _genai_client is None:
+            raise RuntimeError("No GOOGLE_API_KEY configured")
+        for m in _genai_client.models.list():
+            if hasattr(m, 'supported_actions') and 'generateContent' in (m.supported_actions or []):
+                models.append(m.name)
+            elif hasattr(m, 'supported_generation_methods') and 'generateContent' in (m.supported_generation_methods or []):
                 models.append(m.name)
         if models: save_cache(models)
         return models
@@ -111,14 +114,15 @@ def get_best_model(priority_list=None):
     """
     if priority_list is None:
         priority_list = [
-            "gemini-3.1-pro-preview",
-            "gemini-3-flash-preview",
-            "codex-5.3",
+            "gemini-3.1-pro",
+            "gemini-3-pro",
+            "gemini-3-flash",
+            "gemini-2.5-pro",
             "gemini-2.5-flash",
+            "codex-5.3",
             "gemini-2.0-flash",
-            "gemini-1.5-flash",
             "gemini-1.5-pro",
-            "gemini-1.0-pro"
+            "gemini-1.5-flash"
         ]
         
     available = get_available_models()
@@ -171,8 +175,14 @@ def find_latest_model(tag: str, available_models: list) -> str:
 
 def resolve_dynamic_model(engine_id: str) -> str:
     """
-    [Autobahn Engine] API 키 유무를 기반으로 최적의 모델명(String)을 동적으로 맵핑합니다.
-    - 하드코딩 없이 find_latest_model()을 통해 최신 버전을 자동 추적합니다.
+    [Elite Synergy Triad] 모델 전문화 원칙을 지원합니다.
+    [Self-Evolution] 최신 엔진 출시 시 즉시 반영합니다.
+    
+    2026-03 최신 모델 매핑:
+    - researcher_gemini: Gemini 3.1 Pro (압도적 컨텍스트 리서치)
+    - architect_claude: Claude Sonnet 4 (아키텍처 설계)
+    - coder_claude: Claude Sonnet 4 (정밀 코딩)
+    - manager_gpt: GPT-4.1 (도구 조율 및 논리 검증)
     """
     available = get_available_models()
     keys = {
@@ -181,28 +191,30 @@ def resolve_dynamic_model(engine_id: str) -> str:
         "anthropic": bool(os.getenv("ANTHROPIC_API_KEY"))
     }
     
-    # [조건 3] API 키가 한 개도 없을 경우
-    if not any(keys.values()):
-        if engine_id == "gemini_flash": return find_latest_model("gemini-*-flash", available)
-        elif engine_id == "codex": return find_latest_model("gemini-*-pro", available)
-        elif engine_id == "research_pro": return find_latest_model("gemini-*-pro", available)
-        return "gemini-2.0-flash"
+    # [1] Google Gemini (Super Researcher / Fallback)
+    if engine_id in ("researcher_gemini", "research_pro", "gemini_flash", "gemini_pro"):
+        if keys["google"]:
+            target = "gemini-*-pro" if "flash" not in engine_id else "gemini-*-flash"
+            return find_latest_model(target, available)
+        return find_latest_model("gemini-*-flash", available)
 
-    # [조건 1 & 2] 엔진별 최적 벤더 탐색 (V22.0 Gold Standard 전용)
-    if engine_id == "gemini_flash":
-        if keys["google"]: return find_latest_model("gemini-3.0-flash", available)
-        elif keys["openai"]: return "gpt-4o-mini"
-        
-    elif engine_id == "codex":
-        # Stage 2: GPT-5 Codex 5.3 (Implementation Priority)
-        if keys["openai"]: 
-            # 모델 리스트에서 gpt-5 or codex-5.3 검색, 없으면 해당 이름으로 직접 시도
-            return "gpt-5-codex-5.3"
-        elif keys["google"]: return find_latest_model("gemini-3.1-pro", available)
-        
-    elif engine_id == "research_pro":
-        # Stage 1: Gemini 3.0 (Architecture/Reasoning Priority)
-        if keys["google"]: return find_latest_model("gemini-3.0-pro", available)
-        elif keys["openai"]: return "o3-mini" # Fallback
+    # [2] Claude Sonnet 4 (Architect & Coder) — 2025-05 Latest
+    elif engine_id in ("architect_claude", "coder_claude", "claude_pro"):
+        if keys["anthropic"]:
+            return "claude-sonnet-4-20250514"
+        # Fallback: Gemini Pro (cross-engine)
+        if keys["google"]:
+            return find_latest_model("gemini-*-pro", available)
+        return "claude-sonnet-4-20250514"
 
-    return find_latest_model("gemini-3.0-flash", available)
+    # [3] GPT-4.1 (Manager & Action Verifier) — 2025 Latest
+    elif engine_id in ("manager_gpt", "codex"):
+        if keys["openai"]:
+            return "gpt-4.1" if engine_id == "manager_gpt" else "o3"
+        # Fallback: Gemini Flash (cross-engine)
+        if keys["google"]:
+            return find_latest_model("gemini-*-flash", available)
+        return "gpt-4.1"
+
+    return find_latest_model("gemini-*-flash", available)
+

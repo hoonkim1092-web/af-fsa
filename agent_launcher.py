@@ -19,7 +19,7 @@ from config.schema import factory_config
 # Core utilities are now imported from core.utils
 from core.utils import *
 
-import google.generativeai as genai
+from google import genai  # [New SDK]
 try:
     from openai import OpenAI
 except Exception:
@@ -34,58 +34,9 @@ from core.hooks.event_bus import HookEventBus, IntentGateHook, TodoContinuationE
 # config.schema is loaded at top
 from core.config_paths import *
 
-if not os.path.exists(POLICIES_PATH):
-    with open(POLICIES_PATH, "w", encoding="utf-8") as f:
-        yaml.dump(
-            {
-                "project_id": PROJECT_ID,
-                "workflow": {"default_template": "workflows/two_week_webapp_delivery.yaml", "role_map": {}},
-                "quality_gate": {"default_stage_on_build": "candidate", "auto_promote_sequence": ["canary", "active"]},
-                "approval_policy": {"default_require_approval": False, "require_skill_change_approval": False},
-                "autonomy": {"max_stage_retries": 2, "strict_quality_gate": True, "stop_on_stage_failure": True},
-            },
-            f,
-            allow_unicode=True,
-            default_flow_style=False,
-        )
-if not os.path.exists(CONTEXT_SCHEMA_PATH):
-    with open(CONTEXT_SCHEMA_PATH, "w", encoding="utf-8") as f:
-        yaml.dump(
-            {
-                "required_keys": ["agent", "data_dir", "artifacts_dir"],
-                "types": {"agent": "dict", "data_dir": "str", "artifacts_dir": "str"},
-            },
-            f,
-            allow_unicode=True,
-            default_flow_style=False,
-        )
-if not os.path.exists(SKILL_LOCK_PATH):
-    with open(SKILL_LOCK_PATH, "w", encoding="utf-8") as f:
-        yaml.dump({"skills": {}}, f, allow_unicode=True, default_flow_style=False)
-if not os.path.exists(DASHBOARD_PATH):
-    with open(DASHBOARD_PATH, "w", encoding="utf-8") as f:
-        json.dump({"project_id": PROJECT_ID, "runs": []}, f, ensure_ascii=False, indent=2)
-if not os.path.exists(PROJECT_WORKFLOW_PATH):
-    with open(PROJECT_WORKFLOW_PATH, "w", encoding="utf-8") as f:
-        yaml.dump(
-            {"owner_agent": "General", "stages": [{"id": "MAIN", "name": "Main", "objective": "기본 워크플로우"}]},
-            f,
-            allow_unicode=True,
-            default_flow_style=False,
-        )
-if not os.path.exists(PROJECT_SETTINGS_PATH):
-    with open(PROJECT_SETTINGS_PATH, "w", encoding="utf-8") as f:
-        yaml.dump(
-            {
-                "agent_overrides": {},
-                "skill_overrides": {
-                    "prefer_project_skills": True,
-                },
-            },
-            f,
-            allow_unicode=True,
-            default_flow_style=False,
-        )
+# [Modularized] 프로젝트 초기화 — core/project_init.py 로 추출
+from core.project_init import ensure_project_files
+ensure_project_files()
 
 # Constants are now imported from core.utils
 
@@ -101,9 +52,10 @@ from core.manager import AgentManager, RequirementAnalyzer
 from core.researcher import HimariResearchAgent
 from core.builder import SandboxedBuilder
 from core.registry_manager import RegistryManager
+from core.skill_procurer import SkillOrchestrator
 from core.agent_runner import ModelRouter, AgentRunner
 from core.git_manager import GitManager
-from core.ultra_loop import UltraLoop
+from core.fsa_loop import FSALoop
 # Redundant AST and Sandbox logic removed (handled by core.utils and core.executor)
 
 # =============================================================================
@@ -127,8 +79,15 @@ class AgentFactory:
         self.builder = SandboxedBuilder(self.mr)
         self.registry = RegistryManager()
         self.git = GitManager()
-        self.runner = AgentRunner(self.mr) # Added Runner
-        self.ultra = UltraLoop(self.runner)
+        self.runner = AgentRunner(self.mr)
+        self.ultra = FSALoop(self.runner)
+        # [GAP-3] Unified pipeline: Himari(Skeleton) + Builder(Release)
+        self.procurer = SkillOrchestrator(
+            registry=self.registry,
+            research_agent=self.research,
+            builder=self.builder,
+            agent_mgr=self.agent_mgr,
+        )
 
     def _missing_local_skill_files(self, agent: dict) -> list[str]:
         missing: list[str] = []
@@ -161,7 +120,7 @@ class AgentFactory:
         if not skills:
             return True
         if auto_approve:
-            print(f"\n[UltraMode] 스킬 자동 승인: {action} ({skills})")
+            print(f"\n[FSA Mode] 스킬 자동 승인: {action} ({skills})")
             return True
         print("\n[승인 요청] 스킬 변경")
         print(f"- 대상 에이전트: {role_spec}")
@@ -245,121 +204,20 @@ class AgentFactory:
             print(f"\n[RunOnly] build disabled, skipping: {skipped_build_targets}")
 
         if initial_targets and enable_build:
-            print(f"\n[Build] Needed skills: {initial_targets}")
-            built_metas: list[dict] = []
-
-            research = self.research.research(agent, reqs, build_targets=initial_targets)
-            evidence_pack = research.get("evidence_pack", {}) if isinstance(research, dict) else {}
-            targets = evidence_pack.get("targets", {}) if isinstance(evidence_pack, dict) else {}
-
-            reusable: list[str] = []
-            resolved_needs: set[str] = set()
-            for need in initial_targets:
-                target = targets.get(need, {}) if isinstance(targets, dict) else {}
-                top_sid = safe_id(str(target.get("top_candidate", "")))
-                verified = bool(target.get("verified", False))
-                if top_sid and verified:
-                    reusable.append(top_sid)
-                    resolved_needs.add(need)
-
-            reusable = list(dict.fromkeys(reusable))
-            if reusable:
-                for sid in reusable:
-                    self.registry.ensure_lock_for_existing_skill(sid)
-                installable_reuse = [sid for sid in reusable if self.registry.is_installable(sid)]
-                blocked_reuse = [sid for sid in reusable if sid not in installable_reuse]
-                if blocked_reuse:
-                    print(f"[QualityGate] install blocked: {blocked_reuse}")
-                approval_policy = self._read_approval_policy()
-                allow_skill_change = True
-                is_ultra = (execution_mode == "ultra")
-                if installable_reuse and approval_policy.get("require_skill_change_approval", False):
-                    allow_skill_change = self._ask_skill_change_approval(role_spec, installable_reuse, "reuse skill install", auto_approve=is_ultra)
-                installed = self.agent_mgr.install_skills(role_spec, installable_reuse) if (installable_reuse and allow_skill_change) else []
-                if installable_reuse and not allow_skill_change:
-                    print("[Approval] reuse install skipped by user.")
-                print(f"[Factory] reused install: {installable_reuse} -> agent.skills={installed}")
-                agent = self.agent_mgr.get_or_create(role_spec)
-
-            unresolved = [need for need in initial_targets if need not in resolved_needs]
-
-            unresolved_for_external = []
-            for need in unresolved:
-                target = targets.get(need, {}) if isinstance(targets, dict) else {}
-                cands = target.get("candidates", []) if isinstance(target, dict) else []
-                if isinstance(cands, list) and cands:
-                    unresolved_for_external.append(need)
-            if unresolved_for_external:
-                print(f"[Factory] external lookup targets: {unresolved_for_external}")
-                ext_installed_map = self.research.search_external_and_install(
-                    unresolved_for_external, reqs=reqs, registry=self.registry
-                )
-                ext_skill_ids = list(dict.fromkeys([safe_id(str(sid)) for sid in ext_installed_map.values() if str(sid).strip()]))
-                if ext_skill_ids:
-                    installable_ext = [sid for sid in ext_skill_ids if self.registry.is_installable(sid)]
-                    blocked_ext = [sid for sid in ext_skill_ids if sid not in installable_ext]
-                    if blocked_ext:
-                        print(f"[QualityGate] external install blocked: {blocked_ext}")
-                    approval_policy = self._read_approval_policy()
-                    allow_skill_change = True
-                    is_ultra = (execution_mode == "ultra")
-                    if installable_ext and approval_policy.get("require_skill_change_approval", False):
-                        allow_skill_change = self._ask_skill_change_approval(role_spec, installable_ext, "external skill install", auto_approve=is_ultra)
-                    installed = self.agent_mgr.install_skills(role_spec, installable_ext) if (installable_ext and allow_skill_change) else []
-                    if installable_ext and not allow_skill_change:
-                        print("[Approval] external install skipped by user.")
-                    print(f"[Factory] external install: {installable_ext} -> agent.skills={installed}")
-                    for need in unresolved_for_external:
-                        if need in ext_installed_map:
-                            resolved_needs.add(need)
-                    agent = self.agent_mgr.get_or_create(role_spec)
-                else:
-                    print("[Factory] no installable external candidates.")
-
-            unresolved = [need for need in initial_targets if need not in resolved_needs]
-            if unresolved:
-                print(f"[Factory] new build targets: {unresolved}")
-
-            built_skill_ids: list[str] = []
-            for need in unresolved:
-                ok, _code_path, meta = self.builder.build_skill(
-                    agent=agent,
-                    skill_name=need,
-                    reqs=reqs,
-                    run_id=run_id,
-                    evidence_pack=evidence_pack,
-                )
-                if ok:
-                    sid = safe_id(str(meta.get("id", need)))
-                    skill_dir = os.path.join(SKILLS_DIR, sid)
-                    self.registry.register_built(meta, skill_dir)
-                    built_metas.append(meta)
-                    built_skill_ids.append(sid)
-                    print(f"[Factory] build success: {sid}")
-                else:
-                    print(f"[Factory] build failed: {need} | detail={meta.get('last_test_detail')}")
-
-            if built_metas:
-                self.registry.workflow_apply(built_metas)
-
-            if built_skill_ids:
-                installable_new = [sid for sid in built_skill_ids if self.registry.is_installable(sid)]
-                blocked_new = [sid for sid in built_skill_ids if sid not in installable_new]
-                if blocked_new:
-                    print(f"[QualityGate] new install blocked: {blocked_new}")
-                approval_policy = self._read_approval_policy()
-                allow_skill_change = True
-                is_ultra = (execution_mode == "ultra")
-                if installable_new and approval_policy.get("require_skill_change_approval", False):
-                    allow_skill_change = self._ask_skill_change_approval(role_spec, installable_new, "new skill install", auto_approve=is_ultra)
-                installed = self.agent_mgr.install_skills(role_spec, installable_new) if (installable_new and allow_skill_change) else []
-                if installable_new and not allow_skill_change:
-                    print("[Approval] new install skipped by user.")
-                print(f"[Factory] new install: {installable_new} -> agent.skills={installed}")
+            # [GAP-3] Unified Pipeline: Himari(Skeleton) -> Builder(Release) -> Registry
+            installed = self.procurer.procure_multiple(
+                agent=agent,
+                skill_names=initial_targets,
+                reqs=reqs,
+                run_id=run_id,
+                execution_mode=execution_mode,
+                approval_gate=self._ask_skill_change_approval,
+            )
+            if installed:
                 agent = self.agent_mgr.get_or_create(role_spec)
 
         try:
-            if execution_mode == "ultra":
+            if execution_mode == "fsa":
                 run_metrics = self.ultra.run_mission(agent, task_input, run_id=run_id) or {}
             else:
                 run_metrics = self.runner.run(agent, task_input, run_id=run_id, auto_approve=False) or {}
@@ -501,15 +359,15 @@ if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description="Agent Factory CLI")
     parser.add_argument("task", nargs="*", help="Task description")
-    parser.add_argument("--mode", choices=["approval", "ultra"], default="approval", help="Execution mode")
-    parser.add_argument("--ultra", action="store_true", help="Shortcut for --mode ultra")
+    parser.add_argument("--mode", choices=["approval", "fsa"], default="approval", help="Execution mode")
+    parser.add_argument("--fsa", action="store_true", help="Shortcut for --mode fsa")
     parser.add_argument("--role", default="General", help="Agent role")
     parser.add_argument("--build", action="store_true", help="Enable skill building")
     
     args = parser.parse_args()
     
     task_input = " ".join(args.task).strip()
-    execution_mode = "ultra" if (args.ultra or args.mode == "ultra") else "approval"
+    execution_mode = "fsa" if (args.fsa or args.mode == "fsa") else "approval"
     
     if not task_input:
         task_input = prompt_mission_template("Agent Factory")
