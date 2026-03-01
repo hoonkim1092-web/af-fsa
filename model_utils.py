@@ -188,10 +188,21 @@ def find_latest_model(tag: str, available_models: list) -> str:
         if re.search(pattern, m_name):
             ver_match = re.search(r"(\d+\.\d+|\d+)", m_name)
             version = float(ver_match.group(1)) if ver_match else 0.0
-            priority = -1 if "exp" in m_name else (1 if "preview" in m_name else 0)
+            
+            # 사용자 요청: preview 등 최신 모델을 무조건 강력한 최우선으로 반영
+            # exp: 2점, preview: 1점, 안정판(없음): 0점으로 가중치 부여하여 더 높은 버전을 우선시함
+            priority = 0
+            if "exp" in m_name:
+                priority = 2
+            elif "preview" in m_name:
+                priority = 1
+                
             matches.append({"name": m_name, "version": version, "priority": priority})
+            
     if not matches:
         return tag.replace("*", "2.0")
+        
+    # 버전을 최우선 정렬 조건으로, 그 다음 실험/프리뷰 여부(priority)를 두어 가장 최신을 추출
     matches.sort(key=lambda x: (x["version"], x["priority"]), reverse=True)
     return matches[0]["name"]
 
@@ -199,9 +210,12 @@ def find_latest_model(tag: str, available_models: list) -> str:
 def get_best_model(priority_list: list = None) -> str:
     """우선순위 리스트 기반 최적 Gemini 모델 선택."""
     if priority_list is None:
+        # 미래(Gemini 4.0 등)를 하드코딩하지 않고 현재 리스트 범위 내에서 가장 최신 버전을 나열
         priority_list = [
-            "gemini-3.1-pro", "gemini-3-pro", "gemini-3-flash",
-            "gemini-2.5-pro", "gemini-2.5-flash", "gemini-2.0-flash",
+            "gemini-3.1-pro", "gemini-3.1-flash",
+            "gemini-3-pro", "gemini-3-flash",
+            "gemini-2.5-pro", "gemini-2.5-flash", 
+            "gemini-2.0-flash",
             "gemini-1.5-pro", "gemini-1.5-flash"
         ]
     available = get_available_models()
