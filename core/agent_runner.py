@@ -1,4 +1,4 @@
-import os
+﻿import os
 import time
 import json
 import glob
@@ -19,8 +19,7 @@ from core.registry import ToolRegistry
 # from core.tool_runtime import ToolRuntimeWrapper # (Checked in Step 644, this import wasn't there exactly, but registry was)
 from core.policy_runtime import PolicyRuntime
 from core.hooks.event_bus import HookEventBus, IntentGateHook, TodoContinuationEnforcer, ToolOutputTruncator
-from model_utils import get_best_model  # [Skeleton Principle] model_utils의 Triad 우선순위 사용
-
+from model_utils import get_best_model, print_agent_model_summary  # [Skeleton Principle] model_utils??Triad ?怨쀪퐨??뽰맄 ????
 
 def _safe_print(*args, **kwargs):
     enc = getattr(sys.stdout, "encoding", None) or "utf-8"
@@ -35,29 +34,124 @@ def _safe_print(*args, **kwargs):
     builtins.print(*parts, **kwargs)
 
 
+class FallbackRejectedError(RuntimeError):
+    """
+    [Plan A] ????癒? ?대Ŋ媛???媛??椰꾧퀡???됱뱽 ??獄쏆뮇源?
+    ??쎈뻬??筌앸맩??餓λ쵎???랁??怨몄맄嚥??袁る솁??몃빍??
+    """
+    def __init__(self, engine_id: str, tier: str, reason: str):
+        self.engine_id = engine_id
+        self.tier = tier
+        super().__init__(
+            f"[{engine_id}] ????癒? ??媛??椰꾧퀡???됰뮸??덈뼄 (tier={tier}). ?臾믩씜??餓λ쵎???몃빍??\n"
+            f"?癒?뼊 域뱀눊援? {reason}"
+        )
+
+
 class ModelRouter:
-    def pick(self, stage: str, agent_config: dict = None) -> str:
-        from model_utils import resolve_dynamic_model
+    # ?癒?짗 ?諭??筌뤴뫀諭?癒?퐣????????類ㅼ뵥 ??곸뵠 ??媛?筌욊쑵六?    AUTO_APPROVE_FALLBACK: bool = False
+    def __init__(self):
+        self._last_selection = {"model": "", "tier": "", "reason": ""}
+
+    def get_last_selection(self) -> dict:
+        return dict(self._last_selection)
+
+    def _set_last_selection(self, model: str, tier: str = "", reason: str = "") -> None:
+        self._last_selection = {
+            "model": str(model or ""),
+            "tier": str(tier or ""),
+            "reason": str(reason or ""),
+        }
+
+
+    def _confirm_fallback(self, selection, auto_approve: bool = False) -> str:
+        """
+        Confirm cross/free fallback selections and optionally ask user approval.
+        Returns selected model string or raises FallbackRejectedError.
+        """
+        model, tier, reason = selection
+        # Keep metadata even if logs fail or selection is rejected.
+        self._set_last_selection(model, tier, reason)
+
+        if tier == "primary":
+            return model
+
+        if tier == "uncallable":
+            _safe_print("")
+            _safe_print("!" * 60)
+            _safe_print("  [FATAL] Selected model is not callable")
+            _safe_print("!" * 60)
+            _safe_print(f"  {reason}")
+            _safe_print("  Register required API key(s) in .env to proceed.")
+            _safe_print("!" * 60)
+            _safe_print("")
+            raise FallbackRejectedError(model, tier, reason)
+
+        icon = "  [CROSS]" if tier == "cross_fallback" else "  [FREE] "
+        _safe_print("")
+        _safe_print("=" * 60)
+        _safe_print(f"{icon} Fallback warning")
+        _safe_print("=" * 60)
+        _safe_print(f"  {reason}")
+        _safe_print(f"  Selected model: {model}")
+        _safe_print("=" * 60)
+
+        if auto_approve or self.AUTO_APPROVE_FALLBACK:
+            _safe_print(f"  [Auto-Approve] proceeding with: {model}")
+            return model
+
+        try:
+            ans = input("  Proceed with this fallback model? [y/N]: ").strip().lower()
+        except (EOFError, KeyboardInterrupt):
+            ans = "n"
+
+        if ans in ("y", "yes"):
+            _safe_print(f"  [Approved] {model}")
+            _safe_print("")
+            return model
+
+        raise FallbackRejectedError(model, tier, reason)
+    def pick(self, stage: str, agent_config: dict = None, auto_approve: bool = False) -> str:
+        from model_utils import resolve_dynamic_model, resolve_preferred_model, _infer_engine_id, ModelSelection, TIER_PRIMARY
+
         forced = (os.getenv("AGENT_CHAT_MODEL") or "").strip()
         if forced:
+            self._set_last_selection(forced, TIER_PRIMARY, "Forced by AGENT_CHAT_MODEL")
             return forced
-        
-        # [Skeleton/Framework Dev Principle: Elite Synergy Triad]
-        # 1. Framework Development / Forging Brain (The Skeleton)
+
+        # ???? [1] YAML??preferred_model??筌뤿굞???野껋럩???怨쀪퐨 ??????????????????????????????????????
+        if isinstance(agent_config, dict):
+            rr = agent_config.get("runtime_rules", {}) if isinstance(agent_config.get("runtime_rules"), dict) else {}
+            preferred = str(rr.get("preferred_model", "")).strip()
+            if preferred:
+                # ?袁⑹삺 API ??살쨮 ?紐꾪뀱 揶쎛?館釉놂쭪? ?類ㅼ뵥
+                sel = ModelSelection(preferred, TIER_PRIMARY, f"YAML preferred_model: {preferred}")
+                return self._confirm_fallback(sel, auto_approve=auto_approve)
+
+        # ???? [2] role 疫꿸퀡而??癒?짗 ?遺우춭 ?醫뤾문 ????????????????????????????????????????????????????????????????????????????
+        if isinstance(agent_config, dict):
+            role = str(agent_config.get("role", "") or agent_config.get("identity", {}).get("role_summary", "")).strip()
+            if role:
+                engine_id = _infer_engine_id(role)
+                sel = resolve_dynamic_model(engine_id)
+                return self._confirm_fallback(sel, auto_approve=auto_approve)
+
+        # ???? [3] stage 疫꿸퀡而?Skeleton Triad ??깆뒭??(疫꿸퀡?? ??????????????????????????????????????????????
         if stage in ("requirement", "research", "agent_create"):
-            return resolve_dynamic_model("researcher_gemini") # Super Researcher
-        
-        if stage == "reasoning":
-            return resolve_dynamic_model("architect_claude") # System Architect
-            
-        if stage in ("builder", "code_gen"):
-            return resolve_dynamic_model("coder_claude") # Lead Coder
-            
-        if stage == "verification":
-            return resolve_dynamic_model("manager_gpt") # Action Verifier
-            
-        # 2. Operational Brain (Release/Output Agents)
-        return resolve_dynamic_model("gemini_flash")
+            sel = resolve_dynamic_model("researcher_gemini")
+        elif stage == "reasoning":
+            sel = resolve_dynamic_model("architect_claude")
+        elif stage in ("builder", "code_gen"):
+            sel = resolve_dynamic_model("coder_claude")
+        elif stage == "verification":
+            sel = resolve_dynamic_model("manager_gpt")
+        else:
+            # Release/Output Agents
+            sel = resolve_dynamic_model("gemini_flash")
+
+        return self._confirm_fallback(sel, auto_approve=auto_approve)
+
+
 
 # =============================================================================
 
@@ -77,7 +171,7 @@ class AgentRunner:
         legacy = str(agent.get("system_prompt", "")).strip()
         if legacy:
             return legacy
-        return "당신은 유용한 AI 어시스턴트입니다."
+        return "?諭??? ?醫롮뒠??AI ??곷뻻??쎄쉘?紐꾩뿯??덈뼄."
 
     def _resolve_signature_lines(self, agent: dict) -> list[str]:
         lines = agent.get("signature_lines")
@@ -178,10 +272,10 @@ class AgentRunner:
 
     def _ask_tool_approval(self, fname: str, skill_id: str) -> bool:
         try:
-            _safe_print("\n[승인 요청]")
-            _safe_print(f"- 도구: {fname}")
-            _safe_print(f"- 스킬: {skill_id if skill_id else 'unknown'}")
-            ans = input("위 도구 실행을 허용할까요? (yes/no): ").strip().lower()
+            _safe_print("\n[?諭???遺욧퍕]")
+            _safe_print(f"- ?袁㏓럡: {fname}")
+            _safe_print(f"- ??쎄텢: {skill_id if skill_id else 'unknown'}")
+            ans = input("???袁㏓럡 ??쎈뻬????됱뒠?醫됲돱?? (yes/no): ").strip().lower()
             return ans in ("y", "yes")
         except Exception: return False
 
@@ -193,10 +287,10 @@ class AgentRunner:
             if self._requires_tool_approval(policy, sid, fname):
                 needs.append((sid or "unknown", fname))
         if not needs: return
-        _safe_print("\n[정책 안내] 사용자 승인이 필요한 도구 목록")
+        _safe_print("\n[Policy] Tools requiring user approval")
         for sid, fname in needs:
-            _safe_print(f"- 스킬 `{sid}` / 도구 `{fname}`")
-        _safe_print("실행 시마다 yes/y로 승인해야 진행됩니다.")
+            _safe_print(f"- ??쎄텢 `{sid}` / ?袁㏓럡 `{fname}`")
+        _safe_print("??쎈뻬 ??뺤춳??yes/y嚥??諭???곷튊 筌욊쑵六??몃빍??")
 
     def _agent_prefers_codex(self, agent: dict, model_name: str) -> bool:
         if is_codex_model(model_name) or is_claude_model(model_name): return True
@@ -207,33 +301,33 @@ class AgentRunner:
 
     def _run_with_codex(self, model_name: str, sys_prompt: str, task_input: str, tool_functions: list) -> bool:
         if not OPENAI_API_KEY or OpenAI is None:
-            _safe_print("⚠️ [Runner] Codex 경로를 사용할 수 없습니다.")
+            _safe_print("?醫묓닔 [Runner] Codex 野껋럥以덄몴??????????곷뮸??덈뼄.")
             return False
         codex_model = model_name if is_codex_model(model_name) else "codex-5.3"
         tools = ", ".join(sorted({t.__name__ for t in tool_functions})) if tool_functions else "none"
-        prompt = f"{sys_prompt}\n\n[Task]\n{task_input}\n\n[Available Tools]\n{tools}\n도구 호출은 현재 Codex 경로에서 비활성화되어 있으니, 실행 가능한 지시와 설계안을 우선 제시하세요."
+        prompt = f"{sys_prompt}\n\n[Task]\n{task_input}\n\n[Available Tools]\n{tools}\n?袁㏓럡 ?紐꾪뀱?? ?袁⑹삺 Codex 野껋럥以?癒?퐣 ??쑵??源딆넅??뤿선 ??됱몵?? ??쎈뻬 揶쎛?館釉?筌왖??? ??블??됱뱽 ?怨쀪퐨 ??뽯뻻??뤾쉭??"
         client = OpenAI(api_key=OPENAI_API_KEY)
         for i in range(3):
             try:
                 resp = client.responses.create(model=codex_model, input=prompt)
                 text = getattr(resp, "output_text", "") or ""
                 if text.strip():
-                    # [Constitution] Signature First 강제 검증
+                    # [Constitution] Signature First 揶쏅벡??野꺜筌?
                     if "[Intelligence:" not in text:
-                        _safe_print("⚠️ [Signature Guard] Codex 응답에 시그니처 누락 — 헤더 자동 주입")
+                        _safe_print("[Signature Guard] Codex response missing signature; auto-injecting header")
                         text = f"[Intelligence: {codex_model}] {text.strip()}"
-                    _safe_print(f"🤖 {text.strip()}")
+                    _safe_print(f"?夷?{text.strip()}")
                     return True
                 return False
             except Exception as e:
                 if "429" in str(e).lower(): time.sleep(5 * (i+1)); continue
-                _safe_print(f"⚠️ [Runner] Codex 실행 오류: {e}")
+                _safe_print(f"?醫묓닔 [Runner] Codex ??쎈뻬 ??살첒: {e}")
                 return False
         return False
 
     def load_skills(self, agent: dict) -> list:
         loaded_skills = []
-        # 기본 스킬(hash_edit) 자동 주입
+        # Ensure hash_edit skill is always loaded first
         declared_skills = agent.get("skills", [])
         active_skill_ids = [safe_id(str(s)) for s in declared_skills]
         if "hash_edit" not in active_skill_ids:
@@ -258,8 +352,8 @@ class AgentRunner:
                     setattr(module, "__skill_id__", sid)
                     self._skill_module_cache[sid] = (skill_py, cur_mtime, module)
                     loaded_skills.append(module)
-                    _safe_print(f"✅ [Runner] 스킬 로드 성공: {sid}")
-            except Exception as e: _safe_print(f"⚠️ [Runner] 스킬 로드 실패 ({sid}): {e}")
+                    _safe_print(f"??[Runner] ??쎄텢 嚥≪뮆諭??源껊궗: {sid}")
+            except Exception as e: _safe_print(f"?醫묓닔 [Runner] ??쎄텢 嚥≪뮆諭???쎈솭 ({sid}): {e}")
         return loaded_skills
 
     def build_tool_registry(self, module_list: list, ctx: dict, policy: dict) -> ToolRegistry:
@@ -285,14 +379,14 @@ class AgentRunner:
         # 3. Legacy Memory Instruction
         skill_ids = [safe_id(str(s)) for s in agent.get("skills", [])]
         if "core_memory" in skill_ids:
-            sys_prompt += "\n\n[Memory Instruction]\n중요한 정보는 `core_memory.store`로 스스로 저장하세요."
+            sys_prompt += "\n\n[Memory Instruction]\n餓λ쵐????類ｋ궖??`core_memory.store`嚥???쇰뮞嚥????館釉?紐꾩뒄."
             
         return sys_prompt
 
     def run(self, agent: dict, task_input: str, run_id: str | None = None, auto_approve: bool = False):
-        _safe_print(f"\n🚀 [Runner] 에이전트 실행 시작: {agent.get('name')}")
+        _safe_print(f"\n?? [Runner] ?癒?뵠?袁る뱜 ??쎈뻬 ??뽰삂: {agent.get('name')}")
         if auto_approve:
-            _safe_print("⚠️ [FSA Mode] 자동 승인이 활성화되었습니다. 모든 도구가 즉시 실행됩니다.")
+            _safe_print("?醫묓닔 [FSA Mode] ?癒?짗 ?諭?????뽮쉐?遺얜┷??됰뮸??덈뼄. 筌뤴뫀諭??袁㏓럡揶쎛 筌앸맩????쎈뻬??몃빍??")
         started = time.time()
         run_id = run_id or f"run_{int(started)}"
         run_dir = os.path.join(RUNS_DIR, run_id)
@@ -340,7 +434,7 @@ class AgentRunner:
         }
         ok_ctx, msg_ctx = validate_context_with_schema(ctx)
         if not ok_ctx:
-            _safe_print(f"⚠️ [ContextSchema] 컨텍스트 검증 실패: {msg_ctx}")
+            _safe_print(f"?醫묓닔 [ContextSchema] ?뚢뫂???쎈뱜 野꺜筌???쎈솭: {msg_ctx}")
             _append_trace("error", {"stage": "context_schema", "message": str(msg_ctx)})
             return _finalize(_result(False, f"context_schema:{msg_ctx}"))
 
@@ -365,8 +459,27 @@ class AgentRunner:
             _append_trace("error", {"stage": "pre_execute_hook", "message": "hook_blocked"})
             return _finalize(_result(False, "hook_blocked"))
 
-        model_name = self.mr.pick("chat") or "gemini-2.0-flash"
-        
+        try:
+            model_name = self.mr.pick("chat", agent_config=agent, auto_approve=auto_approve) or "gemini-2.0-flash"
+        except FallbackRejectedError as e:
+            _safe_print(f"\n[Runner] ?臾믩씜 餓λ쵎?? ????癒? ?대Ŋ媛???媛??椰꾧퀡???됰뮸??덈뼄.")
+            _safe_print(f"  ???: {e}")
+            _append_trace("error", {"stage": "model_selection", "message": str(e)})
+            return _finalize(_result(False, f"fallback_rejected:{e.tier}"))
+        except Exception as e:
+            _safe_print(f"[Runner] 筌뤴뫀???醫뤾문 ??살첒: {e}")
+            _append_trace("error", {"stage": "model_selection", "message": str(e)})
+            return _finalize(_result(False, str(e)))
+
+        selection_meta = self.mr.get_last_selection() if hasattr(self.mr, 'get_last_selection') else {}
+        print_agent_model_summary(
+            agent,
+            selected_model=model_name,
+            selected_tier=str(selection_meta.get('tier', '')).strip(),
+            selected_reason=str(selection_meta.get('reason', '')).strip(),
+        )
+
+
         # Determine actual model tag for signature
         if is_codex_model(model_name):
             intel_version = model_name
@@ -384,28 +497,28 @@ class AgentRunner:
         # [Hallucination Protection & Signature] Inject mandatory engine version signature instruction
         signature_directive = (
             f"\n\n[MANDATORY SIGNATURE RULE]\n"
-            f"당신은 현재 '{intel_version}' 엔진으로 구동 중입니다.\n"
-            f"모든 작업의 첫 응답은 반드시 다음 형식을 포함하는 시그니처 대사로 시작하세요:\n"
-            f"\"[Intelligence: {intel_version}] (당신의 시그니처 대사)\"\n"
+            f"?諭??? ?袁⑹삺 '{intel_version}' ?遺우춭??곗쨮 ?닌됰짗 餓λ쵐???덈뼄.\n"
+            f"筌뤴뫀諭??臾믩씜??筌??臾먮뼗?? 獄쏆꼶諭????쇱벉 ?類ㅻ뻼????釉??롫뮉 ??볥젃??됱퓗 ????以???뽰삂??뤾쉭??\n"
+            f"\"[Intelligence: {intel_version}] (?諭?????볥젃??됱퓗 ????\"\n"
         )
         sys_prompt = signature_directive + sys_prompt
 
         if self._agent_prefers_codex(agent, model_name):
             if self._run_with_codex(model_name, sys_prompt, task_input, tool_functions):
                 _append_trace("assistant", {"channel": "codex", "status": "completed"})
-                _safe_print("✅ Agent Execution Finished.")
+                _safe_print("??Agent Execution Finished.")
                 return _finalize(_result(True, "codex"))
 
         gemini_model = model_name if not (is_codex_model(intel_version) or is_claude_model(intel_version)) else get_best_model(["gemini-3.1-pro", "gemini-3.0-flash"])
         
-        _safe_print(f"🧠 [Intelligence] Engine: {intel_version}")
+        _safe_print(f"?彛?[Intelligence] Engine: {intel_version}")
         _append_trace("system", {"channel": "gemini", "model": str(gemini_model), "tool_count": len(tool_functions)})
         
-        # [New SDK] Client 기반 멀티턴 채팅 루프 (function calling 포함)
+        # [New SDK] Client 疫꿸퀡而?筌렺?怨좉쉘 筌?쑵???룐뫂遊?(function calling ??釉?
         _api_key = os.getenv("GOOGLE_API_KEY")
         _client = genai.Client(api_key=_api_key) if _api_key else None
         if _client is None:
-            _safe_print("⚠️ [Runner] GOOGLE_API_KEY 없음 — Gemini 경로 사용 불가")
+            _safe_print("?醫묓닔 [Runner] GOOGLE_API_KEY ??곸벉 ??Gemini 野껋럥以??????븍뜃?")
             return _finalize(_result(False, "no_api_key"))
 
         chat_config = genai.types.GenerateContentConfig(
@@ -420,9 +533,9 @@ class AgentRunner:
         )
 
         try:
-            response = chat.send_message(f"Task: {task_input}\n\n작업을 시작해주세요.")
+            response = chat.send_message(f"Task: {task_input}\n\n?臾믩씜????뽰삂??곻폒?紐꾩뒄.")
             for _ in range(10):
-                # hash_edit 우선순위 정렬 (안정성 확보)
+                # hash_edit ?怨쀪퐨??뽰맄 ?類ｌ졊 (??됱젟???類ｋ궖)
                 current_turn_tool_functions = []
                 hash_edit_tools = []
                 other_tools = []
@@ -438,13 +551,13 @@ class AgentRunner:
                     break
                 part = response.candidates[0].content.parts[0]
                 if hasattr(part, 'text') and part.text:
-                    _safe_print(f"🤖 {part.text}")
+                    _safe_print(f"?夷?{part.text}")
                     _append_trace("assistant", {"text": str(part.text)})
                 if hasattr(part, 'function_call') and part.function_call:
                     fc = part.function_call
                     fname = fc.name
                     fargs = dict(fc.args) if fc.args else {}
-                    _safe_print(f"🛠️ [Tool] {fname}({fargs})")
+                    _safe_print(f"??길닼?[Tool] {fname}({fargs})")
                     _append_trace("tool_call", {"name": str(fname), "args": fargs})
                     tool_func = next((t for t in tool_functions if t.__name__ == fname), None)
                     if tool_func:
@@ -453,14 +566,14 @@ class AgentRunner:
                         if needs_approval and not auto_approve and not self._ask_tool_approval(fname, sid):
                             approval_rejects += 1
                             _append_trace("tool_reject", {"name": str(fname), "skill_id": str(sid)})
-                            response = chat.send_message("해당 도구는 승인되지 않았습니다.")
+                            response = chat.send_message("?????袁㏓럡???諭???? ??녿릭??щ빍??")
                             continue
                         res_obj = tool_func(**fargs)
                         if isinstance(res_obj, dict):
                             res_obj = bus.run_post_execute(agent_state, res_obj)
                         _safe_print(f"  -> Result: {str(res_obj)[:100]}...")
                         _append_trace("tool_result", {"name": str(fname), "result": str(res_obj)[:800]})
-                        # [New SDK] function_response를 genai.types로 전송
+                        # [New SDK] function_response??genai.types嚥??袁⑸꽊
                         fn_response_part = genai.types.Part.from_function_response(
                             name=fname,
                             response={'result': res_obj}
@@ -473,10 +586,11 @@ class AgentRunner:
                     break
 
             _append_trace("assistant", {"channel": "gemini", "status": "completed"})
-            _safe_print("✅ Agent Execution Finished.")
+            _safe_print("??Agent Execution Finished.")
             return _finalize(_result(True, "gemini"))
         except Exception as e:
-            _safe_print(f"⚠️ [Runner] 실행 중 오류: {e}")
+            _safe_print(f"?醫묓닔 [Runner] ??쎈뻬 餓???살첒: {e}")
             _append_trace("error", {"stage": "runner", "message": str(e)})
             return _finalize(_result(False, str(e)))
 # =============================================================================
+
