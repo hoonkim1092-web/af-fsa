@@ -158,3 +158,77 @@ def forge_new_skill(skill_name, role, coding_engine=None):
     except Exception as e:
         log("FORGE", f"Forge failed: {e}")
         return None
+
+class SkillOrchestrator:
+    def __init__(self, registry, research_agent, builder, agent_mgr):
+        self.registry = registry
+        self.research = research_agent
+        self.builder = builder
+        self.agent_mgr = agent_mgr
+
+    def procure_multiple(self, agent, skill_names, reqs, run_id, execution_mode="approval", approval_gate=None):
+        installed = []
+        for name in skill_names:
+            path = procure_skill(name, agent.get("role", "General"))
+            if path and os.path.exists(path):
+                installed.append(name)
+                continue
+
+            if approval_gate and not approval_gate(agent.get("role"), [name], "build", execution_mode == "fsa"):
+                continue
+
+            from core.utils import normalize_skill_id
+            evidence = self.research.research_topic(f"Python code pattern for {name} for {agent.get('role')}")
+            
+            ok, code_path, meta = self.builder.build_skill(
+                agent=agent,
+                skill_name=name,
+                reqs=reqs,
+                run_id=run_id,
+                evidence_pack={"targets": {normalize_skill_id(name): evidence}}
+            )
+            
+            if ok:
+                self.registry.register_built(meta, os.path.dirname(code_path))
+                installed.append(name)
+
+        if installed:
+            self.agent_mgr.install_skills(agent.get("role"), installed)
+        return installed
+
+class SkillOrchestrator:
+    def __init__(self, registry, research_agent, builder, agent_mgr):
+        self.registry = registry
+        self.research = research_agent
+        self.builder = builder
+        self.agent_mgr = agent_mgr
+
+    def procure_multiple(self, agent, skill_names, reqs, run_id, execution_mode="approval", approval_gate=None):
+        installed = []
+        for name in skill_names:
+            path = procure_skill(name, agent.get("role", "General"))
+            if path and os.path.exists(path):
+                installed.append(name)
+                continue
+
+            if approval_gate and not approval_gate(agent.get("role"), [name], "build", execution_mode == "fsa"):
+                continue
+
+            from core.utils import normalize_skill_id
+            evidence = self.research.research_topic(f"Python code pattern for {name} for {agent.get('role')}")
+            
+            ok, code_path, meta = self.builder.build_skill(
+                agent=agent,
+                skill_name=name,
+                reqs=reqs,
+                run_id=run_id,
+                evidence_pack={"targets": {normalize_skill_id(name): evidence}}
+            )
+            
+            if ok:
+                self.registry.register_built(meta, os.path.dirname(code_path))
+                installed.append(name)
+
+        if installed:
+            self.agent_mgr.install_skills(agent.get("role"), installed)
+        return installed
