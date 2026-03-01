@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ko" data-lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Factory</title>
+    <meta name="description" content="Agent Factory — Intelligent Agent Forge for everyone">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+    <!-- ─── Sidebar ─── -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+            <div class="logo-icon">🏭</div>
+            <span class="logo-text">Agent Factory</span>
+        </div>
+        <ul class="nav-list">
+            <li class="nav-item active" data-page="dashboard">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7" rx="1" />
+                    <rect x="14" y="3" width="7" height="7" rx="1" />
+                    <rect x="3" y="14" width="7" height="7" rx="1" />
+                    <rect x="14" y="14" width="7" height="7" rx="1" />
+                </svg>
+                <span data-i18n="nav.dashboard">대시보드</span>
+            </li>
+            <li class="nav-item" data-page="run">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="5,3 19,12 5,21" />
+                </svg>
+                <span data-i18n="nav.run">에이전트 실행</span>
+            </li>
+            <li class="nav-item" data-page="settings">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3" />
+                    <path
+                        d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+                </svg>
+                <span data-i18n="nav.settings">설정</span>
+            </li>
+        </ul>
+        <div class="sidebar-footer">
+            <div class="lang-switch" id="langSwitch">
+                <button class="lang-btn active" data-lang="ko">🇰🇷 한국어</button>
+                <button class="lang-btn" data-lang="en">🇺🇸 English</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ─── Main Content ─── -->
+    <main class="main-content">
+        <!-- Dashboard Page -->
+        <section class="page active" id="page-dashboard">
+            <h1 class="page-title" data-i18n="dashboard.title">대시보드</h1>
+
+            <!-- Engine Status Cards -->
+            <h2 class="section-title" data-i18n="dashboard.engines">엔진 상태</h2>
+            <div class="engine-cards" id="engineCards">
+                <!-- JS로 동적 생성 -->
+            </div>
+
+            <!-- Registered Agents -->
+            <h2 class="section-title" data-i18n="dashboard.agents">등록된 에이전트</h2>
+            <div class="agents-grid" id="agentsGrid">
+                <!-- JS로 동적 생성 -->
+            </div>
+        </section>
+
+        <!-- Run Agent Page -->
+        <section class="page" id="page-run">
+            <h1 class="page-title" data-i18n="run.title">에이전트 실행</h1>
+            <div class="run-container">
+                <div class="run-sidebar">
+                    <label class="select-label" data-i18n="run.select_agent">에이전트 선택</label>
+                    <select class="agent-select" id="agentSelect"></select>
+                    <div class="agent-info" id="agentInfo"></div>
+                </div>
+                <div class="chat-area">
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="welcome-msg">
+                            <div class="welcome-icon">🏭</div>
+                            <p>Agent Factory에 오신 것을 환영합니다.<br>에이전트를 선택하고 작업을 입력하세요.</p>
+                        </div>
+                    </div>
+                    <div class="chat-input-area">
+                        <textarea class="chat-input" id="chatInput" rows="2"
+                            data-i18n-placeholder="run.input_placeholder" placeholder="작업을 입력하세요..."></textarea>
+                        <button class="btn-execute" id="btnExecute" data-i18n="run.execute">실행</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Settings Page -->
+        <section class="page" id="page-settings">
+            <h1 class="page-title" data-i18n="settings.title">설정</h1>
+
+            <div class="settings-section">
+                <h2 class="section-title" data-i18n="settings.api_keys">API 키 관리</h2>
+                <div class="key-cards" id="keyCards">
+                    <!-- JS로 동적 생성 -->
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h2 class="section-title" data-i18n="settings.language">언어 / Language</h2>
+                <div class="lang-options">
+                    <label class="radio-card">
+                        <input type="radio" name="lang" value="ko" checked>
+                        <span class="radio-label">🇰🇷 한국어</span>
+                    </label>
+                    <label class="radio-card">
+                        <input type="radio" name="lang" value="en">
+                        <span class="radio-label">🇺🇸 English</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h2 class="section-title" data-i18n="settings.auto_approve">폴백 자동 승인</h2>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="autoApprove">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <div class="settings-section">
+                <h2 class="section-title" data-i18n="settings.fsa_mode">FSA Mode</h2>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="fsaMode">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <div class="settings-section">
+                <h2 class="section-title" data-i18n="settings.agent_catalog">Agent Role Catalog</h2>
+                <div id="editableCategories" class="agent-info"></div>
+                <div id="agentCatalog" class="agents-grid"></div>
+            </div>
+
+            <div class="settings-section">
+                <h2 class="section-title" data-i18n="settings.agent_create">Create Agent</h2>
+                <div class="key-cards">
+                    <div class="key-card">
+                        <div class="key-card-name" data-i18n="settings.agent_id">Agent ID</div>
+                        <input class="key-card-input" type="text" id="createAgentId" placeholder="new_agent_id">
+                    </div>
+                    <div class="key-card">
+                        <div class="key-card-name" data-i18n="settings.agent_name">Agent Name</div>
+                        <input class="key-card-input" type="text" id="createAgentName" placeholder="Agent Name">
+                    </div>
+                    <div class="key-card">
+                        <div class="key-card-name" data-i18n="settings.agent_role">Role</div>
+                        <input class="key-card-input" type="text" id="createAgentRole" placeholder="Role Summary">
+                    </div>
+                </div>
+                <button class="key-save-btn" id="btnCreateAgent" data-i18n="settings.create_agent">Create Agent</button>
+                <!-- 생성 완료 후 모델 요약 카드 표시 영역 -->
+                <div id="createAgentResult"></div>
+            </div>
+
+            <!-- ─── 전체 에이전트 모델 리스트 (역할·엔진·모델 인라인 편집) ─── -->
+            <div class="settings-section">
+                <h2 class="section-title" data-i18n="settings.agent_model_list">에이전트 모델 현황</h2>
+                <div id="agentModelList">
+                    <!-- JS로 동적 생성: loadAgentModelList() -->
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h2 class="section-title" data-i18n="settings.agent_edit">Edit Agent Categories</h2>
+                <label class="select-label" data-i18n="settings.select_agent_edit">Select Agent</label>
+                <select class="agent-select" id="editAgentSelect"></select>
+                <div class="key-cards">
+                    <div class="key-card">
+                        <div class="key-card-name" data-i18n="settings.agent_name">Agent Name</div>
+                        <input class="key-card-input" type="text" id="editAgentName">
+                    </div>
+                    <div class="key-card">
+                        <div class="key-card-name" data-i18n="settings.agent_role">Role</div>
+                        <input class="key-card-input" type="text" id="editAgentRole">
+                    </div>
+                    <div class="key-card">
+                        <div class="key-card-name" data-i18n="settings.agent_tone">Tone</div>
+                        <input class="key-card-input" type="text" id="editAgentTone">
+                    </div>
+                    <div class="key-card">
+                        <div class="key-card-name" data-i18n="settings.agent_traits">Traits (one per line)</div>
+                        <textarea class="key-card-input" id="editAgentTraits" rows="4"></textarea>
+                    </div>
+                    <div class="key-card">
+                        <div class="key-card-name" data-i18n="settings.agent_signatures">Signature Lines (one per line)
+                        </div>
+                        <textarea class="key-card-input" id="editAgentSignatures" rows="4"></textarea>
+                    </div>
+                    <div class="key-card">
+                        <div class="key-card-name" data-i18n="settings.agent_system">System Prompt</div>
+                        <textarea class="key-card-input" id="editAgentSystem" rows="4"></textarea>
+                    </div>
+                    <div class="key-card">
+                        <div class="key-card-name" data-i18n="settings.agent_preferred_model">Preferred Model</div>
+                        <input class="key-card-input" type="text" id="editPreferredModel">
+                    </div>
+                    <div class="key-card">
+                        <div class="key-card-name" data-i18n="settings.agent_codex_directive">Codex Directive</div>
+                        <textarea class="key-card-input" id="editCodexDirective" rows="3"></textarea>
+                    </div>
+                </div>
+                <button class="key-save-btn" id="btnSaveAgent" data-i18n="settings.save_agent">Save Agent</button>
+            </div>
+        </section>
+    </main>
+
+    <!-- ─── Fallback Modal ─── -->
+    <div class="modal-overlay" id="fallbackModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 data-i18n="fallback.title">⚠️ 엔진 폴백 경고</h3>
+            </div>
+            <div class="modal-body">
+                <p id="fallbackReason"></p>
+                <div class="fallback-model">
+                    <span data-i18n="fallback.alternative">대체 모델</span>:
+                    <code id="fallbackModel"></code>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-approve" id="btnApprove" data-i18n="fallback.approve">승인</button>
+                <button class="btn btn-reject" id="btnReject" data-i18n="fallback.reject">거부</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─── Toast ─── -->
+    <div class="toast" id="toast"></div>
+
+    <script src="/static/js/i18n.js"></script>
+    <script src="/static/js/app.js"></script>
+</body>
+
+</html>
