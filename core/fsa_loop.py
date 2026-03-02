@@ -2,7 +2,8 @@ import os
 import time
 from core.agent_runner import AgentRunner
 from core.git_manager import GitManager
-from core.utils import now_iso
+from core.utils import now_iso, print_agent_msg
+from core.evaluator import StrategyEvaluator
 
 class FSALoop:
     """
@@ -12,6 +13,7 @@ class FSALoop:
     def __init__(self, runner: AgentRunner):
         self.runner = runner
         self.git = GitManager()
+        self.evaluator = StrategyEvaluator(model_name=runner.mr.pick('evaluator') if hasattr(runner.mr, 'pick') else 'gemini-1.5-pro-latest')
         self.max_cycles = 5
 
     def run_mission(self, agent: dict, task_input: str, run_id: str):
@@ -41,8 +43,21 @@ class FSALoop:
             try:
                 self.git.rollback() 
             except Exception as e:
-                print(f"🛑 [Critical] Rollback 실패: {e}")
+                print_agent_msg("Critical", f"Rollback 실패: {e}", "🛑")
             
-            current_task = f"이전 시도 실패 사유: {result.get('reason')}\n다시 시도하십시오. 이번에는 실패를 극복할 대안을 계획하세요.\n원본 태스크: {task_input}"
+            # Phase 3: Strategy Pivot
+            eval_res = self.evaluator.evaluate_failure(
+                role=agent.get("role", "General"),
+                instruction=current_task,
+                error_log=result.get("reason", "Unknown error")
+            )
+            
+            action = eval_res.get("action", "abort")
+            if action == "abort":
+                print_agent_msg("Evaluator", f"Catastrophic failure. Aborting sequence. Reason: {eval_res.get('reasoning')}", "🛑")
+                return {"ok": False, "reason": "Evaluator aborted task."}
+            
+            print_agent_msg("Evaluator", f"Decision: {action.upper()} | Reasoning: {eval_res.get('reasoning')}", "💡")
+            current_task = f"[EVALUATOR {action.upper()} ADVICE]\n{eval_res.get('new_instruction')}\n\n[Original Task]\n{task_input}"
 
         return {"ok": False, "reason": "최대 재시도 횟수(5회) 초과로 중단되었습니다."}

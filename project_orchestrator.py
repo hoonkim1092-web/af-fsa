@@ -8,7 +8,8 @@ import concurrent.futures
 from typing import List
 
 from core.llm_engine import LLMEngine
-from core.swarm_council import SwarmCouncil
+from core.dynamic_orchestrator import DynamicOrchestrator
+from core.agent_runner import ModelRouter
 
 # [P0] 중앙 설정 검증기 도입 (Zod -> Pydantic 패턴)
 # 이 모듈이 임포트되는 순간 모델/DB 키/정책(policy)이 완벽하지 않으면 팩토리는 즉시 중단(Fail-Fast)됩니다.
@@ -256,14 +257,17 @@ def main():
             print_message("Lilith", "Task blocked by Todo Enforcer. Please generate a plan first.")
             return
 
-    council = SwarmCouncil(factory_dir=FACTORY_DIR)
-    board = council.run(
-        project_desc=project_desc,
-        roles=roles,
-        board_path=args.board_path,
-        target_dir=args.dir,
-        max_loops=max(1, int(args.max_loops)),
-    )
+    # V3 Pivot: Replace static SwarmCouncil with DynamicOrchestrator
+    mr = ModelRouter()
+    orchestrator = DynamicOrchestrator(mr, max_concurrent=5)
+    
+    print_message("Lilith", "🚀 Launching Dynamic LLM-Driven Orchestrator (V3)")
+    workspace = args.dir or FACTORY_DIR
+    board = orchestrator.run_project(project_desc, roles, workspace)
+    
+    # Save the final board state
+    with open(args.board_path, "w", encoding="utf-8") as f:
+        json.dump(board, f, ensure_ascii=False, indent=2)
 
     status = board.get("current_status", "unknown")
     print_message("Lilith", f"Swarm Council finished: {status}")

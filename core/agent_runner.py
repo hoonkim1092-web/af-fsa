@@ -18,12 +18,14 @@ except Exception:
 
 from core.config_paths import *
 from core.utils import *
+from core.utils import _safe_write_json
 from core.registry import ToolRegistry
 from core.tool_runtime import ToolRuntimeWrapper
 from core.policy_runtime import PolicyRuntime
 from core.hooks.event_bus import HookEventBus, IntentGateHook, TodoContinuationEnforcer, ToolOutputTruncator
 from model_utils import get_best_model, print_agent_model_summary, resolve_dynamic_model, _infer_engine_id
 from google import genai
+import google.generativeai as genai_legacy
 
 def _safe_print(*args, **kwargs):
     enc = getattr(sys.stdout, "encoding", None) or "utf-8"
@@ -532,7 +534,7 @@ class AgentRunner:
         wrapper = ToolRuntimeWrapper(base_dir=BASE_DIR)
         return wrapper.build_registry(module_list, ctx, policy, is_allowed_fn=self._is_tool_allowed)
 
-    def run(self, agent: dict, task_input: str, run_id: str | None = None):
+    def run(self, agent: dict, task_input: str, run_id: str | None = None, auto_approve: bool = False, workspace: str | None = None):
         print(f"\n🚀 [Runner] 에이전트 실행 시작: {agent.get('name')}")
         started = time.time()
         run_id = run_id or f"run_{int(started)}"
@@ -605,7 +607,7 @@ class AgentRunner:
             # 2. 지능형 분류기 (Stage 1 AI Funnel) - 하드코딩 배제
             # 단순 길이/단어 배열 매칭이 아닌 Flash 모델을 통한 진짜 "의도" 판별
             try:
-                classifier_model = genai.GenerativeModel("gemini-1.5-flash")
+                client = genai.Client(api_key=GOOGLE_API_KEY) if GOOGLE_API_KEY else genai.Client()
                 prompt = (
                     f"에이전트 역할: {role_summary or agent_name}\n"
                     f"사용자 요청: {task_text}\n\n"
@@ -614,7 +616,10 @@ class AgentRunner:
                     "참고: 프론트엔드 관련 작업은 품질이 중요하므로 대부분 'complex'를 요구합니다.\n"
                     "대답은 부연 설명 없이 오직 'complex' 또는 'simple' 단어 하나만 하시오."
                 )
-                resp = classifier_model.generate_content(prompt)
+                resp = client.models.generate_content(
+                    model="gemini-1.5-flash",
+                    contents=prompt
+                )
                 ans = resp.text.strip().lower()
                 is_complex = "complex" in ans
                 if is_complex:
@@ -628,7 +633,7 @@ class AgentRunner:
         agent_state = {
             "task_input": task_input,
             "intent": "complex_feature" if is_complex else "trivial",
-            "workspace": PROJECT_ROOT
+            "workspace": workspace or PROJECT_ROOT
         }
         
         if not bus.run_pre_execute(agent_state):
@@ -678,7 +683,7 @@ class AgentRunner:
             return result
 
         gemini_model = model_name if not (is_codex_model(model_name) or is_claude_model(model_name)) else get_best_model(["gemini-2.0-flash", "gemini-1.5-flash"])
-        model = genai.GenerativeModel(gemini_model, tools=tool_functions)
+        model = genai_legacy.GenerativeModel(gemini_model, tools=tool_functions)
 
         chat = model.start_chat(history=[
             {"role": "user", "parts": [sys_prompt + f"\n\nTask: {task_input}"]}
@@ -750,7 +755,7 @@ class AgentRunner:
                             
                             # Send result back
                             response = safe_send(
-                                genai.prototypes.Part(function_response=genai.prototypes.FunctionResponse(
+                                genai_legacy.protos.Part(function_response=genai_legacy.protos.FunctionResponse(
                                     name=fname,
                                     response={'result': res_obj}
                                 ))

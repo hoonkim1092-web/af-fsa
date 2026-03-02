@@ -95,11 +95,18 @@ def get_random_signature(agent_config: dict) -> str:
 def print_agent_msg(name: str, msg: str, signature: str = ""):
     """에이전트 이름과 메시지, 그리고 시그니처 대사를 출력합니다."""
     header = f"[{name}]"
+    
+    def _safe_out(text):
+        try:
+            print(text)
+        except UnicodeEncodeError:
+            print(text.encode("utf-8", "replace").decode("cp949", "replace"))
+            
     if signature:
-        print(f"\n{header} \"{signature}\"")
-        print(f"{header} {msg}")
+        _safe_out(f"\n{header} \"{signature}\"")
+        _safe_out(f"{header} {msg}")
     else:
-        print(f"{header} {msg}")
+        _safe_out(f"{header} {msg}")
 
 
 def is_codex_model(model_name: str) -> bool:

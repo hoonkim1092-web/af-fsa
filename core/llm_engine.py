@@ -17,25 +17,29 @@ from google import genai
 # GOOGLE_API_KEY, GOOGLE_API_KEY_2, GOOGLE_API_KEY_3 ... 모두 수집
 # =============================================================================
 _gemini_keys = []
-for k, v in os.environ.items():
-    if k.startswith("GOOGLE_API_KEY") and v.strip():
-        _gemini_keys.append(v.strip())
-
 _current_key_idx = 0
 
+def _load_gemini_keys():
+    global _gemini_keys
+    if not _gemini_keys:
+        for k, v in os.environ.items():
+            if k.startswith("GOOGLE_API_KEY") and v.strip():
+                _gemini_keys.append(v.strip())
+    return _gemini_keys
 
 def get_next_gemini_key() -> str | None:
     global _current_key_idx
-    if not _gemini_keys:
+    keys = _load_gemini_keys()
+    if not keys:
         return None
-    _current_key_idx = (_current_key_idx + 1) % len(_gemini_keys)
-    return _gemini_keys[_current_key_idx]
-
+    _current_key_idx = (_current_key_idx + 1) % len(keys)
+    return keys[_current_key_idx]
 
 def get_current_gemini_key() -> str | None:
-    if not _gemini_keys:
+    keys = _load_gemini_keys()
+    if not keys:
         return None
-    return _gemini_keys[_current_key_idx]
+    return keys[_current_key_idx]
 
 
 # =============================================================================

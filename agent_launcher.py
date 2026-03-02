@@ -56,6 +56,7 @@ from core.skill_procurer import SkillOrchestrator
 from core.agent_runner import ModelRouter, AgentRunner
 from core.git_manager import GitManager
 from core.fsa_loop import FSALoop
+from core.dynamic_orchestrator import DynamicOrchestrator
 # Redundant AST and Sandbox logic removed (handled by core.utils and core.executor)
 
 # =============================================================================
@@ -68,8 +69,10 @@ from core.fsa_loop import FSALoop
 # =============================================================================
 # RegistryManager moved to core/registry_manager.py
 
-# 7) Factory
-# =============================================================================
+def _safe_write_json(path, data):
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
 class AgentFactory:
     def __init__(self):
         self.mr = ModelRouter()
@@ -253,7 +256,18 @@ class AgentFactory:
             "missing_skills_detected": skipped_build_targets,
         }
 
-    def run_workflow(self, task_input: str, workflow_path: str | None = None, role_specs: list[str] | None = None):
+    def run_dynamic_workflow(self, task_input: str, role_specs: list[str]):
+        print(f"\n🧭 [DynamicWorkflow] 진정한 리더(Lilith) 주도의 동적 병렬 실행을 시작합니다.")
+        orchestrator = DynamicOrchestrator(self.mr)
+        state_board = orchestrator.run_project(task_input, role_specs)
+        print(f"\n✅ [DynamicWorkflow] 완료. 보드 상태: {json.dumps(state_board, ensure_ascii=False)}")
+        return state_board
+
+    def run_workflow(self, task_input: str, workflow_path: str | None = None, role_specs: list[str] | None = None, use_dynamic: bool = False):
+        # V3 Pivot: Only use dynamic orchestrator if explicitly requested
+        if use_dynamic and role_specs:
+            return self.run_dynamic_workflow(task_input, role_specs)
+
         if not workflow_path:
             policies = read_project_policies()
             wf_cfg = policies.get("workflow", {}) if isinstance(policies, dict) else {}
@@ -275,6 +289,7 @@ class AgentFactory:
         if not picked_roles:
             picked_roles = [owner] if owner else ["General"]
 
+        # ... (rest of the static workflow)
         if not stages:
             stages = [{"id": "MAIN", "name": "Main", "objective": task_input}]
 
@@ -284,7 +299,7 @@ class AgentFactory:
             wf_cfg = policies.get("workflow", {}) if isinstance(policies.get("workflow"), dict) else {}
             role_map = wf_cfg.get("role_map", {}) if isinstance(wf_cfg.get("role_map"), dict) else {}
 
-        print(f"\n🧭 [Workflow] 시작: {workflow_path}")
+        print(f"\n🧭 [Workflow] 정적 파이프라인 시작: {workflow_path}")
         print(f"👥 [Workflow] 대상 에이전트: {picked_roles}")
         workflow_run_id = f"wf_{int(time.time())}"
         state_path = self._create_workflow_state(workflow_run_id, workflow_path, stages, picked_roles)
