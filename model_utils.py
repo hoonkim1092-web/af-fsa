@@ -159,10 +159,11 @@ def _pick_anthropic_model(tier: str) -> str | None:
 # =============================================================================
 # [OpenAI] 역할별 최신 모델 선택
 # =============================================================================
-def _pick_openai_model(prefer_reasoning: bool = False) -> str | None:
+def _pick_openai_model(prefer_reasoning: bool = False, prefer_mini: bool = False) -> str | None:
     """
     prefer_reasoning=True  → o-시리즈 우선
     prefer_reasoning=False → gpt-* 우선
+    prefer_mini=True      → gpt-*-mini 우선
     반환: 최신 모델 ID, 없으면 None
     """
     models = fetch_openai_models()
@@ -172,6 +173,12 @@ def _pick_openai_model(prefer_reasoning: bool = False) -> str | None:
         reasoning = [m for m in models if re.match(r"^o\d", m)]
         if reasoning:
             return reasoning[0]
+    
+    if prefer_mini:
+        mini = [m for m in models if "mini" in m.lower() and "gpt" in m.lower()]
+        if mini:
+            return mini[0]
+
     gpt_models = [m for m in models if "gpt" in m]
     return gpt_models[0] if gpt_models else (models[0] if models else None)
 
@@ -405,6 +412,23 @@ def resolve_dynamic_model(engine_id: str) -> ModelSelection:
             "[reasoner_o] 모든 API 키 없음 → 무료 Gemini Flash로 강제 대체"
         )
 
+    if engine_id == "lightweight":
+        # 1. Anthropic Haiku
+        if keys["anthropic"]:
+            model = _pick_anthropic_model("haiku")
+            if model:
+                return _primary(model)
+        # 2. OpenAI Mini
+        if keys["openai"]:
+            model = _pick_openai_model(prefer_mini=True)
+            if model:
+                return _primary(model)
+        # 3. Google Flash (Default/Free)
+        model = find_latest_model("gemini-*-flash", available)
+        if keys["google"]:
+            return _primary(model)
+        return _free(model, "[lightweight] 모든 API 키 없음 → 무료 Gemini Flash 적용")
+
     # ─────────────────────────────────────────────────────────────────────────
     # [기본] 알 수 없는 engine_id
     # ─────────────────────────────────────────────────────────────────────────
@@ -473,6 +497,7 @@ _ENGINE_DISPLAY: dict[str, str] = {
     "manager_gpt":       "GPT-4o        (매니저)",
     "reasoner_o":        "GPT o-series  (추론)",
     "codex":             "Codex         (자동화)",
+    "lightweight":       "Lightweight   (단순작업)",
 }
 
 

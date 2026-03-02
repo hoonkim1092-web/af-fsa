@@ -22,7 +22,7 @@ from core.registry import ToolRegistry
 from core.tool_runtime import ToolRuntimeWrapper
 from core.policy_runtime import PolicyRuntime
 from core.hooks.event_bus import HookEventBus, IntentGateHook, TodoContinuationEnforcer, ToolOutputTruncator
-from model_utils import get_best_model, print_agent_model_summary
+from model_utils import get_best_model, print_agent_model_summary, resolve_dynamic_model, _infer_engine_id
 from google import genai
 
 def _safe_print(*args, **kwargs):
@@ -41,18 +41,26 @@ class FallbackRejectedError(RuntimeError):
     pass
 
 class ModelRouter:
-    def pick(self, stage: str, agent_config: dict = None) -> str:
+    def pick(self, stage: str, agent_config: dict = None, is_complex: bool = True) -> str:
         if stage == "chat":
             forced = (os.getenv("AGENT_CHAT_MODEL") or "").strip()
             if forced:
                 return forced
+
+            # [AI Funnel / 릴리트 모델 쪼개 쓰기] 
+            # 복잡한 작업이 아니고, 강제 선호 모델이 없으면 문지기 'lightweight' 모델 파견
+            if not is_complex and not (agent_config and agent_config.get("preferred_model")):
+                sel = resolve_dynamic_model("lightweight")
+                return sel.model
+
             provider_raw = (os.getenv("AGENT_CHAT_PROVIDER") or "").strip().lower()
             providers = [p.strip() for p in provider_raw.split(",") if p.strip()]
             for provider in providers:
                 if provider == "codex" and OPENAI_API_KEY:
                     return "codex-5.3"
                 if provider == "claude":
-                    return "claude-4.6"
+                    from model_utils import _pick_anthropic_model
+                    return _pick_anthropic_model("sonnet") or "claude-4.6"
         
         # Check Agent-specific high-end preference
         if agent_config and agent_config.get("preferred_model"):
@@ -582,8 +590,25 @@ class AgentRunner:
         bus.register(IntentGateHook())
         bus.register(TodoContinuationEnforcer())
         bus.register(ToolOutputTruncator())
+        # AI Funnel & Smart Routing: 복잡도 판별
+        task_text = str(task_input or "")
         
-        is_complex = len(task_input) > 30 or any(k in task_input.lower() for k in ["refactor", "build", "create", "implement", "리팩토링", "구현", "만들어", "추가"])
+        # 1. 역할 기반 방어: 아키텍트, 리서처는 아무리 짧아도 항상 주력 고성능 모델 유지
+        role_summary = agent.get("role", "") or (agent.get("identity", {}) or {}).get("role_summary", "")
+        agent_name = agent.get("name", "")
+        engine_id = _infer_engine_id(role_summary or agent_name)
+        
+        if engine_id in ("architect_claude", "researcher_gemini"):
+            is_complex = True
+            _safe_print(f"🔍 [Router] '{engine_id}' 역할 감지 -> 고성능 엔진 강제 유지")
+        else:
+            # 2. 일반 에이전트의 단순 작업 판별 (휴리스틱)
+            # 30자 이하이면서 생성/설계 키워드가 없는 경우만 단순 작업으로 판별
+            has_trigger = any(k in task_text.lower() for k in ["refactor", "build", "create", "implement", "리팩토링", "구현", "만들어", "추가", "설계"])
+            is_complex = len(task_text) > 30 or has_trigger
+            if not is_complex:
+                _safe_print(f"⚡ [Router] 단순 작업 감지 (길이:{len(task_text)}) -> 경량(Lightweight) 문지기 배치")
+
         agent_state = {
             "task_input": task_input,
             "intent": "complex_feature" if is_complex else "trivial",
@@ -594,7 +619,8 @@ class AgentRunner:
             result = {"ok": False, "reason": "hook_event_bus_blocked_pre"}
             _flush_trace(result)
             return result
-        model_name = agent.get("preferred_model") or self.mr.pick("chat") or "gemini-2.0-flash"
+        
+        model_name = agent.get("preferred_model") or self.mr.pick("chat", agent_config=agent, is_complex=is_complex) or "gemini-2.0-flash"
         
         # System Prompt construction
         sys_prompt = self._resolve_system_prompt(agent)
