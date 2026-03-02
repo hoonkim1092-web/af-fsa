@@ -242,10 +242,31 @@ def main():
 
     if not args.skip_forge:
         built = forge_roles(roles, target_dir=args.dir, is_ghost_pilot=is_ghost_pilot, enforce_todo=enforce_todo)
+    else:
+        built = roles
+
+    # [AGENT FACTORY FIX] Inject core skills into the forged role YAMLs
+    # This ensures agents have file I/O capabilities even if skip_forge is used or factory_manager misses them.
+    import glob
+    core_skills_dir = os.path.join(FACTORY_DIR, "skills", "core")
+    core_skills = [os.path.basename(p)[:-3] for p in glob.glob(os.path.join(core_skills_dir, "*.py")) if not os.path.basename(p).startswith("__")]
+    
+    from core.manager import AgentManager
+    from core.agent_runner import ModelRouter
+    mr = ModelRouter()
+    agent_mgr = AgentManager(mr)
+    workspace = args.dir or FACTORY_DIR # Define workspace here for skill injection
+    
+    for role_id in built:
+        # We use role_id directly as that is the filename in agents/ directory
+        print(f"💉 Injecting core skills into agent: {role_id}")
+        agent_mgr.install_skills(role_id, core_skills, workspace=workspace)
+        
+    if not args.skip_forge:
         if len(built) != len(roles):
             print_message("Lilith", f"Forge partial success ({len(built)}/{len(roles)}). Continue council run.")
         else:
-            print_message("Lilith", "All roles forged.")
+            print_message("Lilith", "All roles forged and core skills injected.")
 
     if enforce_todo:
         checker = TodoContinuationEnforcer()

@@ -19,6 +19,10 @@ env/
 
 # --- Runtime/Test Artifacts ---
 projects/default/runs/
+projects/agent_factory/runs/
+test_output/
+dynamic_log.txt
+project_board_state.json
 pytest_out*.txt
 tests/_tmp_probe/
 tmp*/

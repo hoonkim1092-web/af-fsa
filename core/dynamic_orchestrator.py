@@ -109,7 +109,7 @@ class DynamicOrchestrator:
         self.state_board["agents_status"][role] = "working"
         
         try:
-            agent_data = self.agent_mgr.get_or_create(role)
+            agent_data = self.agent_mgr.get_or_create(role, workspace=workspace)
             
             # Execute the actual synchronous AgentRunner in a background thread
             result = await asyncio.to_thread(

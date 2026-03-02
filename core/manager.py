@@ -11,11 +11,13 @@ class AgentManager:
     def __init__(self, mr):
         self.mr = mr
 
-    def _agent_path(self, role_spec: str) -> str:
-        return os.path.join(AGENTS_DIR, f"{safe_id(role_spec)}.yaml")
+    def _agent_path(self, role_spec: str, workspace: str | None = None) -> str:
+        base_dir = os.path.join(workspace, "agents") if workspace else AGENTS_DIR
+        os.makedirs(base_dir, exist_ok=True)
+        return os.path.join(base_dir, f"{safe_id(role_spec)}.yaml")
 
-    def get_or_create(self, role_spec: str) -> dict:
-        path = self._agent_path(role_spec)
+    def get_or_create(self, role_spec: str, workspace: str | None = None) -> dict:
+        path = self._agent_path(role_spec, workspace)
         if os.path.exists(path):
             return apply_agent_overrides(read_yaml(path), role_spec)
 
@@ -49,11 +51,11 @@ JSON 출력:
         write_yaml(path, data)
         return apply_agent_overrides(data, role_spec)
 
-    def install_skills(self, role_spec: str, skill_ids: list[str]) -> list[str]:
+    def install_skills(self, role_spec: str, skill_ids: list[str], workspace: str | None = None) -> list[str]:
         if not skill_ids:
             return []
-        path = self._agent_path(role_spec)
-        agent = read_yaml(path) if os.path.exists(path) else self.get_or_create(role_spec)
+        path = self._agent_path(role_spec, workspace)
+        agent = read_yaml(path) if os.path.exists(path) else self.get_or_create(role_spec, workspace)
         current = [safe_id(str(s)) for s in (agent.get("skills") or []) if str(s).strip()]
         merged = list(dict.fromkeys(current + [safe_id(s) for s in skill_ids]))
         agent["skills"] = merged

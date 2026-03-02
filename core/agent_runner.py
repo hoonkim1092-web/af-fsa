@@ -571,7 +571,8 @@ class AgentRunner:
         ctx = {
             "agent": agent,
             "data_dir": DATA_DIR,
-            "artifacts_dir": ARTIFACTS_DIR
+            "artifacts_dir": ARTIFACTS_DIR,
+            "workspace": workspace or os.getcwd()
         }
         ok_ctx, msg_ctx = validate_context_with_schema(ctx)
         if not ok_ctx:
@@ -582,6 +583,7 @@ class AgentRunner:
             _flush_trace(result)
         policy_runner = PolicyRuntime(base_dir=BASE_DIR)
         policy = policy_runner.resolve_agent_policy(agent)
+        agent_name = agent.get("name", "")
         
         registry = self.build_tool_registry(modules, ctx, policy)
         tool_functions = registry.get_active_tools()
@@ -683,11 +685,13 @@ class AgentRunner:
             return result
 
         gemini_model = model_name if not (is_codex_model(model_name) or is_claude_model(model_name)) else get_best_model(["gemini-2.0-flash", "gemini-1.5-flash"])
-        model = genai_legacy.GenerativeModel(gemini_model, tools=tool_functions)
+        model = genai_legacy.GenerativeModel(
+            model_name=gemini_model,
+            tools=tool_functions,
+            system_instruction=sys_prompt
+        )
 
-        chat = model.start_chat(history=[
-            {"role": "user", "parts": [sys_prompt + f"\n\nTask: {task_input}"]}
-        ])
+        chat = model.start_chat(history=[])
         _append_trace("user", {"text": f"Task: {task_input}"})
         _append_trace("system", {"model": str(gemini_model), "skills": [str(s) for s in skill_ids]})
         
@@ -707,71 +711,71 @@ class AgentRunner:
             raise Exception("API 호출 실패 (Quota Exceeded)")
 
         try:
-            # We send an empty message to trigger the model to start working
-            response = safe_send("작업을 시작해주세요. 필요한 도구가 있다면 사용하세요.", tool_config={'function_calling_config': 'AUTO'})
+            # [CRITICAL FIX] Actually send the task_input to the model!
+            response = safe_send(f"Task: {task_input}", tool_config={'function_calling_config': {'mode': 'AUTO'}})
             
             # Basic ReAct Loop
-            for _ in range(10): # Max 10 turns
+            for turn in range(10): # Max 10 turns
                 if not response.parts:
+                    if not response.candidates:
+                        pass # No debug print here
                     break
-                part = response.parts[0]
-                
-                # 1. Output Text
-                if part.text:
-                    print(f"🤖 {part.text}")
-                    _append_trace("assistant", {"text": str(part.text)})
-                    # If model thinks it's done or asking question, we might stop
-                    # But if it also has function call (rare in Gemini part[0]), check that.
-                
-                # 2. Function Call
-                if part.function_call:
-                    fc = part.function_call
-                    fname = fc.name
-                    fargs = dict(fc.args)
-                    print(f"🛠️ [Tool] {fname}({fargs})")
-                    _append_trace("tool_call", {"name": str(fname), "args": fargs})
+
+                has_action = False
+                for part in response.parts:
+                    # 1. Output Text
+                    if hasattr(part, "text") and part.text:
+                        print(f"🤖 {part.text}", flush=True)
+                        _append_trace("assistant", {"text": str(part.text)})
                     
-                    # Find tool wrapper
-                    tool_func = next((t for t in tool_functions if t.__name__ == fname), None)
-                    if tool_func:
-                        try:
-                            skill_id = safe_id(str(getattr(tool_func, "_skill_id", "")))
-                            if self._requires_tool_approval(policy, skill_id, fname):
-                                if not self._ask_tool_approval(fname, skill_id):
-                                    print(f"⏭️ [Policy] 사용자 미승인으로 도구 실행을 건너뜁니다: {fname}")
-                                    approval_rejects += 1
-                                    _append_trace("tool_reject", {"name": str(fname), "skill_id": str(skill_id)})
-                                    response = safe_send("해당 도구는 승인되지 않았습니다. 다른 방법으로 진행하세요.")
-                                    continue
-                            # Execute
-                            res_obj = tool_func(**fargs)
-                            
-                            # Fire POST hooks (e.g. ToolOutputTruncator)
-                            if isinstance(res_obj, dict):
-                                res_obj = bus.run_post_execute(agent_state, res_obj)
-                            
-                            print(f"  -> Result: {str(res_obj)[:100]}...")
-                            _append_trace("tool_result", {"name": str(fname), "result": str(res_obj)[:800]})
-                            
-                            # Send result back
-                            response = safe_send(
-                                genai_legacy.protos.Part(function_response=genai_legacy.protos.FunctionResponse(
-                                    name=fname,
-                                    response={'result': res_obj}
-                                ))
-                            )
-                            continue # Continue loop with new response
-                        except Exception as e:
-                            print(f"⚠️ Tool Execution Error: {e}")
-                            _append_trace("error", {"stage": "tool_execution", "tool": str(fname), "message": str(e)})
-                            break
-                    else:
-                        print(f"⚠️ Tool not found: {fname}")
-                        _append_trace("error", {"stage": "tool_lookup", "tool": str(fname), "message": "not_found"})
-                        break
-                
-                # If no function call and simple text, we assume turn is done for this prompt
-                if not part.function_call:
+                    # 2. Function Call
+                    if hasattr(part, "function_call") and part.function_call:
+                        has_action = True
+                        fc = part.function_call
+                        fname = fc.name
+                        fargs = dict(fc.args)
+                        print(f"🛠️ [Tool] {fname}({fargs})", flush=True)
+                        _append_trace("tool_call", {"name": str(fname), "args": fargs})
+                    
+                        # Find tool wrapper
+                        tool_func = next((t for t in tool_functions if t.__name__ == fname), None)
+                        if tool_func:
+                            try:
+                                skill_id = safe_id(str(getattr(tool_func, "_skill_id", "")))
+                                if self._requires_tool_approval(policy, skill_id, fname):
+                                    if not self._ask_tool_approval(fname, skill_id):
+                                        print(f"⏭️ [Policy] 사용자 미승인으로 도구 실행을 건너뜁니다: {fname}", flush=True)
+                                        approval_rejects += 1
+                                        _append_trace("tool_reject", {"name": str(fname), "skill_id": str(skill_id)})
+                                        response = safe_send("해당 도구는 승인되지 않았습니다. 다른 방법으로 진행하세요.")
+                                        continue
+                                # Execute
+                                res_obj = tool_func(**fargs)
+                                
+                                # Fire POST hooks (e.g. ToolOutputTruncator)
+                                if isinstance(res_obj, dict):
+                                    res_obj = bus.run_post_execute(agent_state, res_obj)
+                                
+                                print(f"  -> Result: {str(res_obj)[:100]}...", flush=True)
+                                _append_trace("tool_result", {"name": str(fname), "result": str(res_obj)[:800]})
+                                
+                                # Send result back
+                                response = safe_send(
+                                    genai_legacy.protos.Part(function_response=genai_legacy.protos.FunctionResponse(
+                                        name=fname,
+                                        response={'result': res_obj}
+                                    ))
+                                )
+                            except Exception as e:
+                                print(f"❌ [Tool Error] {fname}: {e}", flush=True)
+                                _append_trace("tool_error", {"name": str(fname), "message": str(e)})
+                                response = safe_send(f"도구 실행 중 오류가 발생했습니다: {e}")
+                        else:
+                            print(f"⚠️ [Runner] 알 수 없는 도구 호출: {fname}", flush=True)
+                            response = safe_send(f"알 수 없는 도구입니다: {fname}")
+
+                if not has_action:
+                    # 만약 텍스트만 있고 액션이 없으면 루프 종료 (질문을 한 상태일 수 있음)
                     break
             
             print("✅ Agent Execution Finished.")

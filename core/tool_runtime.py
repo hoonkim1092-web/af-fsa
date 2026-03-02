@@ -72,7 +72,20 @@ class ToolRuntimeWrapper:
         registry = ToolRegistry(agent_name=agent_name, factory_root=self.base_dir)
         
         legacy_tool_funcs = self.build_tool_functions(module_list, ctx, policy, is_allowed_fn)
+        
+        # [SMART NAMING] Check for collisions to allow shorter tool names
+        # If we only have one 'write_file' across all skills, we don't need 'file_handler_write_file'
+        name_counts = {}
         for fn in legacy_tool_funcs:
-            registry.mount_tool(fn.__name__, fn)
+            real_fname = fn.__name__.split("_", 1)[-1] if "_" in fn.__name__ else fn.__name__
+            name_counts[real_fname] = name_counts.get(real_fname, 0) + 1
+            
+        for fn in legacy_tool_funcs:
+            real_fname = fn.__name__.split("_", 1)[-1] if "_" in fn.__name__ else fn.__name__
+            # Only use short name if NO COLLISION and name is descriptive
+            if name_counts.get(real_fname) == 1 and len(real_fname) > 3:
+                registry.mount_tool(real_fname, fn)
+            else:
+                registry.mount_tool(fn.__name__, fn)
             
         return registry
