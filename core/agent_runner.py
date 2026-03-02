@@ -600,14 +600,30 @@ class AgentRunner:
         
         if engine_id in ("architect_claude", "researcher_gemini"):
             is_complex = True
-            _safe_print(f"🔍 [Router] '{engine_id}' 역할 감지 -> 고성능 엔진 강제 유지")
+            _safe_print(f"🔍 [Router] '{engine_id}' 핵심 역할 감지 -> 고성능 엔진 강제 유지")
         else:
-            # 2. 일반 에이전트의 단순 작업 판별 (휴리스틱)
-            # 30자 이하이면서 생성/설계 키워드가 없는 경우만 단순 작업으로 판별
-            has_trigger = any(k in task_text.lower() for k in ["refactor", "build", "create", "implement", "리팩토링", "구현", "만들어", "추가", "설계"])
-            is_complex = len(task_text) > 30 or has_trigger
-            if not is_complex:
-                _safe_print(f"⚡ [Router] 단순 작업 감지 (길이:{len(task_text)}) -> 경량(Lightweight) 문지기 배치")
+            # 2. 지능형 분류기 (Stage 1 AI Funnel) - 하드코딩 배제
+            # 단순 길이/단어 배열 매칭이 아닌 Flash 모델을 통한 진짜 "의도" 판별
+            try:
+                classifier_model = genai.GenerativeModel("gemini-1.5-flash")
+                prompt = (
+                    f"에이전트 역할: {role_summary or agent_name}\n"
+                    f"사용자 요청: {task_text}\n\n"
+                    "위 요청과 역할을 보고, 애니메이션 구현, UI/UX 설계, 새로운 비즈니스 로직 적용 등 고성능 지능이 필요한 'complex' 작업인지, "
+                    "단순 오타 수정, 터미널 에러 해결, 패키지 설치 등 빠른 처리가 필요한 'simple' 작업인지 판별하시오.\n"
+                    "참고: 프론트엔드 관련 작업은 품질이 중요하므로 대부분 'complex'를 요구합니다.\n"
+                    "대답은 부연 설명 없이 오직 'complex' 또는 'simple' 단어 하나만 하시오."
+                )
+                resp = classifier_model.generate_content(prompt)
+                ans = resp.text.strip().lower()
+                is_complex = "complex" in ans
+                if is_complex:
+                    _safe_print(f"🔍 [Router] 🧠 AI분류: 고품질/프론트엔드 작업 감지 -> 고급 엔진(Pro/Sonnet) 배정")
+                else:
+                    _safe_print(f"⚡ [Router] 🧠 AI분류: 단순 반복 작업 감지 -> 경량(Lightweight) 문지기 배치")
+            except Exception as e:
+                _safe_print(f"⚠️ [Router] 분류기 예외 발생({e}), 안전망 가동 -> 고급 엔진 강제 유지")
+                is_complex = True
 
         agent_state = {
             "task_input": task_input,
