@@ -1,0 +1,17 @@
+id: "hound_librarian"
+name: "Hound-Librarian Pipeline"
+version: "1.0.0"
+capabilities:
+  - "WEB_SEARCH"
+  - "RESEARCH"
+  - "NOTEBOOKLM_INJECTION"
+status: "active"
+description: >
+  3단계 자동화 리서치 파이프라인.
+  1단계(사냥개): Tavily 웹 검색으로 URL/문서 수집.
+  2단계(소스주입): NotebookLM에 수집된 URL 자동 업로드.
+  3단계(사서): NotebookLM 쿼리로 심층 인사이트 추출.
+dependencies:
+  - "TAVILY_API_KEY"
+created_at: "2026-03-04T01:56:00"
+updated_at: "2026-03-04T01:56:00"
