@@ -1,17 +1,17 @@
-{
-  "key": "assistant 네 됩니다  antigravity 쪽도 이미 전역 메모리 미러링 붙여놔서 같은 키만 쓰면 동일하게 이어집니다조건1 회사 PC에서도 AGENT_GLOBAL_USER_KEYhoon_main 같은 값2 ",
-  "value": "[assistant] 네, 됩니다.   `antigravity` 쪽도 이미 전역 메모리 미러링 붙여놔서 같은 키만 쓰면 동일하게 이어집니다.  조건: 1. 회사 PC에서도 `AGENT_GLOBAL_USER_KEY=hoon_main` (같은 값) 2. `start_db`로 pull, 작업 후 `end_db`로 push 3. `antigravity_link.py` 실행 환경에서 동일한 프로젝트 코드 사용  즉, `cdx`와 `antigravity` 둘 다 같은...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-02-26T15:32:46.590673+00:00",
-  "updated_at": "2026-02-26T15:32:46.590673+00:00",
-  "details": {
-    "text": "[assistant] 네, 됩니다.  \n`antigravity` 쪽도 이미 전역 메모리 미러링 붙여놔서 같은 키만 쓰면 동일하게 이어집니다.\n\n조건:\n1. 회사 PC에서도 `AGENT_GLOBAL_USER_KEY=hoon_main` (같은 값)\n2. `start_db`로 pull, 작업 후 `end_db`로 push\n3. `antigravity_link.py` 실행 환경에서 동일한 프로젝트 코드 사용\n\n즉, `cdx`와 `antigravity` 둘 다 같은 전역 메모리 풀을 씁니다.",
-    "event_timestamp": "2026-02-26T14:40:09.734Z",
-    "session_file": "C:/Users/home/.codex/sessions/2026/02/26/rollout-2026-02-26T14-17-53-019c9861-d21e-7892-9d8b-fe2b91c755de.jsonl",
-    "session_line": 917
-  }
+{
+  "key": "assistant 네 됩니다  antigravity 쪽도 이미 전역 메모리 미러링 붙여놔서 같은 키만 쓰면 동일하게 이어집니다조건1 회사 PC에서도 AGENT_GLOBAL_USER_KEYhoon_main 같은 값2 ",
+  "value": "[assistant] 네, 됩니다.   `antigravity` 쪽도 이미 전역 메모리 미러링 붙여놔서 같은 키만 쓰면 동일하게 이어집니다.  조건: 1. 회사 PC에서도 `AGENT_GLOBAL_USER_KEY=hoon_main` (같은 값) 2. `start_db`로 pull, 작업 후 `end_db`로 push 3. `antigravity_link.py` 실행 환경에서 동일한 프로젝트 코드 사용  즉, `cdx`와 `antigravity` 둘 다 같은...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-02-26T15:32:46.590673+00:00",
+  "updated_at": "2026-02-26T15:32:46.590673+00:00",
+  "details": {
+    "text": "[assistant] 네, 됩니다.  \n`antigravity` 쪽도 이미 전역 메모리 미러링 붙여놔서 같은 키만 쓰면 동일하게 이어집니다.\n\n조건:\n1. 회사 PC에서도 `AGENT_GLOBAL_USER_KEY=hoon_main` (같은 값)\n2. `start_db`로 pull, 작업 후 `end_db`로 push\n3. `antigravity_link.py` 실행 환경에서 동일한 프로젝트 코드 사용\n\n즉, `cdx`와 `antigravity` 둘 다 같은 전역 메모리 풀을 씁니다.",
+    "event_timestamp": "2026-02-26T14:40:09.734Z",
+    "session_file": "C:/Users/home/.codex/sessions/2026/02/26/rollout-2026-02-26T14-17-53-019c9861-d21e-7892-9d8b-fe2b91c755de.jsonl",
+    "session_line": 917
+  }
 }

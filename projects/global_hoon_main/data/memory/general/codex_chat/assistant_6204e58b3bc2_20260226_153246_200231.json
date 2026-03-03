@@ -1,17 +1,17 @@
-{
-  "key": "assistant 요구를 반영해 서비스화 없이 전역 연속성 관점으로 다시 리뷰하겠습니다 근거 라인 번호를 정확히 잡기 위해 관련 파일의 줄 번호를 추출 중입니다",
-  "value": "[assistant] 요구를 반영해 “서비스화 없이 전역 연속성” 관점으로 다시 리뷰하겠습니다. 근거 라인 번호를 정확히 잡기 위해 관련 파일의 줄 번호를 추출 중입니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-02-26T15:32:46.200373+00:00",
-  "updated_at": "2026-02-26T15:32:46.200373+00:00",
-  "details": {
-    "text": "[assistant] 요구를 반영해 “서비스화 없이 전역 연속성” 관점으로 다시 리뷰하겠습니다. 근거 라인 번호를 정확히 잡기 위해 관련 파일의 줄 번호를 추출 중입니다.",
-    "event_timestamp": "2026-02-26T11:45:59.553Z",
-    "session_file": "C:/Users/home/.codex/sessions/2026/02/26/rollout-2026-02-26T14-17-53-019c9861-d21e-7892-9d8b-fe2b91c755de.jsonl",
-    "session_line": 121
-  }
+{
+  "key": "assistant 요구를 반영해 서비스화 없이 전역 연속성 관점으로 다시 리뷰하겠습니다 근거 라인 번호를 정확히 잡기 위해 관련 파일의 줄 번호를 추출 중입니다",
+  "value": "[assistant] 요구를 반영해 “서비스화 없이 전역 연속성” 관점으로 다시 리뷰하겠습니다. 근거 라인 번호를 정확히 잡기 위해 관련 파일의 줄 번호를 추출 중입니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-02-26T15:32:46.200373+00:00",
+  "updated_at": "2026-02-26T15:32:46.200373+00:00",
+  "details": {
+    "text": "[assistant] 요구를 반영해 “서비스화 없이 전역 연속성” 관점으로 다시 리뷰하겠습니다. 근거 라인 번호를 정확히 잡기 위해 관련 파일의 줄 번호를 추출 중입니다.",
+    "event_timestamp": "2026-02-26T11:45:59.553Z",
+    "session_file": "C:/Users/home/.codex/sessions/2026/02/26/rollout-2026-02-26T14-17-53-019c9861-d21e-7892-9d8b-fe2b91c755de.jsonl",
+    "session_line": 121
+  }
 }

@@ -1,17 +1,17 @@
-{
-  "key": "assistant 다음으로 antigravity_linkpy에 전역 메모리 미러링 훅을 넣겠습니다 실행마다 사용자 입력라우팅실행 결과를 global_userdatamemoryantigravity에 기록하게 만들겠습니",
-  "value": "[assistant] 다음으로 `antigravity_link.py`에 전역 메모리 미러링 훅을 넣겠습니다. 실행마다 사용자 입력/라우팅/실행 결과를 `global_<user>/data/memory/antigravity`에 기록하게 만들겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-02-26T15:32:46.317655+00:00",
-  "updated_at": "2026-02-26T15:32:46.317655+00:00",
-  "details": {
-    "text": "[assistant] 다음으로 `antigravity_link.py`에 전역 메모리 미러링 훅을 넣겠습니다. 실행마다 사용자 입력/라우팅/실행 결과를 `global_<user>/data/memory/antigravity`에 기록하게 만들겠습니다.",
-    "event_timestamp": "2026-02-26T14:07:27.454Z",
-    "session_file": "C:/Users/home/.codex/sessions/2026/02/26/rollout-2026-02-26T14-17-53-019c9861-d21e-7892-9d8b-fe2b91c755de.jsonl",
-    "session_line": 431
-  }
+{
+  "key": "assistant 다음으로 antigravity_linkpy에 전역 메모리 미러링 훅을 넣겠습니다 실행마다 사용자 입력라우팅실행 결과를 global_userdatamemoryantigravity에 기록하게 만들겠습니",
+  "value": "[assistant] 다음으로 `antigravity_link.py`에 전역 메모리 미러링 훅을 넣겠습니다. 실행마다 사용자 입력/라우팅/실행 결과를 `global_<user>/data/memory/antigravity`에 기록하게 만들겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-02-26T15:32:46.317655+00:00",
+  "updated_at": "2026-02-26T15:32:46.317655+00:00",
+  "details": {
+    "text": "[assistant] 다음으로 `antigravity_link.py`에 전역 메모리 미러링 훅을 넣겠습니다. 실행마다 사용자 입력/라우팅/실행 결과를 `global_<user>/data/memory/antigravity`에 기록하게 만들겠습니다.",
+    "event_timestamp": "2026-02-26T14:07:27.454Z",
+    "session_file": "C:/Users/home/.codex/sessions/2026/02/26/rollout-2026-02-26T14-17-53-019c9861-d21e-7892-9d8b-fe2b91c755de.jsonl",
+    "session_line": 431
+  }
 }

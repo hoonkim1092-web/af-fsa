@@ -1,17 +1,17 @@
-{
-  "key": "assistant 확인 결과 부분적으로만 맞고 핵심 2개는 미완성입니다1 High 전역로컬 메모리 요약은 구현됐지만 실제로 비기 쉽습니다  coreutilspy441CProjectagent-factorycoreuti",
-  "value": "[assistant] 확인 결과, **부분적으로만 맞고 핵심 2개는 미완성**입니다.  1. `High` 전역/로컬 메모리 요약은 구현됐지만 실제로 비기 쉽습니다.   [core/utils.py:441](/C:/Project/agent-factory/core/utils.py:441) 는 `core.json`만 읽는데, 현재 메모리 저장 로직은 카테고리/키별 JSON을 저장합니다([skills/core_memory/skill.py:94](/C:/Project...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-02-26T15:32:46.632739+00:00",
-  "updated_at": "2026-02-26T15:32:46.632739+00:00",
-  "details": {
-    "text": "[assistant] 확인 결과, **부분적으로만 맞고 핵심 2개는 미완성**입니다.\n\n1. `High` 전역/로컬 메모리 요약은 구현됐지만 실제로 비기 쉽습니다.  \n[core/utils.py:441](/C:/Project/agent-factory/core/utils.py:441) 는 `core.json`만 읽는데, 현재 메모리 저장 로직은 카테고리/키별 JSON을 저장합니다([skills/core_memory/skill.py:94](/C:/Project/agent-factory/skills/core_memory/skill.py:94)).  \n즉 “계층형 메모리 요약”이 실데이터를 못 읽을 가능성이 큽니다.\n\n2. `High` OmO 시너지는 “브릿지 파일”은 있으나 실실행 연결이 없습니다.  \n`SynergyBridge`/`get_omo_tools`는 정의돼 있지만([core/synergy_runner.py:20](/C:/Project/agent-factory/core/synergy_runner.py:20), [core/synergy_runner.py:30](/C:/Project/agent-factory/core/synergy_runner.py:30)), `agent_runner`에서는 텍스트 브리핑만 붙입니다([core/agent_runner.py:285](/C:/Project/agent-factory/core/agent_runner.py:285)).  \n실제 툴 레지스트리에 `omo_hash_edit`가 등록되지 않습니다.\n\n3. `Medium` “3단계(start_db 연동)만 남았다”는 현재 트리 기준으론 틀립니다.  \n이미 글로벌 스코프 동기화와 start_db 경유 연동이 들어가 있습니다([scripts/project_context_sync.py:475](/C:/Project/agent-factory/scripts/project_context_sync.py:475), [scripts/sync_easy.ps1:83](/C:/Project/agent-factory/scripts/sync_easy.ps1:83), [start_db.cmd:3](/C:/Project/agent-factory/start_db.cmd:3)).\n\n요약:  \n- “있다”: 파일/함수 뼈대, 프롬프트 주입  \n- “아직 부족”: 실제 데이터 연결(`read_core_memory`) + 실제 툴 실행 연결(OmO)\n\n원하면 바로 다음으로 이 2개를 실제 동작하도록 패치하겠습니다.",
-    "event_timestamp": "2026-02-26T15:05:29.655Z",
-    "session_file": "C:/Users/home/.codex/sessions/2026/02/26/rollout-2026-02-26T14-17-53-019c9861-d21e-7892-9d8b-fe2b91c755de.jsonl",
-    "session_line": 1031
-  }
+{
+  "key": "assistant 확인 결과 부분적으로만 맞고 핵심 2개는 미완성입니다1 High 전역로컬 메모리 요약은 구현됐지만 실제로 비기 쉽습니다  coreutilspy441CProjectagent-factorycoreuti",
+  "value": "[assistant] 확인 결과, **부분적으로만 맞고 핵심 2개는 미완성**입니다.  1. `High` 전역/로컬 메모리 요약은 구현됐지만 실제로 비기 쉽습니다.   [core/utils.py:441](/C:/Project/agent-factory/core/utils.py:441) 는 `core.json`만 읽는데, 현재 메모리 저장 로직은 카테고리/키별 JSON을 저장합니다([skills/core_memory/skill.py:94](/C:/Project...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-02-26T15:32:46.632739+00:00",
+  "updated_at": "2026-02-26T15:32:46.632739+00:00",
+  "details": {
+    "text": "[assistant] 확인 결과, **부분적으로만 맞고 핵심 2개는 미완성**입니다.\n\n1. `High` 전역/로컬 메모리 요약은 구현됐지만 실제로 비기 쉽습니다.  \n[core/utils.py:441](/C:/Project/agent-factory/core/utils.py:441) 는 `core.json`만 읽는데, 현재 메모리 저장 로직은 카테고리/키별 JSON을 저장합니다([skills/core_memory/skill.py:94](/C:/Project/agent-factory/skills/core_memory/skill.py:94)).  \n즉 “계층형 메모리 요약”이 실데이터를 못 읽을 가능성이 큽니다.\n\n2. `High` OmO 시너지는 “브릿지 파일”은 있으나 실실행 연결이 없습니다.  \n`SynergyBridge`/`get_omo_tools`는 정의돼 있지만([core/synergy_runner.py:20](/C:/Project/agent-factory/core/synergy_runner.py:20), [core/synergy_runner.py:30](/C:/Project/agent-factory/core/synergy_runner.py:30)), `agent_runner`에서는 텍스트 브리핑만 붙입니다([core/agent_runner.py:285](/C:/Project/agent-factory/core/agent_runner.py:285)).  \n실제 툴 레지스트리에 `omo_hash_edit`가 등록되지 않습니다.\n\n3. `Medium` “3단계(start_db 연동)만 남았다”는 현재 트리 기준으론 틀립니다.  \n이미 글로벌 스코프 동기화와 start_db 경유 연동이 들어가 있습니다([scripts/project_context_sync.py:475](/C:/Project/agent-factory/scripts/project_context_sync.py:475), [scripts/sync_easy.ps1:83](/C:/Project/agent-factory/scripts/sync_easy.ps1:83), [start_db.cmd:3](/C:/Project/agent-factory/start_db.cmd:3)).\n\n요약:  \n- “있다”: 파일/함수 뼈대, 프롬프트 주입  \n- “아직 부족”: 실제 데이터 연결(`read_core_memory`) + 실제 툴 실행 연결(OmO)\n\n원하면 바로 다음으로 이 2개를 실제 동작하도록 패치하겠습니다.",
+    "event_timestamp": "2026-02-26T15:05:29.655Z",
+    "session_file": "C:/Users/home/.codex/sessions/2026/02/26/rollout-2026-02-26T14-17-53-019c9861-d21e-7892-9d8b-fe2b91c755de.jsonl",
+    "session_line": 1031
+  }
 }
