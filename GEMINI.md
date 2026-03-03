@@ -42,3 +42,7 @@
 5. **Self-Evolution (자가 진화)**:
     - **[SKELETON/FRAMEWORK DEV]**: 최신 엔진(Gemini 3.1 Pro 등)이 출시되면 즉시 팩토리의 아키텍트 엔진으로 반영하여 지능의 최신성을 유지합니다.
     - **[RELEASE/OUTPUT AGENTS]**: 모든 에이전트와 스킬은 사용 경험을 통해 스스로 성장하며, 최신 엔진의 지능을 흡수하여 점진적으로 인간의 개입이 필요 없는 수준으로 진화합니다.
+
+## 6. 개발 및 커뮤니케이션 (Development & Communication)
+
+1. **Korean Native (한국어 원칙)**: 뼈대(Skeleton/Framework) 작업, 시스템 프롬프트 작성, 핵심 설계 문서 및 주석은 명확한 의도 전달과 유지보수를 위해 **반드시 한글로 작성**해야 합니다.

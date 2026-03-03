@@ -49,6 +49,15 @@ class ToolRuntimeWrapper:
             needs_ctx = True
             params = params[1:]
 
+        # [SDK 호환성] 타입 힌트가 없는 파라미터에 자동으로 str 타입 부여
+        # 신규 google.genai SDK는 Pydantic으로 FunctionDeclaration을 자동 생성하는데,
+        # 타입 힌트가 inspect._empty이면 JSON Schema 변환이 불가능하여 ValueError 발생.
+        patched_params = []
+        for p in params:
+            if p.annotation is inspect.Parameter.empty:
+                p = p.replace(annotation=str)
+            patched_params.append(p)
+
         tool_name = safe_id(f"{module_name}_{func_name}")
 
         @functools.wraps(fn)
@@ -62,7 +71,7 @@ class ToolRuntimeWrapper:
         wrapper.__name__ = tool_name
         wrapper._skill_id = module_name
         wrapper.__doc__ = fn.__doc__ or f"Tool: {tool_name}"
-        new_sig = sig.replace(parameters=params)
+        new_sig = sig.replace(parameters=patched_params)
         wrapper.__signature__ = new_sig
         return wrapper
 

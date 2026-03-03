@@ -25,7 +25,7 @@ from core.policy_runtime import PolicyRuntime
 from core.hooks.event_bus import HookEventBus, IntentGateHook, TodoContinuationEnforcer, ToolOutputTruncator
 from model_utils import get_best_model, print_agent_model_summary, resolve_dynamic_model, _infer_engine_id
 from google import genai
-import google.generativeai as genai_legacy
+from google.genai import types as genai_types
 
 def _safe_print(*args, **kwargs):
     enc = getattr(sys.stdout, "encoding", None) or "utf-8"
@@ -45,16 +45,18 @@ class FallbackRejectedError(RuntimeError):
 class ModelRouter:
     def pick(self, stage: str, agent_config: dict = None, is_complex: bool = True) -> str:
         if stage == "chat":
+            # [우선순위 1] 환경변수로 강제 지정 시 무조건 우선
             forced = (os.getenv("AGENT_CHAT_MODEL") or "").strip()
             if forced:
                 return forced
 
-            # [AI Funnel / 릴리트 모델 쪼개 쓰기] 
-            # 복잡한 작업이 아니고, 강제 선호 모델이 없으면 문지기 'lightweight' 모델 파견
-            if not is_complex and not (agent_config and agent_config.get("preferred_model")):
+            # [우선순위 2] simple 작업 → 비용 최적화(Flash/Lightweight 계열)
+            if not is_complex:
                 sel = resolve_dynamic_model("lightweight")
                 return sel.model
 
+            # [우선순위 3] complex 작업 → 에이전트 역할 기반 동적 최적 모델
+            # (provider 환경변수로 Claude/Codex 강제 가능)
             provider_raw = (os.getenv("AGENT_CHAT_PROVIDER") or "").strip().lower()
             providers = [p.strip() for p in provider_raw.split(",") if p.strip()]
             for provider in providers:
@@ -63,17 +65,22 @@ class ModelRouter:
                 if provider == "claude":
                     from model_utils import _pick_anthropic_model
                     return _pick_anthropic_model("sonnet") or "claude-4.6"
-        
-        # Check Agent-specific high-end preference
-        if agent_config and agent_config.get("preferred_model"):
-            return get_best_model([agent_config["preferred_model"], "gemini-3.1-pro-preview", "gemini-1.5-pro"])
 
-        # Stage 3 (Requirement/Reasoning) -> 3.1 Pro
+            # [우선순위 4] 역할 기반 동적 모델 선택 (model_utils.resolve_dynamic_model)
+            role = ""
+            if agent_config:
+                role = (agent_config.get("role") or
+                        (agent_config.get("identity") or {}).get("role_summary") or
+                        agent_config.get("name") or "")
+            sel = resolve_dynamic_model(_infer_engine_id(role) if role else "researcher_gemini")
+            return sel.model
+
+        # 기획/추론 단계 → 실시간 가용 고성능 모델 반환
         if stage in ("requirement", "reasoning"):
-            return get_best_model(["gemini-3.1-pro-preview", "gemini-2.0-pro", "gemini-1.5-pro"])
-        
-        # Stage 2 (Flash/Normalization) -> 3 Flash
-        return get_best_model(["gemini-3-flash-preview", "gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"])
+            return get_best_model(["gemini-2.5-pro", "gemini-2.0-flash", "gemini-1.5-pro"])
+
+        # 기본(정규화/Flash 단계) → 최신 Flash 계열
+        return get_best_model(["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"])
 
 # =============================================================================
 # 2) Quick Guard (AST) - 치명적인 보안 취약점 차단
@@ -685,25 +692,37 @@ class AgentRunner:
             return result
 
         gemini_model = model_name if not (is_codex_model(model_name) or is_claude_model(model_name)) else get_best_model(["gemini-2.0-flash", "gemini-1.5-flash"])
-        model = genai_legacy.GenerativeModel(
-            model_name=gemini_model,
-            tools=tool_functions,
-            system_instruction=sys_prompt
-        )
+        try:
+            # [신규 SDK] genai.Client 기반 채팅 세션 생성
+            gemini_client = genai.Client(api_key=GOOGLE_API_KEY) if GOOGLE_API_KEY else genai.Client()
+            chat = gemini_client.chats.create(
+                model=gemini_model,
+                config=genai_types.GenerateContentConfig(
+                    system_instruction=sys_prompt,
+                    tools=tool_functions,
+                ),
+            )
+        except Exception as e:
+            import traceback
+            print(f"❌ [Runner] SDK Chat Session Create 실패: {str(e)}")
+            traceback.print_exc()
+            result = {"ok": False, "reason": "sdk_init_failed", "latency_ms": int((time.time() - started) * 1000), "approval_rejects": approval_rejects}
+            _append_trace("error", {"stage": "sdk_init", "message": str(e)})
+            _flush_trace(result)
+            return result
 
-        chat = model.start_chat(history=[])
         _append_trace("user", {"text": f"Task: {task_input}"})
         _append_trace("system", {"model": str(gemini_model), "skills": [str(s) for s in skill_ids]})
         
-        # Helper for safe sending
-        def safe_send(msg, **kwargs):
+        # 안전한 메시지 전송 헬퍼 (429 Quota 자동 재시도)
+        def safe_send(msg):
             max_retries = 3
             for i in range(max_retries):
                 try:
-                    return chat.send_message(msg, **kwargs)
+                    return chat.send_message(msg)
                 except Exception as e:
                     if "429" in str(e) or "quota" in str(e).lower() or "resource exhausted" in str(e).lower():
-                        wait = 5 * (i + 1) # 5s, 10s, 15s
+                        wait = 5 * (i + 1)
                         print(f"⏳ [Quota] API 사용량 초과 (429). {wait}초 대기 중... ({i+1}/{max_retries})")
                         time.sleep(wait)
                         continue
@@ -711,8 +730,8 @@ class AgentRunner:
             raise Exception("API 호출 실패 (Quota Exceeded)")
 
         try:
-            # [CRITICAL FIX] Actually send the task_input to the model!
-            response = safe_send(f"Task: {task_input}", tool_config={'function_calling_config': {'mode': 'AUTO'}})
+            # [신규 SDK] 첫 메시지 전송
+            response = safe_send(f"Task: {task_input}")
             
             # Basic ReAct Loop
             for turn in range(10): # Max 10 turns
@@ -760,11 +779,12 @@ class AgentRunner:
                                 _append_trace("tool_result", {"name": str(fname), "result": str(res_obj)[:800]})
                                 
                                 # Send result back
+                                # [신규 SDK] 도구 실행 결과를 모델에 반환
                                 response = safe_send(
-                                    genai_legacy.protos.Part(function_response=genai_legacy.protos.FunctionResponse(
+                                    genai_types.Part.from_function_response(
                                         name=fname,
                                         response={'result': res_obj}
-                                    ))
+                                    )
                                 )
                             except Exception as e:
                                 print(f"❌ [Tool Error] {fname}: {e}", flush=True)
@@ -784,7 +804,9 @@ class AgentRunner:
             return result
 
         except Exception as e:
+            import traceback
             print(f"⚠️ [Runner] 실행 중 오류: {e}")
+            traceback.print_exc()
             # Fallback output
             print("에이전트가 응답을 생성하지 못했습니다.")
             result = {"ok": False, "reason": f"runner_error:{type(e).__name__}", "latency_ms": int((time.time() - started) * 1000), "approval_rejects": approval_rejects}
