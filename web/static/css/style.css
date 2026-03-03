@@ -513,3 +513,112 @@ body {
     animation: spin 0.8s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* ─── Tic-Tac-Toe ─── */
+.ttt-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 28px;
+    padding: 40px 20px;
+}
+
+.ttt-status {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 14px 32px;
+    backdrop-filter: blur(12px);
+    min-width: 240px;
+    text-align: center;
+    transition: all var(--transition);
+}
+.ttt-status.x-turn  { border-color: var(--accent-blue);   color: var(--accent-blue); }
+.ttt-status.o-turn  { border-color: var(--accent-purple);  color: var(--accent-purple); }
+.ttt-status.x-win   { border-color: var(--accent-green);   color: var(--accent-green);  background: rgba(16,185,129,0.1); }
+.ttt-status.o-win   { border-color: var(--accent-purple);  color: var(--accent-purple); background: rgba(139,92,246,0.1); }
+.ttt-status.draw    { border-color: var(--accent-amber);   color: var(--accent-amber);  background: rgba(245,158,11,0.1); }
+
+.ttt-board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    padding: 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    backdrop-filter: blur(12px);
+    box-shadow: var(--shadow-card);
+}
+
+.ttt-cell {
+    width: 100px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.8rem;
+    font-weight: 700;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    background: var(--bg-glass);
+    border: 1px solid var(--border);
+    transition: all var(--transition);
+    user-select: none;
+    position: relative;
+    overflow: hidden;
+}
+.ttt-cell::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--gradient-glow);
+    opacity: 0;
+    transition: opacity var(--transition);
+    border-radius: inherit;
+}
+.ttt-cell:hover:not(.taken)::before { opacity: 1; }
+.ttt-cell:hover:not(.taken) { border-color: var(--border-focus); transform: scale(1.04); }
+
+.ttt-cell.x {
+    color: var(--accent-blue);
+    border-color: rgba(59, 130, 246, 0.4);
+    background: rgba(59, 130, 246, 0.08);
+    cursor: default;
+}
+.ttt-cell.o {
+    color: var(--accent-purple);
+    border-color: rgba(139, 92, 246, 0.4);
+    background: rgba(139, 92, 246, 0.08);
+    cursor: default;
+}
+.ttt-cell.winning {
+    animation: winPulse 0.6s ease forwards;
+}
+@keyframes winPulse {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.12); box-shadow: 0 0 24px currentColor; }
+    100% { transform: scale(1.06); }
+}
+
+.ttt-reset {
+    padding: 12px 36px;
+    background: var(--gradient-primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all var(--transition);
+    letter-spacing: 0.03em;
+}
+.ttt-reset:hover { transform: scale(1.04); box-shadow: 0 4px 20px rgba(59,130,246,0.35); }
+
+@media (max-width: 768px) {
+    .ttt-cell { width: 72px; height: 72px; font-size: 2rem; }
+}

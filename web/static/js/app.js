@@ -544,4 +544,91 @@ document.addEventListener('DOMContentLoaded', async () => {
         const chatInput = $('#chatInput');
         if (chatInput) chatInput.placeholder = I18n.t('run.input_placeholder');
     });
+
+    // ─── Tic-Tac-Toe ───────────────────────────────────────────────────────
+    function initTicTacToe() {
+        const WINNING_LINES = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8], // 가로
+            [0, 3, 6], [1, 4, 7], [2, 5, 8], // 세로
+            [0, 4, 8], [2, 4, 6],         // 대각선
+        ];
+
+        let board = Array(9).fill(null); // null | 'X' | 'O'
+        let currentPlayer = 'X';
+        let gameOver = false;
+
+        const statusEl = $('#tttStatus');
+        const cells = $$('.ttt-cell');
+        const resetBtn = $('#tttReset');
+
+        function setStatus(text, cls) {
+            statusEl.textContent = text;
+            statusEl.className = 'ttt-status' + (cls ? ' ' + cls : '');
+        }
+
+        function checkWinner() {
+            for (const [a, b, c] of WINNING_LINES) {
+                if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+                    return { winner: board[a], line: [a, b, c] };
+                }
+            }
+            if (board.every(v => v !== null)) return { winner: null, draw: true };
+            return null;
+        }
+
+        function render() {
+            cells.forEach((cell, i) => {
+                cell.textContent = board[i] || '';
+                cell.className = 'ttt-cell' + (board[i] ? ' ' + board[i].toLowerCase() + ' taken' : '');
+            });
+        }
+
+        function handleClick(e) {
+            const cell = e.currentTarget;
+            const idx = parseInt(cell.dataset.index, 10);
+            if (gameOver || board[idx]) return;
+
+            board[idx] = currentPlayer;
+            render();
+
+            const result = checkWinner();
+            if (result) {
+                gameOver = true;
+                if (result.draw) {
+                    setStatus("🤝 It's a Draw!", 'draw');
+                } else {
+                    setStatus(`🎉 Player ${result.winner} Wins!`, result.winner === 'X' ? 'x-win' : 'o-win');
+                    result.line.forEach(i => cells[i].classList.add('winning'));
+                }
+                return;
+            }
+            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+            setStatus(`Player ${currentPlayer}'s turn`, currentPlayer === 'X' ? 'x-turn' : 'o-turn');
+        }
+
+        function resetGame() {
+            board = Array(9).fill(null);
+            currentPlayer = 'X';
+            gameOver = false;
+            setStatus("Player X's turn", 'x-turn');
+            render();
+        }
+
+        cells.forEach(cell => cell.addEventListener('click', handleClick));
+        resetBtn.addEventListener('click', resetGame);
+
+        // 초기 상태
+        setStatus("Player X's turn", 'x-turn');
+    }
+
+    // 내비게이션으로 Tic-Tac-Toe 페이지 진입 시 최초 1회 초기화
+    let tttInitialized = false;
+    $$('.nav-item').forEach(item => {
+        item.addEventListener('click', () => {
+            if (item.dataset.page === 'tictactoe' && !tttInitialized) {
+                initTicTacToe();
+                tttInitialized = true;
+            }
+        });
+    });
 });

@@ -1,4 +1,4 @@
-
+﻿
 import os
 import json
 import time
@@ -94,7 +94,7 @@ def get_available_models(force_refresh: bool = False) -> list[str]:
         return models
     except Exception as e:
         log(f"Failed to list models: {e}. Returning fallback list.")
-        return ["models/gemini-2.0-flash", "models/gemini-1.5-flash", "models/gemini-1.5-pro"]
+        return ["models/gemini-2.5-flash", "models/gemini-2.5-pro", "models/gemini-2.0-flash", "models/gemini-1.5-flash", "models/gemini-1.5-pro"]
 
 
 def fetch_openai_models() -> list[str]:
@@ -207,24 +207,31 @@ def find_latest_model(tag: str, available_models: list) -> str:
             matches.append({"name": m_name, "version": version, "priority": priority})
             
     if not matches:
-        return tag.replace("*", "2.0")
+        # 하드코딩 제거: 패턴에서 동적으로 기본 별칭을 추출 (예: 'gemini-*-flash' → 'gemini-flash')
+        return tag.replace("-*", "").replace("*", "")
         
     # 버전을 최우선 정렬 조건으로, 그 다음 실험/프리뷰 여부(priority)를 두어 가장 최신을 추출
     matches.sort(key=lambda x: (x["version"], x["priority"]), reverse=True)
     return matches[0]["name"]
 
 
+def get_dynamic_default_model(tier: str = "flash") -> str:
+    """
+    [자가 진화] API를 통해 확보한 가용 모델 목록 중
+    지정된 tier(flash 또는 pro)의 가장 최신 버전 모델명을 동적으로 반환합니다.
+    하드코딩된 버전 번호(예: '2.0')를 일절 사용하지 않습니다.
+    """
+    available = get_available_models()
+    selected = find_latest_model(f"gemini-*-{tier}", available)
+    log(f"[Dynamic Default] tier={tier} → {selected}")
+    return selected
+
+
 def get_best_model(priority_list: list = None) -> str:
     """우선순위 리스트 기반 최적 Gemini 모델 선택."""
     if priority_list is None:
-        # 미래(Gemini 4.0 등)를 하드코딩하지 않고 현재 리스트 범위 내에서 가장 최신 버전을 나열
-        priority_list = [
-            "gemini-3.1-pro", "gemini-3.1-flash",
-            "gemini-3-pro", "gemini-3-flash",
-            "gemini-2.5-pro", "gemini-2.5-flash", 
-            "gemini-2.0-flash",
-            "gemini-1.5-pro", "gemini-1.5-flash"
-        ]
+        # 하드코딩 없이 API 목록에서 최신 모델을 직접 추출
+        return get_dynamic_default_model("pro")
     available = get_available_models()
     for p in priority_list:
         for m in available:
@@ -232,7 +239,8 @@ def get_best_model(priority_list: list = None) -> str:
                 return m
     if available:
         return available[0]
-    return "models/gemini-2.0-flash"
+    # 최후의 수단: 동적 기본 모델 (버전 하드코딩 배제)
+    return get_dynamic_default_model("flash")
 
 
 # =============================================================================
@@ -484,8 +492,7 @@ def resolve_preferred_model(role: str) -> str:
         return selection.model
     except Exception as e:
         log(f"resolve_preferred_model fallback to gemini-flash: {e}")
-        available = load_cache() or []
-        return find_latest_model("gemini-*-flash", available) or "models/gemini-2.0-flash"
+        return get_dynamic_default_model("flash")
 
 
 # 엔진 ID → 표시 이름 (CLI 출력용)

@@ -20,7 +20,7 @@ class IntentGate:
     ]
 
     def __init__(self):
-        self._llm = LLMEngine(model_name="gemini-2.0-flash")
+        self._llm = LLMEngine()  # 모델 자동 선택 (하드코딩 배제)
     
     def classify(self, task_input: str, context: str = "") -> dict:
         """
@@ -45,7 +45,7 @@ Respond in pure JSON format:
         """
         
         try:
-            # We use gemini-2.0-flash for fast, cheap classification
+            # 최신 Flash 모델로 빠른 분류 (자동 선택, 버전 하드코딩 배제)
             response = self._llm.generate(
                 prompt=prompt
             )

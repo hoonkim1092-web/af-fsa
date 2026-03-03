@@ -12,9 +12,9 @@ def now_iso() -> str:
 
 
 class SwarmCouncil:
-    def __init__(self, factory_dir: str, model_name: str = "gemini-2.0-flash"):
+    def __init__(self, factory_dir: str, model_name: str = None):
         self.factory_dir = os.path.abspath(factory_dir)
-        self.llm = LLMEngine(model_name=model_name)
+        self.llm = LLMEngine(model_name=model_name)  # None 시 자동으로 최신 Flash 선택
 
     def _policy_text(self) -> str:
         policy_path = os.path.join(self.factory_dir, "projects", "default", "policies.yaml")

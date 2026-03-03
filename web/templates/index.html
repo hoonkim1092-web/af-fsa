@@ -44,6 +44,15 @@
                 </svg>
                 <span data-i18n="nav.settings">설정</span>
             </li>
+            <li class="nav-item" data-page="tictactoe">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="8" y1="2" x2="8" y2="22" />
+                    <line x1="16" y1="2" x2="16" y2="22" />
+                    <line x1="2" y1="8" x2="22" y2="8" />
+                    <line x1="2" y1="16" x2="22" y2="16" />
+                </svg>
+                <span>Tic-Tac-Toe</span>
+            </li>
         </ul>
         <div class="sidebar-footer">
             <div class="lang-switch" id="langSwitch">
@@ -212,6 +221,26 @@
                     </div>
                 </div>
                 <button class="key-save-btn" id="btnSaveAgent" data-i18n="settings.save_agent">Save Agent</button>
+            </div>
+        </section>
+
+        <!-- Tic-Tac-Toe Page -->
+        <section class="page" id="page-tictactoe">
+            <h1 class="page-title">🎮 Tic-Tac-Toe</h1>
+            <div class="ttt-container">
+                <div class="ttt-status" id="tttStatus">Player X's turn</div>
+                <div class="ttt-board" id="tttBoard">
+                    <div class="ttt-cell" data-index="0"></div>
+                    <div class="ttt-cell" data-index="1"></div>
+                    <div class="ttt-cell" data-index="2"></div>
+                    <div class="ttt-cell" data-index="3"></div>
+                    <div class="ttt-cell" data-index="4"></div>
+                    <div class="ttt-cell" data-index="5"></div>
+                    <div class="ttt-cell" data-index="6"></div>
+                    <div class="ttt-cell" data-index="7"></div>
+                    <div class="ttt-cell" data-index="8"></div>
+                </div>
+                <button class="ttt-reset" id="tttReset">🔄 Reset</button>
             </div>
         </section>
     </main>

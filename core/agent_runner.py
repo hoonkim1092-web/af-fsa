@@ -75,12 +75,13 @@ class ModelRouter:
             sel = resolve_dynamic_model(_infer_engine_id(role) if role else "researcher_gemini")
             return sel.model
 
-        # 기획/추론 단계 → 실시간 가용 고성능 모델 반환
+        # 기획/추론 단계 → 실시간 가용 고성능 모델 반환 (하드코딩 배제)
         if stage in ("requirement", "reasoning"):
-            return get_best_model(["gemini-2.5-pro", "gemini-2.0-flash", "gemini-1.5-pro"])
+            return get_best_model(["gemini-2.5-pro", "gemini-2.5-flash", "gemini-2.0-pro"])
 
-        # 기본(정규화/Flash 단계) → 최신 Flash 계열
-        return get_best_model(["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"])
+        # 기본(정규화/Flash 단계) → API에서 최신 Flash 계열 동적 선택
+        from model_utils import get_dynamic_default_model
+        return get_dynamic_default_model("flash")
 
 # =============================================================================
 # 2) Quick Guard (AST) - 치명적인 보안 취약점 차단
@@ -650,7 +651,8 @@ class AgentRunner:
             _flush_trace(result)
             return result
         
-        model_name = agent.get("preferred_model") or self.mr.pick("chat", agent_config=agent, is_complex=is_complex) or "gemini-2.0-flash"
+        from model_utils import get_dynamic_default_model
+        model_name = agent.get("preferred_model") or self.mr.pick("chat", agent_config=agent, is_complex=is_complex) or get_dynamic_default_model("flash")
         
         # System Prompt construction
         sys_prompt = self._resolve_system_prompt(agent)
@@ -691,7 +693,7 @@ class AgentRunner:
             _flush_trace(result)
             return result
 
-        gemini_model = model_name if not (is_codex_model(model_name) or is_claude_model(model_name)) else get_best_model(["gemini-2.0-flash", "gemini-1.5-flash"])
+        gemini_model = model_name if not (is_codex_model(model_name) or is_claude_model(model_name)) else get_best_model(["gemini-2.5-flash", "gemini-2.5-pro"])
         try:
             # [신규 SDK] genai.Client 기반 채팅 세션 생성
             gemini_client = genai.Client(api_key=GOOGLE_API_KEY) if GOOGLE_API_KEY else genai.Client()

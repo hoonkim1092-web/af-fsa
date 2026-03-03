@@ -140,7 +140,7 @@ def check_skill_exists(skill_name: str, purpose_description: str) -> Optional[st
     if not skills:
         return None
 
-    llm = LLMEngine(model_name="gemini-2.0-flash")
+    llm = LLMEngine()  # 모델 자동 선택 (하드코딩 배제)
     prompt = f"""
 You are a skill registry reviewer.
 Requested skill: '{skill_name}'

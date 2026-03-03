@@ -48,13 +48,15 @@ def get_current_gemini_key() -> str | None:
 def get_latest_flash_model() -> str:
     """
     [Release/Output Agents] 최신 Gemini Flash 모델을 반환합니다.
-    모델 탐색 두뇌는 model_utils.get_best_model에 위임합니다.
+    모델 탐색 두뇌는 model_utils.get_dynamic_default_model에 위임하여
+    버전 번호를 코드 상에 일절 하드코딩하지 않습니다.
     """
     try:
-        from model_utils import get_best_model
-        return get_best_model(["gemini-3.1-flash", "gemini-3-flash", "gemini-2.5-flash", "gemini-2.0-flash"])
+        from model_utils import get_dynamic_default_model
+        return get_dynamic_default_model("flash")
     except Exception:
-        return "gemini-2.0-flash"
+        # 극단적 실패 시에도 버전 번호 없이 API 기본 별칭 사용
+        return "gemini-flash"
 
 
 def get_best_model(fallback_list=None) -> str:
@@ -84,7 +86,11 @@ class LLMEngine:
     - generate(text) / generate_json(text) 제공
     """
 
-    def __init__(self, model_name: str = "gemini-2.0-flash"):
+    def __init__(self, model_name: str = None):
+        # model_name이 없으면 동적으로 최신 Flash를 선택 (버전 하드코딩 배제)
+        if model_name is None:
+            model_name = get_latest_flash_model()
+
         # Auto-Upgrade: Flash 계열은 항상 최신판으로 강제 상향
         if "gemini" in model_name and "flash" in model_name:
             latest = get_latest_flash_model()

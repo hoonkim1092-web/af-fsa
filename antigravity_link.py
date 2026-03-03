@@ -126,7 +126,7 @@ def mirror_global_memory(user_input: str, plan: dict, exit_code: int) -> None:
 
 class SmartLinker:
     def __init__(self):
-        self.gatekeeper = genai.GenerativeModel(get_best_model(["gemini-2.0-flash", "gemini-1.5-flash"]))
+        self.gatekeeper = genai.GenerativeModel(get_best_model(["gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.0-flash"]))
 
     def analyze_and_route(self, user_input: str) -> dict:
         print("[Antigravity] analyzing request and selecting model...")
@@ -150,9 +150,9 @@ Analyze the request and return JSON only:
             if "GEMINI_3" in choice:
                 priority = ["gemini-3.0-pro", "gemini-2.0-pro", "gemini-1.5-pro"]
             elif "GEMINI_1_5" in choice:
-                priority = ["gemini-1.5-pro", "gemini-2.0-flash"]
+                priority = ["gemini-1.5-pro", "gemini-2.5-flash"]
             else:
-                priority = ["gemini-2.0-flash", "gemini-1.5-flash"]
+                priority = ["gemini-2.5-flash", "gemini-1.5-flash"]
 
             data["actual_model"] = get_best_model(priority)
             return data
