@@ -46,6 +46,7 @@ class BackgroundTask:
         self.result = None
         self.error = None
         self._completion_event = threading.Event()
+        self._semaphore_released = False  # 중복 release 방지 플래그
 
     def heartbeat(self):
         """Update heartbeat timestamp locally from within the task."""
@@ -65,7 +66,8 @@ class BackgroundTaskManager:
     """
     def __init__(self, max_concurrent: int = 5):
         self.max_concurrent = max_concurrent
-        self.semaphore = threading.Semaphore(self.max_concurrent)
+        # BoundedSemaphore: 중복 release 시 ValueError 즉시 발생 → 버그 탐지
+        self.semaphore = threading.BoundedSemaphore(self.max_concurrent)
         self.tasks: Dict[str, BackgroundTask] = {}
         self.circuit_breakers: Dict[str, TaskCircuitBreaker] = {}
         self.lock = threading.Lock()
@@ -119,7 +121,10 @@ class BackgroundTaskManager:
                     self.circuit_breakers[group_id].record_failure()
         finally:
             self._cleanup_task_resources(task)
-            self.semaphore.release()
+            # 중복 release 방지: abort_task()에서 이미 release했으면 스킵
+            if not task._semaphore_released:
+                task._semaphore_released = True
+                self.semaphore.release()
 
     def _cleanup_task_resources(self, task: BackgroundTask):
         """(Guardrail 5) 종료 훅(Cleanup Hook) - 로컬 세션 및 임시 파일 등 정리 보장"""
@@ -135,6 +140,7 @@ class BackgroundTaskManager:
         (Guardrail 1) 2단계 종료 (Soft Cancel -> Hard Kill)
         파이썬 쓰레드의 한계로 직접 Kill은 어려우나, 
         플래그를 통해 Soft Cancel 후 타임아웃 시 고아 스레드로 버리고 세마포어를 회수한다.
+        Popen 프로세스가 연결된 경우(_popen_ref) 트리 전체를 종료한다.
         """
         with self.lock:
             task = self.tasks.get(task_id)
@@ -145,6 +151,22 @@ class BackgroundTaskManager:
         # 1단계: Soft Cancel Signal
         logger.info(f"Sending Soft Cancel signal to task {task_id}...")
         task.is_cancelled = True
+
+        # (Guardrail 1+) Popen 프로세스가 연결된 경우 트리 전체 종료
+        popen_ref = getattr(task, '_popen_ref', None)
+        if popen_ref is not None:
+            try:
+                from core.synergy_runner import _kill_tree
+                pid = getattr(popen_ref, 'pid', None)
+                if pid:
+                    popen_ref.terminate()
+                    try:
+                        popen_ref.wait(timeout=5)
+                    except Exception:
+                        _kill_tree(pid)
+                    logger.info(f"(Guardrail 1+) Popen tree killed for task {task_id}, pid={pid}")
+            except Exception as e:
+                logger.warning(f"(Guardrail 1+) Popen kill failed for {task_id}: {e}")
         
         # 2단계: 대기
         if task._completion_event.wait(timeout=timeout_sec):
@@ -153,10 +175,13 @@ class BackgroundTaskManager:
             
         # 3단계: 시간 초과 시 Hard Kill (파이썬에서는 리소스 강제 회수 로직으로 대체)
         # (Guardrail 6) 관측성
-        logger.error(f"(Guardrail 1/6) Task {task_id} failed to gracefull stop within {timeout_sec}s. Hard Kill / Orphaned.")
+        logger.error(f"(Guardrail 1/6) Task {task_id} failed to graceful stop within {timeout_sec}s. Hard Kill / Orphaned.")
         
         # 세마포어를 강제로 돌려주어 전체 시스템이 막히지 않게 함 (Hard Abort Effect)
-        self.semaphore.release()
+        # 중복 release 방지: 플래그로 _run_task_wrapper의 finally와 충돌 차단
+        if not task._semaphore_released:
+            task._semaphore_released = True
+            self.semaphore.release()
         
         # (Guardrail 5) 정리 훅 강제 실행
         self._cleanup_task_resources(task)

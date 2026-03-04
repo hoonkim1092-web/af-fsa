@@ -30,6 +30,10 @@ class BackgroundTasksConfig(BaseModel):
     max_concurrent_agents: int = Field(default=5)
     heartbeat_timeout_sec: int = Field(default=300)
     circuit_breaker_max_fails: int = Field(default=3)
+    # OmO 비동기 병렬 작업 설정
+    omo_dispatch_timeout_sec: int = Field(default=300, description="OmO 작업 기본 타임아웃(초)")
+    omo_max_concurrent_jobs: int = Field(default=3, description="OmO 동시 실행 작업 수 상한")
+    omo_grace_period_sec: int = Field(default=10, description="Soft terminate 후 Hard kill까지 유예 시간(초)")
 
 class HooksConfig(BaseModel):
     event_bus_enabled: bool = Field(default=True)

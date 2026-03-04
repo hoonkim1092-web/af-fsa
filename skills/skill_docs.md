@@ -1,5 +1,5 @@
 # Agent Skill Registry Dashboard
-**Last Updated:** 2026-02-24 15:16:30
+**Last Updated:** 2026-03-05 02:32:49
 
 ## Registered Skills Overview
 
@@ -39,7 +39,7 @@
 | **convert_pdf_to_images** | Legacy auto-registered skill. | `None` | `convert_pdf_to_images` |
 | **coordination** | Legacy auto-registered skill. | `None` | `coordination` |
 | **core** | Legacy auto-registered skill. | `None` | `core` |
-| **core_module** | Skill intended for System Admin to handle core_module | `None` | `core_module` |
+| **core_module** | Legacy auto-registered skill. | `None` | `core_module` |
 | **create_validation_image** | Legacy auto-registered skill. | `None` | `create_validation_image` |
 | **css_styling** | N/A | `None` | `css_styling` |
 | **database_performance_tuning** | Legacy auto-registered skill. | `None` | `database_performance_tuning` |
@@ -55,6 +55,7 @@
 | **evaluator** | Legacy auto-registered skill. | `None` | `evaluator` |
 | **extract_form_field_info** | Legacy auto-registered skill. | `None` | `extract_form_field_info` |
 | **extract_form_structure** | Legacy auto-registered skill. | `None` | `extract_form_structure` |
+| **file_handler** | Legacy auto-registered skill. | `None` | `file_handler` |
 | **filesystem_context** | Legacy auto-registered skill. | `None` | `filesystem_context` |
 | **fill_fillable_fields** | Legacy auto-registered skill. | `None` | `fill_fillable_fields` |
 | **fill_pdf_form_with_annotations** | Legacy auto-registered skill. | `None` | `fill_pdf_form_with_annotations` |
@@ -67,6 +68,7 @@
 | **liability_traceability_design** | N/A | `None` | `liability_traceability_design` |
 | **memory_store** | Legacy auto-registered skill. | `None` | `memory_store` |
 | **merge_runs** | Legacy auto-registered skill. | `None` | `merge_runs` |
+| **needs_issue** | Dynamically forged skill for r | `None` | `needs_issue` |
 | **new_skill** | N/A | `None` | `new_skill` |
 | **notebook_manager** | Legacy auto-registered skill. | `None` | `notebook_manager` |
 | **omakase_service_pacing_control** | Legacy auto-registered skill. | `None` | `omakase_service_pacing_control` |
