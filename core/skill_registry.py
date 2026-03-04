@@ -38,6 +38,7 @@ def _normalize_skill_entry(raw_key: str, raw_value: dict) -> tuple[str, dict]:
         "skill_id": sid,  # backward compatibility
         "name": str(src.get("name") or src.get("skill_name") or sid),
         "skill_name": str(src.get("skill_name") or src.get("name") or sid),
+        "type": str(src.get("type", "action")).strip().lower(),  # 'action' or 'knowledge'
         "purpose": str(src.get("purpose") or src.get("description") or ""),
         "path": str(src.get("path") or "").strip(),
         "meta_path": str(src.get("meta_path") or "").strip(),

@@ -6,7 +6,7 @@ factory_manager.py 에서 추출.
 
 주요 함수:
   - procure_skill(skill_name, role): 기존 스킬 검색 → 없으면 제작
-  - forge_new_skill(skill_name, role): LLM으로 새 스킬 코드 생성
+  - forge_new_skill(skill_name, role): LLM으로 새 스킬 코드/지식 생성
   - sync_warehouse(): 코어 스킬 저장소 Git 동기화
 """
 
@@ -114,7 +114,7 @@ def get_missing_skills(agent_name, required_skills):
 # =============================================================================
 # Procurement & Forging
 # =============================================================================
-def procure_skill(skill_name, role):
+def procure_skill(skill_name, role, skill_type="action"):
     """기존 스킬 검색 → warehouse → forge 순서로 스킬 조달"""
     purpose_desc = f"Skill intended for {role} to handle {skill_name}"
     existing_skill_path = check_skill_exists(skill_name, purpose_desc)
@@ -123,42 +123,91 @@ def procure_skill(skill_name, role):
         log("REGISTRY", f"Reusing existing skill: {existing_skill_path}")
         return existing_skill_path
 
-    found = glob.glob(os.path.join(WAREHOUSE_DIR, "**", f"{skill_name}.py"), recursive=True)
-    if found:
-        register_skill(skill_name, purpose_desc, found[0])
-        return found[0]
+    if skill_type == "action":
+        found = glob.glob(os.path.join(WAREHOUSE_DIR, "**", f"{skill_name}.py"), recursive=True)
+        if found:
+            register_skill(skill_name, purpose_desc, found[0], stype="action")
+            return found[0]
 
-    forge_path = os.path.join(FORGE_DIR, f"{skill_name}.py")
-    if os.path.exists(forge_path):
-        register_skill(skill_name, purpose_desc, forge_path)
-        return forge_path
+        forge_path = os.path.join(FORGE_DIR, f"{skill_name}.py")
+        if os.path.exists(forge_path):
+            register_skill(skill_name, purpose_desc, forge_path, stype="action")
+            return forge_path
+    else:
+        # Knowledge: 디렉토리 기반 탐색
+        for base in [WAREHOUSE_DIR, FORGE_DIR]:
+            md_path = os.path.join(base, skill_name, "skill.md")
+            if os.path.exists(md_path):
+                register_skill(skill_name, purpose_desc, md_path, stype="knowledge")
+                return md_path
 
-    return forge_new_skill(skill_name, role)
+    return forge_new_skill(skill_name, role, skill_type=skill_type)
 
 
-def forge_new_skill(skill_name, role, coding_engine=None):
-    """LLM으로 새 스킬 코드를 생성(포징)"""
+def forge_new_skill(skill_name, role, coding_engine=None, skill_type="action"):
+    """LLM으로 새 스킬(코드 또는 지식 문서)을 생성(포징)"""
     if coding_engine is None:
-        coding_engine = resolve_dynamic_model("codex")
+        sel = resolve_dynamic_model("codex")
+        coding_engine = sel.model if hasattr(sel, "model") else str(sel)
+    elif hasattr(coding_engine, "model"):
+        coding_engine = coding_engine.model
 
-    log("FORGE", f"Forging new skill: '{skill_name}' (Engine: {coding_engine})")
+    log("FORGE", f"Forging new {skill_type} skill: '{skill_name}' (Engine: {coding_engine})")
     os.makedirs(FORGE_DIR, exist_ok=True)
-    output_path = os.path.join(FORGE_DIR, f"{skill_name}.py")
 
     llm = LLMEngine(model_name=get_best_model([coding_engine]))
 
-    prompt = f"Write a professional Python CLI tool '{skill_name}.py' for the role '{role}'. Use argparse. Provide clean, robust code only. Code docstrings and user output MUST be in Korean. Return ONLY the python code."
-    try:
-        code = llm.generate(prompt)
-        code = code.replace("```python", "").replace("```", "").strip()
-        with open(output_path, "w", encoding="utf-8") as f: f.write(code)
-        log("FORGE", f"Forge complete: {output_path}")
-        register_skill(skill_name, f"Dynamically forged skill for {role}", output_path)
-        return output_path
-    except Exception as e:
-        log("FORGE", f"Forge failed: {e}")
-        return None
+    if skill_type == "action":
+        output_path = os.path.join(FORGE_DIR, f"{skill_name}.py")
+        prompt = (
+            f"Write a professional Python CLI tool '{skill_name}.py' for the role '{role}'. "
+            "Use argparse. Provide clean, robust code only. "
+            "Code docstrings and user output MUST be in Korean. Return ONLY the python code."
+        )
+        try:
+            code = llm.generate(prompt)
+            code = code.replace("```python", "").replace("```", "").strip()
+            with open(output_path, "w", encoding="utf-8") as f:
+                f.write(code)
+            log("FORGE", f"Action forge complete: {output_path}")
+            register_skill(skill_name, f"Dynamically forged action skill for {role}", output_path, stype="action")
+            return output_path
+        except Exception as e:
+            log("FORGE", f"Action forge failed: {e}")
+            return None
+    else:
+        # Knowledge skill (Markdown) — 사용자가 편집 가능한 절차적 지식 문서
+        skill_dir = os.path.join(FORGE_DIR, skill_name)
+        os.makedirs(skill_dir, exist_ok=True)
+        output_path = os.path.join(skill_dir, "skill.md")
 
+        prompt = f"""\
+Create a Knowledge Guide (Markdown) for the role '{role}' about '{skill_name}'.
+The guide should contain specific steps, checklists, or procedural knowledge.
+Return ONLY the markdown content with the following YAML frontmatter at the top:
+---
+name: "{skill_name}"
+description: "Brief summary of what this guide covers"
+---
+
+# {skill_name} 가이드
+(본문 내용은 한국어로 작성하세요)"""
+        try:
+            md_content = llm.generate(prompt)
+            md_content = md_content.replace("```markdown", "").replace("```", "").strip()
+            with open(output_path, "w", encoding="utf-8") as f:
+                f.write(md_content)
+            log("FORGE", f"Knowledge forge complete: {output_path}")
+            register_skill(skill_name, f"Dynamically forged knowledge skill for {role}", output_path, stype="knowledge")
+            return output_path
+        except Exception as e:
+            log("FORGE", f"Knowledge forge failed: {e}")
+            return None
+
+
+# =============================================================================
+# SkillOrchestrator — 대량 조달 + 빌더 연동
+# =============================================================================
 class SkillOrchestrator:
     def __init__(self, registry, research_agent, builder, agent_mgr):
         self.registry = registry
@@ -179,7 +228,7 @@ class SkillOrchestrator:
 
             from core.utils import normalize_skill_id
             evidence = self.research.research_topic(f"Python code pattern for {name} for {agent.get('role')}")
-            
+
             ok, code_path, meta = self.builder.build_skill(
                 agent=agent,
                 skill_name=name,
@@ -187,44 +236,7 @@ class SkillOrchestrator:
                 run_id=run_id,
                 evidence_pack={"targets": {normalize_skill_id(name): evidence}}
             )
-            
-            if ok:
-                self.registry.register_built(meta, os.path.dirname(code_path))
-                installed.append(name)
 
-        if installed:
-            self.agent_mgr.install_skills(agent.get("role"), installed)
-        return installed
-
-class SkillOrchestrator:
-    def __init__(self, registry, research_agent, builder, agent_mgr):
-        self.registry = registry
-        self.research = research_agent
-        self.builder = builder
-        self.agent_mgr = agent_mgr
-
-    def procure_multiple(self, agent, skill_names, reqs, run_id, execution_mode="approval", approval_gate=None):
-        installed = []
-        for name in skill_names:
-            path = procure_skill(name, agent.get("role", "General"))
-            if path and os.path.exists(path):
-                installed.append(name)
-                continue
-
-            if approval_gate and not approval_gate(agent.get("role"), [name], "build", execution_mode == "fsa"):
-                continue
-
-            from core.utils import normalize_skill_id
-            evidence = self.research.research_topic(f"Python code pattern for {name} for {agent.get('role')}")
-            
-            ok, code_path, meta = self.builder.build_skill(
-                agent=agent,
-                skill_name=name,
-                reqs=reqs,
-                run_id=run_id,
-                evidence_pack={"targets": {normalize_skill_id(name): evidence}}
-            )
-            
             if ok:
                 self.registry.register_built(meta, os.path.dirname(code_path))
                 installed.append(name)

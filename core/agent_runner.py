@@ -511,30 +511,64 @@ class AgentRunner:
         skill_ids = agent.get("skills", [])
         for sid in skill_ids:
             sid = safe_id(str(sid))
-            skill_py, _skill_meta = resolve_skill_paths(sid)
-            if not skill_py:
-                 continue
-                 
-            try:
-                cur_mtime = os.path.getmtime(skill_py)
-                if sid in self._skill_module_cache:
-                    cached_py, cached_mtime, cached_mod = self._skill_module_cache[sid]
-                    if cached_py == skill_py and cached_mtime == cur_mtime:
-                        loaded_skills.append(cached_mod)
-                        continue
+            skill_py, skill_meta = resolve_skill_paths(sid)
+            
+            # Action (Python) 처리
+            if skill_py and os.path.exists(skill_py):
+                try:
+                    cur_mtime = os.path.getmtime(skill_py)
+                    if sid in self._skill_module_cache:
+                        cached_py, cached_mtime, cached_mod = self._skill_module_cache[sid]
+                        if cached_py == skill_py and cached_mtime == cur_mtime:
+                            loaded_skills.append(cached_mod)
+                            continue
 
-                spec = importlib.util.spec_from_file_location(f"skills.{sid}", skill_py)
-                if spec and spec.loader:
-                    module = importlib.util.module_from_spec(spec)
-                    sys.modules[f"skills.{sid}"] = module
-                    spec.loader.exec_module(module)
-                    setattr(module, "__skill_id__", sid)
+                    spec = importlib.util.spec_from_file_location(f"skills.{sid}", skill_py)
+                    if spec and spec.loader:
+                        module = importlib.util.module_from_spec(spec)
+                        sys.modules[f"skills.{sid}"] = module
+                        spec.loader.exec_module(module)
+                        setattr(module, "__skill_id__", sid)
+                        
+                        self._skill_module_cache[sid] = (skill_py, cur_mtime, module)
+                        loaded_skills.append(module)
+                        _safe_print(f"✅ [Runner] Action 스킬 로드 성공: {sid}")
+                except Exception as e:
+                    _safe_print(f"⚠️ [Runner] Action 스킬 로드 실패 ({sid}): {e}")
                     
-                    self._skill_module_cache[sid] = (skill_py, cur_mtime, module)
-                    loaded_skills.append(module)
-                    _safe_print(f"✅ [Runner] 스킬 로드 성공: {sid}")
-            except Exception as e:
-                _safe_print(f"⚠️ [Runner] 스킬 로드 실패 ({sid}): {e}")
+            # Knowledge (Markdown) 처리
+            else:
+                # WAREHOUSE_DIR / FORGE_DIR 순으로 .md 스캔 (보통 WAREHOUSE/sid/skill.md)
+                from core.skill_procurer import WAREHOUSE_DIR, FORGE_DIR
+                from core.knowledge_skill import parse_skill_md
+                
+                md_path = None
+                base_skills_dir = os.path.join(os.getcwd(), 'skills')
+                for base in [base_skills_dir, WAREHOUSE_DIR, FORGE_DIR]:
+                    candidate = os.path.join(base, sid, "skill.md")
+                    if os.path.exists(candidate):
+                        md_path = candidate
+                        break
+                        
+                if md_path:
+                    try:
+                        cur_mtime = os.path.getmtime(md_path)
+                        # 캐시 갱신 확인
+                        existing_k = next((k for k in self._knowledge_skills if k.id == sid), None)
+                        if existing_k and existing_k.updated_at == cur_mtime:
+                            pass # 캐시 유지
+                        else:
+                            k_skill = parse_skill_md(md_path)
+                            if k_skill:
+                                if existing_k:
+                                    self._knowledge_skills.remove(existing_k)
+                                self._knowledge_skills.append(k_skill)
+                                _safe_print(f"✅ [Runner] Knowledge 스킬 로드 성공: {sid}")
+                    except Exception as e:
+                        _safe_print(f"⚠️ [Runner] Knowledge 스킬 로드 실패 ({sid}): {e}")
+                else:
+                    _safe_print(f"⚠️ [Runner] 스킬 소스(.py/.md)를 찾을 수 없음: {sid}")
+
         return loaded_skills
 
     def build_tool_registry(self, module_list: list, ctx: dict, policy: dict) -> ToolRegistry:
@@ -656,7 +690,15 @@ class AgentRunner:
         
         # System Prompt construction
         sys_prompt = self._resolve_system_prompt(agent)
-        
+
+        # Knowledge Skill Injection (Progressive Disclosure)
+        if hasattr(self, '_knowledge_skills') and self._knowledge_skills:
+            from core.knowledge_skill import filter_relevant_knowledge, build_knowledge_prompt
+            rel_knowledge = filter_relevant_knowledge(self._knowledge_skills, task_input)
+            if rel_knowledge:
+                sys_prompt += build_knowledge_prompt(rel_knowledge)
+                _safe_print(f"✅ [Runner] 관련 Knowledge 스킬 주입 완료 ({len(rel_knowledge)}건)")
+
         # Proactive Memory Instruction
         skill_ids = [safe_id(str(s)) for s in agent.get("skills", [])]
         if "core_memory" in skill_ids:
