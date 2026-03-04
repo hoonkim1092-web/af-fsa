@@ -1,0 +1,16 @@
+approval_policy:
+  default_require_approval: false
+  require_skill_change_approval: false
+autonomy:
+  max_stage_retries: 2
+  stop_on_stage_failure: true
+  strict_quality_gate: true
+project_id: tictactoe_fsa3
+quality_gate:
+  auto_promote_sequence:
+  - canary
+  - active
+  default_stage_on_build: candidate
+workflow:
+  default_template: workflows/two_week_webapp_delivery.yaml
+  role_map: {}

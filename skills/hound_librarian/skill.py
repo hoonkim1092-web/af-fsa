@@ -137,8 +137,19 @@ def apply(ctx):
     # 메인 분석 프롬프트
     main_prompt = generate_deep_research_prompt(topic)
 
+    # 리서치 모드 자율 선택
+    from core.research_engine import classify_research_depth, ResearchMode
+    user_mode = ctx.get("research_mode")
+    if user_mode:
+        target_mode = ResearchMode(user_mode)
+    else:
+        # 미싱 스킬 수는 여기서 알 수 없으므로 0으로 기본 판정
+        target_mode = classify_research_depth(main_prompt)
+    
+    print(f"💡 [사서] 자율 모드 결정: {target_mode.value}")
+
     # notebook_id가 있으면 새 노트북에 쿼리, 없으면 기본 아카이브
-    main_insight = query_notebooklm(main_prompt, notebook_id=notebook_id)
+    main_insight = query_notebooklm(main_prompt, notebook_id=notebook_id, mode=target_mode)
 
     # 추가 분석 질문 처리
     additional_insights = []

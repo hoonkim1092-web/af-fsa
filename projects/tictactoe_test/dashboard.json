@@ -1,0 +1,33 @@
+{
+  "project_id": "tictactoe_test",
+  "runs": [
+    {
+      "ts": "2026-03-03T12:18:54",
+      "type": "single_run",
+      "project_id": "tictactoe_test",
+      "role": "Architect",
+      "task": "간단한 틱택토 게임을 위한 웹 애플리케이션의 뼈대(구조)를 설계해줘. 3x3 그리드가 포함된 index.html 문서 구조, 그리드를 예쁘게 표현하는 style.css, 그리고 게임 동작을 위한 빈 script.js 구조를 제안해.",
+      "skills_loaded": [],
+      "ok": false,
+      "reason": "hook_event_bus_blocked_pre",
+      "latency_ms": 0,
+      "approval_rejects": 0,
+      "build_enabled": false,
+      "missing_skills_detected": []
+    },
+    {
+      "ts": "2026-03-03T12:20:26",
+      "type": "single_run",
+      "project_id": "tictactoe_test",
+      "role": "Architect",
+      "task": "Goal: 간단한 틱택토 게임 뼈대 설계\nConstraints: index.html, style.css, script.js 빈 파일 구조 제안할 것",
+      "skills_loaded": [],
+      "ok": false,
+      "reason": "hook_event_bus_blocked_pre",
+      "latency_ms": 0,
+      "approval_rejects": 0,
+      "build_enabled": false,
+      "missing_skills_detected": []
+    }
+  ]
+}

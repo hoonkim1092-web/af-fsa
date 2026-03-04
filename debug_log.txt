@@ -1,0 +1,967 @@
+﻿
+[Logi-Mind Agent Factory] 시작
+Project ID: tictactoe_final
+Project Root: D:\hoonProJect\agent-factory\projects\tictactoe_final
+Role: Deadbyte
+--------------------------------------------------
+🔄 [Auto-Upgrade] 'models/gemini-2.5-flash' → 'models/gemini-3.1-flash-image-preview' 자동 업그레이드
+
+RUN=run_1772529147
+- Role: Deadbyte
+- Mode: fsa
+- Task: Goal: write_file 도구를 사용하여 index.html 파일을 생성하라.
+
+[Deadbyte] "성능, 접근성, 유지보수성까지 같이 본다."
+[Deadbyte] 태스크 분석을 시작합니다... "Goal: write_file 도구를 사용하여 index.html 파일을 생성하라."
+
+🌀 [FSALoop] 풀 셀프 자동화 모드(FSA) 시작: run_1772529147
+
+🔄 [Cycle 1/5] 실행 및 자동 커밋 준비...
+[feat/unified-skill-pipeline-2026 9cdbf55] AEE Auto-Save: run_1772529147 Cycle 1
+ 2 files changed, 23 insertions(+)
+ create mode 100644 debug_log.txt
+
+🚀 [Runner] 에이전트 실행 시작: Deadbyte
+✅ [Runner] 스킬 로드 성공: react_coding
+✅ [Runner] 스킬 로드 성공: css_styling
+✅ [Runner] 스킬 로드 성공: issue_tracker
+✅ [Runner] 스킬 로드 성공: core_memory
+✅ [Runner] 스킬 로드 성공: file_handler
+🔍 [Router] 'architect_claude' 핵심 역할 감지 -> 고성능 엔진 강제 유지
+💬 [Agent] UI는 보여주는 것이고 UX는 완성하는 것이다.
+⚠️ [Runner] openai 패키지가 없어 Codex 경로를 사용할 수 없습니다.
+⚠️ [Runner] Codex 경로 실패, Gemini 경로로 폴백합니다.
+⚠️ [Runner] 실행 중 오류: Failed to parse the parameter key of function core_memory_retrieve for automatic function calling.Automatic function calling works best with simpler function signature schema, consider manually parsing your function declaration for function core_memory_retrieve.
+python : ValueError
+위치 줄:1 문자:1
++ python -u run_factory_cli.py --project tictactoe_final --role Dead
+byt ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~
+    + CategoryInfo          : NotSpecified: (ValueError:String) [], 
+Remo    teException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\types.py", line 3871, in from_callable_with
+_api_option
+    _automatic_function_calling_util._parse_schema_from_parameter(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        api_option, param, callable.__name__
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\_automatic_function_calling_util.py", line 
+315, in _parse_schema_from_parameter
+    _raise_for_unsupported_param(param, func_name, ValueError)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\_automatic_function_calling_util.py", line 
+59, in _raise_for_unsupported_param
+    raise ValueError(
+    ...<4 lines>...
+    ) from exception
+ValueError: Failed to parse the parameter key of function core_memor
+y_retrieve for automatic function calling.Automatic function calling
+ works best with simpler function signature schema, consider manuall
+y parsing your function declaration for function core_memory_retriev
+e.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\types.py", line 3892, in from_callable_with
+_api_option
+    json_schema_dict = param_schema_adapter.json_schema()
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\pydantic\type_adapter.py", line 727, in json_schema
+    return schema_generator_instance.generate(self.core_schema, mode
+=mode)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\pydantic\json_schema.py", line 415, in generate
+    json_schema: JsonSchemaValue = self.generate_inner(schema)
+                                   ~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\pydantic\json_schema.py", line 578, in generate_inner
+    json_schema = current_handler(schema)
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\pydantic\_internal\_schema_generation_shared.py", line 3
+7, in __call__
+    return self.handler(core_schema)
+           ~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\pydantic\json_schema.py", line 511, in handler_func
+    json_schema = generate_for_schema_type(schema_or_field)
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\pydantic\json_schema.py", line 921, in is_instance_schem
+a
+    return self.handle_invalid_for_json_schema(schema, f'core_schema
+.IsInstanceSchema ({schema["cls"]})')
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\pydantic\json_schema.py", line 2442, in handle_invalid_f
+or_json_schema
+    raise PydanticInvalidForJsonSchema(f'Cannot generate a JsonSchem
+a for {error_info}')
+pydantic.errors.PydanticInvalidForJsonSchema: Cannot generate a Json
+Schema for core_schema.IsInstanceSchema (<class 'inspect._empty'>)
+
+For further information visit https://errors.pydantic.dev/2.12/u/inv
+alid-for-json-schema
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\hoonProJect\agent-factory\core\agent_runner.py", line 734
+, in run
+    response = safe_send(f"Task: {task_input}")
+에이전트가 응답을 생성하지 못했습니다.
+⚠️ [Cycle 1] 실패 감지: runner_error:ValueError
+⏪ [FSALoop] 안전을 위해 Git Rollback을 수행합니다.
+[GitManager] Rolling back changes in D:\hoonProJect\agent-factory...
+  File "D:\hoonProJect\agent-factory\core\agent_runner.py", line 729
+, in safe_send
+    raise e
+  File "D:\hoonProJect\agent-factory\core\agent_runner.py", line 722
+, in safe_send
+    return chat.send_message(msg)
+           ~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\chats.py", line 252, in send_message
+    response = self._modules.generate_content(
+        model=self._model,
+        contents=self._curated_history + [input_content],  # type: i
+gnore[arg-type]
+        config=config if config else self._config,
+    )
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\models.py", line 5621, in generate_content
+    response = self._generate_content(
+        model=model, contents=contents, config=parsed_config
+    )
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\models.py", line 4259, in _generate_content
+    request_dict = _GenerateContentParameters_to_mldev(
+        self._api_client, parameter_model, None, parameter_model
+    )
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\models.py", line 1447, in _GenerateContentP
+arameters_to_mldev
+    _GenerateContentConfig_to_mldev(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        api_client, getv(from_object, ['config']), to_object, root_o
+bject
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^
+    ),
+    ^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\models.py", line 1171, in _GenerateContentC
+onfig_to_mldev
+    for item in t.t_tools(api_client, getv(from_object, ['tools']))
+                ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\_transformers.py", line 963, in t_tools
+    transformed_tool = t_tool(client, tool)
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\_transformers.py", line 942, in t_tool
+    types.FunctionDeclaration.from_callable(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        client=client, callable=origin
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\types.py", line 4023, in from_callable
+    return cls.from_callable_with_api_option(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        callable=callable, api_option='GEMINI_API', behavior=behavio
+r
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^
+    )
+    ^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\types.py", line 3923, in from_callable_with
+_api_option
+    _automatic_function_calling_util._raise_for_unsupported_param(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        param, callable.__name__, e
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\_automatic_function_calling_util.py", line 
+59, in _raise_for_unsupported_param
+    raise ValueError(
+    ...<4 lines>...
+    ) from exception
+ValueError: Failed to parse the parameter key of function core_memor
+y_retrieve for automatic function calling.Automatic function calling
+ works best with simpler function signature schema, consider manuall
+y parsing your function declaration for function core_memory_retriev
+e.
+Saved working directory and index state On dev: FSALoop_Safe_Rollback_1772529153
+error: unable to unlink old 'debug_log.txt': Invalid argument
+fatal: Could not reset index file to revision 'HEAD'.
+[GitManager] Rollback failed: Command '['git', 'stash', 'push', '-u', '-m', 'FSALoop_Safe_Rollback_1772529153']' returned non-zero exit status 1.
+
+[Evaluator] "💡"
+[Evaluator] Decision: RETRY | Reasoning: A ValueError occurred during the execution of the `write_file` tool. This is usually due to missing necessary arguments like 'content' or 'path', or possibly a typo in the argument names. Since it is a tool usage error and not a strategic failure, the agent should attempt to call the tool again with the correct and complete parameters.
+
+🔄 [Cycle 2/5] 실행 및 자동 커밋 준비...
+[feat/unified-skill-pipeline-2026 d107eaa] AEE Auto-Save: run_1772529147 Cycle 2
+ 1 file changed, 216 insertions(+)
+
+🚀 [Runner] 에이전트 실행 시작: Deadbyte
+🔍 [Router] 'architect_claude' 핵심 역할 감지 -> 고성능 엔진 강제 유지
+💬 [Agent] 성능, 접근성, 유지보수성까지 같이 본다.
+⚠️ [Runner] openai 패키지가 없어 Codex 경로를 사용할 수 없습니다.
+⚠️ [Runner] Codex 경로 실패, Gemini 경로로 폴백합니다.
+⚠️ [Runner] 실행 중 오류: Failed to parse the parameter key of function core_memory_retrieve for automatic function calling.Automatic function calling works best with simpler function signature schema, consider manually parsing your function declaration for function core_memory_retrieve.
+ValueError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\types.py", line 3871, in from_callable_with
+_api_option
+    _automatic_function_calling_util._parse_schema_from_parameter(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        api_option, param, callable.__name__
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\_automatic_function_calling_util.py", line 
+315, in _parse_schema_from_parameter
+    _raise_for_unsupported_param(param, func_name, ValueError)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\_automatic_function_calling_util.py", line 
+59, in _raise_for_unsupported_param
+    raise ValueError(
+    ...<4 lines>...
+    ) from exception
+ValueError: Failed to parse the parameter key of function core_memor
+y_retrieve for automatic function calling.Automatic function calling
+ works best with simpler function signature schema, consider manuall
+y parsing your function declaration for function core_memory_retriev
+e.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\types.py", line 3892, in from_callable_with
+_api_option
+    json_schema_dict = param_schema_adapter.json_schema()
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\pydantic\type_adapter.py", line 727, in json_schema
+    return schema_generator_instance.generate(self.core_schema, mode
+=mode)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\pydantic\json_schema.py", line 415, in generate
+    json_schema: JsonSchemaValue = self.generate_inner(schema)
+                                   ~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\pydantic\json_schema.py", line 578, in generate_inner
+    json_schema = current_handler(schema)
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\pydantic\_internal\_schema_generation_shared.py", line 3
+7, in __call__
+    return self.handler(core_schema)
+           ~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\pydantic\json_schema.py", line 511, in handler_func
+    json_schema = generate_for_schema_type(schema_or_field)
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\pydantic\json_schema.py", line 921, in is_instance_schem
+a
+    return self.handle_invalid_for_json_schema(schema, f'core_schema
+.IsInstanceSchema ({schema["cls"]})')
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\pydantic\json_schema.py", line 2442, in handle_invalid_f
+or_json_schema
+    raise PydanticInvalidForJsonSchema(f'Cannot generate a JsonSchem
+a for {error_info}')
+pydantic.errors.PydanticInvalidForJsonSchema: Cannot generate a Json
+Schema for core_schema.IsInstanceSchema (<class 'inspect._empty'>)
+
+For further information visit https://errors.pydantic.dev/2.12/u/inv
+alid-for-json-schema
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\hoonProJect\agent-factory\core\agent_runner.py", line 734
+, in run
+    response = safe_send(f"Task: {task_input}")
+  File "D:\hoonProJect\agent-factory\core\agent_runner.py", line 729
+, in safe_send
+    raise e
+  File "D:\hoonProJect\agent-factory\core\agent_runner.py", line 722
+, in safe_send
+    return chat.send_message(msg)
+           ~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\chats.py", line 252, in send_message
+    response = self._modules.generate_content(
+        model=self._model,
+        contents=self._curated_history + [input_content],  # type: i
+gnore[arg-type]
+        config=config if config else self._config,
+    )
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\models.py", line 5621, in generate_content
+    response = self._generate_content(
+        model=model, contents=contents, config=parsed_config
+    )
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\models.py", line 4259, in _generate_content
+    request_dict = _GenerateContentParameters_to_mldev(
+        self._api_client, parameter_model, None, parameter_model
+    )
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\models.py", line 1447, in _GenerateContentP
+arameters_to_mldev
+    _GenerateContentConfig_to_mldev(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        api_client, getv(from_object, ['config']), to_object, root_o
+bject
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^
+    ),
+    ^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\models.py", line 1171, in _GenerateContentC
+onfig_to_mldev
+    for item in t.t_tools(api_client, getv(from_object, ['tools']))
+                ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\_transformers.py", line 963, in t_tools
+    transformed_tool = t_tool(client, tool)
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\_transformers.py", line 942, in t_tool
+    types.FunctionDeclaration.from_callable(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        client=client, callable=origin
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\types.py", line 4023, in from_callable
+    return cls.from_callable_with_api_option(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        callable=callable, api_option='GEMINI_API', behavior=behavio
+r
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^
+    )
+    ^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\types.py", line 3923, in from_callable_with
+_api_option
+    _automatic_function_calling_util._raise_for_unsupported_param(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        param, callable.__name__, e
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\_automatic_function_calling_util.py", line 
+59, in _raise_for_unsupported_param
+    raise ValueError(
+    ...<4 lines>...
+    ) from exception
+ValueError: Failed to parse the parameter key of function core_memor
+y_retrieve for automatic function calling.Automatic function calling
+ works best with simpler function signature schema, consider manuall
+y parsing your function declaration for function core_memory_retriev
+e.
+에이전트가 응답을 생성하지 못했습니다.
+⚠️ [Cycle 2] 실패 감지: runner_error:ValueError
+⏪ [FSALoop] 안전을 위해 Git Rollback을 수행합니다.
+[GitManager] Rolling back changes in D:\hoonProJect\agent-factory...
+Saved working directory and index state On dev: FSALoop_Safe_Rollback_1772529160
+error: unable to unlink old 'debug_log.txt': Invalid argument
+fatal: Could not reset index file to revision 'HEAD'.
+[GitManager] Rollback failed: Command '['git', 'stash', 'push', '-u', '-m', 'FSALoop_Safe_Rollback_1772529160']' returned non-zero exit status 1.
+
+[Evaluator] "💡"
+[Evaluator] Decision: RETRY | Reasoning: A ValueError occurred during the execution of the `write_file` tool, likely due to incorrect or missing arguments for 'path' or 'content'. This is a fixable error, and the previous advice already points towards checking and correcting these arguments.
+
+🔄 [Cycle 3/5] 실행 및 자동 커밋 준비...
+[feat/unified-skill-pipeline-2026 c4dd2c8] AEE Auto-Save: run_1772529147 Cycle 3
+ 1 file changed, 187 insertions(+)
+
+🚀 [Runner] 에이전트 실행 시작: Deadbyte
+🔍 [Router] 'architect_claude' 핵심 역할 감지 -> 고성능 엔진 강제 유지
+💬 [Agent] 동작하지 않으면 설계가 아니다.
+⚠️ [Runner] openai 패키지가 없어 Codex 경로를 사용할 수 없습니다.
+⚠️ [Runner] Codex 경로 실패, Gemini 경로로 폴백합니다.
+⚠️ [Runner] 실행 중 오류: Failed to parse the parameter key of function core_memory_retrieve for automatic function calling.Automatic function calling works best with simpler function signature schema, consider manually parsing your function declaration for function core_memory_retrieve.
+ValueError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\types.py", line 3871, in from_callable_with
+_api_option
+    _automatic_function_calling_util._parse_schema_from_parameter(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        api_option, param, callable.__name__
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\_automatic_function_calling_util.py", line 
+315, in _parse_schema_from_parameter
+    _raise_for_unsupported_param(param, func_name, ValueError)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\_automatic_function_calling_util.py", line 
+59, in _raise_for_unsupported_param
+    raise ValueError(
+    ...<4 lines>...
+    ) from exception
+ValueError: Failed to parse the parameter key of function core_memor
+y_retrieve for automatic function calling.Automatic function calling
+ works best with simpler function signature schema, consider manuall
+y parsing your function declaration for function core_memory_retriev
+e.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\types.py", line 3892, in from_callable_with
+_api_option
+    json_schema_dict = param_schema_adapter.json_schema()
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\pydantic\type_adapter.py", line 727, in json_schema
+    return schema_generator_instance.generate(self.core_schema, mode
+=mode)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\pydantic\json_schema.py", line 415, in generate
+    json_schema: JsonSchemaValue = self.generate_inner(schema)
+                                   ~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\pydantic\json_schema.py", line 578, in generate_inner
+    json_schema = current_handler(schema)
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\pydantic\_internal\_schema_generation_shared.py", line 3
+7, in __call__
+    return self.handler(core_schema)
+           ~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\pydantic\json_schema.py", line 511, in handler_func
+    json_schema = generate_for_schema_type(schema_or_field)
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\pydantic\json_schema.py", line 921, in is_instance_schem
+a
+    return self.handle_invalid_for_json_schema(schema, f'core_schema
+.IsInstanceSchema ({schema["cls"]})')
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\pydantic\json_schema.py", line 2442, in handle_invalid_f
+or_json_schema
+    raise PydanticInvalidForJsonSchema(f'Cannot generate a JsonSchem
+a for {error_info}')
+pydantic.errors.PydanticInvalidForJsonSchema: Cannot generate a Json
+Schema for core_schema.IsInstanceSchema (<class 'inspect._empty'>)
+
+For further information visit https://errors.pydantic.dev/2.12/u/inv
+alid-for-json-schema
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\hoonProJect\agent-factory\core\agent_runner.py", line 734
+, in run
+    response = safe_send(f"Task: {task_input}")
+  File "D:\hoonProJect\agent-factory\core\agent_runner.py", line 729
+, in safe_send
+    raise e
+  File "D:\hoonProJect\agent-factory\core\agent_runner.py", line 722
+, in safe_send
+    return chat.send_message(msg)
+           ~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\chats.py", line 252, in send_message
+    response = self._modules.generate_content(
+        model=self._model,
+        contents=self._curated_history + [input_content],  # type: i
+gnore[arg-type]
+        config=config if config else self._config,
+    )
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\models.py", line 5621, in generate_content
+    response = self._generate_content(
+        model=model, contents=contents, config=parsed_config
+    )
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\models.py", line 4259, in _generate_content
+    request_dict = _GenerateContentParameters_to_mldev(
+        self._api_client, parameter_model, None, parameter_model
+    )
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\models.py", line 1447, in _GenerateContentP
+arameters_to_mldev
+    _GenerateContentConfig_to_mldev(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        api_client, getv(from_object, ['config']), to_object, root_o
+bject
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^
+    ),
+    ^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\models.py", line 1171, in _GenerateContentC
+onfig_to_mldev
+    for item in t.t_tools(api_client, getv(from_object, ['tools']))
+                ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\_transformers.py", line 963, in t_tools
+    transformed_tool = t_tool(client, tool)
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\_transformers.py", line 942, in t_tool
+    types.FunctionDeclaration.from_callable(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        client=client, callable=origin
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\types.py", line 4023, in from_callable
+    return cls.from_callable_with_api_option(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        callable=callable, api_option='GEMINI_API', behavior=behavio
+r
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^
+    )
+    ^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\types.py", line 3923, in from_callable_with
+_api_option
+    _automatic_function_calling_util._raise_for_unsupported_param(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        param, callable.__name__, e
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\_automatic_function_calling_util.py", line 
+59, in _raise_for_unsupported_param
+    raise ValueError(
+    ...<4 lines>...
+    ) from exception
+ValueError: Failed to parse the parameter key of function core_memor
+y_retrieve for automatic function calling.Automatic function calling
+ works best with simpler function signature schema, consider manuall
+y parsing your function declaration for function core_memory_retriev
+e.
+에이전트가 응답을 생성하지 못했습니다.
+⚠️ [Cycle 3] 실패 감지: runner_error:ValueError
+⏪ [FSALoop] 안전을 위해 Git Rollback을 수행합니다.
+[GitManager] Rolling back changes in D:\hoonProJect\agent-factory...
+Saved working directory and index state On dev: FSALoop_Safe_Rollback_1772529166
+error: unable to unlink old 'debug_log.txt': Invalid argument
+fatal: Could not reset index file to revision 'HEAD'.
+[GitManager] Rollback failed: Command '['git', 'stash', 'push', '-u', '-m', 'FSALoop_Safe_Rollback_1772529166']' returned non-zero exit status 1.
+
+[Evaluator] "💡"
+[Evaluator] Decision: RETRY | Reasoning: A `ValueError` typically indicates that required arguments are missing or malformed. In this case, the `write_file` tool requires 'path' and 'content' arguments. The previous attempt likely failed because one or both of these were not provided or were provided incorrectly. Since this is a simple issue of adhering to the tool's signature, a retry is the most efficient course of action.
+
+🔄 [Cycle 4/5] 실행 및 자동 커밋 준비...
+[feat/unified-skill-pipeline-2026 2d6b959] AEE Auto-Save: run_1772529147 Cycle 4
+ 1 file changed, 187 insertions(+)
+
+🚀 [Runner] 에이전트 실행 시작: Deadbyte
+🔍 [Router] 'architect_claude' 핵심 역할 감지 -> 고성능 엔진 강제 유지
+💬 [Agent] 성능, 접근성, 유지보수성까지 같이 본다.
+⚠️ [Runner] openai 패키지가 없어 Codex 경로를 사용할 수 없습니다.
+⚠️ [Runner] Codex 경로 실패, Gemini 경로로 폴백합니다.
+⚠️ [Runner] 실행 중 오류: Failed to parse the parameter key of function core_memory_retrieve for automatic function calling.Automatic function calling works best with simpler function signature schema, consider manually parsing your function declaration for function core_memory_retrieve.
+ValueError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\types.py", line 3871, in from_callable_with
+_api_option
+    _automatic_function_calling_util._parse_schema_from_parameter(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        api_option, param, callable.__name__
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\_automatic_function_calling_util.py", line 
+315, in _parse_schema_from_parameter
+    _raise_for_unsupported_param(param, func_name, ValueError)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\_automatic_function_calling_util.py", line 
+59, in _raise_for_unsupported_param
+    raise ValueError(
+    ...<4 lines>...
+    ) from exception
+ValueError: Failed to parse the parameter key of function core_memor
+y_retrieve for automatic function calling.Automatic function calling
+ works best with simpler function signature schema, consider manuall
+y parsing your function declaration for function core_memory_retriev
+e.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\types.py", line 3892, in from_callable_with
+_api_option
+    json_schema_dict = param_schema_adapter.json_schema()
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\pydantic\type_adapter.py", line 727, in json_schema
+    return schema_generator_instance.generate(self.core_schema, mode
+=mode)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\pydantic\json_schema.py", line 415, in generate
+    json_schema: JsonSchemaValue = self.generate_inner(schema)
+                                   ~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\pydantic\json_schema.py", line 578, in generate_inner
+    json_schema = current_handler(schema)
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\pydantic\_internal\_schema_generation_shared.py", line 3
+7, in __call__
+    return self.handler(core_schema)
+           ~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\pydantic\json_schema.py", line 511, in handler_func
+    json_schema = generate_for_schema_type(schema_or_field)
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\pydantic\json_schema.py", line 921, in is_instance_schem
+a
+    return self.handle_invalid_for_json_schema(schema, f'core_schema
+.IsInstanceSchema ({schema["cls"]})')
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\pydantic\json_schema.py", line 2442, in handle_invalid_f
+or_json_schema
+    raise PydanticInvalidForJsonSchema(f'Cannot generate a JsonSchem
+a for {error_info}')
+pydantic.errors.PydanticInvalidForJsonSchema: Cannot generate a Json
+Schema for core_schema.IsInstanceSchema (<class 'inspect._empty'>)
+
+For further information visit https://errors.pydantic.dev/2.12/u/inv
+alid-for-json-schema
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\hoonProJect\agent-factory\core\agent_runner.py", line 734
+, in run
+    response = safe_send(f"Task: {task_input}")
+  File "D:\hoonProJect\agent-factory\core\agent_runner.py", line 729
+, in safe_send
+    raise e
+  File "D:\hoonProJect\agent-factory\core\agent_runner.py", line 722
+, in safe_send
+    return chat.send_message(msg)
+           ~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\chats.py", line 252, in send_message
+    response = self._modules.generate_content(
+        model=self._model,
+        contents=self._curated_history + [input_content],  # type: i
+gnore[arg-type]
+        config=config if config else self._config,
+    )
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\models.py", line 5621, in generate_content
+    response = self._generate_content(
+        model=model, contents=contents, config=parsed_config
+    )
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\models.py", line 4259, in _generate_content
+    request_dict = _GenerateContentParameters_to_mldev(
+        self._api_client, parameter_model, None, parameter_model
+    )
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\models.py", line 1447, in _GenerateContentP
+arameters_to_mldev
+    _GenerateContentConfig_to_mldev(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        api_client, getv(from_object, ['config']), to_object, root_o
+bject
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^
+    ),
+    ^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\models.py", line 1171, in _GenerateContentC
+onfig_to_mldev
+    for item in t.t_tools(api_client, getv(from_object, ['tools']))
+                ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\_transformers.py", line 963, in t_tools
+    transformed_tool = t_tool(client, tool)
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\_transformers.py", line 942, in t_tool
+    types.FunctionDeclaration.from_callable(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        client=client, callable=origin
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\types.py", line 4023, in from_callable
+    return cls.from_callable_with_api_option(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        callable=callable, api_option='GEMINI_API', behavior=behavio
+r
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^
+    )
+    ^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\types.py", line 3923, in from_callable_with
+_api_option
+    _automatic_function_calling_util._raise_for_unsupported_param(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        param, callable.__name__, e
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\_automatic_function_calling_util.py", line 
+59, in _raise_for_unsupported_param
+    raise ValueError(
+    ...<4 lines>...
+    ) from exception
+ValueError: Failed to parse the parameter key of function core_memor
+y_retrieve for automatic function calling.Automatic function calling
+ works best with simpler function signature schema, consider manuall
+y parsing your function declaration for function core_memory_retriev
+e.
+에이전트가 응답을 생성하지 못했습니다.
+⚠️ [Cycle 4] 실패 감지: runner_error:ValueError
+⏪ [FSALoop] 안전을 위해 Git Rollback을 수행합니다.
+[GitManager] Rolling back changes in D:\hoonProJect\agent-factory...
+Saved working directory and index state On dev: FSALoop_Safe_Rollback_1772529173
+error: unable to unlink old 'debug_log.txt': Invalid argument
+fatal: Could not reset index file to revision 'HEAD'.
+[GitManager] Rollback failed: Command '['git', 'stash', 'push', '-u', '-m', 'FSALoop_Safe_Rollback_1772529173']' returned non-zero exit status 1.
+
+[Evaluator] "💡"
+[Evaluator] Decision: RETRY | Reasoning: A `ValueError` typically indicates that required arguments are missing or invalid. In this case, the `write_file` tool failed, likely because either the 'path' or 'content' argument was omitted or incorrectly formatted. This is a common, rectifiable mistake.
+
+🔄 [Cycle 5/5] 실행 및 자동 커밋 준비...
+[feat/unified-skill-pipeline-2026 edfc3b5] AEE Auto-Save: run_1772529147 Cycle 5
+ 1 file changed, 187 insertions(+)
+
+🚀 [Runner] 에이전트 실행 시작: Deadbyte
+🔍 [Router] 'architect_claude' 핵심 역할 감지 -> 고성능 엔진 강제 유지
+💬 [Agent] 동작하지 않으면 설계가 아니다.
+⚠️ [Runner] openai 패키지가 없어 Codex 경로를 사용할 수 없습니다.
+⚠️ [Runner] Codex 경로 실패, Gemini 경로로 폴백합니다.
+⚠️ [Runner] 실행 중 오류: Failed to parse the parameter key of function core_memory_retrieve for automatic function calling.Automatic function calling works best with simpler function signature schema, consider manually parsing your function declaration for function core_memory_retrieve.
+ValueError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\types.py", line 3871, in from_callable_with
+_api_option
+    _automatic_function_calling_util._parse_schema_from_parameter(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        api_option, param, callable.__name__
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\_automatic_function_calling_util.py", line 
+315, in _parse_schema_from_parameter
+    _raise_for_unsupported_param(param, func_name, ValueError)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\_automatic_function_calling_util.py", line 
+59, in _raise_for_unsupported_param
+    raise ValueError(
+    ...<4 lines>...
+    ) from exception
+ValueError: Failed to parse the parameter key of function core_memor
+y_retrieve for automatic function calling.Automatic function calling
+ works best with simpler function signature schema, consider manuall
+y parsing your function declaration for function core_memory_retriev
+e.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\types.py", line 3892, in from_callable_with
+_api_option
+    json_schema_dict = param_schema_adapter.json_schema()
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\pydantic\type_adapter.py", line 727, in json_schema
+    return schema_generator_instance.generate(self.core_schema, mode
+=mode)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\pydantic\json_schema.py", line 415, in generate
+    json_schema: JsonSchemaValue = self.generate_inner(schema)
+                                   ~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\pydantic\json_schema.py", line 578, in generate_inner
+    json_schema = current_handler(schema)
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\pydantic\_internal\_schema_generation_shared.py", line 3
+7, in __call__
+    return self.handler(core_schema)
+           ~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\pydantic\json_schema.py", line 511, in handler_func
+    json_schema = generate_for_schema_type(schema_or_field)
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\pydantic\json_schema.py", line 921, in is_instance_schem
+a
+    return self.handle_invalid_for_json_schema(schema, f'core_schema
+.IsInstanceSchema ({schema["cls"]})')
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\pydantic\json_schema.py", line 2442, in handle_invalid_f
+or_json_schema
+    raise PydanticInvalidForJsonSchema(f'Cannot generate a JsonSchem
+a for {error_info}')
+pydantic.errors.PydanticInvalidForJsonSchema: Cannot generate a Json
+Schema for core_schema.IsInstanceSchema (<class 'inspect._empty'>)
+
+For further information visit https://errors.pydantic.dev/2.12/u/inv
+alid-for-json-schema
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\hoonProJect\agent-factory\core\agent_runner.py", line 734
+, in run
+    response = safe_send(f"Task: {task_input}")
+  File "D:\hoonProJect\agent-factory\core\agent_runner.py", line 729
+, in safe_send
+    raise e
+  File "D:\hoonProJect\agent-factory\core\agent_runner.py", line 722
+, in safe_send
+    return chat.send_message(msg)
+           ~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\chats.py", line 252, in send_message
+    response = self._modules.generate_content(
+        model=self._model,
+        contents=self._curated_history + [input_content],  # type: i
+gnore[arg-type]
+        config=config if config else self._config,
+    )
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\models.py", line 5621, in generate_content
+    response = self._generate_content(
+        model=model, contents=contents, config=parsed_config
+    )
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\models.py", line 4259, in _generate_content
+    request_dict = _GenerateContentParameters_to_mldev(
+        self._api_client, parameter_model, None, parameter_model
+    )
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\models.py", line 1447, in _GenerateContentP
+arameters_to_mldev
+    _GenerateContentConfig_to_mldev(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        api_client, getv(from_object, ['config']), to_object, root_o
+bject
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^
+    ),
+    ^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\models.py", line 1171, in _GenerateContentC
+onfig_to_mldev
+    for item in t.t_tools(api_client, getv(from_object, ['tools']))
+                ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\_transformers.py", line 963, in t_tools
+    transformed_tool = t_tool(client, tool)
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\_transformers.py", line 942, in t_tool
+    types.FunctionDeclaration.from_callable(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        client=client, callable=origin
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\types.py", line 4023, in from_callable
+    return cls.from_callable_with_api_option(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        callable=callable, api_option='GEMINI_API', behavior=behavio
+r
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^
+    )
+    ^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\types.py", line 3923, in from_callable_with
+_api_option
+    _automatic_function_calling_util._raise_for_unsupported_param(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        param, callable.__name__, e
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\HOON\AppData\Local\Python\pythoncore-3.14-64\Lib\si
+te-packages\google\genai\_automatic_function_calling_util.py", line 
+59, in _raise_for_unsupported_param
+    raise ValueError(
+    ...<4 lines>...
+    ) from exception
+ValueError: Failed to parse the parameter key of function core_memor
+y_retrieve for automatic function calling.Automatic function calling
+ works best with simpler function signature schema, consider manuall
+y parsing your function declaration for function core_memory_retriev
+e.
+에이전트가 응답을 생성하지 못했습니다.
+⚠️ [Cycle 5] 실패 감지: runner_error:ValueError
+⏪ [FSALoop] 안전을 위해 Git Rollback을 수행합니다.
+[GitManager] Rolling back changes in D:\hoonProJect\agent-factory...
+Saved working directory and index state On dev: FSALoop_Safe_Rollback_1772529179
+error: unable to unlink old 'debug_log.txt': Invalid argument
+fatal: Could not reset index file to revision 'HEAD'.
+[GitManager] Rollback failed: Command '['git', 'stash', 'push', '-u', '-m', 'FSALoop_Safe_Rollback_1772529179']' returned non-zero exit status 1.
+
+[Evaluator] "💡"
+[Evaluator] Decision: RETRY | Reasoning: A ValueError during the `write_file` tool execution indicates missing or invalid required parameters, likely 'path' or 'content'. This is a simple error that can be fixed by the agent without changing the goal.

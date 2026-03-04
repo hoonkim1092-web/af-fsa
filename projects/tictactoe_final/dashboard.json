@@ -1,0 +1,115 @@
+{
+  "project_id": "tictactoe_final",
+  "runs": [
+    {
+      "ts": "2026-03-03T17:46:37",
+      "type": "single_run",
+      "project_id": "tictactoe_final",
+      "role": "Deadbyte",
+      "task": "Goal: write_file 도구를 사용하여 index.html 파일을 생성하라.",
+      "skills_loaded": [
+        "react_coding",
+        "css_styling",
+        "issue_tracker",
+        "core_memory",
+        "file_handler"
+      ],
+      "ok": false,
+      "reason": "최대 재시도 횟수(5회) 초과로 중단되었습니다.",
+      "latency_ms": 0,
+      "approval_rejects": 0,
+      "build_enabled": false,
+      "missing_skills_detected": [
+        "html_structure_knowledge",
+        "file_io_operations"
+      ]
+    },
+    {
+      "ts": "2026-03-03T17:47:51",
+      "type": "single_run",
+      "project_id": "tictactoe_final",
+      "role": "Deadbyte",
+      "task": "Goal: write_file 도구를 사용하여 index.html 파일을 생성하라.",
+      "skills_loaded": [
+        "react_coding",
+        "css_styling",
+        "issue_tracker",
+        "core_memory",
+        "file_handler"
+      ],
+      "ok": false,
+      "reason": "최대 재시도 횟수(5회) 초과로 중단되었습니다.",
+      "latency_ms": 0,
+      "approval_rejects": 0,
+      "build_enabled": false,
+      "missing_skills_detected": [
+        "html_structure",
+        "file_io_operations",
+        "tool_usage_syntax"
+      ]
+    },
+    {
+      "ts": "2026-03-03T18:10:48",
+      "type": "single_run",
+      "project_id": "tictactoe_final",
+      "role": "Deadbyte",
+      "task": "Goal: write_file 도구를 사용하여 index.html 파일을 생성하라.",
+      "skills_loaded": [
+        "react_coding",
+        "css_styling",
+        "issue_tracker",
+        "core_memory",
+        "file_handler"
+      ],
+      "ok": false,
+      "reason": "최대 재시도 횟수(5회) 초과로 중단되었습니다.",
+      "latency_ms": 0,
+      "approval_rejects": 0,
+      "build_enabled": false,
+      "missing_skills_detected": [
+        "html_structuring",
+        "frontend_best_practices"
+      ]
+    },
+    {
+      "ts": "2026-03-03T18:13:03",
+      "type": "single_run",
+      "project_id": "tictactoe_final",
+      "role": "Deadbyte",
+      "task": "Goal: write_file 도구를 사용하여 index.html 파일을 생성하라.",
+      "skills_loaded": [
+        "react_coding",
+        "css_styling",
+        "issue_tracker",
+        "core_memory",
+        "file_handler"
+      ],
+      "ok": false,
+      "reason": "최대 재시도 횟수(5회) 초과로 중단되었습니다.",
+      "latency_ms": 0,
+      "approval_rejects": 0,
+      "build_enabled": false,
+      "missing_skills_detected": []
+    },
+    {
+      "ts": "2026-03-03T18:38:04",
+      "type": "single_run",
+      "project_id": "tictactoe_final",
+      "role": "Deadbyte",
+      "task": "Goal: write_file 도구를 사용하여 index.html 파일을 생성하라.",
+      "skills_loaded": [
+        "react_coding",
+        "css_styling",
+        "issue_tracker",
+        "core_memory",
+        "file_handler"
+      ],
+      "ok": false,
+      "reason": "최대 재시도 횟수(5회) 초과로 중단되었습니다.",
+      "latency_ms": 0,
+      "approval_rejects": 0,
+      "build_enabled": false,
+      "missing_skills_detected": []
+    }
+  ]
+}

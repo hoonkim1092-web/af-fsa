@@ -126,8 +126,11 @@ def research_required_skills(role, selected_model_name=None, skip_research=False
 
         if not skip_research:
             log("RESEARCH", "Querying NotebookLM for Domain Deep-Dive...")
+            from core.research_engine import classify_research_depth
             query = generate_deep_research_prompt(role)
-            notebook_insight = query_notebooklm(query)
+            # 역할 텍스트 분석을 통한 자율 모드 선택
+            target_mode = classify_research_depth(query)
+            notebook_insight = query_notebooklm(query, mode=target_mode)
 
             if notebook_insight:
                 log("RESEARCH", "Found valuable Deep-Dive insights from NotebookLM.")
@@ -145,6 +148,7 @@ def research_required_skills(role, selected_model_name=None, skip_research=False
         
         [CRITICAL]
         At least one skill MUST be a highly concrete 'Recipe' or 'Playbook' that the agent can execute immediately based on the Deep-Dive data.
+        If the logic is complex (e.g., game engines, core algorithms), ALWAYS propose decomposing them into 'Atomic Modules' (separate files) to minimize token costs.
         
         [Output Format]
         Return purely a JSON block:

@@ -110,11 +110,13 @@ class HimariResearchAgent:
             skills_label = ", ".join(research_targets)
             print_agent_msg("Himari", f"비밀 서고(NotebookLM)에서 '{skills_label}' 관련 지식을 탐색합니다...", sig)
             
-            from core.research_engine import generate_deep_research_prompt
+            from core.research_engine import generate_deep_research_prompt, ResearchMode, classify_research_depth
             query = generate_deep_research_prompt(
                 f"다음 스킬들에 대한 설계 지침: {skills_label}. 프로젝트 목표: {reqs.get('goal')}"
             )
-            insight = query_notebooklm(query)
+            # 미싱 스킬 수를 기반으로 리서치 모드 자율 판정
+            target_mode = classify_research_depth(query, missing_skills_count=len(missing))
+            insight = query_notebooklm(query, mode=target_mode)
             
             if insight and self._approve_notebooklm_insight(insight):
                 notebook_insight = f"\n[NotebookLM Secret Archive Insight]: {insight[:2000]}"
@@ -131,6 +133,10 @@ class HimariResearchAgent:
         prompt = f"""
 너는 리서치 에이전트 Himari다.
 목표: missing_skills에 대해 설치 가능한 로컬 스킬 후보를 추천한다.
+
+[Architectural Rule]
+보스의 토큰 비용 절감 및 코드 무결성을 위해, 복잡한 상태 머신이나 다단계 로직이 포함된 경우 반드시 '원자적 모듈화(Atomic Modularization)'를 제안하라. 
+기능을 하나의 거대한 파일이 아닌, 독립된 파일 단위로 쪼개어 설계하도록 유도해야 한다.
 
 AgentRole: {agent.get("role")}
 Goal: {reqs.get("goal")}

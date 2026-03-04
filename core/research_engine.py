@@ -13,6 +13,13 @@ from typing import Optional
 DEFAULT_ARCHIVE_NOTEBOOK_ID = "eaa34a54-a898-46a0-835a-cdb6024887f0"
 
 
+from enum import Enum
+
+class ResearchMode(Enum):
+    FAST = "fast"
+    DEEP = "deep"
+
+
 def _nlm_env() -> dict:
     """NotebookLM CLI 실행을 위한 환경변수를 준비한다."""
     env = os.environ.copy()
@@ -64,21 +71,69 @@ def _reauth_notebooklm() -> bool:
 
 
 # ═══════════════════════════════════════════════════════════════════════════
+# 0. 리서치 복잡도 판정기 (Autonomous Depth Classifier)
+# ═══════════════════════════════════════════════════════════════════════════
+
+def classify_research_depth(query: str, missing_skills_count: int = 0) -> ResearchMode:
+    """
+    쿼리의 복잡도와 상황을 분석하여 Fast 또는 Deep 모드를 결정한다.
+    """
+    q = query.lower()
+    
+    # Deep Research 트리거 키워드
+    deep_keywords = [
+        "architecture", "아키텍처", "설계", "strategy", "전략", "심층", "deep", 
+        "analysis", "분석", "비교", "compare", "benchmark", "벤치마크",
+        "recipe", "playbook", "레시피", "플레이북", "구조", "structure"
+    ]
+    
+    # Fast Research 트리거 키워드
+    fast_keywords = [
+        "check", "확인", "정의", "뜻", "what is", "단순", "simple", "quick"
+    ]
+
+    # 1. 쿼리 길이 및 키워드 기반 판정
+    if any(k in q for k in deep_keywords) or len(query) > 200:
+        return ResearchMode.DEEP
+    
+    # 2. 미싱 스킬 수 기반 판정 (3개 이상이면 심층 분석 필요)
+    if missing_skills_count >= 3:
+        return ResearchMode.DEEP
+        
+    if any(k in q for k in fast_keywords):
+        return ResearchMode.FAST
+        
+    # 기본값은 FAST (효율성 우선)
+    return ResearchMode.FAST
+
+
+# ═══════════════════════════════════════════════════════════════════════════
 # 1. 기존 사서 기능: NotebookLM 쿼리
 # ═══════════════════════════════════════════════════════════════════════════
 
-def query_notebooklm(query: str, notebook_id: Optional[str] = None) -> str:
+def query_notebooklm(query: str, notebook_id: Optional[str] = None, mode: Optional[ResearchMode] = None) -> str:
     """
     NotebookLM에 쿼리를 던져 심층 분석 결과를 가져온다.
     notebook_id를 지정하지 않으면 기본 아카이브(비밀 서고)를 사용한다.
+    mode가 None이면 classify_research_depth를 통해 자동 결정한다.
     """
     nb_id = notebook_id or DEFAULT_ARCHIVE_NOTEBOOK_ID
+    
+    # 모드 자율 선택
+    target_mode = mode or classify_research_depth(query)
+    print(f"[RESEARCH] NotebookLM Query (Mode: {target_mode.value})")
+
     try:
-        p = _nlm_cli("query", "notebook", nb_id, query)
+        # CLI 호출에 모드 파라미터 추가 (CLI 버전 호환성 고려)
+        p = _nlm_cli("query", "notebook", nb_id, query, "--mode", target_mode.value)
 
         if p.returncode != 0:
-            print(f"[RESEARCH Error] NotebookLM query failed: {(p.stderr or '').strip()}")
-            return ""
+            # --mode 미지원 시 폴백
+            if "unknown argument: --mode" in (p.stderr or "").lower():
+                p = _nlm_cli("query", "notebook", nb_id, query)
+            else:
+                print(f"[RESEARCH Error] NotebookLM query failed: {(p.stderr or '').strip()}")
+                return ""
 
         return p.stdout.strip()
     except Exception as e:

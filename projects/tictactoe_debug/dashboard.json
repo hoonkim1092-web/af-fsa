@@ -1,0 +1,48 @@
+{
+  "project_id": "tictactoe_debug",
+  "runs": [
+    {
+      "ts": "2026-03-03T17:34:18",
+      "type": "single_run",
+      "project_id": "tictactoe_debug",
+      "role": "Deadbyte",
+      "task": "Goal: write_file 도구를 사용하여 hello.txt 파일을 생성하라. 내용은 Hello World.",
+      "skills_loaded": [
+        "react_coding",
+        "css_styling",
+        "issue_tracker",
+        "core_memory",
+        "file_handler"
+      ],
+      "ok": false,
+      "reason": "hook_event_bus_blocked_pre",
+      "latency_ms": 0,
+      "approval_rejects": 0,
+      "build_enabled": false,
+      "missing_skills_detected": [
+        "file_io",
+        "tool_usage"
+      ]
+    },
+    {
+      "ts": "2026-03-03T17:38:22",
+      "type": "single_run",
+      "project_id": "tictactoe_debug",
+      "role": "Deadbyte",
+      "task": "Goal: write_file 도구를 사용하여 hello.txt 파일을 생성하라. 내용은 Hello World.",
+      "skills_loaded": [
+        "react_coding",
+        "css_styling",
+        "issue_tracker",
+        "core_memory",
+        "file_handler"
+      ],
+      "ok": false,
+      "reason": "hook_event_bus_blocked_pre",
+      "latency_ms": 0,
+      "approval_rejects": 0,
+      "build_enabled": false,
+      "missing_skills_detected": []
+    }
+  ]
+}

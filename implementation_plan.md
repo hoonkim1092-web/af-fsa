@@ -1,157 +1,157 @@
-# Upgrade Orchestration Engine (Swarm Council V2) - Implementation Plan v2
-
-## 0) Goal
-- Break up `agent_launcher.py` monolith
-- Unify registry/state management
-- Separate Build/Run for faster runtime response
-- Stabilize sandbox and quality gate behavior
-- Expand Swarm Council V2 after core stability is secured
-
-## 1) Non-Goals (This Sprint)
-- Adding new model vendors or provider integrations
-- Large UI/dashboard redesign
-- Full containerized OS-level sandboxing
-
-## 2) Architecture Principles
-- Single source of truth for skill metadata: `skills/registry.yaml`
-- Single registry API: all read/write must go through `core/skill_registry.py`
-- Runtime stays lightweight by default: `run` does not build
-- Safe defaults first: `safe` mode is default, `strict` reserved for CI/release
-
----
-
-## Phase A: Registry/State Consolidation (Source of Truth)
-
-### Scope
-- Fix registry schema to YAML map:
-  - `skills: {skill_id: {id,name,status,version,path,meta_path,capabilities,last_test_ok,updated_at}}`
-  - `install_candidates: {id: {...}}`
-- Ensure both `factory_manager.py` and `agent_launcher.py` use only `core/skill_registry.py`
-- Remove all `registry.json` references from runtime paths
-- Consolidate dashboard/lock write flows behind registry/state APIs where practical
-
-### Deliverables
-- `core/skill_registry.py` (unified API)
-- `scripts/migrate_registry.py` (`--dry-run`, `--apply`)
-- `docs/registry_schema.md`
-
-### Exit Criteria
-- Zero `registry.json` references in active runtime code paths
-- Builder and runtime read/write the same YAML schema
-- Migration dry-run and apply complete successfully
-
----
-
-## Phase B: Runtime Safety and Quality Gate Stabilization
-
-### Scope
-- Clarify responsibilities between `core/executor.py` and `run_isolated`
-- Introduce runtime policy modes:
-  - `dev`: faster local iteration
-  - `safe` (default): `-I`, env allowlist, fixed cwd, network block
-  - `strict`: safe + additional restrictions when feasible
-- Keep hard network blocking (`PermissionError`) in isolated runs
-- Lock quality gate behavior:
-  - New skill default state = `candidate`
-  - Default installable states = `["active"]`
-  - Promotion only via explicit test/approval transitions
-
-### Deliverables
-- `core/executor.py` hardening
-- `core/policy.py` for runtime/quality policy resolution
-- `docs/runtime_modes.md`
-
-### Exit Criteria
-- No path where new skills become `active` automatically
-- Network call attempts are blocked in isolation tests
-- Runtime mode policies apply consistently in run/build paths
-
----
-
-## Phase C: Build vs Run Separation (Performance Core)
-
-### Scope
-- Split CLI/entry behavior:
-  - `run`: execute only with installed skills
-  - `build --skills ...`: generate/check/register skills
-- Disable heavy semantic duplicate checks and auto-forge in `run`
-- Return explicit `missing_skills_detected` when runtime lacks required skills
-
-### Deliverables
-- `core/builder.py`, `core/runner.py`, `core/policy.py` extraction
-- `agent_launcher.py` reduced to orchestration + CLI routing
-- `docs/cli_contract.md`
-
-### Exit Criteria
-- Zero build function calls during `run` path
-- Skill generation pipeline runs only with explicit `build`
-- Measurable runtime latency improvement from baseline
-
----
-
-## Phase D: Swarm Council V2 Feature Expansion
-
-### Scope
-- Refactor `project_orchestrator.py` to orchestration-only logic
-- Add features:
-  - Multi-agent council turn sequencing (round-robin/dependency-aware)
-  - Stateful Project Board (shared JSON state)
-  - Probing phase (clarifying questions before full report)
-  - Real hot-upgrade integration (trigger build path on missing capability)
-  - Lilith defense validation against `policies.yaml`
-  - Himari deep-dive templates via `core/research_engine.py`
-
-### Deliverables
-- Refactored `project_orchestrator.py`
-- `docs/swarm_council_v2.md`
-
-### Exit Criteria
-- Multi-agent stage orchestration runs end-to-end
-- On missing capability, hot-upgrade + retry loop succeeds
-- Project board state remains consistent across iterations
-
----
-
-## 3) Test Strategy (Required)
-1. `test_registry_schema_compat`: factory/launcher serialization compatibility
-2. `test_quality_gate_transition`: candidate/canary/active transition correctness
-3. `test_run_build_separation`: no build invocation in run path
-4. `test_sandbox_network_block`: outbound network blocked in isolated execution
-5. `test_path_portability`: no unsafe absolute-path leakage/collision regressions
-6. `test_hot_upgrade_flow`: missing skill -> build -> rerun -> pass path
-
----
-
-## 4) Operational Metrics (SLI)
-- `run_latency_p95`
-- `build_success_rate`
-- `skill_reuse_rate`
-- `sandbox_block_count`
-- `registry_conflict_count`
-
----
-
-## 5) Migration and Rollback
-- Migration steps:
-  1. `python scripts/migrate_registry.py --dry-run`
-  2. backup creation (`skills/registry.yaml.bak`)
-  3. `python scripts/migrate_registry.py --apply`
-  4. compatibility tests
-- Rollback:
-  - Restore backup registry
-  - Revert launcher/registry modules to previous tagged commit
-
----
-
-## 6) Suggested Timeline (2 Weeks)
-1. Week 1: Phase A + Phase B
-2. Week 2: Phase C + minimal Phase D + stabilization
-
----
-
-## 7) Decision Policy
-- If performance and safety conflict:
-  - default local operation: `safe`
-  - experimentation only in `dev`
-  - CI/release must enforce `strict`
-
+# Upgrade Orchestration Engine (Swarm Council V2) - Implementation Plan v2
+
+## 0) Goal
+- Break up `agent_launcher.py` monolith
+- Unify registry/state management
+- Separate Build/Run for faster runtime response
+- Stabilize sandbox and quality gate behavior
+- Expand Swarm Council V2 after core stability is secured
+
+## 1) Non-Goals (This Sprint)
+- Adding new model vendors or provider integrations
+- Large UI/dashboard redesign
+- Full containerized OS-level sandboxing
+
+## 2) Architecture Principles
+- Single source of truth for skill metadata: `skills/registry.yaml`
+- Single registry API: all read/write must go through `core/skill_registry.py`
+- Runtime stays lightweight by default: `run` does not build
+- Safe defaults first: `safe` mode is default, `strict` reserved for CI/release
+
+---
+
+## Phase A: Registry/State Consolidation (Source of Truth)
+
+### Scope
+- Fix registry schema to YAML map:
+  - `skills: {skill_id: {id,name,status,version,path,meta_path,capabilities,last_test_ok,updated_at}}`
+  - `install_candidates: {id: {...}}`
+- Ensure both `factory_manager.py` and `agent_launcher.py` use only `core/skill_registry.py`
+- Remove all `registry.json` references from runtime paths
+- Consolidate dashboard/lock write flows behind registry/state APIs where practical
+
+### Deliverables
+- `core/skill_registry.py` (unified API)
+- `scripts/migrate_registry.py` (`--dry-run`, `--apply`)
+- `docs/registry_schema.md`
+
+### Exit Criteria
+- Zero `registry.json` references in active runtime code paths
+- Builder and runtime read/write the same YAML schema
+- Migration dry-run and apply complete successfully
+
+---
+
+## Phase B: Runtime Safety and Quality Gate Stabilization
+
+### Scope
+- Clarify responsibilities between `core/executor.py` and `run_isolated`
+- Introduce runtime policy modes:
+  - `dev`: faster local iteration
+  - `safe` (default): `-I`, env allowlist, fixed cwd, network block
+  - `strict`: safe + additional restrictions when feasible
+- Keep hard network blocking (`PermissionError`) in isolated runs
+- Lock quality gate behavior:
+  - New skill default state = `candidate`
+  - Default installable states = `["active"]`
+  - Promotion only via explicit test/approval transitions
+
+### Deliverables
+- `core/executor.py` hardening
+- `core/policy.py` for runtime/quality policy resolution
+- `docs/runtime_modes.md`
+
+### Exit Criteria
+- No path where new skills become `active` automatically
+- Network call attempts are blocked in isolation tests
+- Runtime mode policies apply consistently in run/build paths
+
+---
+
+## Phase C: Build vs Run Separation (Performance Core)
+
+### Scope
+- Split CLI/entry behavior:
+  - `run`: execute only with installed skills
+  - `build --skills ...`: generate/check/register skills
+- Disable heavy semantic duplicate checks and auto-forge in `run`
+- Return explicit `missing_skills_detected` when runtime lacks required skills
+
+### Deliverables
+- `core/builder.py`, `core/runner.py`, `core/policy.py` extraction
+- `agent_launcher.py` reduced to orchestration + CLI routing
+- `docs/cli_contract.md`
+
+### Exit Criteria
+- Zero build function calls during `run` path
+- Skill generation pipeline runs only with explicit `build`
+- Measurable runtime latency improvement from baseline
+
+---
+
+## Phase D: Swarm Council V2 Feature Expansion
+
+### Scope
+- Refactor `project_orchestrator.py` to orchestration-only logic
+- Add features:
+  - Multi-agent council turn sequencing (round-robin/dependency-aware)
+  - Stateful Project Board (shared JSON state)
+  - Probing phase (clarifying questions before full report)
+  - Real hot-upgrade integration (trigger build path on missing capability)
+  - Lilith defense validation against `policies.yaml`
+  - Himari deep-dive templates via `core/research_engine.py`
+
+### Deliverables
+- Refactored `project_orchestrator.py`
+- `docs/swarm_council_v2.md`
+
+### Exit Criteria
+- Multi-agent stage orchestration runs end-to-end
+- On missing capability, hot-upgrade + retry loop succeeds
+- Project board state remains consistent across iterations
+
+---
+
+## 3) Test Strategy (Required)
+1. `test_registry_schema_compat`: factory/launcher serialization compatibility
+2. `test_quality_gate_transition`: candidate/canary/active transition correctness
+3. `test_run_build_separation`: no build invocation in run path
+4. `test_sandbox_network_block`: outbound network blocked in isolated execution
+5. `test_path_portability`: no unsafe absolute-path leakage/collision regressions
+6. `test_hot_upgrade_flow`: missing skill -> build -> rerun -> pass path
+
+---
+
+## 4) Operational Metrics (SLI)
+- `run_latency_p95`
+- `build_success_rate`
+- `skill_reuse_rate`
+- `sandbox_block_count`
+- `registry_conflict_count`
+
+---
+
+## 5) Migration and Rollback
+- Migration steps:
+  1. `python scripts/migrate_registry.py --dry-run`
+  2. backup creation (`skills/registry.yaml.bak`)
+  3. `python scripts/migrate_registry.py --apply`
+  4. compatibility tests
+- Rollback:
+  - Restore backup registry
+  - Revert launcher/registry modules to previous tagged commit
+
+---
+
+## 6) Suggested Timeline (2 Weeks)
+1. Week 1: Phase A + Phase B
+2. Week 2: Phase C + minimal Phase D + stabilization
+
+---
+
+## 7) Decision Policy
+- If performance and safety conflict:
+  - default local operation: `safe`
+  - experimentation only in `dev`
+  - CI/release must enforce `strict`
+

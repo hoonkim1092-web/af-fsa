@@ -5,6 +5,7 @@ capabilities:
   - "WEB_SEARCH"
   - "RESEARCH"
   - "NOTEBOOKLM_INJECTION"
+  - "ADAPTIVE_RESEARCH_DEPTH"
 status: "active"
 description: >
   3단계 자동화 리서치 파이프라인.
