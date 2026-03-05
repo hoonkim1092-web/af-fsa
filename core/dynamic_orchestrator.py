@@ -54,8 +54,8 @@ class DynamicOrchestrator:
             
         # [Stability FIX] Inject the tactical plan (.todo.md) into context
         todo_content = ""
-        workspace = workspace or os.getcwd() # Need workspace path if not passed
-        todo_path = os.path.join(workspace, ".todo.md")
+        target_workspace = workspace or os.getcwd()  # Keep arg/local names separated.
+        todo_path = os.path.join(target_workspace, ".todo.md")
         if os.path.exists(todo_path):
             with open(todo_path, "r", encoding="utf-8") as f:
                 todo_content = f.read()
@@ -120,7 +120,8 @@ class DynamicOrchestrator:
         self.state_board["agents_status"][role] = "working"
         
         try:
-            agent_data = self.agent_mgr.get_or_create(role, workspace=workspace)
+            target_workspace = workspace or os.getcwd()
+            agent_data = self.agent_mgr.get_or_create(role, workspace=target_workspace)
             
             # Execute the actual synchronous AgentRunner in a background thread
             result = await asyncio.to_thread(
@@ -129,7 +130,7 @@ class DynamicOrchestrator:
                 subtask, 
                 run_id, 
                 True,  # auto_approve = True for fully autonomous dynamic execution
-                workspace
+                target_workspace
             )
             
             if result and result.get("ok"):
@@ -185,6 +186,7 @@ class DynamicOrchestrator:
 
     async def _orchestration_loop(self, project_desc: str, roles: List[str], workspace: str | None = None):
         """The main dynamic event loop."""
+        target_workspace = workspace or os.getcwd()
         for r in roles:
             self.state_board["agents_status"][r] = "idle"
             
@@ -197,7 +199,7 @@ class DynamicOrchestrator:
             print_agent_msg("Lilith", f"--- Dynamic Sync Cycle {cycle} ---", "👑")
             
             # 1. Ask Lilith for the next tickets
-            new_tasks = await self._lilith_decide_next(project_desc, roles, workspace)
+            new_tasks = await self._lilith_decide_next(project_desc, roles, target_workspace)
             
             if not new_tasks:
                 # Check if anyone is still working
@@ -223,7 +225,7 @@ class DynamicOrchestrator:
                     self.state_board["agents_status"][role] = "working"
                     
                     # Create async task
-                    coro = self._execute_agent_task(role, instruction, task_id, workspace)
+                    coro = self._execute_agent_task(role, instruction, task_id, target_workspace)
                     task_obj = asyncio.create_task(coro)
                     self.active_tasks[task_id] = task_obj
                     dispatch_futures.append(task_obj)

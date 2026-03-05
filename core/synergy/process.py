@@ -14,6 +14,7 @@ from __future__ import annotations
 import json
 import os
 import platform
+import re
 import shlex
 import shutil
 import signal
@@ -141,17 +142,32 @@ class OmoDetector:
     # argv 조립
     # ------------------------------------------------------------------
 
+    _ENV_ASSIGN_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*=(.*)$")
+
     @staticmethod
-    def build_argv(cmd: dict, task: str) -> list[str]:
-        """탐지된 cmd dict와 task 문자열로 최종 argv를 조립한다."""
+    def build_argv(cmd: dict, task: str) -> tuple[list[str], dict[str, str]]:
+        """Build argv plus env overrides with cross-platform env-assignment parsing."""
         text = str(task or "").strip()
+        env_overrides: dict[str, str] = {}
         if cmd.get("kind") == "shell":
             raw = str(cmd.get("cmd") or "").strip()
-            argv = shlex.split(raw, posix=False)
+            posix_mode = platform.system() != "Windows"
+            tokens = shlex.split(raw, posix=posix_mode)
+            argv: list[str] = []
+            for token in tokens:
+                if not argv:
+                    m = OmoDetector._ENV_ASSIGN_RE.match(token)
+                    if m:
+                        key = token.split("=", 1)[0]
+                        env_overrides[key] = m.group(1)
+                        continue
+                argv.append(token)
         else:
             argv = list(cmd.get("cmd") or [])
+        if not argv:
+            raise ValueError("empty_command_after_env_parse")
         argv.append(text)
-        return argv
+        return argv, env_overrides
 
     # ------------------------------------------------------------------
     # OS별 Popen 키워드 인자

@@ -19,6 +19,13 @@ def test_forced_model_override(monkeypatch):
     assert model_utils.get_forced_model_override() == "models/gemini-2.0-flash"
 
 
+def test_no_project_level_forced_override(monkeypatch):
+    monkeypatch.delenv("AGENT_FORCE_MODEL", raising=False)
+    monkeypatch.setenv("AGENT_PROJECT_ID", "minesweeper")
+    importlib.reload(model_utils)
+    assert model_utils.get_forced_model_override() == ""
+
+
 class _FakeModels:
     def __init__(self):
         self.called = []
@@ -41,3 +48,14 @@ def test_generate_content_with_self_heal_retries_on_404():
     assert res.text == "ok"
     assert client.models.called[0] == "models/gemini-1.5-flash"
     assert "models/gemini-2.0-flash" in client.models.called
+
+
+def test_resolve_preferred_model_uses_dynamic_routing_when_not_forced(monkeypatch):
+    monkeypatch.delenv("AGENT_FORCE_MODEL", raising=False)
+    monkeypatch.setenv("AGENT_PROJECT_ID", "proj_general")
+
+    def fake_resolve(engine_id):
+        return model_utils.ModelSelection("gemini-9-flash", "primary", f"engine={engine_id}")
+
+    monkeypatch.setattr(model_utils, "resolve_dynamic_model", fake_resolve)
+    assert model_utils.resolve_preferred_model("assistant") == "models/gemini-9-flash"

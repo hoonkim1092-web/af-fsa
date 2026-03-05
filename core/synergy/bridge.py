@@ -358,7 +358,7 @@ class SynergyBridge:
         effective_timeout = timeout_sec if timeout_sec is not None else self._get_default_timeout()
 
         try:
-            argv = OmoDetector.build_argv(self._cmd, text)
+            argv, env_overrides = OmoDetector.build_argv(self._cmd, text)
         except Exception as e:
             self._omo_semaphore.release()
             return {"ok": False, "error": f"argv_build_failed:{e}"}
@@ -377,6 +377,7 @@ class SynergyBridge:
                 "cwd": self.omo_path,
                 "stdout": stdout_fh,
                 "stderr": stderr_fh,
+                "env": {**os.environ, **env_overrides},
                 **OmoDetector.popen_platform_kwargs(),
             }
             proc = subprocess.Popen(argv, **popen_kwargs)
@@ -615,10 +616,11 @@ class SynergyBridge:
         if not text:
             return {"ok": False, "error": "missing_task"}
         try:
-            argv = OmoDetector.build_argv(self._cmd, text)
+            argv, env_overrides = OmoDetector.build_argv(self._cmd, text)
             proc = subprocess.run(
                 argv,
                 cwd=self.omo_path,
+                env={**os.environ, **env_overrides},
                 capture_output=True, text=True,
                 timeout=max(5, int(timeout_sec)),
                 check=False,

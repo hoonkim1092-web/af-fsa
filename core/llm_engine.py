@@ -1,4 +1,4 @@
-"""
+﻿"""
 core/llm_engine.py
 ==================
 [Release Engine]
@@ -93,8 +93,22 @@ class LLMEngine:
             model_name = get_latest_flash_model()
         model_name = normalize_model_name(model_name)
 
-        # Auto-Upgrade: Flash 계열은 항상 최신판으로 강제 상향
+        # [Stability FIX] Auto-Upgrade: Flash 계열은 항상 최신판으로 강제 상향하되,
+        # 사용자가 명시적으로 과거/특정 버전을 요청한 경우(Gemini 3 Flash 등)나 
+        # get_forced_model_override()에 해당하는 경우는 업그레이드를 생략합니다.
+        from model_utils import get_forced_model_override
+        forced = get_forced_model_override()
+        
+        should_upgrade = False
         if "gemini" in model_name and "flash" in model_name:
+            if forced and normalize_model_name(forced) == model_name:
+                should_upgrade = False
+            elif "gemini-3" in model_name: # Gemini 3은 현재 최신 실험 버전이므로 유지
+                should_upgrade = False
+            else:
+                should_upgrade = True
+
+        if should_upgrade:
             latest = get_latest_flash_model()
             if latest and latest != model_name:
                 # Avoid UnicodeEncodeError on cp949 consoles.

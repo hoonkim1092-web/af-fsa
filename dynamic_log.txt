@@ -5,11 +5,11 @@ Tasks: []
 Raw: {}
 
 [Lilith] Cycle: ?
-Roles: ['Architect']
+Roles: ['dev']
 Tasks: []
 Raw: {"next_tasks": []}
 
-[Lilith] Cycle: ?
-Roles: ['Architect']
+[Lilith] Cycle: 1
+Roles: ['Architect', 'LogicDeveloper', 'UIDeveloper']
 Tasks: []
-Raw: {"next_tasks": []}
+Raw: {}

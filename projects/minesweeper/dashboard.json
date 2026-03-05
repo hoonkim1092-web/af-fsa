@@ -1,4 +1,36 @@
 {
   "project_id": "minesweeper",
-  "runs": []
+  "runs": [
+    {
+      "ts": "2026-03-06T00:17:37",
+      "type": "single_run",
+      "project_id": "minesweeper",
+      "role": "Architect",
+      "task": "Windows 기본 지뢰찾기 스타일 100x100 게임을 구현하라.",
+      "skills_loaded": [
+        "ast_grep",
+        "cortex",
+        "file_handler",
+        "lsp_hover",
+        "mcp_client",
+        "mcp_exa_search",
+        "memory_pruner",
+        "retrofit_cortex"
+      ],
+      "ok": false,
+      "reason": "Evaluator aborted task.",
+      "latency_ms": 0,
+      "approval_rejects": 0,
+      "build_enabled": false,
+      "missing_skills_detected": [
+        "ast_grep",
+        "cortex",
+        "lsp_hover",
+        "mcp_client",
+        "mcp_exa_search",
+        "memory_pruner",
+        "retrofit_cortex"
+      ]
+    }
+  ]
 }

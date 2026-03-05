@@ -1,5 +1,4 @@
-
-import os
+﻿import os
 import json
 import time
 import sys
@@ -7,13 +6,13 @@ import re
 import urllib.request
 import urllib.error
 import urllib.parse
-from typing import NamedTuple
+from typing import NamedTuple, List, Dict, Any, Optional
 from google import genai
 from config.schema import factory_config
 
-# sys.stdout.reconfigure(encoding='utf-8')  # ‖ BUG #1 제거: 모듈레벨에서 강제 reconfigure는
-# 비-UTF-8 실행 환경(월도우 cp949 등)에서 예외를 유발할 수 있음.
-# 학습 환경 전용이 필요하다면 agent_launcher / CLI 완에서만 호출할 것.
+# sys.stdout.reconfigure(encoding='utf-8')  # [BUG #1 제거] 모듈 레벨에서 강제 reconfigure는
+# 비-UTF-8 실행 환경(윈도우 cp949 등)에서 예외를 유발할 수 있음.
+# 학습 환경 전용이 필요하다면 agent_launcher / CLI 단에서만 호출할 것.
 
 _google_api_key = os.getenv("GOOGLE_API_KEY")
 _genai_client = genai.Client(api_key=_google_api_key) if _google_api_key else None
@@ -90,10 +89,6 @@ def normalize_model_name(model_name: str) -> str:
 def get_forced_model_override() -> str:
     raw = str(os.getenv(FORCED_MODEL_ENV, "") or "").strip()
     if not raw:
-        # Project-specific temporary override for minesweeper forge runs.
-        proj = str(os.getenv("AGENT_PROJECT_ID", "") or "").strip().lower()
-        if proj == "minesweeper":
-            return "models/gemini-3-flash-preview"
         return ""
     return normalize_model_name(raw)
 
@@ -568,22 +563,15 @@ def resolve_dynamic_model(engine_id: str) -> ModelSelection:
 # 역할 키워드 → engine_id 매핑 테이블
 # 에이전트의 role/tagline/name에서 키워드를 찾아 최적 엔진을 결정한다.
 _ROLE_ENGINE_MAP: list[tuple[list[str], str]] = [
-    # 아키텍트 / 설계자 계열 → Claude Opus (최고 추론)
-    (["architect", "아키텍트", "design", "설계", "blueprint", "system design"], "architect_claude"),
-    # 코더 / 개발자 계열 → Claude Sonnet (정밀 코딩)
-    (["coder", "developer", "코더", "개발", "engineer", "programmer", "엔지니어"], "coder_claude"),
-    # 리서처 / 분석가 계열 → Gemini Pro (방대한 컨텍스트)
-    (["research", "researcher", "리서처", "analyst", "분석", "조사", "study"], "researcher_gemini"),
-    # 매니저 / PM / PD 계열 → GPT (도구 실행 및 관리)
-    (["manager", "pm", "pd", "project", "director", "orchestrat", "매니저", "프로젝트"], "manager_gpt"),
-    # 추론 / 검증 계열 → GPT o-series
-    (["reason", "verif", "logic", "검증", "추론", "validator", "reviewer"], "reasoner_o"),
-    # Codex / 자동화 계열
-    (["codex", "automat", "자동화", "pipeline"], "codex"),
+    (["architect", "design", "blueprint", "system design"], "architect_claude"),
+    (["coder", "developer", "engineer", "programmer"], "coder_claude"),
+    (["research", "researcher", "analyst", "study"], "researcher_gemini"),
+    (["manager", "pm", "pd", "project", "director", "orchestrat"], "manager_gpt"),
+    (["reason", "verif", "logic", "validator", "reviewer"], "reasoner_o"),
+    (["codex", "automat", "pipeline"], "codex"),
 ]
 
 _DEFAULT_ENGINE = "researcher_gemini"   # 키워드 매칭 실패 시 기본값
-
 
 def _infer_engine_id(role: str) -> str:
     """역할 문자열에서 엔진 ID를 자동 추론한다."""
@@ -595,17 +583,16 @@ def _infer_engine_id(role: str) -> str:
 
 
 def resolve_preferred_model(role: str) -> str:
-    """
-    [USER REQUEST] Stability Override: Force gemini-2.0-flash for ALL roles.
-    이전에는 역할별로 Claude/GPT를 매핑했으나, 현재 지뢰찾기 프로젝트의 안정성을 위해 
-    사용자의 요청에 따라 무조건 'models/gemini-2.0-flash'만 반환하도록 고정함.
-    """
+    """역할별 최적 모델을 결정한다 (동적 라우팅)."""
     forced = get_forced_model_override()
     if forced:
-        log(f"[Stability Override] Forcing '{forced}' for role: {role}")
+        log(f"[Model Override] Forcing '{forced}' for role: {role}")
         return forced
-    log(f"[Stability Override] Forcing 'models/gemini-2.0-flash' for role: {role}")
-    return "models/gemini-2.0-flash"
+    engine_id = _infer_engine_id(role)
+    selection = resolve_dynamic_model(engine_id)
+    model = normalize_model_name(selection.model)
+    log(f"[Model Resolve] role={role} engine={engine_id} tier={selection.tier} -> {model}")
+    return model
 
 
 # 엔진 ID → 표시 이름 (CLI 출력용)
