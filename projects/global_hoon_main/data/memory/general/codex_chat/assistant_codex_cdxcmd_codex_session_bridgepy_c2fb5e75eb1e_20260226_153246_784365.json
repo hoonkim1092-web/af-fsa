@@ -1,17 +1,17 @@
-{
-  "key": "assistant 이 터미널 Codex 대화가 끝날 때 자동으로 메모리에 남도록 바로 붙이겠습니다 먼저 cdxcmd 실행 흐름과 이미 있는 브릿지 스크립트codex_session_bridgepy를 확인해서 가장 짧게",
-  "value": "[assistant] 이 터미널 Codex 대화가 끝날 때 자동으로 메모리에 남도록 바로 붙이겠습니다. 먼저 `cdx.cmd` 실행 흐름과 이미 있는 브릿지 스크립트(`codex_session_bridge.py`)를 확인해서 가장 짧게 적용하겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-02-26T15:32:46.784539+00:00",
-  "updated_at": "2026-02-26T15:32:46.784539+00:00",
-  "details": {
-    "text": "[assistant] 이 터미널 Codex 대화가 끝날 때 자동으로 메모리에 남도록 바로 붙이겠습니다. 먼저 `cdx.cmd` 실행 흐름과 이미 있는 브릿지 스크립트(`codex_session_bridge.py`)를 확인해서 가장 짧게 적용하겠습니다.",
-    "event_timestamp": "2026-02-26T15:26:50.118Z",
-    "session_file": "C:/Users/home/.codex/sessions/2026/02/26/rollout-2026-02-26T14-17-53-019c9861-d21e-7892-9d8b-fe2b91c755de.jsonl",
-    "session_line": 1342
-  }
+{
+  "key": "assistant 이 터미널 Codex 대화가 끝날 때 자동으로 메모리에 남도록 바로 붙이겠습니다 먼저 cdxcmd 실행 흐름과 이미 있는 브릿지 스크립트codex_session_bridgepy를 확인해서 가장 짧게",
+  "value": "[assistant] 이 터미널 Codex 대화가 끝날 때 자동으로 메모리에 남도록 바로 붙이겠습니다. 먼저 `cdx.cmd` 실행 흐름과 이미 있는 브릿지 스크립트(`codex_session_bridge.py`)를 확인해서 가장 짧게 적용하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-02-26T15:32:46.784539+00:00",
+  "updated_at": "2026-02-26T15:32:46.784539+00:00",
+  "details": {
+    "text": "[assistant] 이 터미널 Codex 대화가 끝날 때 자동으로 메모리에 남도록 바로 붙이겠습니다. 먼저 `cdx.cmd` 실행 흐름과 이미 있는 브릿지 스크립트(`codex_session_bridge.py`)를 확인해서 가장 짧게 적용하겠습니다.",
+    "event_timestamp": "2026-02-26T15:26:50.118Z",
+    "session_file": "C:/Users/home/.codex/sessions/2026/02/26/rollout-2026-02-26T14-17-53-019c9861-d21e-7892-9d8b-fe2b91c755de.jsonl",
+    "session_line": 1342
+  }
 }

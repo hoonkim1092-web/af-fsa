@@ -1,17 +1,17 @@
-{
-  "key": "assistant 추가 완료했습니다 이제 cdx 채팅터미널 Codex 맥락도 자동으로 전역 메모리에 쌓입니다변경 사항- cdx 종료 훅 추가 cdxcmd20CProjectagent-factorycdxcmd20    ",
-  "value": "[assistant] 추가 완료했습니다. 이제 `cdx` 채팅(터미널 Codex) 맥락도 자동으로 전역 메모리에 쌓입니다.  변경 사항: - `cdx` 종료 훅 추가: [cdx.cmd:20](/C:/Project/agent-factory/cdx.cmd:20)     `AGENT_GLOBAL_USER_KEY`가 있으면 세션 브리지를 자동 실행합니다. - Codex 세션 브리지 신규: [scripts/codex_session_bridge.py:1](/C:/Pr...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-02-26T15:32:46.381101+00:00",
-  "updated_at": "2026-02-26T15:32:46.381101+00:00",
-  "details": {
-    "text": "[assistant] 추가 완료했습니다. 이제 `cdx` 채팅(터미널 Codex) 맥락도 자동으로 전역 메모리에 쌓입니다.\n\n변경 사항:\n- `cdx` 종료 훅 추가: [cdx.cmd:20](/C:/Project/agent-factory/cdx.cmd:20)  \n  `AGENT_GLOBAL_USER_KEY`가 있으면 세션 브리지를 자동 실행합니다.\n- Codex 세션 브리지 신규: [scripts/codex_session_bridge.py:1](/C:/Project/agent-factory/scripts/codex_session_bridge.py:1)  \n  `~/.codex/sessions/*.jsonl`에서 사용자 발화를 읽어  \n  `projects/global_<user>/data/memory/general/codex_chat`로 저장합니다.\n- Antigravity 파일명 안정화(fallback id): [antigravity_link.py:43](/C:/Project/agent-factory/antigravity_link.py:43)\n\n동작 조건:\n- 아래 둘 중 하나에 `AGENT_GLOBAL_USER_KEY`가 있어야 합니다.\n1. OS 환경변수\n2. 프로젝트 `.env` 파일\n\n검증:\n- `python -m py_compile`로 관련 파이썬 파일 문법 확인 완료.\n- 브리지 스크립트 단독 실행으로 실제 메모리 파일 생성 확인 완료.\n\n원하면 다음으로, 첫 1회 과거 Codex 기록을 더 많이 백필하도록 기본치(`bootstrap-limit`)도 조정해드릴게요.",
-    "event_timestamp": "2026-02-26T14:20:29.188Z",
-    "session_file": "C:/Users/home/.codex/sessions/2026/02/26/rollout-2026-02-26T14-17-53-019c9861-d21e-7892-9d8b-fe2b91c755de.jsonl",
-    "session_line": 721
-  }
+{
+  "key": "assistant 추가 완료했습니다 이제 cdx 채팅터미널 Codex 맥락도 자동으로 전역 메모리에 쌓입니다변경 사항- cdx 종료 훅 추가 cdxcmd20CProjectagent-factorycdxcmd20    ",
+  "value": "[assistant] 추가 완료했습니다. 이제 `cdx` 채팅(터미널 Codex) 맥락도 자동으로 전역 메모리에 쌓입니다.  변경 사항: - `cdx` 종료 훅 추가: [cdx.cmd:20](/C:/Project/agent-factory/cdx.cmd:20)     `AGENT_GLOBAL_USER_KEY`가 있으면 세션 브리지를 자동 실행합니다. - Codex 세션 브리지 신규: [scripts/codex_session_bridge.py:1](/C:/Pr...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-02-26T15:32:46.381101+00:00",
+  "updated_at": "2026-02-26T15:32:46.381101+00:00",
+  "details": {
+    "text": "[assistant] 추가 완료했습니다. 이제 `cdx` 채팅(터미널 Codex) 맥락도 자동으로 전역 메모리에 쌓입니다.\n\n변경 사항:\n- `cdx` 종료 훅 추가: [cdx.cmd:20](/C:/Project/agent-factory/cdx.cmd:20)  \n  `AGENT_GLOBAL_USER_KEY`가 있으면 세션 브리지를 자동 실행합니다.\n- Codex 세션 브리지 신규: [scripts/codex_session_bridge.py:1](/C:/Project/agent-factory/scripts/codex_session_bridge.py:1)  \n  `~/.codex/sessions/*.jsonl`에서 사용자 발화를 읽어  \n  `projects/global_<user>/data/memory/general/codex_chat`로 저장합니다.\n- Antigravity 파일명 안정화(fallback id): [antigravity_link.py:43](/C:/Project/agent-factory/antigravity_link.py:43)\n\n동작 조건:\n- 아래 둘 중 하나에 `AGENT_GLOBAL_USER_KEY`가 있어야 합니다.\n1. OS 환경변수\n2. 프로젝트 `.env` 파일\n\n검증:\n- `python -m py_compile`로 관련 파이썬 파일 문법 확인 완료.\n- 브리지 스크립트 단독 실행으로 실제 메모리 파일 생성 확인 완료.\n\n원하면 다음으로, 첫 1회 과거 Codex 기록을 더 많이 백필하도록 기본치(`bootstrap-limit`)도 조정해드릴게요.",
+    "event_timestamp": "2026-02-26T14:20:29.188Z",
+    "session_file": "C:/Users/home/.codex/sessions/2026/02/26/rollout-2026-02-26T14-17-53-019c9861-d21e-7892-9d8b-fe2b91c755de.jsonl",
+    "session_line": 721
+  }
 }

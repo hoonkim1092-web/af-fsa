@@ -1,17 +1,17 @@
-{
-  "key": "user 근데 난 너와 대화하고 개발도 하잖아 근데 agent-factory는 단지 하나의 프로젝트일 뿐이고 이걸 밖으로 뺄수 없나 agent factory 폴더가 없어도 codex 와 니가 기억할수 있도록 하려고해",
-  "value": "[user] 근데 난 너와 대화하고 개발도 하잖아 근데 agent-factory는 단지 하나의 프로젝트일 뿐이고 이걸 밖으로 뺄수 없나? agent factory 폴더가 없어도 codex 와 니가 기억할수 있도록 하려고해 지금 이채팅창과 antigravity 에서 대화내용 맥락 등 메모리 동기화를  하고싶어 그래서 아래 내용처럼 구현할까 하는데 한번 읽어보고 리뷰해줘   \"1. 이미 작동 중인 '전역 뇌' (Knowledge Items) 저(Antigrav...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-02-26T15:32:46.148175+00:00",
-  "updated_at": "2026-02-26T15:32:46.148175+00:00",
-  "details": {
-    "text": "[user] 근데 난 너와 대화하고 개발도 하잖아 근데 agent-factory는 단지 하나의 프로젝트일 뿐이고 이걸 밖으로 뺄수 없나? agent factory 폴더가 없어도 codex 와 니가 기억할수 있도록 하려고해 지금 이채팅창과 antigravity 에서 대화내용 맥락 등 메모리 동기화를  하고싶어 그래서 아래 내용처럼 구현할까 하는데 한번 읽어보고 리뷰해줘 \n \"1. 이미 작동 중인 '전역 뇌' (Knowledge Items)\n저(Antigravity)는 이미 프로젝트 폴더와 무관한 전역 기억 시스템을 가지고 있습니다.\n\nKnowledge Items (KI): 제가 사용자님과 나눈 대화 중 중요한 아키텍처나 선호도를 추출하여 제 시스템 내부(<appDataDir>/knowledge)에 저장합니다.\n효과: 사용자님이 새로운 프로젝트(new-project) 폴더를 만들어도, 제가 \"보스, 예전에 agent-factory에서 썼던 그 엄격한 보안 로직을 여기에도 적용할까요?\"라고 먼저 물어볼 수 있는 이유가 바로 이 폴더 밖의 기억 때문입니다.\n2. 에이전트(Codex)의 지능을 프로젝트 밖으로 추출하기\n현재 에이전트들이 폴더(projects/<id>/data/memory)에 종속된 이유는 '동기화의 편의성' 때문입니다. 이를 해결하려면 **'중앙 집중형 메모리 웨어하우스'**로 전환하면 됩니다.\n\n방법: \n\nagent_launcher.py\n와 \n\nsync\n 스크립트가 프로젝트 ID가 아닌 **'사용자 고유 코드(User DNA)'**를 기반으로 Supabase의 단일 테이블(global_brain_sync)을 참조하게 만듭니다.\n결과: 어느 폴더에서 cdx를 실행하든, 에이전트는 \"이 폴더가 어디든 상관없이, 나는 보스의 전체 프로젝트 히스토리를 알고 있다\"는 상태가 됩니다.\n3. '본체(Framework)'에서 '서비스(Service)'로의 전환\n사용례를 '프로젝트 폴더'가 아니라 **'시스템 서비스'**로 승격시키는 방식입니다.\n\nGlobal AppData 사용: 메모리 저장 경로를 프로젝트 폴더 내부가 아니라 Windows의 %APPDATA%/AgentFactory/GlobalMemory로 고정합니다.\n상주형 에이전트: 터미널에서 매번 폴더로 이동할 필요 없이, 어디서든 agt \"작업 실행\" 명령만 내리면 중앙 메모리에서 컨텍스트를 불러와 실행합니다.\n메모리 미러링 서비스: 사용자님이 어느 PC에서 로그인을 하든 자동으로 전역 메모리를 내려받는 백그라운드 서비스를 구동합니다.\"",
-    "event_timestamp": "2026-02-26T11:38:23.164Z",
-    "session_file": "C:/Users/home/.codex/sessions/2026/02/26/rollout-2026-02-26T14-17-53-019c9861-d21e-7892-9d8b-fe2b91c755de.jsonl",
-    "session_line": 6
-  }
+{
+  "key": "user 근데 난 너와 대화하고 개발도 하잖아 근데 agent-factory는 단지 하나의 프로젝트일 뿐이고 이걸 밖으로 뺄수 없나 agent factory 폴더가 없어도 codex 와 니가 기억할수 있도록 하려고해",
+  "value": "[user] 근데 난 너와 대화하고 개발도 하잖아 근데 agent-factory는 단지 하나의 프로젝트일 뿐이고 이걸 밖으로 뺄수 없나? agent factory 폴더가 없어도 codex 와 니가 기억할수 있도록 하려고해 지금 이채팅창과 antigravity 에서 대화내용 맥락 등 메모리 동기화를  하고싶어 그래서 아래 내용처럼 구현할까 하는데 한번 읽어보고 리뷰해줘   \"1. 이미 작동 중인 '전역 뇌' (Knowledge Items) 저(Antigrav...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-02-26T15:32:46.148175+00:00",
+  "updated_at": "2026-02-26T15:32:46.148175+00:00",
+  "details": {
+    "text": "[user] 근데 난 너와 대화하고 개발도 하잖아 근데 agent-factory는 단지 하나의 프로젝트일 뿐이고 이걸 밖으로 뺄수 없나? agent factory 폴더가 없어도 codex 와 니가 기억할수 있도록 하려고해 지금 이채팅창과 antigravity 에서 대화내용 맥락 등 메모리 동기화를  하고싶어 그래서 아래 내용처럼 구현할까 하는데 한번 읽어보고 리뷰해줘 \n \"1. 이미 작동 중인 '전역 뇌' (Knowledge Items)\n저(Antigravity)는 이미 프로젝트 폴더와 무관한 전역 기억 시스템을 가지고 있습니다.\n\nKnowledge Items (KI): 제가 사용자님과 나눈 대화 중 중요한 아키텍처나 선호도를 추출하여 제 시스템 내부(<appDataDir>/knowledge)에 저장합니다.\n효과: 사용자님이 새로운 프로젝트(new-project) 폴더를 만들어도, 제가 \"보스, 예전에 agent-factory에서 썼던 그 엄격한 보안 로직을 여기에도 적용할까요?\"라고 먼저 물어볼 수 있는 이유가 바로 이 폴더 밖의 기억 때문입니다.\n2. 에이전트(Codex)의 지능을 프로젝트 밖으로 추출하기\n현재 에이전트들이 폴더(projects/<id>/data/memory)에 종속된 이유는 '동기화의 편의성' 때문입니다. 이를 해결하려면 **'중앙 집중형 메모리 웨어하우스'**로 전환하면 됩니다.\n\n방법: \n\nagent_launcher.py\n와 \n\nsync\n 스크립트가 프로젝트 ID가 아닌 **'사용자 고유 코드(User DNA)'**를 기반으로 Supabase의 단일 테이블(global_brain_sync)을 참조하게 만듭니다.\n결과: 어느 폴더에서 cdx를 실행하든, 에이전트는 \"이 폴더가 어디든 상관없이, 나는 보스의 전체 프로젝트 히스토리를 알고 있다\"는 상태가 됩니다.\n3. '본체(Framework)'에서 '서비스(Service)'로의 전환\n사용례를 '프로젝트 폴더'가 아니라 **'시스템 서비스'**로 승격시키는 방식입니다.\n\nGlobal AppData 사용: 메모리 저장 경로를 프로젝트 폴더 내부가 아니라 Windows의 %APPDATA%/AgentFactory/GlobalMemory로 고정합니다.\n상주형 에이전트: 터미널에서 매번 폴더로 이동할 필요 없이, 어디서든 agt \"작업 실행\" 명령만 내리면 중앙 메모리에서 컨텍스트를 불러와 실행합니다.\n메모리 미러링 서비스: 사용자님이 어느 PC에서 로그인을 하든 자동으로 전역 메모리를 내려받는 백그라운드 서비스를 구동합니다.\"",
+    "event_timestamp": "2026-02-26T11:38:23.164Z",
+    "session_file": "C:/Users/home/.codex/sessions/2026/02/26/rollout-2026-02-26T14-17-53-019c9861-d21e-7892-9d8b-fe2b91c755de.jsonl",
+    "session_line": 6
+  }
 }

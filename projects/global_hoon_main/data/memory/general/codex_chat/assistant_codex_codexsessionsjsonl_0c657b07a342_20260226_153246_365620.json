@@ -1,17 +1,17 @@
-{
-  "key": "assistant codex 세션 원본codexsessionsjsonl이 확인되어 자동 브리지 구현이 가능합니다 이벤트 포맷을 빠르게 파악해서 종료 시 신규 사용자 발화 요약만 전역 메모리로 적재하는 스크립트를 붙이",
-  "value": "[assistant] `codex` 세션 원본(`~/.codex/sessions/...jsonl`)이 확인되어 자동 브리지 구현이 가능합니다. 이벤트 포맷을 빠르게 파악해서, 종료 시 “신규 사용자 발화 요약만” 전역 메모리로 적재하는 스크립트를 붙이겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-02-26T15:32:46.365821+00:00",
-  "updated_at": "2026-02-26T15:32:46.365821+00:00",
-  "details": {
-    "text": "[assistant] `codex` 세션 원본(`~/.codex/sessions/...jsonl`)이 확인되어 자동 브리지 구현이 가능합니다. 이벤트 포맷을 빠르게 파악해서, 종료 시 “신규 사용자 발화 요약만” 전역 메모리로 적재하는 스크립트를 붙이겠습니다.",
-    "event_timestamp": "2026-02-26T14:14:00.075Z",
-    "session_file": "C:/Users/home/.codex/sessions/2026/02/26/rollout-2026-02-26T14-17-53-019c9861-d21e-7892-9d8b-fe2b91c755de.jsonl",
-    "session_line": 553
-  }
+{
+  "key": "assistant codex 세션 원본codexsessionsjsonl이 확인되어 자동 브리지 구현이 가능합니다 이벤트 포맷을 빠르게 파악해서 종료 시 신규 사용자 발화 요약만 전역 메모리로 적재하는 스크립트를 붙이",
+  "value": "[assistant] `codex` 세션 원본(`~/.codex/sessions/...jsonl`)이 확인되어 자동 브리지 구현이 가능합니다. 이벤트 포맷을 빠르게 파악해서, 종료 시 “신규 사용자 발화 요약만” 전역 메모리로 적재하는 스크립트를 붙이겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-02-26T15:32:46.365821+00:00",
+  "updated_at": "2026-02-26T15:32:46.365821+00:00",
+  "details": {
+    "text": "[assistant] `codex` 세션 원본(`~/.codex/sessions/...jsonl`)이 확인되어 자동 브리지 구현이 가능합니다. 이벤트 포맷을 빠르게 파악해서, 종료 시 “신규 사용자 발화 요약만” 전역 메모리로 적재하는 스크립트를 붙이겠습니다.",
+    "event_timestamp": "2026-02-26T14:14:00.075Z",
+    "session_file": "C:/Users/home/.codex/sessions/2026/02/26/rollout-2026-02-26T14-17-53-019c9861-d21e-7892-9d8b-fe2b91c755de.jsonl",
+    "session_line": 553
+  }
 }

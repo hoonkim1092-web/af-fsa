@@ -37,7 +37,8 @@ def parse_mentions(text: str) -> List[str]:
 def decompose_roles(project_description: str, model_name: str | None = None) -> List[str]:
     if model_name is None:
         from model_utils import resolve_dynamic_model
-        model_name = resolve_dynamic_model("research_pro")
+        sel = resolve_dynamic_model("research_pro")
+        model_name = sel.model
     llm = LLMEngine(model_name=model_name)
     prompt = f"""
 You are Lilith, a PM orchestrator for a multi-agent factory.
@@ -225,11 +226,9 @@ def main():
             print_message("System", f"⚠️ Complex Intent ({intent}) detected. Enforcing Todo-Enforced Planning workflow.")
             enforce_todo = True
         else:
-            print_message("Wizard", "작업 강제 완수 (Enforce): 에이전트가 도중에 질문하지 않고 자율적으로 끝까지 완수하도록 할까요? (기본:Y) [Y/N]")
-            ans = input("[System] Y/N: ").strip().upper()
-            if ans != 'N':
-                enforce_todo = True
-                print_message("System", "🛡️ Todo Continuation Enforcer 활성화: 핑퐁 멈춤 방지.")
+            # [AUTO-APPROVED]
+            enforce_todo = True
+            print_message("System", "🛡️ Todo Continuation Enforcer 자동 활성화 (Non-Interactive).")
 
     if not roles:
         print_message("Lilith", "No explicit roles given. Decomposing roles with LLM.")

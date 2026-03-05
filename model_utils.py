@@ -210,7 +210,6 @@ def find_latest_model(tag: str, available_models: list) -> str:
         # 하드코딩 제거: 패턴에서 동적으로 기본 별칭을 추출 (예: 'gemini-*-flash' → 'gemini-flash')
         return tag.replace("-*", "").replace("*", "")
         
-    # 버전을 최우선 정렬 조건으로, 그 다음 실험/프리뷰 여부(priority)를 두어 가장 최신을 추출
     matches.sort(key=lambda x: (x["version"], x["priority"]), reverse=True)
     return matches[0]["name"]
 

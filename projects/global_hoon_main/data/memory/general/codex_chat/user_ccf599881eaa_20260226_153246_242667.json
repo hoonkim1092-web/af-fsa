@@ -1,17 +1,17 @@
-{
-  "key": "user 진행해보자",
-  "value": "[user] 진행해보자",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-02-26T15:32:46.242765+00:00",
-  "updated_at": "2026-02-26T15:32:46.242765+00:00",
-  "details": {
-    "text": "[user] 진행해보자",
-    "event_timestamp": "2026-02-26T13:56:36.586Z",
-    "session_file": "C:/Users/home/.codex/sessions/2026/02/26/rollout-2026-02-26T14-17-53-019c9861-d21e-7892-9d8b-fe2b91c755de.jsonl",
-    "session_line": 167
-  }
+{
+  "key": "user 진행해보자",
+  "value": "[user] 진행해보자",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-02-26T15:32:46.242765+00:00",
+  "updated_at": "2026-02-26T15:32:46.242765+00:00",
+  "details": {
+    "text": "[user] 진행해보자",
+    "event_timestamp": "2026-02-26T13:56:36.586Z",
+    "session_file": "C:/Users/home/.codex/sessions/2026/02/26/rollout-2026-02-26T14-17-53-019c9861-d21e-7892-9d8b-fe2b91c755de.jsonl",
+    "session_line": 167
+  }
 }

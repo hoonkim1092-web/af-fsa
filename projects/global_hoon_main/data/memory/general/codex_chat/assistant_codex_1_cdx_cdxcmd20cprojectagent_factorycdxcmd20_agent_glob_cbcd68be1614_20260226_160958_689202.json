@@ -1,17 +1,17 @@
-{
-  "key": "assistant 적용 완료했습니다 이제 이 터미널 Codex 대화도 자동 저장됩니다1 cdx 종료 시 브릿지 자동 실행  cdxcmd20CProjectagent-factorycdxcmd20  - AGENT_GLOB",
-  "value": "[assistant] 적용 완료했습니다. 이제 이 터미널 Codex 대화도 자동 저장됩니다.  1. `cdx` 종료 시 브릿지 자동 실행   [cdx.cmd:20](C:\\Project\\agent-factory\\cdx.cmd:20)   - `AGENT_GLOBAL_USER_KEY` 유무와 무관하게 `codex_session_bridge.py`를 항상 호출하도록 변경했습니다.  2. Codex 채팅 미러링 확장   [scripts/codex_session_br...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-02-26T16:09:58.689785+00:00",
-  "updated_at": "2026-02-26T16:09:58.689785+00:00",
-  "details": {
-    "text": "[assistant] 적용 완료했습니다. 이제 이 터미널 Codex 대화도 자동 저장됩니다.\n\n1. `cdx` 종료 시 브릿지 자동 실행  \n[cdx.cmd:20](C:\\Project\\agent-factory\\cdx.cmd:20)  \n- `AGENT_GLOBAL_USER_KEY` 유무와 무관하게 `codex_session_bridge.py`를 항상 호출하도록 변경했습니다.\n\n2. Codex 채팅 미러링 확장  \n[scripts/codex_session_bridge.py:111](C:\\Project\\agent-factory\\scripts\\codex_session_bridge.py:111)  \n- 사용자 메시지 + 어시스턴트 메시지 둘 다 저장.  \n- JSONL 첫 줄 BOM 제거 처리 추가.  \n- 키 로드 우선순위: 프로세스 env → `.env` → Windows 사용자 env(registry).  \n- 저장 위치: `projects/global_<key>/data/memory/general/codex_chat`.\n\n3. `end_db` 전역 동기화 키 인식 보강  \n[scripts/sync_easy.ps1:83](C:\\Project\\agent-factory\\scripts\\sync_easy.ps1:83)  \n- PowerShell 환경변수에 키가 없어도 `.env`의 `AGENT_GLOBAL_USER_KEY`를 읽어 전역 sync를 수행하게 했습니다.\n\n4. 키 설정 반영  \n[.env:6](C:\\Project\\agent-factory\\.env:6)  \n- `AGENT_GLOBAL_USER_KEY=hoon_main` 추가했습니다.\n\n검증 결과  \n- 브릿지 실행 성공: `written: 120` (전역 메모리로 적재 확인).  \n- 파이썬 컴파일 체크 통과.\n\n주의  \n- 브릿지 파일은 현재 git 기준 신규 파일 상태입니다: `scripts/codex_session_bridge.py` (untracked).  \n- 저장 트리거는 `cdx` 실행 경로입니다. `codex`를 직접 치면 브릿지가 안 붙습니다.",
-    "event_timestamp": "2026-02-26T15:34:55.363Z",
-    "session_file": "C:/Users/home/.codex/sessions/2026/02/26/rollout-2026-02-26T14-17-53-019c9861-d21e-7892-9d8b-fe2b91c755de.jsonl",
-    "session_line": 1605
-  }
+{
+  "key": "assistant 적용 완료했습니다 이제 이 터미널 Codex 대화도 자동 저장됩니다1 cdx 종료 시 브릿지 자동 실행  cdxcmd20CProjectagent-factorycdxcmd20  - AGENT_GLOB",
+  "value": "[assistant] 적용 완료했습니다. 이제 이 터미널 Codex 대화도 자동 저장됩니다.  1. `cdx` 종료 시 브릿지 자동 실행   [cdx.cmd:20](C:\\Project\\agent-factory\\cdx.cmd:20)   - `AGENT_GLOBAL_USER_KEY` 유무와 무관하게 `codex_session_bridge.py`를 항상 호출하도록 변경했습니다.  2. Codex 채팅 미러링 확장   [scripts/codex_session_br...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-02-26T16:09:58.689785+00:00",
+  "updated_at": "2026-02-26T16:09:58.689785+00:00",
+  "details": {
+    "text": "[assistant] 적용 완료했습니다. 이제 이 터미널 Codex 대화도 자동 저장됩니다.\n\n1. `cdx` 종료 시 브릿지 자동 실행  \n[cdx.cmd:20](C:\\Project\\agent-factory\\cdx.cmd:20)  \n- `AGENT_GLOBAL_USER_KEY` 유무와 무관하게 `codex_session_bridge.py`를 항상 호출하도록 변경했습니다.\n\n2. Codex 채팅 미러링 확장  \n[scripts/codex_session_bridge.py:111](C:\\Project\\agent-factory\\scripts\\codex_session_bridge.py:111)  \n- 사용자 메시지 + 어시스턴트 메시지 둘 다 저장.  \n- JSONL 첫 줄 BOM 제거 처리 추가.  \n- 키 로드 우선순위: 프로세스 env → `.env` → Windows 사용자 env(registry).  \n- 저장 위치: `projects/global_<key>/data/memory/general/codex_chat`.\n\n3. `end_db` 전역 동기화 키 인식 보강  \n[scripts/sync_easy.ps1:83](C:\\Project\\agent-factory\\scripts\\sync_easy.ps1:83)  \n- PowerShell 환경변수에 키가 없어도 `.env`의 `AGENT_GLOBAL_USER_KEY`를 읽어 전역 sync를 수행하게 했습니다.\n\n4. 키 설정 반영  \n[.env:6](C:\\Project\\agent-factory\\.env:6)  \n- `AGENT_GLOBAL_USER_KEY=hoon_main` 추가했습니다.\n\n검증 결과  \n- 브릿지 실행 성공: `written: 120` (전역 메모리로 적재 확인).  \n- 파이썬 컴파일 체크 통과.\n\n주의  \n- 브릿지 파일은 현재 git 기준 신규 파일 상태입니다: `scripts/codex_session_bridge.py` (untracked).  \n- 저장 트리거는 `cdx` 실행 경로입니다. `codex`를 직접 치면 브릿지가 안 붙습니다.",
+    "event_timestamp": "2026-02-26T15:34:55.363Z",
+    "session_file": "C:/Users/home/.codex/sessions/2026/02/26/rollout-2026-02-26T14-17-53-019c9861-d21e-7892-9d8b-fe2b91c755de.jsonl",
+    "session_line": 1605
+  }
 }

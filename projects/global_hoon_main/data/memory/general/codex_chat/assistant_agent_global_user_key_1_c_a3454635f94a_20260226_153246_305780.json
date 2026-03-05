@@ -1,17 +1,17 @@
-{
-  "key": "assistant 요청한 방향으로 코드 반영했습니다 이제 AGENT_GLOBAL_USER_KEY만 설정하면 프로젝트를 바꿔도 전역 메모리 컨텍스트를 이어서 쓰도록 동작합니다적용 내용1 전역 프로필경로 고정 추가  c",
-  "value": "[assistant] 요청한 방향으로 코드 반영했습니다. 이제 `AGENT_GLOBAL_USER_KEY`만 설정하면 프로젝트를 바꿔도 전역 메모리 컨텍스트를 이어서 쓰도록 동작합니다.  **적용 내용** 1. 전역 프로필/경로 고정 추가   [core/config_paths.py:42](/C:/Project/agent-factory/core/config_paths.py:42)   `GLOBAL_USER_KEY`, `GLOBAL_PROJECT_ROOT`, `...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-02-26T15:32:46.306572+00:00",
-  "updated_at": "2026-02-26T15:32:46.306572+00:00",
-  "details": {
-    "text": "[assistant] 요청한 방향으로 코드 반영했습니다. 이제 `AGENT_GLOBAL_USER_KEY`만 설정하면 프로젝트를 바꿔도 전역 메모리 컨텍스트를 이어서 쓰도록 동작합니다.\n\n**적용 내용**\n1. 전역 프로필/경로 고정 추가  \n[core/config_paths.py:42](/C:/Project/agent-factory/core/config_paths.py:42)  \n`GLOBAL_USER_KEY`, `GLOBAL_PROJECT_ROOT`, `GLOBAL_DATA_DIR`, `GLOBAL_MEMORY_DIR`를 도입했습니다.\n\n2. 계층형 메모리(`local -> global`) 적용  \n[skills/core_memory/skill.py:25](/C:/Project/agent-factory/skills/core_memory/skill.py:25)  \n`store`는 기본 local, `scope=\"global\"` 허용.  \n`retrieve/search`는 기본 `hybrid`로 local 우선 후 global 조회합니다.\n\n3. 전역 동기화 스코프 추가 (`--scope global --user-key`)  \n[scripts/project_context_sync.py:475](/C:/Project/agent-factory/scripts/project_context_sync.py:475)  \n전역 키를 `user:{user_key}` 형태로 사용하고, global snapshot 수집/복원을 추가했습니다.  \n전역 루트 해석은 [scripts/project_context_sync.py:130](/C:/Project/agent-factory/scripts/project_context_sync.py:130), global payload 수집은 [scripts/project_context_sync.py:380](/C:/Project/agent-factory/scripts/project_context_sync.py:380) 입니다.\n\n4. `start_db`/`sync ... db ...` 시 전역 sync 자동 포함  \n[scripts/sync_easy.ps1:82](/C:/Project/agent-factory/scripts/sync_easy.ps1:82)  \n`AGENT_GLOBAL_USER_KEY`가 있으면 프로젝트 sync 후 global sync를 추가로 실행합니다.\n\n5. 에이전트 시작 전 Global Context Briefing 주입  \n[core/agent_runner.py:103](/C:/Project/agent-factory/core/agent_runner.py:103), [core/agent_runner.py:500](/C:/Project/agent-factory/core/agent_runner.py:500)  \n글로벌 메모리 최신 항목 최대 10개를 시스템 프롬프트에 `[Global Context Briefing]`으로 넣고, 충돌 시 로컬 우선 규칙을 명시했습니다.  \n또한 스킬 ctx에 global 경로를 주입합니다([core/agent_runner.py:437](/C:/Project/agent-factory/core/agent_runner.py:437)).\n\n**검증**\n- `python -m py_compile core\\config_paths.py core\\agent_runner.py skills\\core_memory\\skill.py scripts\\project_context_sync.py` 통과.\n- `core_memory` 로컬/글로벌 store/retrieve/search 스모크 확인.\n- `project_context_sync.py --scope global`은 이 실행 환경 네트워크 제한으로 실제 Supabase 호출은 실패(`WinError 10013`)했지만, 파라미터/분기 로직은 동작 확인했습니다.\n\n**사용 방법**\n1. 환경변수 설정  \n`AGENT_GLOBAL_USER_KEY=<당신의_고정키>`\n2. 평소처럼 `start_db` 또는 `start_sync` 실행  \n3. 필요 시 수동 전역 동기화  \n`python scripts\\project_context_sync.py --mode pull --scope global --user-key <키>`\n\n**주의**\n- Antigravity 대화 내역이 자동으로 글로벌 메모리에 들어오려면, Antigravity 쪽에서 이 글로벌 메모리/동기화 경로로 write하는 브리지 추가가 아직 필요합니다.",
-    "event_timestamp": "2026-02-26T14:05:41.417Z",
-    "session_file": "C:/Users/home/.codex/sessions/2026/02/26/rollout-2026-02-26T14-17-53-019c9861-d21e-7892-9d8b-fe2b91c755de.jsonl",
-    "session_line": 409
-  }
+{
+  "key": "assistant 요청한 방향으로 코드 반영했습니다 이제 AGENT_GLOBAL_USER_KEY만 설정하면 프로젝트를 바꿔도 전역 메모리 컨텍스트를 이어서 쓰도록 동작합니다적용 내용1 전역 프로필경로 고정 추가  c",
+  "value": "[assistant] 요청한 방향으로 코드 반영했습니다. 이제 `AGENT_GLOBAL_USER_KEY`만 설정하면 프로젝트를 바꿔도 전역 메모리 컨텍스트를 이어서 쓰도록 동작합니다.  **적용 내용** 1. 전역 프로필/경로 고정 추가   [core/config_paths.py:42](/C:/Project/agent-factory/core/config_paths.py:42)   `GLOBAL_USER_KEY`, `GLOBAL_PROJECT_ROOT`, `...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-02-26T15:32:46.306572+00:00",
+  "updated_at": "2026-02-26T15:32:46.306572+00:00",
+  "details": {
+    "text": "[assistant] 요청한 방향으로 코드 반영했습니다. 이제 `AGENT_GLOBAL_USER_KEY`만 설정하면 프로젝트를 바꿔도 전역 메모리 컨텍스트를 이어서 쓰도록 동작합니다.\n\n**적용 내용**\n1. 전역 프로필/경로 고정 추가  \n[core/config_paths.py:42](/C:/Project/agent-factory/core/config_paths.py:42)  \n`GLOBAL_USER_KEY`, `GLOBAL_PROJECT_ROOT`, `GLOBAL_DATA_DIR`, `GLOBAL_MEMORY_DIR`를 도입했습니다.\n\n2. 계층형 메모리(`local -> global`) 적용  \n[skills/core_memory/skill.py:25](/C:/Project/agent-factory/skills/core_memory/skill.py:25)  \n`store`는 기본 local, `scope=\"global\"` 허용.  \n`retrieve/search`는 기본 `hybrid`로 local 우선 후 global 조회합니다.\n\n3. 전역 동기화 스코프 추가 (`--scope global --user-key`)  \n[scripts/project_context_sync.py:475](/C:/Project/agent-factory/scripts/project_context_sync.py:475)  \n전역 키를 `user:{user_key}` 형태로 사용하고, global snapshot 수집/복원을 추가했습니다.  \n전역 루트 해석은 [scripts/project_context_sync.py:130](/C:/Project/agent-factory/scripts/project_context_sync.py:130), global payload 수집은 [scripts/project_context_sync.py:380](/C:/Project/agent-factory/scripts/project_context_sync.py:380) 입니다.\n\n4. `start_db`/`sync ... db ...` 시 전역 sync 자동 포함  \n[scripts/sync_easy.ps1:82](/C:/Project/agent-factory/scripts/sync_easy.ps1:82)  \n`AGENT_GLOBAL_USER_KEY`가 있으면 프로젝트 sync 후 global sync를 추가로 실행합니다.\n\n5. 에이전트 시작 전 Global Context Briefing 주입  \n[core/agent_runner.py:103](/C:/Project/agent-factory/core/agent_runner.py:103), [core/agent_runner.py:500](/C:/Project/agent-factory/core/agent_runner.py:500)  \n글로벌 메모리 최신 항목 최대 10개를 시스템 프롬프트에 `[Global Context Briefing]`으로 넣고, 충돌 시 로컬 우선 규칙을 명시했습니다.  \n또한 스킬 ctx에 global 경로를 주입합니다([core/agent_runner.py:437](/C:/Project/agent-factory/core/agent_runner.py:437)).\n\n**검증**\n- `python -m py_compile core\\config_paths.py core\\agent_runner.py skills\\core_memory\\skill.py scripts\\project_context_sync.py` 통과.\n- `core_memory` 로컬/글로벌 store/retrieve/search 스모크 확인.\n- `project_context_sync.py --scope global`은 이 실행 환경 네트워크 제한으로 실제 Supabase 호출은 실패(`WinError 10013`)했지만, 파라미터/분기 로직은 동작 확인했습니다.\n\n**사용 방법**\n1. 환경변수 설정  \n`AGENT_GLOBAL_USER_KEY=<당신의_고정키>`\n2. 평소처럼 `start_db` 또는 `start_sync` 실행  \n3. 필요 시 수동 전역 동기화  \n`python scripts\\project_context_sync.py --mode pull --scope global --user-key <키>`\n\n**주의**\n- Antigravity 대화 내역이 자동으로 글로벌 메모리에 들어오려면, Antigravity 쪽에서 이 글로벌 메모리/동기화 경로로 write하는 브리지 추가가 아직 필요합니다.",
+    "event_timestamp": "2026-02-26T14:05:41.417Z",
+    "session_file": "C:/Users/home/.codex/sessions/2026/02/26/rollout-2026-02-26T14-17-53-019c9861-d21e-7892-9d8b-fe2b91c755de.jsonl",
+    "session_line": 409
+  }
 }

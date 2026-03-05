@@ -1,17 +1,17 @@
-{
-  "key": "assistant 네 현재 구조에선 맞습니다- 각 PC에 agent-factory 코드가 있어야 브리지동기화 스크립트가 동작합니다- 대신 위치경로는 달라도 됩니다- 공통으로 필요한 건1 같은 AGENT_GLOBAL_",
-  "value": "[assistant] 네, 현재 구조에선 맞습니다.  - 각 PC에 `agent-factory` 코드가 있어야 브리지/동기화 스크립트가 동작합니다. - 대신 위치(경로)는 달라도 됩니다. - 공통으로 필요한 건: 1. 같은 `AGENT_GLOBAL_USER_KEY` 2. 같은 Supabase 설정 3. 최신 코드 pull (`agent-factory`) 후 사용  즉 “폴더 위치 통일”은 불필요하고, “코드 버전 통일(pull)”은 필요합니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-02-26T15:32:46.620790+00:00",
-  "updated_at": "2026-02-26T15:32:46.620790+00:00",
-  "details": {
-    "text": "[assistant] 네, 현재 구조에선 맞습니다.\n\n- 각 PC에 `agent-factory` 코드가 있어야 브리지/동기화 스크립트가 동작합니다.\n- 대신 위치(경로)는 달라도 됩니다.\n- 공통으로 필요한 건:\n1. 같은 `AGENT_GLOBAL_USER_KEY`\n2. 같은 Supabase 설정\n3. 최신 코드 pull (`agent-factory`) 후 사용\n\n즉 “폴더 위치 통일”은 불필요하고, “코드 버전 통일(pull)”은 필요합니다.",
-    "event_timestamp": "2026-02-26T14:43:59.051Z",
-    "session_file": "C:/Users/home/.codex/sessions/2026/02/26/rollout-2026-02-26T14-17-53-019c9861-d21e-7892-9d8b-fe2b91c755de.jsonl",
-    "session_line": 965
-  }
+{
+  "key": "assistant 네 현재 구조에선 맞습니다- 각 PC에 agent-factory 코드가 있어야 브리지동기화 스크립트가 동작합니다- 대신 위치경로는 달라도 됩니다- 공통으로 필요한 건1 같은 AGENT_GLOBAL_",
+  "value": "[assistant] 네, 현재 구조에선 맞습니다.  - 각 PC에 `agent-factory` 코드가 있어야 브리지/동기화 스크립트가 동작합니다. - 대신 위치(경로)는 달라도 됩니다. - 공통으로 필요한 건: 1. 같은 `AGENT_GLOBAL_USER_KEY` 2. 같은 Supabase 설정 3. 최신 코드 pull (`agent-factory`) 후 사용  즉 “폴더 위치 통일”은 불필요하고, “코드 버전 통일(pull)”은 필요합니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-02-26T15:32:46.620790+00:00",
+  "updated_at": "2026-02-26T15:32:46.620790+00:00",
+  "details": {
+    "text": "[assistant] 네, 현재 구조에선 맞습니다.\n\n- 각 PC에 `agent-factory` 코드가 있어야 브리지/동기화 스크립트가 동작합니다.\n- 대신 위치(경로)는 달라도 됩니다.\n- 공통으로 필요한 건:\n1. 같은 `AGENT_GLOBAL_USER_KEY`\n2. 같은 Supabase 설정\n3. 최신 코드 pull (`agent-factory`) 후 사용\n\n즉 “폴더 위치 통일”은 불필요하고, “코드 버전 통일(pull)”은 필요합니다.",
+    "event_timestamp": "2026-02-26T14:43:59.051Z",
+    "session_file": "C:/Users/home/.codex/sessions/2026/02/26/rollout-2026-02-26T14-17-53-019c9861-d21e-7892-9d8b-fe2b91c755de.jsonl",
+    "session_line": 965
+  }
 }

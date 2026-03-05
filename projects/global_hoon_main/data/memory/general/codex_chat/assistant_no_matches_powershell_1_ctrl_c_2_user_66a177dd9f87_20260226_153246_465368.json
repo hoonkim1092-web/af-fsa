@@ -1,17 +1,17 @@
-{
-  "key": "assistant 맞습니다 지금 에러는 no matches 같은 텍스트가 같이 입력돼서 난 겁니다아래만 그대로 실행하세요powershell 1 프롬프트 꼬임 해제 필요하면 Ctrl  C 한 번 2 영구 저장User ",
-  "value": "[assistant] 맞습니다. 지금 에러는 `>>`/`no matches` 같은 텍스트가 같이 입력돼서 난 겁니다.  아래만 그대로 실행하세요:  ```powershell # 1) 프롬프트 꼬임 해제 # (필요하면 Ctrl + C 한 번)  # 2) 영구 저장(User 환경변수) [Environment]::SetEnvironmentVariable(\"AGENT_GLOBAL_USER_KEY\",\"hoon_main\",\"User\")  # 3) 현재 창에도 즉시 반...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-02-26T15:32:46.465645+00:00",
-  "updated_at": "2026-02-26T15:32:46.465645+00:00",
-  "details": {
-    "text": "[assistant] 맞습니다. 지금 에러는 `>>`/`no matches` 같은 텍스트가 같이 입력돼서 난 겁니다.\n\n아래만 그대로 실행하세요:\n\n```powershell\n# 1) 프롬프트 꼬임 해제\n# (필요하면 Ctrl + C 한 번)\n\n# 2) 영구 저장(User 환경변수)\n[Environment]::SetEnvironmentVariable(\"AGENT_GLOBAL_USER_KEY\",\"hoon_main\",\"User\")\n\n# 3) 현재 창에도 즉시 반영\n$env:AGENT_GLOBAL_USER_KEY = \"hoon_main\"\n\n# 4) 확인\n$env:AGENT_GLOBAL_USER_KEY\n[Environment]::GetEnvironmentVariable(\"AGENT_GLOBAL_USER_KEY\",\"User\")\n```\n\n둘 다 `hoon_main` 나오면 정상입니다.",
-    "event_timestamp": "2026-02-26T14:28:34.166Z",
-    "session_file": "C:/Users/home/.codex/sessions/2026/02/26/rollout-2026-02-26T14-17-53-019c9861-d21e-7892-9d8b-fe2b91c755de.jsonl",
-    "session_line": 803
-  }
+{
+  "key": "assistant 맞습니다 지금 에러는 no matches 같은 텍스트가 같이 입력돼서 난 겁니다아래만 그대로 실행하세요powershell 1 프롬프트 꼬임 해제 필요하면 Ctrl  C 한 번 2 영구 저장User ",
+  "value": "[assistant] 맞습니다. 지금 에러는 `>>`/`no matches` 같은 텍스트가 같이 입력돼서 난 겁니다.  아래만 그대로 실행하세요:  ```powershell # 1) 프롬프트 꼬임 해제 # (필요하면 Ctrl + C 한 번)  # 2) 영구 저장(User 환경변수) [Environment]::SetEnvironmentVariable(\"AGENT_GLOBAL_USER_KEY\",\"hoon_main\",\"User\")  # 3) 현재 창에도 즉시 반...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-02-26T15:32:46.465645+00:00",
+  "updated_at": "2026-02-26T15:32:46.465645+00:00",
+  "details": {
+    "text": "[assistant] 맞습니다. 지금 에러는 `>>`/`no matches` 같은 텍스트가 같이 입력돼서 난 겁니다.\n\n아래만 그대로 실행하세요:\n\n```powershell\n# 1) 프롬프트 꼬임 해제\n# (필요하면 Ctrl + C 한 번)\n\n# 2) 영구 저장(User 환경변수)\n[Environment]::SetEnvironmentVariable(\"AGENT_GLOBAL_USER_KEY\",\"hoon_main\",\"User\")\n\n# 3) 현재 창에도 즉시 반영\n$env:AGENT_GLOBAL_USER_KEY = \"hoon_main\"\n\n# 4) 확인\n$env:AGENT_GLOBAL_USER_KEY\n[Environment]::GetEnvironmentVariable(\"AGENT_GLOBAL_USER_KEY\",\"User\")\n```\n\n둘 다 `hoon_main` 나오면 정상입니다.",
+    "event_timestamp": "2026-02-26T14:28:34.166Z",
+    "session_file": "C:/Users/home/.codex/sessions/2026/02/26/rollout-2026-02-26T14-17-53-019c9861-d21e-7892-9d8b-fe2b91c755de.jsonl",
+    "session_line": 803
+  }
 }

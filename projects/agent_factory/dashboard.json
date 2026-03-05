@@ -126,6 +126,20 @@
       ],
       "ok": true,
       "state_path": "D:\\agent-factory\\projects\\agent_factory\\runs\\wf_1772276243\\state.json"
+    },
+    {
+      "ts": "2026-03-05T02:09:29",
+      "type": "single_run",
+      "project_id": "agent_factory",
+      "role": "General",
+      "task": "track issues",
+      "skills_loaded": [],
+      "ok": false,
+      "reason": "",
+      "latency_ms": 0,
+      "approval_rejects": 0,
+      "build_enabled": true,
+      "missing_skills_detected": []
     }
   ]
 }
