@@ -128,7 +128,7 @@ class LLMEngine:
         self._client = genai.Client(api_key=key) if key else None
 
     def _execute_with_retry(self, prompt: str) -> str | None:
-        max_retries = len(_gemini_keys) if _gemini_keys else 1
+        max_retries = (len(_gemini_keys) if _gemini_keys else 1) * 3
         for attempt in range(max_retries):
             try:
                 if self._client is None:
@@ -146,10 +146,19 @@ class LLMEngine:
                         print(f"🔄 [Load Balancer] Rate limit. Switching key {attempt+1}/{max_retries}...")
                         get_next_gemini_key()
                         self.init_model_with_current_key()
-                        time.sleep(1)
+                        time.sleep(2)
                         continue
-                print(f"[LLMEngine Error] {e}")
-                return None
+                    else:
+                        print(f"🔄 [API] Rate limit hit. Retrying in 5s... ({attempt+1}/{max_retries})")
+                        time.sleep(5)
+                        continue
+                elif "503" in err_str or "unavailable" in err_str or "500" in err_str:
+                    print(f"🔄 [API] 503/500 Server Error. Retrying in 5s... ({attempt+1}/{max_retries})")
+                    time.sleep(5)
+                    continue
+                else:
+                    print(f"[LLMEngine Error] {e}")
+                    return None
         return None
 
     def generate(self, prompt: str) -> str:

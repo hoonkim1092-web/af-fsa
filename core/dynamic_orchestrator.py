@@ -106,13 +106,18 @@ class DynamicOrchestrator:
                 
             if not tasks:
                 print_agent_msg("Lilith", f"[Debug] Raw response returned empty tasks. Raw data: {response_text}", "🔍")
+                # [Stability FIX] If data is null or tasks are truly empty despite available roles,
+                # return a placeholder to keep the loop alive during API 503 spikes.
+                if not data or not tasks:
+                    print_agent_msg("Lilith", "LLM response empty (possible API Overload). Retrying next cycle...", "⚠️")
+                    return [{"assigned_role": "__placeholder__", "subtask_instruction": "retry"}]
             else:
                 print_agent_msg("Lilith", f"[Debug] LLM returned tasks: {tasks}. Available roles: {available_roles}", "🔍")
                 
             return [t for t in tasks if t.get("assigned_role") in available_roles]
         except Exception as e:
-            print_agent_msg("Lilith", f"Failed to dynamically generate next tasks: {e}", "")
-            return []
+            print_agent_msg("Lilith", f"Failed to dynamically generate next tasks: {e}", "🚨")
+            return [{"assigned_role": "__placeholder__", "subtask_instruction": "error_retry"}]
 
     async def _execute_agent_task(self, role: str, subtask: str, run_id: str, workspace: str | None = None):
         """Wrapper to execute a task via AgentRunner asynchronously."""
@@ -217,6 +222,10 @@ class DynamicOrchestrator:
             for t in new_tasks:
                 role = t.get("assigned_role")
                 instruction = t.get("subtask_instruction", "")
+                
+                # [Stability FIX] Handle __placeholder__ to keep cycle moving without erroring on role lookup
+                if role == "__placeholder__":
+                    continue
                 
                 if role and instruction and role in roles and self.state_board["agents_status"].get(role) == "idle":
                     task_id = f"run_{int(time.time())}_{role}"
