@@ -2,7 +2,8 @@ import os
 import json
 import subprocess
 import sys
-from google import genai  # [New SDK]
+from google import genai
+from model_utils import normalize_model_name, generate_content_with_self_heal
 from core.utils import (
     safe_id, read_yaml, write_yaml, now_iso, get_random_signature,
     print_agent_msg, safe_json_load, resolve_skill_paths, resolve_existing_path
@@ -129,7 +130,7 @@ class HimariResearchAgent:
         if not _api_key:
             print("⚠️ [Himari] GOOGLE_API_KEY 없음 — LLM 리서치를 건너뛰고 fallback 매칭만 수행합니다.")
         _client = genai.Client(api_key=_api_key) if _api_key else None
-        _model_name = self.mr.pick("requirement")
+        _model_name = normalize_model_name(self.mr.pick("requirement"))
         prompt = f"""
 너는 리서치 에이전트 Himari다.
 목표: missing_skills에 대해 설치 가능한 로컬 스킬 후보를 추천한다.
@@ -154,7 +155,7 @@ LocalSkillCatalog(JSON): {json.dumps(skill_catalog, ensure_ascii=False)}
         from core.utils import safe_generate
         suggestions: dict[str, list[str]] = {}
         try:
-            res = _client.models.generate_content(model=_model_name, contents=prompt) if _client else None
+            res = generate_content_with_self_heal(_client, _model_name, prompt) if _client else None
             payload = safe_json_load(res.text if res else "{}")
             raw = payload.get("suggestions", {}) if isinstance(payload, dict) else {}
             if isinstance(raw, dict):

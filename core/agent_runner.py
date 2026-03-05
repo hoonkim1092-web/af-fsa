@@ -23,7 +23,15 @@ from core.registry import ToolRegistry
 from core.tool_runtime import ToolRuntimeWrapper
 from core.policy_runtime import PolicyRuntime
 from core.hooks.event_bus import HookEventBus, IntentGateHook, TodoContinuationEnforcer, ToolOutputTruncator
-from model_utils import get_best_model, print_agent_model_summary, resolve_dynamic_model, _infer_engine_id
+from model_utils import (
+    get_best_model,
+    print_agent_model_summary,
+    resolve_dynamic_model,
+    _infer_engine_id,
+    normalize_model_name,
+    generate_content_with_self_heal,
+    create_chat_with_self_heal,
+)
 from google import genai
 from google.genai import types as genai_types
 
@@ -660,9 +668,10 @@ class AgentRunner:
                     "참고: 프론트엔드 관련 작업은 품질이 중요하므로 대부분 'complex'를 요구합니다.\n"
                     "대답은 부연 설명 없이 오직 'complex' 또는 'simple' 단어 하나만 하시오."
                 )
-                resp = client.models.generate_content(
-                    model="gemini-1.5-flash",
-                    contents=prompt
+                resp = generate_content_with_self_heal(
+                    client,
+                    normalize_model_name("gemini-1.5-flash"),
+                    prompt,
                 )
                 ans = resp.text.strip().lower()
                 is_complex = "complex" in ans
@@ -686,7 +695,7 @@ class AgentRunner:
             return result
         
         from model_utils import get_dynamic_default_model
-        model_name = agent.get("preferred_model") or self.mr.pick("chat", agent_config=agent, is_complex=is_complex) or get_dynamic_default_model("flash")
+        model_name = normalize_model_name(agent.get("preferred_model") or self.mr.pick("chat", agent_config=agent, is_complex=is_complex) or get_dynamic_default_model("flash"))
         
         # System Prompt construction
         sys_prompt = self._resolve_system_prompt(agent)
@@ -735,12 +744,13 @@ class AgentRunner:
             _flush_trace(result)
             return result
 
-        gemini_model = model_name if not (is_codex_model(model_name) or is_claude_model(model_name)) else get_best_model(["gemini-2.5-flash", "gemini-2.5-pro"])
+        gemini_model = normalize_model_name(model_name if not (is_codex_model(model_name) or is_claude_model(model_name)) else get_best_model(["gemini-2.5-flash", "gemini-2.5-pro"]))
         try:
             # [신규 SDK] genai.Client 기반 채팅 세션 생성
             gemini_client = genai.Client(api_key=GOOGLE_API_KEY) if GOOGLE_API_KEY else genai.Client()
-            chat = gemini_client.chats.create(
-                model=gemini_model,
+            chat = create_chat_with_self_heal(
+                gemini_client,
+                gemini_model,
                 config=genai_types.GenerateContentConfig(
                     system_instruction=sys_prompt,
                     tools=tool_functions,

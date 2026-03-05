@@ -1,5 +1,6 @@
 import os
-from google import genai  # [New SDK]
+from google import genai
+from model_utils import normalize_model_name, generate_content_with_self_heal
 from core.utils import (
     safe_id, read_yaml, write_yaml, now_iso, get_random_signature,
     print_agent_msg, safe_json_load, apply_agent_overrides, safe_generate
@@ -32,7 +33,7 @@ class AgentManager:
         # [New SDK] Client 기반 에이전트 생성 (Triad: agent_create = Gemini Pro)
         _api_key = os.getenv("GOOGLE_API_KEY")
         _client = genai.Client(api_key=_api_key) if _api_key else None
-        _model_name = self.mr.pick("agent_create")
+        _model_name = normalize_model_name(self.mr.pick("agent_create"))
         prompt = f"""
 ROLE_SPEC: "{role_spec}"
 JSON 출력:
@@ -43,7 +44,7 @@ JSON 출력:
 2. **system_ko**: 에이전트의 페르소나와 행동 지침을 상세한 한국어로 작성하세요.
 3. **signature_lines**: 에이전트가 대화를 시작할 때 사용할 시그니처 대사(한국어)를 3~5개 작성하세요. 캐릭터의 성격을 잘 드러내야 합니다.
 """
-        res = _client.models.generate_content(model=_model_name, contents=prompt) if _client else None
+        res = generate_content_with_self_heal(_client, _model_name, prompt) if _client else None
         data = safe_json_load(res.text)
         data["name"] = data.get("name") or f"agent_{safe_id(role_spec)}"
         data["role"] = data.get("role") or role_spec
@@ -106,8 +107,8 @@ JSON 출력:
             # [New SDK] Client 기반 요구사항 분석 (Triad: requirement = Gemini Pro)
             _api_key = os.getenv("GOOGLE_API_KEY")
             _client = genai.Client(api_key=_api_key) if _api_key else None
-            _model_name = self.mr.pick("requirement")
-            res = _client.models.generate_content(model=_model_name, contents=prompt) if _client else None
+            _model_name = normalize_model_name(self.mr.pick("requirement"))
+            res = generate_content_with_self_heal(_client, _model_name, prompt) if _client else None
             data = safe_json_load(res.text if res else "{}")
         except Exception as e:
             data = {

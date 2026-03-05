@@ -11,6 +11,7 @@ import os
 import json
 import time
 from google import genai
+from model_utils import normalize_model_name, generate_content_with_self_heal
 
 # =============================================================================
 # [Load Balancer] 다중 API Key 관리
@@ -53,10 +54,10 @@ def get_latest_flash_model() -> str:
     """
     try:
         from model_utils import get_dynamic_default_model
-        return get_dynamic_default_model("flash")
+        return normalize_model_name(get_dynamic_default_model("flash"))
     except Exception:
         # 극단적 실패 시에도 버전 번호 없이 API 기본 별칭 사용
-        return "gemini-flash"
+        return "models/gemini-2.0-flash"
 
 
 def get_best_model(fallback_list=None) -> str:
@@ -90,12 +91,14 @@ class LLMEngine:
         # model_name이 없으면 동적으로 최신 Flash를 선택 (버전 하드코딩 배제)
         if model_name is None:
             model_name = get_latest_flash_model()
+        model_name = normalize_model_name(model_name)
 
         # Auto-Upgrade: Flash 계열은 항상 최신판으로 강제 상향
         if "gemini" in model_name and "flash" in model_name:
             latest = get_latest_flash_model()
             if latest and latest != model_name:
-                print(f"🔄 [Auto-Upgrade] '{model_name}' → '{latest}' 자동 업그레이드")
+                # Avoid UnicodeEncodeError on cp949 consoles.
+                print(f"[Auto-Upgrade] '{model_name}' -> '{latest}'")
                 self.model_name = latest
             else:
                 self.model_name = model_name
@@ -116,9 +119,10 @@ class LLMEngine:
             try:
                 if self._client is None:
                     raise RuntimeError("No GOOGLE_API_KEY configured")
-                response = self._client.models.generate_content(
-                    model=self.model_name,
-                    contents=prompt
+                response = generate_content_with_self_heal(
+                    self._client,
+                    self.model_name,
+                    prompt,
                 )
                 return response.text
             except Exception as e:

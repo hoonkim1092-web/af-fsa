@@ -18,6 +18,7 @@ import os
 import re
 import json
 import random
+import sys
 from datetime import datetime
 from core.config_paths import *
 
@@ -100,7 +101,9 @@ def print_agent_msg(name: str, msg: str, signature: str = ""):
         try:
             print(text)
         except UnicodeEncodeError:
-            print(text.encode("utf-8", "replace").decode("cp949", "replace"))
+            enc = getattr(sys.stdout, "encoding", None) or "utf-8"
+            safe = str(text).encode(enc, errors="replace").decode(enc, errors="replace")
+            print(safe)
             
     if signature:
         _safe_out(f"\n{header} \"{signature}\"")

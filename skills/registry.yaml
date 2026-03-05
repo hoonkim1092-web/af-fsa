@@ -1,1614 +1,1614 @@
+install_candidates: {}
 skills:
   abc:
-    id: abc
-    skill_id: abc
-    name: abc
-    skill_name: abc
-    type: action
-    purpose: ''
-    path: D:\agent-factory\tests\_tmp\af-test-476c752d\skills\abc\skill.py
-    meta_path: D:\agent-factory\tests\_tmp\af-test-476c752d\skills\abc\meta.yaml
-    version: 0.1.0
-    status: canary
     capabilities:
     - abc
     dependencies: []
-    updated_at: '2026-02-25T03:02:37'
+    id: abc
     last_test_ok: true
-  accept_changes:
-    id: accept_changes
-    skill_id: accept_changes
-    name: accept_changes
-    skill_name: accept_changes
+    meta_path: D:\agent-factory\tests\_tmp\af-test-476c752d\skills\abc\meta.yaml
+    name: abc
+    path: D:\agent-factory\tests\_tmp\af-test-476c752d\skills\abc\skill.py
+    purpose: ''
+    skill_id: abc
+    skill_name: abc
+    status: canary
     type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/docx/scripts/accept_changes.py
-    meta_path: ''
-    version: 1.0.0
-    status: active
+    updated_at: '2026-02-25T03:02:37'
+    version: 0.1.0
+  accept_changes:
     capabilities:
     - accept_changes
     dependencies: []
-    updated_at: '2026-02-24T15:05:04'
+    id: accept_changes
     last_test_ok: true
-  add_slide:
-    id: add_slide
-    skill_id: add_slide
-    name: add_slide
-    skill_name: add_slide
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/pptx/scripts/add_slide.py
     meta_path: ''
-    version: 1.0.0
+    name: accept_changes
+    path: skills/warehouse/skills/docx/scripts/accept_changes.py
+    purpose: Legacy auto-registered skill.
+    skill_id: accept_changes
+    skill_name: accept_changes
     status: active
+    type: action
+    updated_at: '2026-02-24T15:05:04'
+    version: 1.0.0
+  add_slide:
     capabilities:
     - add_slide
     dependencies: []
-    updated_at: '2026-02-24T15:05:09'
+    id: add_slide
     last_test_ok: true
-  ai_funnel_routing:
-    id: ai_funnel_routing
-    skill_id: ai_funnel_routing
-    name: ai_funnel_routing
-    skill_name: ai_funnel_routing
-    type: action
-    purpose: ''
-    path: skills/ai_funnel_routing/skill.py
-    meta_path: skills/ai_funnel_routing/meta.yaml
-    version: 1.0.0
+    meta_path: ''
+    name: add_slide
+    path: skills/warehouse/skills/pptx/scripts/add_slide.py
+    purpose: Legacy auto-registered skill.
+    skill_id: add_slide
+    skill_name: add_slide
     status: active
+    type: action
+    updated_at: '2026-02-24T15:05:09'
+    version: 1.0.0
+  ai_funnel_routing:
     capabilities:
     - ai_funnel_routing
     dependencies: []
-    updated_at: '2026-02-20T02:22:54'
+    id: ai_funnel_routing
     last_test_ok: true
-  api_security_vetting:
-    id: api_security_vetting
-    skill_id: api_security_vetting
-    name: api_security_vetting
-    skill_name: api_security_vetting
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: D:\agent-factory\skills\forge\api_security_vetting.py
-    meta_path: ''
-    version: 1.0.0
+    meta_path: skills/ai_funnel_routing/meta.yaml
+    name: ai_funnel_routing
+    path: skills/ai_funnel_routing/skill.py
+    purpose: ''
+    skill_id: ai_funnel_routing
+    skill_name: ai_funnel_routing
     status: active
+    type: action
+    updated_at: '2026-02-20T02:22:54'
+    version: 1.0.0
+  api_security_vetting:
     capabilities:
     - api_security_vetting
     dependencies: []
-    updated_at: '2026-03-05T02:32:47'
+    id: api_security_vetting
     last_test_ok: true
-  ask_question:
-    id: ask_question
-    skill_id: ask_question
-    name: ask_question
-    skill_name: ask_question
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/notebooklm/scripts/ask_question.py
     meta_path: ''
-    version: 1.0.0
+    name: api_security_vetting
+    path: skills/forge/api_security_vetting.py
+    purpose: Legacy auto-registered skill.
+    skill_id: api_security_vetting
+    skill_name: api_security_vetting
     status: active
+    type: action
+    updated_at: '2026-03-05T02:32:47'
+    version: 1.0.0
+  ask_question:
     capabilities:
     - ask_question
     dependencies: []
-    updated_at: '2026-02-24T15:05:06'
+    id: ask_question
     last_test_ok: true
-  auth_manager:
-    id: auth_manager
-    skill_id: auth_manager
-    name: auth_manager
-    skill_name: auth_manager
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/notebooklm/scripts/auth_manager.py
     meta_path: ''
-    version: 1.0.0
+    name: ask_question
+    path: skills/warehouse/skills/notebooklm/scripts/ask_question.py
+    purpose: Legacy auto-registered skill.
+    skill_id: ask_question
+    skill_name: ask_question
     status: active
+    type: action
+    updated_at: '2026-02-24T15:05:06'
+    version: 1.0.0
+  auth_manager:
     capabilities:
     - auth_manager
     dependencies: []
-    updated_at: '2026-02-24T15:05:06'
+    id: auth_manager
     last_test_ok: true
-  base:
-    id: base
-    skill_id: base
-    name: base
-    skill_name: base
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/xlsx/scripts/office/validators/base.py
     meta_path: ''
-    version: 1.0.0
+    name: auth_manager
+    path: skills/warehouse/skills/notebooklm/scripts/auth_manager.py
+    purpose: Legacy auto-registered skill.
+    skill_id: auth_manager
+    skill_name: auth_manager
     status: active
+    type: action
+    updated_at: '2026-02-24T15:05:06'
+    version: 1.0.0
+  base:
     capabilities:
     - base
     dependencies: []
-    updated_at: '2026-02-24T15:16:30'
+    id: base
     last_test_ok: true
-  browser_session:
-    id: browser_session
-    skill_id: browser_session
-    name: browser_session
-    skill_name: browser_session
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/notebooklm/scripts/browser_session.py
     meta_path: ''
-    version: 1.0.0
+    name: base
+    path: skills/warehouse/skills/xlsx/scripts/office/validators/base.py
+    purpose: Legacy auto-registered skill.
+    skill_id: base
+    skill_name: base
     status: active
+    type: action
+    updated_at: '2026-02-24T15:16:30'
+    version: 1.0.0
+  browser_session:
     capabilities:
     - browser_session
     dependencies: []
-    updated_at: '2026-02-24T15:05:06'
+    id: browser_session
     last_test_ok: true
-  browser_utils:
-    id: browser_utils
-    skill_id: browser_utils
-    name: browser_utils
-    skill_name: browser_utils
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/notebooklm/scripts/browser_utils.py
     meta_path: ''
-    version: 1.0.0
+    name: browser_session
+    path: skills/warehouse/skills/notebooklm/scripts/browser_session.py
+    purpose: Legacy auto-registered skill.
+    skill_id: browser_session
+    skill_name: browser_session
     status: active
+    type: action
+    updated_at: '2026-02-24T15:05:06'
+    version: 1.0.0
+  browser_utils:
     capabilities:
     - browser_utils
     dependencies: []
-    updated_at: '2026-02-24T15:05:06'
+    id: browser_utils
     last_test_ok: true
-  check_bounding_boxes:
-    id: check_bounding_boxes
-    skill_id: check_bounding_boxes
-    name: check_bounding_boxes
-    skill_name: check_bounding_boxes
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/pdf/scripts/check_bounding_boxes.py
     meta_path: ''
-    version: 1.0.0
+    name: browser_utils
+    path: skills/warehouse/skills/notebooklm/scripts/browser_utils.py
+    purpose: Legacy auto-registered skill.
+    skill_id: browser_utils
+    skill_name: browser_utils
     status: active
+    type: action
+    updated_at: '2026-02-24T15:05:06'
+    version: 1.0.0
+  check_bounding_boxes:
     capabilities:
     - check_bounding_boxes
     dependencies: []
-    updated_at: '2026-02-24T15:05:07'
+    id: check_bounding_boxes
     last_test_ok: true
-  check_bounding_boxes_test:
-    id: check_bounding_boxes_test
-    skill_id: check_bounding_boxes_test
-    name: check_bounding_boxes_test
-    skill_name: check_bounding_boxes_test
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/pdf/scripts/check_bounding_boxes_test.py
     meta_path: ''
-    version: 1.0.0
+    name: check_bounding_boxes
+    path: skills/warehouse/skills/pdf/scripts/check_bounding_boxes.py
+    purpose: Legacy auto-registered skill.
+    skill_id: check_bounding_boxes
+    skill_name: check_bounding_boxes
     status: active
+    type: action
+    updated_at: '2026-02-24T15:05:07'
+    version: 1.0.0
+  check_bounding_boxes_test:
     capabilities:
     - check_bounding_boxes_test
     dependencies: []
-    updated_at: '2026-02-24T15:05:07'
+    id: check_bounding_boxes_test
     last_test_ok: true
-  check_fillable_fields:
-    id: check_fillable_fields
-    skill_id: check_fillable_fields
-    name: check_fillable_fields
-    skill_name: check_fillable_fields
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/pdf/scripts/check_fillable_fields.py
     meta_path: ''
-    version: 1.0.0
+    name: check_bounding_boxes_test
+    path: skills/warehouse/skills/pdf/scripts/check_bounding_boxes_test.py
+    purpose: Legacy auto-registered skill.
+    skill_id: check_bounding_boxes_test
+    skill_name: check_bounding_boxes_test
     status: active
+    type: action
+    updated_at: '2026-02-24T15:05:07'
+    version: 1.0.0
+  check_fillable_fields:
     capabilities:
     - check_fillable_fields
     dependencies: []
-    updated_at: '2026-02-24T15:05:07'
+    id: check_fillable_fields
     last_test_ok: true
-  clean:
-    id: clean
-    skill_id: clean
-    name: clean
-    skill_name: clean
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/pptx/scripts/clean.py
     meta_path: ''
-    version: 1.0.0
+    name: check_fillable_fields
+    path: skills/warehouse/skills/pdf/scripts/check_fillable_fields.py
+    purpose: Legacy auto-registered skill.
+    skill_id: check_fillable_fields
+    skill_name: check_fillable_fields
     status: active
+    type: action
+    updated_at: '2026-02-24T15:05:07'
+    version: 1.0.0
+  clean:
     capabilities:
     - clean
     dependencies: []
-    updated_at: '2026-02-24T15:05:09'
+    id: clean
     last_test_ok: true
-  cleanup_manager:
-    id: cleanup_manager
-    skill_id: cleanup_manager
-    name: cleanup_manager
-    skill_name: cleanup_manager
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/notebooklm/scripts/cleanup_manager.py
     meta_path: ''
-    version: 1.0.0
+    name: clean
+    path: skills/warehouse/skills/pptx/scripts/clean.py
+    purpose: Legacy auto-registered skill.
+    skill_id: clean
+    skill_name: clean
     status: active
+    type: action
+    updated_at: '2026-02-24T15:05:09'
+    version: 1.0.0
+  cleanup_manager:
     capabilities:
     - cleanup_manager
     dependencies: []
-    updated_at: '2026-02-24T15:05:06'
+    id: cleanup_manager
     last_test_ok: true
-  comment:
-    id: comment
-    skill_id: comment
-    name: comment
-    skill_name: comment
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/docx/scripts/comment.py
     meta_path: ''
-    version: 1.0.0
+    name: cleanup_manager
+    path: skills/warehouse/skills/notebooklm/scripts/cleanup_manager.py
+    purpose: Legacy auto-registered skill.
+    skill_id: cleanup_manager
+    skill_name: cleanup_manager
     status: active
+    type: action
+    updated_at: '2026-02-24T15:05:06'
+    version: 1.0.0
+  comment:
     capabilities:
     - comment
     dependencies: []
-    updated_at: '2026-02-24T15:05:04'
+    id: comment
     last_test_ok: true
-  compaction:
-    id: compaction
-    skill_id: compaction
-    name: compaction
-    skill_name: compaction
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/context-optimization/scripts/compaction.py
     meta_path: ''
-    version: 1.0.0
+    name: comment
+    path: skills/warehouse/skills/docx/scripts/comment.py
+    purpose: Legacy auto-registered skill.
+    skill_id: comment
+    skill_name: comment
     status: active
+    type: action
+    updated_at: '2026-02-24T15:05:04'
+    version: 1.0.0
+  compaction:
     capabilities:
     - compaction
     dependencies: []
-    updated_at: '2026-02-24T15:05:03'
+    id: compaction
     last_test_ok: true
-  compression_evaluator:
-    id: compression_evaluator
-    skill_id: compression_evaluator
-    name: compression_evaluator
-    skill_name: compression_evaluator
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/context-compression/scripts/compression_evaluator.py
     meta_path: ''
-    version: 1.0.0
+    name: compaction
+    path: skills/warehouse/skills/context-optimization/scripts/compaction.py
+    purpose: Legacy auto-registered skill.
+    skill_id: compaction
+    skill_name: compaction
     status: active
+    type: action
+    updated_at: '2026-02-24T15:05:03'
+    version: 1.0.0
+  compression_evaluator:
     capabilities:
     - compression_evaluator
     dependencies: []
-    updated_at: '2026-02-24T15:05:03'
+    id: compression_evaluator
     last_test_ok: true
-  config:
-    id: config
-    skill_id: config
-    name: config
-    skill_name: config
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/notebooklm/scripts/config.py
     meta_path: ''
-    version: 1.0.0
+    name: compression_evaluator
+    path: skills/warehouse/skills/context-compression/scripts/compression_evaluator.py
+    purpose: Legacy auto-registered skill.
+    skill_id: compression_evaluator
+    skill_name: compression_evaluator
     status: active
+    type: action
+    updated_at: '2026-02-24T15:05:03'
+    version: 1.0.0
+  config:
     capabilities:
     - config
     dependencies: []
-    updated_at: '2026-02-24T15:05:06'
+    id: config
     last_test_ok: true
-  connections:
-    id: connections
-    skill_id: connections
-    name: connections
-    skill_name: connections
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/mcp-builder/scripts/connections.py
     meta_path: ''
-    version: 1.0.0
+    name: config
+    path: skills/warehouse/skills/notebooklm/scripts/config.py
+    purpose: Legacy auto-registered skill.
+    skill_id: config
+    skill_name: config
     status: active
+    type: action
+    updated_at: '2026-02-24T15:05:06'
+    version: 1.0.0
+  connections:
     capabilities:
     - connections
     dependencies: []
-    updated_at: '2026-02-24T15:05:05'
+    id: connections
     last_test_ok: true
-  context_manager:
-    id: context_manager
-    skill_id: context_manager
-    name: context_manager
-    skill_name: context_manager
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/context-fundamentals/scripts/context_manager.py
     meta_path: ''
-    version: 1.0.0
+    name: connections
+    path: skills/warehouse/skills/mcp-builder/scripts/connections.py
+    purpose: Legacy auto-registered skill.
+    skill_id: connections
+    skill_name: connections
     status: active
+    type: action
+    updated_at: '2026-02-24T15:05:05'
+    version: 1.0.0
+  context_manager:
     capabilities:
     - context_manager
     dependencies: []
-    updated_at: '2026-02-24T15:05:03'
+    id: context_manager
     last_test_ok: true
-  convert_pdf_to_images:
-    id: convert_pdf_to_images
-    skill_id: convert_pdf_to_images
-    name: convert_pdf_to_images
-    skill_name: convert_pdf_to_images
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/pdf/scripts/convert_pdf_to_images.py
     meta_path: ''
-    version: 1.0.0
+    name: context_manager
+    path: skills/warehouse/skills/context-fundamentals/scripts/context_manager.py
+    purpose: Legacy auto-registered skill.
+    skill_id: context_manager
+    skill_name: context_manager
     status: active
+    type: action
+    updated_at: '2026-02-24T15:05:03'
+    version: 1.0.0
+  convert_pdf_to_images:
     capabilities:
     - convert_pdf_to_images
     dependencies: []
-    updated_at: '2026-02-24T15:05:07'
+    id: convert_pdf_to_images
     last_test_ok: true
-  coordination:
-    id: coordination
-    skill_id: coordination
-    name: coordination
-    skill_name: coordination
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/multi-agent-patterns/scripts/coordination.py
     meta_path: ''
-    version: 1.0.0
+    name: convert_pdf_to_images
+    path: skills/warehouse/skills/pdf/scripts/convert_pdf_to_images.py
+    purpose: Legacy auto-registered skill.
+    skill_id: convert_pdf_to_images
+    skill_name: convert_pdf_to_images
     status: active
+    type: action
+    updated_at: '2026-02-24T15:05:07'
+    version: 1.0.0
+  coordination:
     capabilities:
     - coordination
     dependencies: []
-    updated_at: '2026-02-24T15:05:05'
+    id: coordination
     last_test_ok: true
-  core:
-    id: core
-    skill_id: core
-    name: core
-    skill_name: core
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/ui-ux-pro-max/scripts/core.py
     meta_path: ''
-    version: 1.0.0
+    name: coordination
+    path: skills/warehouse/skills/multi-agent-patterns/scripts/coordination.py
+    purpose: Legacy auto-registered skill.
+    skill_id: coordination
+    skill_name: coordination
     status: active
+    type: action
+    updated_at: '2026-02-24T15:05:05'
+    version: 1.0.0
+  core:
     capabilities:
     - core
     dependencies: []
-    updated_at: '2026-02-24T15:05:12'
+    id: core
     last_test_ok: true
-  core_memory:
-    id: core_memory
-    skill_id: core_memory
-    name: Core Memory (Korean)
-    skill_name: Core Memory (Korean)
-    type: action
-    purpose: ''
-    path: skills/core_memory/skill.py
-    meta_path: skills/core_memory/meta.yaml
-    version: 1.0.0
+    meta_path: ''
+    name: core
+    path: skills/warehouse/skills/ui-ux-pro-max/scripts/core.py
+    purpose: Legacy auto-registered skill.
+    skill_id: core
+    skill_name: core
     status: active
+    type: action
+    updated_at: '2026-02-24T15:05:12'
+    version: 1.0.0
+  core_memory:
     capabilities:
     - memory_read
     - memory_write
     - memory_search
     dependencies: []
-    updated_at: '2026-02-14T21:13:00'
+    id: core_memory
     last_test_ok: true
-  core_module:
-    id: core_module
-    skill_id: core_module
-    name: core_module
-    skill_name: core_module
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: D:\agent-factory\skills\forge\core_module.py
-    meta_path: ''
-    version: 1.0.0
+    meta_path: skills/core_memory/meta.yaml
+    name: Core Memory (Korean)
+    path: skills/core_memory/skill.py
+    purpose: ''
+    skill_id: core_memory
+    skill_name: Core Memory (Korean)
     status: active
+    type: action
+    updated_at: '2026-02-14T21:13:00'
+    version: 1.0.0
+  core_module:
     capabilities:
     - core_module
     dependencies: []
-    updated_at: '2026-03-05T02:32:47'
+    id: core_module
     last_test_ok: true
-  create_design_system:
-    id: create_design_system
-    skill_id: create_design_system
-    name: Create Design System
-    skill_name: Create Design System
-    type: action
-    purpose: ''
-    path: skills/create_design_system/skill.py
-    meta_path: skills/create_design_system/meta.yaml
-    version: 1.0.0
+    meta_path: ''
+    name: core_module
+    path: skills/forge/core_module.py
+    purpose: Legacy auto-registered skill.
+    skill_id: core_module
+    skill_name: core_module
     status: active
+    type: action
+    updated_at: '2026-03-05T02:32:47'
+    version: 1.0.0
+  create_design_system:
     capabilities:
     - design_system
     - css
     - json
     dependencies: []
-    updated_at: '2026-02-12T18:10:00'
+    id: create_design_system
     last_test_ok: true
-  create_validation_image:
-    id: create_validation_image
-    skill_id: create_validation_image
-    name: create_validation_image
-    skill_name: create_validation_image
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/pdf/scripts/create_validation_image.py
-    meta_path: ''
-    version: 1.0.0
+    meta_path: skills/create_design_system/meta.yaml
+    name: Create Design System
+    path: skills/create_design_system/skill.py
+    purpose: ''
+    skill_id: create_design_system
+    skill_name: Create Design System
     status: active
+    type: action
+    updated_at: '2026-02-12T18:10:00'
+    version: 1.0.0
+  create_validation_image:
     capabilities:
     - create_validation_image
     dependencies: []
-    updated_at: '2026-02-24T15:05:07'
+    id: create_validation_image
     last_test_ok: true
-  css_styling:
-    id: css_styling
-    skill_id: css_styling
-    name: css_styling
-    skill_name: css_styling
-    type: action
-    purpose: ''
-    path: skills/css_styling/skill.py
-    meta_path: skills/css_styling/meta.yaml
-    version: 1.0.0
+    meta_path: ''
+    name: create_validation_image
+    path: skills/warehouse/skills/pdf/scripts/create_validation_image.py
+    purpose: Legacy auto-registered skill.
+    skill_id: create_validation_image
+    skill_name: create_validation_image
     status: active
+    type: action
+    updated_at: '2026-02-24T15:05:07'
+    version: 1.0.0
+  css_styling:
     capabilities:
     - css_styling
     dependencies: []
-    updated_at: '2026-02-20T02:22:54'
+    id: css_styling
     last_test_ok: true
-  data_visualize:
-    id: data_visualize
-    skill_id: data_visualize
-    name: Data Visualization
-    skill_name: Data Visualization
-    type: action
+    meta_path: skills/css_styling/meta.yaml
+    name: css_styling
+    path: skills/css_styling/skill.py
     purpose: ''
-    path: skills/data_visualize/skill.py
-    meta_path: skills/data_visualize/meta.yaml
-    version: 1.0.0
+    skill_id: css_styling
+    skill_name: css_styling
     status: active
+    type: action
+    updated_at: '2026-02-20T02:22:54'
+    version: 1.0.0
+  data_visualize:
     capabilities:
     - data_visualize
     dependencies: []
-    updated_at: '2026-02-12T15:40:00'
+    id: data_visualize
     last_test_ok: true
-  database_performance_tuning:
-    id: database_performance_tuning
-    skill_id: database_performance_tuning
-    name: database_performance_tuning
-    skill_name: database_performance_tuning
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: D:\agent-factory\skills\forge\database_performance_tuning.py
-    meta_path: ''
-    version: 1.0.0
+    meta_path: skills/data_visualize/meta.yaml
+    name: Data Visualization
+    path: skills/data_visualize/skill.py
+    purpose: ''
+    skill_id: data_visualize
+    skill_name: Data Visualization
     status: active
+    type: action
+    updated_at: '2026-02-12T15:40:00'
+    version: 1.0.0
+  database_performance_tuning:
     capabilities:
     - database_performance_tuning
     dependencies: []
-    updated_at: '2026-03-05T02:32:47'
+    id: database_performance_tuning
     last_test_ok: true
-  db_optimizer:
-    id: db_optimizer
-    skill_id: db_optimizer
-    name: db_optimizer
-    skill_name: db_optimizer
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: D:\agent-factory\skills\forge\db_optimizer.py
     meta_path: ''
-    version: 1.0.0
+    name: database_performance_tuning
+    path: skills/forge/database_performance_tuning.py
+    purpose: Legacy auto-registered skill.
+    skill_id: database_performance_tuning
+    skill_name: database_performance_tuning
     status: active
+    type: action
+    updated_at: '2026-03-05T02:32:47'
+    version: 1.0.0
+  db_optimizer:
     capabilities:
     - db_optimizer
     dependencies: []
-    updated_at: '2026-03-05T02:32:47'
+    id: db_optimizer
     last_test_ok: true
-  degradation_detector:
-    id: degradation_detector
-    skill_id: degradation_detector
-    name: degradation_detector
-    skill_name: degradation_detector
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/context-degradation/scripts/degradation_detector.py
     meta_path: ''
-    version: 1.0.0
+    name: db_optimizer
+    path: skills/forge/db_optimizer.py
+    purpose: Legacy auto-registered skill.
+    skill_id: db_optimizer
+    skill_name: db_optimizer
     status: active
+    type: action
+    updated_at: '2026-03-05T02:32:47'
+    version: 1.0.0
+  degradation_detector:
     capabilities:
     - degradation_detector
     dependencies: []
-    updated_at: '2026-02-24T15:05:03'
+    id: degradation_detector
     last_test_ok: true
-  description_generator:
-    id: description_generator
-    skill_id: description_generator
-    name: description_generator
-    skill_name: description_generator
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/tool-design/scripts/description_generator.py
     meta_path: ''
-    version: 1.0.0
+    name: degradation_detector
+    path: skills/warehouse/skills/context-degradation/scripts/degradation_detector.py
+    purpose: Legacy auto-registered skill.
+    skill_id: degradation_detector
+    skill_name: degradation_detector
     status: active
+    type: action
+    updated_at: '2026-02-24T15:05:03'
+    version: 1.0.0
+  description_generator:
     capabilities:
     - description_generator
     dependencies: []
-    updated_at: '2026-02-24T15:05:12'
+    id: description_generator
     last_test_ok: true
-  document:
-    id: document
-    skill_id: document
-    name: document
-    skill_name: document
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/docx/scripts/document.py
     meta_path: ''
-    version: 1.0.0
+    name: description_generator
+    path: skills/warehouse/skills/tool-design/scripts/description_generator.py
+    purpose: Legacy auto-registered skill.
+    skill_id: description_generator
+    skill_name: description_generator
     status: active
+    type: action
+    updated_at: '2026-02-24T15:05:12'
+    version: 1.0.0
+  document:
     capabilities:
     - document
     dependencies: []
-    updated_at: '2026-02-24T15:05:04'
+    id: document
     last_test_ok: true
-  docx:
-    id: docx
-    skill_id: docx
-    name: docx
-    skill_name: docx
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/xlsx/scripts/office/validators/docx.py
     meta_path: ''
-    version: 1.0.0
+    name: document
+    path: skills/warehouse/skills/docx/scripts/document.py
+    purpose: Legacy auto-registered skill.
+    skill_id: document
+    skill_name: document
     status: active
+    type: action
+    updated_at: '2026-02-24T15:05:04'
+    version: 1.0.0
+  docx:
     capabilities:
     - docx
     dependencies: []
-    updated_at: '2026-02-24T15:16:30'
+    id: docx
     last_test_ok: true
-  easing:
-    id: easing
-    skill_id: easing
-    name: easing
-    skill_name: easing
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/slack-gif-creator/core/easing.py
     meta_path: ''
-    version: 1.0.0
+    name: docx
+    path: skills/warehouse/skills/xlsx/scripts/office/validators/docx.py
+    purpose: Legacy auto-registered skill.
+    skill_id: docx
+    skill_name: docx
     status: active
+    type: action
+    updated_at: '2026-02-24T15:16:30'
+    version: 1.0.0
+  easing:
     capabilities:
     - easing
     dependencies: []
-    updated_at: '2026-02-24T15:05:12'
+    id: easing
     last_test_ok: true
-  edomae_sushi_shikomi_playbook:
-    id: edomae_sushi_shikomi_playbook
-    skill_id: edomae_sushi_shikomi_playbook
-    name: edomae_sushi_shikomi_playbook
-    skill_name: edomae_sushi_shikomi_playbook
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: D:\agent-factory\skills\forge\edomae_sushi_shikomi_playbook.py
     meta_path: ''
-    version: 1.0.0
+    name: easing
+    path: skills/warehouse/skills/slack-gif-creator/core/easing.py
+    purpose: Legacy auto-registered skill.
+    skill_id: easing
+    skill_name: easing
     status: active
+    type: action
+    updated_at: '2026-02-24T15:05:12'
+    version: 1.0.0
+  edomae_sushi_shikomi_playbook:
     capabilities:
     - edomae_sushi_shikomi_playbook
     dependencies: []
-    updated_at: '2026-03-05T02:32:47'
+    id: edomae_sushi_shikomi_playbook
     last_test_ok: true
-  evaluation:
-    id: evaluation
-    skill_id: evaluation
-    name: evaluation
-    skill_name: evaluation
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/mcp-builder/scripts/evaluation.py
     meta_path: ''
-    version: 1.0.0
+    name: edomae_sushi_shikomi_playbook
+    path: skills/forge/edomae_sushi_shikomi_playbook.py
+    purpose: Legacy auto-registered skill.
+    skill_id: edomae_sushi_shikomi_playbook
+    skill_name: edomae_sushi_shikomi_playbook
     status: active
+    type: action
+    updated_at: '2026-03-05T02:32:47'
+    version: 1.0.0
+  evaluation:
     capabilities:
     - evaluation
     dependencies: []
-    updated_at: '2026-02-24T15:05:05'
+    id: evaluation
     last_test_ok: true
-  evaluation_example:
-    id: evaluation_example
-    skill_id: evaluation_example
-    name: evaluation_example
-    skill_name: evaluation_example
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/advanced-evaluation/scripts/evaluation_example.py
     meta_path: ''
-    version: 1.0.0
+    name: evaluation
+    path: skills/warehouse/skills/mcp-builder/scripts/evaluation.py
+    purpose: Legacy auto-registered skill.
+    skill_id: evaluation
+    skill_name: evaluation
     status: active
+    type: action
+    updated_at: '2026-02-24T15:05:05'
+    version: 1.0.0
+  evaluation_example:
     capabilities:
     - evaluation_example
     dependencies: []
-    updated_at: '2026-02-24T15:05:03'
+    id: evaluation_example
     last_test_ok: true
-  evaluator:
-    id: evaluator
-    skill_id: evaluator
-    name: evaluator
-    skill_name: evaluator
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/evaluation/scripts/evaluator.py
     meta_path: ''
-    version: 1.0.0
+    name: evaluation_example
+    path: skills/warehouse/skills/advanced-evaluation/scripts/evaluation_example.py
+    purpose: Legacy auto-registered skill.
+    skill_id: evaluation_example
+    skill_name: evaluation_example
     status: active
+    type: action
+    updated_at: '2026-02-24T15:05:03'
+    version: 1.0.0
+  evaluator:
     capabilities:
     - evaluator
     dependencies: []
-    updated_at: '2026-02-24T15:05:05'
+    id: evaluator
     last_test_ok: true
-  extract_form_field_info:
-    id: extract_form_field_info
-    skill_id: extract_form_field_info
-    name: extract_form_field_info
-    skill_name: extract_form_field_info
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/pdf/scripts/extract_form_field_info.py
     meta_path: ''
-    version: 1.0.0
+    name: evaluator
+    path: skills/warehouse/skills/evaluation/scripts/evaluator.py
+    purpose: Legacy auto-registered skill.
+    skill_id: evaluator
+    skill_name: evaluator
     status: active
+    type: action
+    updated_at: '2026-02-24T15:05:05'
+    version: 1.0.0
+  extract_form_field_info:
     capabilities:
     - extract_form_field_info
     dependencies: []
-    updated_at: '2026-02-24T15:05:07'
+    id: extract_form_field_info
     last_test_ok: true
-  extract_form_structure:
-    id: extract_form_structure
-    skill_id: extract_form_structure
-    name: extract_form_structure
-    skill_name: extract_form_structure
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/pdf/scripts/extract_form_structure.py
     meta_path: ''
-    version: 1.0.0
+    name: extract_form_field_info
+    path: skills/warehouse/skills/pdf/scripts/extract_form_field_info.py
+    purpose: Legacy auto-registered skill.
+    skill_id: extract_form_field_info
+    skill_name: extract_form_field_info
     status: active
+    type: action
+    updated_at: '2026-02-24T15:05:07'
+    version: 1.0.0
+  extract_form_structure:
     capabilities:
     - extract_form_structure
     dependencies: []
-    updated_at: '2026-02-24T15:05:07'
+    id: extract_form_structure
     last_test_ok: true
-  filesystem_context:
-    id: filesystem_context
-    skill_id: filesystem_context
-    name: filesystem_context
-    skill_name: filesystem_context
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/filesystem-context/scripts/filesystem_context.py
     meta_path: ''
-    version: 1.0.0
+    name: extract_form_structure
+    path: skills/warehouse/skills/pdf/scripts/extract_form_structure.py
+    purpose: Legacy auto-registered skill.
+    skill_id: extract_form_structure
+    skill_name: extract_form_structure
     status: active
+    type: action
+    updated_at: '2026-02-24T15:05:07'
+    version: 1.0.0
+  file_handler:
+    capabilities:
+    - file_handler
+    dependencies: []
+    id: file_handler
+    last_test_ok: true
+    meta_path: ''
+    name: file_handler
+    path: skills/forge/file_handler.py
+    purpose: Legacy auto-registered skill.
+    skill_id: file_handler
+    skill_name: file_handler
+    status: active
+    type: action
+    updated_at: '2026-03-05T02:32:48'
+    version: 1.0.0
+  filesystem_context:
     capabilities:
     - filesystem_context
     dependencies: []
-    updated_at: '2026-02-24T15:05:05'
+    id: filesystem_context
     last_test_ok: true
-  fill_fillable_fields:
-    id: fill_fillable_fields
-    skill_id: fill_fillable_fields
-    name: fill_fillable_fields
-    skill_name: fill_fillable_fields
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/pdf/scripts/fill_fillable_fields.py
     meta_path: ''
-    version: 1.0.0
+    name: filesystem_context
+    path: skills/warehouse/skills/filesystem-context/scripts/filesystem_context.py
+    purpose: Legacy auto-registered skill.
+    skill_id: filesystem_context
+    skill_name: filesystem_context
     status: active
+    type: action
+    updated_at: '2026-02-24T15:05:05'
+    version: 1.0.0
+  fill_fillable_fields:
     capabilities:
     - fill_fillable_fields
     dependencies: []
-    updated_at: '2026-02-24T15:05:07'
+    id: fill_fillable_fields
     last_test_ok: true
-  fill_pdf_form_with_annotations:
-    id: fill_pdf_form_with_annotations
-    skill_id: fill_pdf_form_with_annotations
-    name: fill_pdf_form_with_annotations
-    skill_name: fill_pdf_form_with_annotations
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/pdf/scripts/fill_pdf_form_with_annotations.py
     meta_path: ''
-    version: 1.0.0
+    name: fill_fillable_fields
+    path: skills/warehouse/skills/pdf/scripts/fill_fillable_fields.py
+    purpose: Legacy auto-registered skill.
+    skill_id: fill_fillable_fields
+    skill_name: fill_fillable_fields
     status: active
+    type: action
+    updated_at: '2026-02-24T15:05:07'
+    version: 1.0.0
+  fill_pdf_form_with_annotations:
     capabilities:
     - fill_pdf_form_with_annotations
     dependencies: []
-    updated_at: '2026-02-24T15:05:08'
+    id: fill_pdf_form_with_annotations
     last_test_ok: true
-  frame_composer:
-    id: frame_composer
-    skill_id: frame_composer
-    name: frame_composer
-    skill_name: frame_composer
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/slack-gif-creator/core/frame_composer.py
     meta_path: ''
-    version: 1.0.0
+    name: fill_pdf_form_with_annotations
+    path: skills/warehouse/skills/pdf/scripts/fill_pdf_form_with_annotations.py
+    purpose: Legacy auto-registered skill.
+    skill_id: fill_pdf_form_with_annotations
+    skill_name: fill_pdf_form_with_annotations
     status: active
+    type: action
+    updated_at: '2026-02-24T15:05:08'
+    version: 1.0.0
+  frame_composer:
     capabilities:
     - frame_composer
     dependencies: []
-    updated_at: '2026-02-24T15:05:12'
+    id: frame_composer
     last_test_ok: true
-  generate_image:
-    id: generate_image
-    skill_id: generate_image
-    name: Generate Image (SVG)
-    skill_name: Generate Image (SVG)
-    type: action
-    purpose: ''
-    path: skills/generate_image/skill.py
-    meta_path: skills/generate_image/meta.yaml
-    version: 1.0.0
+    meta_path: ''
+    name: frame_composer
+    path: skills/warehouse/skills/slack-gif-creator/core/frame_composer.py
+    purpose: Legacy auto-registered skill.
+    skill_id: frame_composer
+    skill_name: frame_composer
     status: active
+    type: action
+    updated_at: '2026-02-24T15:05:12'
+    version: 1.0.0
+  generate_image:
     capabilities:
     - image_gen
     - svg
     dependencies: []
-    updated_at: '2026-02-12T18:10:00'
+    id: generate_image
     last_test_ok: true
-  gherkin_sdd_authoring:
-    id: gherkin_sdd_authoring
-    skill_id: gherkin_sdd_authoring
-    name: gherkin_sdd_authoring
-    skill_name: gherkin_sdd_authoring
-    type: action
+    meta_path: skills/generate_image/meta.yaml
+    name: Generate Image (SVG)
+    path: skills/generate_image/skill.py
     purpose: ''
-    path: skills/gherkin_sdd_authoring/skill.py
-    meta_path: skills/gherkin_sdd_authoring/meta.yaml
-    version: 1.0.0
+    skill_id: generate_image
+    skill_name: Generate Image (SVG)
     status: active
+    type: action
+    updated_at: '2026-02-12T18:10:00'
+    version: 1.0.0
+  gherkin_sdd_authoring:
     capabilities:
     - gherkin_sdd_authoring
     dependencies: []
-    updated_at: '2026-02-20T02:22:54'
+    id: gherkin_sdd_authoring
     last_test_ok: true
-  gif_builder:
-    id: gif_builder
-    skill_id: gif_builder
-    name: gif_builder
-    skill_name: gif_builder
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/slack-gif-creator/core/gif_builder.py
-    meta_path: ''
-    version: 1.0.0
+    meta_path: skills/gherkin_sdd_authoring/meta.yaml
+    name: gherkin_sdd_authoring
+    path: skills/gherkin_sdd_authoring/skill.py
+    purpose: ''
+    skill_id: gherkin_sdd_authoring
+    skill_name: gherkin_sdd_authoring
     status: active
+    type: action
+    updated_at: '2026-02-20T02:22:54'
+    version: 1.0.0
+  gif_builder:
     capabilities:
     - gif_builder
     dependencies: []
-    updated_at: '2026-02-24T15:05:12'
+    id: gif_builder
     last_test_ok: true
-  infrastructure_scaler:
-    id: infrastructure_scaler
-    skill_id: infrastructure_scaler
-    name: infrastructure_scaler
-    skill_name: infrastructure_scaler
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: D:\agent-factory\skills\forge\infrastructure_scaler.py
     meta_path: ''
-    version: 1.0.0
+    name: gif_builder
+    path: skills/warehouse/skills/slack-gif-creator/core/gif_builder.py
+    purpose: Legacy auto-registered skill.
+    skill_id: gif_builder
+    skill_name: gif_builder
     status: active
+    type: action
+    updated_at: '2026-02-24T15:05:12'
+    version: 1.0.0
+  infrastructure_scaler:
     capabilities:
     - infrastructure_scaler
     dependencies: []
-    updated_at: '2026-03-05T02:32:48'
+    id: infrastructure_scaler
     last_test_ok: true
-  init:
-    id: init
-    skill_id: init
-    name: init
-    skill_name: __init__
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/xlsx/scripts/office/validators/__init__.py
     meta_path: ''
-    version: 1.0.0
+    name: infrastructure_scaler
+    path: skills/forge/infrastructure_scaler.py
+    purpose: Legacy auto-registered skill.
+    skill_id: infrastructure_scaler
+    skill_name: infrastructure_scaler
     status: active
+    type: action
+    updated_at: '2026-03-05T02:32:48'
+    version: 1.0.0
+  init:
     capabilities:
     - init
     dependencies: []
-    updated_at: '2026-02-24T15:16:30'
+    id: init
     last_test_ok: true
-  init_skill:
-    id: init_skill
-    skill_id: init_skill
-    name: init_skill
-    skill_name: init_skill
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/skill-creator/scripts/init_skill.py
     meta_path: ''
-    version: 1.0.0
+    name: init
+    path: skills/warehouse/skills/xlsx/scripts/office/validators/__init__.py
+    purpose: Legacy auto-registered skill.
+    skill_id: init
+    skill_name: __init__
     status: active
+    type: action
+    updated_at: '2026-02-24T15:16:30'
+    version: 1.0.0
+  init_skill:
     capabilities:
     - init_skill
     dependencies: []
-    updated_at: '2026-02-24T15:05:11'
+    id: init_skill
     last_test_ok: true
-  inventory:
-    id: inventory
-    skill_id: inventory
-    name: inventory
-    skill_name: inventory
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/pptx/scripts/inventory.py
     meta_path: ''
-    version: 1.0.0
+    name: init_skill
+    path: skills/warehouse/skills/skill-creator/scripts/init_skill.py
+    purpose: Legacy auto-registered skill.
+    skill_id: init_skill
+    skill_name: init_skill
     status: active
+    type: action
+    updated_at: '2026-02-24T15:05:11'
+    version: 1.0.0
+  inventory:
     capabilities:
     - inventory
     dependencies: []
-    updated_at: '2026-02-24T15:05:09'
+    id: inventory
     last_test_ok: true
-  issue_tracker:
-    id: issue_tracker
-    skill_id: issue_tracker
-    name: Issue Tracker
-    skill_name: Issue Tracker
-    type: action
-    purpose: ''
-    path: skills/issue_tracker/skill.py
-    meta_path: skills/issue_tracker/meta.yaml
-    version: 1.0.0
+    meta_path: ''
+    name: inventory
+    path: skills/warehouse/skills/pptx/scripts/inventory.py
+    purpose: Legacy auto-registered skill.
+    skill_id: inventory
+    skill_name: inventory
     status: active
+    type: action
+    updated_at: '2026-02-24T15:05:09'
+    version: 1.0.0
+  issue_tracker:
     capabilities:
     - issue_read
     - issue_write
     dependencies: []
-    updated_at: '2026-02-12T15:40:00'
+    id: issue_tracker
     last_test_ok: true
-  liability_traceability_design:
-    id: liability_traceability_design
-    skill_id: liability_traceability_design
-    name: liability_traceability_design
-    skill_name: liability_traceability_design
-    type: action
+    meta_path: skills/issue_tracker/meta.yaml
+    name: Issue Tracker
+    path: skills/issue_tracker/skill.py
     purpose: ''
-    path: skills/liability_traceability_design/skill.py
-    meta_path: skills/liability_traceability_design/meta.yaml
-    version: 1.0.0
+    skill_id: issue_tracker
+    skill_name: Issue Tracker
     status: active
+    type: action
+    updated_at: '2026-02-12T15:40:00'
+    version: 1.0.0
+  liability_traceability_design:
     capabilities:
     - liability_traceability_design
     dependencies: []
-    updated_at: '2026-02-20T02:22:54'
+    id: liability_traceability_design
     last_test_ok: true
-  memory_store:
-    id: memory_store
-    skill_id: memory_store
-    name: memory_store
-    skill_name: memory_store
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/memory-systems/scripts/memory_store.py
-    meta_path: ''
-    version: 1.0.0
+    meta_path: skills/liability_traceability_design/meta.yaml
+    name: liability_traceability_design
+    path: skills/liability_traceability_design/skill.py
+    purpose: ''
+    skill_id: liability_traceability_design
+    skill_name: liability_traceability_design
     status: active
+    type: action
+    updated_at: '2026-02-20T02:22:54'
+    version: 1.0.0
+  memory_store:
     capabilities:
     - memory_store
     dependencies: []
-    updated_at: '2026-02-24T15:05:05'
+    id: memory_store
     last_test_ok: true
-  merge_runs:
-    id: merge_runs
-    skill_id: merge_runs
-    name: merge_runs
-    skill_name: merge_runs
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/xlsx/scripts/office/helpers/merge_runs.py
     meta_path: ''
-    version: 1.0.0
+    name: memory_store
+    path: skills/warehouse/skills/memory-systems/scripts/memory_store.py
+    purpose: Legacy auto-registered skill.
+    skill_id: memory_store
+    skill_name: memory_store
     status: active
+    type: action
+    updated_at: '2026-02-24T15:05:05'
+    version: 1.0.0
+  merge_runs:
     capabilities:
     - merge_runs
     dependencies: []
-    updated_at: '2026-02-24T15:16:29'
+    id: merge_runs
     last_test_ok: true
-  new_skill:
-    id: new_skill
-    skill_id: new_skill
-    name: new_skill
-    skill_name: new_skill
-    type: action
-    purpose: ''
-    path: skills/new_skill/skill.py
-    meta_path: skills/new_skill/meta.yaml
-    version: 1.0.0
+    meta_path: ''
+    name: merge_runs
+    path: skills/warehouse/skills/xlsx/scripts/office/helpers/merge_runs.py
+    purpose: Legacy auto-registered skill.
+    skill_id: merge_runs
+    skill_name: merge_runs
     status: active
+    type: action
+    updated_at: '2026-02-24T15:16:29'
+    version: 1.0.0
+  needs_issue:
+    capabilities:
+    - needs_issue
+    dependencies: []
+    id: needs_issue
+    last_test_ok: true
+    meta_path: ''
+    name: needs_issue
+    path: skills/forge/needs_issue.py
+    purpose: Dynamically forged skill for r
+    skill_id: needs_issue
+    skill_name: needs_issue
+    status: active
+    type: action
+    updated_at: '2026-03-05T02:09:29'
+    version: 1.0.0
+  new_skill:
     capabilities:
     - new_skill
     dependencies: []
-    updated_at: '2026-02-22T04:19:55'
+    id: new_skill
     last_test_ok: true
-  notebook_manager:
-    id: notebook_manager
-    skill_id: notebook_manager
-    name: notebook_manager
-    skill_name: notebook_manager
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/notebooklm/scripts/notebook_manager.py
-    meta_path: ''
-    version: 1.0.0
+    meta_path: skills/new_skill/meta.yaml
+    name: new_skill
+    path: skills/new_skill/skill.py
+    purpose: ''
+    skill_id: new_skill
+    skill_name: new_skill
     status: active
+    type: action
+    updated_at: '2026-02-22T04:19:55'
+    version: 1.0.0
+  notebook_manager:
     capabilities:
     - notebook_manager
     dependencies: []
-    updated_at: '2026-02-24T15:05:06'
+    id: notebook_manager
     last_test_ok: true
-  omakase_service_pacing_control:
-    id: omakase_service_pacing_control
-    skill_id: omakase_service_pacing_control
-    name: omakase_service_pacing_control
-    skill_name: omakase_service_pacing_control
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: D:\agent-factory\skills\forge\omakase_service_pacing_control.py
     meta_path: ''
-    version: 1.0.0
+    name: notebook_manager
+    path: skills/warehouse/skills/notebooklm/scripts/notebook_manager.py
+    purpose: Legacy auto-registered skill.
+    skill_id: notebook_manager
+    skill_name: notebook_manager
     status: active
+    type: action
+    updated_at: '2026-02-24T15:05:06'
+    version: 1.0.0
+  omakase_service_pacing_control:
     capabilities:
     - omakase_service_pacing_control
     dependencies: []
-    updated_at: '2026-03-05T02:32:48'
+    id: omakase_service_pacing_control
     last_test_ok: true
-  pack:
-    id: pack
-    skill_id: pack
-    name: pack
-    skill_name: pack
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/xlsx/scripts/office/pack.py
     meta_path: ''
-    version: 1.0.0
+    name: omakase_service_pacing_control
+    path: skills/forge/omakase_service_pacing_control.py
+    purpose: Legacy auto-registered skill.
+    skill_id: omakase_service_pacing_control
+    skill_name: omakase_service_pacing_control
     status: active
+    type: action
+    updated_at: '2026-03-05T02:32:48'
+    version: 1.0.0
+  pack:
     capabilities:
     - pack
     dependencies: []
-    updated_at: '2026-02-24T15:16:29'
+    id: pack
     last_test_ok: true
-  package_skill:
-    id: package_skill
-    skill_id: package_skill
-    name: package_skill
-    skill_name: package_skill
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/skill-creator/scripts/package_skill.py
     meta_path: ''
-    version: 1.0.0
+    name: pack
+    path: skills/warehouse/skills/xlsx/scripts/office/pack.py
+    purpose: Legacy auto-registered skill.
+    skill_id: pack
+    skill_name: pack
     status: active
+    type: action
+    updated_at: '2026-02-24T15:16:29'
+    version: 1.0.0
+  package_skill:
     capabilities:
     - package_skill
     dependencies: []
-    updated_at: '2026-02-24T15:05:11'
+    id: package_skill
     last_test_ok: true
-  perform_web_design_review:
-    id: perform_web_design_review
-    skill_id: perform_web_design_review
-    name: Perform Web Design Review
-    skill_name: Perform Web Design Review
-    type: action
-    purpose: ''
-    path: skills/perform_web_design_review/skill.py
-    meta_path: skills/perform_web_design_review/meta.yaml
-    version: 1.0.0
+    meta_path: ''
+    name: package_skill
+    path: skills/warehouse/skills/skill-creator/scripts/package_skill.py
+    purpose: Legacy auto-registered skill.
+    skill_id: package_skill
+    skill_name: package_skill
     status: active
+    type: action
+    updated_at: '2026-02-24T15:05:11'
+    version: 1.0.0
+  perform_web_design_review:
     capabilities:
     - design_review
     - checklist
     - audit
     dependencies: []
-    updated_at: '2026-02-12T18:15:00'
+    id: perform_web_design_review
     last_test_ok: true
-  perishable_inventory_control:
-    id: perishable_inventory_control
-    skill_id: perishable_inventory_control
-    name: perishable_inventory_control
-    skill_name: perishable_inventory_control
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: D:\agent-factory\skills\forge\perishable_inventory_control.py
-    meta_path: ''
-    version: 1.0.0
+    meta_path: skills/perform_web_design_review/meta.yaml
+    name: Perform Web Design Review
+    path: skills/perform_web_design_review/skill.py
+    purpose: ''
+    skill_id: perform_web_design_review
+    skill_name: Perform Web Design Review
     status: active
+    type: action
+    updated_at: '2026-02-12T18:15:00'
+    version: 1.0.0
+  perishable_inventory_control:
     capabilities:
     - perishable_inventory_control
     dependencies: []
-    updated_at: '2026-03-05T02:32:48'
+    id: perishable_inventory_control
     last_test_ok: true
-  pipeline_template:
-    id: pipeline_template
-    skill_id: pipeline_template
-    name: pipeline_template
-    skill_name: pipeline_template
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/project-development/scripts/pipeline_template.py
     meta_path: ''
-    version: 1.0.0
+    name: perishable_inventory_control
+    path: skills/forge/perishable_inventory_control.py
+    purpose: Legacy auto-registered skill.
+    skill_id: perishable_inventory_control
+    skill_name: perishable_inventory_control
     status: active
+    type: action
+    updated_at: '2026-03-05T02:32:48'
+    version: 1.0.0
+  pipeline_template:
     capabilities:
     - pipeline_template
     dependencies: []
-    updated_at: '2026-02-24T15:05:11'
+    id: pipeline_template
     last_test_ok: true
-  pptx:
-    id: pptx
-    skill_id: pptx
-    name: pptx
-    skill_name: pptx
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/xlsx/scripts/office/validators/pptx.py
     meta_path: ''
-    version: 1.0.0
+    name: pipeline_template
+    path: skills/warehouse/skills/project-development/scripts/pipeline_template.py
+    purpose: Legacy auto-registered skill.
+    skill_id: pipeline_template
+    skill_name: pipeline_template
     status: active
+    type: action
+    updated_at: '2026-02-24T15:05:11'
+    version: 1.0.0
+  pptx:
     capabilities:
     - pptx
     dependencies: []
-    updated_at: '2026-02-24T15:16:30'
+    id: pptx
     last_test_ok: true
-  precision_knife_techniques:
-    id: precision_knife_techniques
-    skill_id: precision_knife_techniques
-    name: precision_knife_techniques
-    skill_name: precision_knife_techniques
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: D:\agent-factory\skills\forge\precision_knife_techniques.py
     meta_path: ''
-    version: 1.0.0
+    name: pptx
+    path: skills/warehouse/skills/xlsx/scripts/office/validators/pptx.py
+    purpose: Legacy auto-registered skill.
+    skill_id: pptx
+    skill_name: pptx
     status: active
+    type: action
+    updated_at: '2026-02-24T15:16:30'
+    version: 1.0.0
+  precision_knife_techniques:
     capabilities:
     - precision_knife_techniques
     dependencies: []
-    updated_at: '2026-03-05T02:32:48'
+    id: precision_knife_techniques
     last_test_ok: true
-  quick_validate:
-    id: quick_validate
-    skill_id: quick_validate
-    name: quick_validate
-    skill_name: quick_validate
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/skill-creator/scripts/quick_validate.py
     meta_path: ''
-    version: 1.0.0
+    name: precision_knife_techniques
+    path: skills/forge/precision_knife_techniques.py
+    purpose: Legacy auto-registered skill.
+    skill_id: precision_knife_techniques
+    skill_name: precision_knife_techniques
     status: active
+    type: action
+    updated_at: '2026-03-05T02:32:48'
+    version: 1.0.0
+  quick_validate:
     capabilities:
     - quick_validate
     dependencies: []
-    updated_at: '2026-02-24T15:05:12'
+    id: quick_validate
     last_test_ok: true
-  react_coding:
-    id: react_coding
-    skill_id: react_coding
-    name: react_coding
-    skill_name: react_coding
-    type: action
-    purpose: ''
-    path: skills/react_coding/skill.py
-    meta_path: skills/react_coding/meta.yaml
-    version: 1.0.0
+    meta_path: ''
+    name: quick_validate
+    path: skills/warehouse/skills/skill-creator/scripts/quick_validate.py
+    purpose: Legacy auto-registered skill.
+    skill_id: quick_validate
+    skill_name: quick_validate
     status: active
+    type: action
+    updated_at: '2026-02-24T15:05:12'
+    version: 1.0.0
+  react_coding:
     capabilities:
     - react_coding
     dependencies: []
-    updated_at: '2026-02-20T02:22:54'
+    id: react_coding
     last_test_ok: true
-  rearrange:
-    id: rearrange
-    skill_id: rearrange
-    name: rearrange
-    skill_name: rearrange
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/pptx/scripts/rearrange.py
-    meta_path: ''
-    version: 1.0.0
+    meta_path: skills/react_coding/meta.yaml
+    name: react_coding
+    path: skills/react_coding/skill.py
+    purpose: ''
+    skill_id: react_coding
+    skill_name: react_coding
     status: active
+    type: action
+    updated_at: '2026-02-20T02:22:54'
+    version: 1.0.0
+  rearrange:
     capabilities:
     - rearrange
     dependencies: []
-    updated_at: '2026-02-24T15:05:09'
+    id: rearrange
     last_test_ok: true
-  recalc:
-    id: recalc
-    skill_id: recalc
-    name: recalc
-    skill_name: recalc
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/xlsx/scripts/recalc.py
     meta_path: ''
-    version: 1.0.0
+    name: rearrange
+    path: skills/warehouse/skills/pptx/scripts/rearrange.py
+    purpose: Legacy auto-registered skill.
+    skill_id: rearrange
+    skill_name: rearrange
     status: active
+    type: action
+    updated_at: '2026-02-24T15:05:09'
+    version: 1.0.0
+  recalc:
     capabilities:
     - recalc
     dependencies: []
-    updated_at: '2026-02-24T15:16:29'
+    id: recalc
     last_test_ok: true
-  redlining:
-    id: redlining
-    skill_id: redlining
-    name: redlining
-    skill_name: redlining
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/xlsx/scripts/office/validators/redlining.py
     meta_path: ''
-    version: 1.0.0
+    name: recalc
+    path: skills/warehouse/skills/xlsx/scripts/recalc.py
+    purpose: Legacy auto-registered skill.
+    skill_id: recalc
+    skill_name: recalc
     status: active
+    type: action
+    updated_at: '2026-02-24T15:16:29'
+    version: 1.0.0
+  redlining:
     capabilities:
     - redlining
     dependencies: []
-    updated_at: '2026-02-24T15:16:30'
+    id: redlining
     last_test_ok: true
-  replace:
-    id: replace
-    skill_id: replace
-    name: replace
-    skill_name: replace
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/pptx/scripts/replace.py
     meta_path: ''
-    version: 1.0.0
+    name: redlining
+    path: skills/warehouse/skills/xlsx/scripts/office/validators/redlining.py
+    purpose: Legacy auto-registered skill.
+    skill_id: redlining
+    skill_name: redlining
     status: active
+    type: action
+    updated_at: '2026-02-24T15:16:30'
+    version: 1.0.0
+  replace:
     capabilities:
     - replace
     dependencies: []
-    updated_at: '2026-02-24T15:05:09'
+    id: replace
     last_test_ok: true
-  research_assistant:
-    id: research_assistant
-    skill_id: research_assistant
-    name: Research Assistant
-    skill_name: Research Assistant
-    type: action
-    purpose: ''
-    path: skills/research_assistant/skill.py
-    meta_path: skills/research_assistant/meta.yaml
-    version: 1.0.0
+    meta_path: ''
+    name: replace
+    path: skills/warehouse/skills/pptx/scripts/replace.py
+    purpose: Legacy auto-registered skill.
+    skill_id: replace
+    skill_name: replace
     status: active
+    type: action
+    updated_at: '2026-02-24T15:05:09'
+    version: 1.0.0
+  research_assistant:
     capabilities:
     - research
     dependencies: []
-    updated_at: '2026-02-12T15:55:00'
+    id: research_assistant
     last_test_ok: true
-  roi_defense_modeling:
-    id: roi_defense_modeling
-    skill_id: roi_defense_modeling
-    name: roi_defense_modeling
-    skill_name: roi_defense_modeling
-    type: action
+    meta_path: skills/research_assistant/meta.yaml
+    name: Research Assistant
+    path: skills/research_assistant/skill.py
     purpose: ''
-    path: skills/roi_defense_modeling/skill.py
-    meta_path: skills/roi_defense_modeling/meta.yaml
-    version: 1.0.0
+    skill_id: research_assistant
+    skill_name: Research Assistant
     status: active
+    type: action
+    updated_at: '2026-02-12T15:55:00'
+    version: 1.0.0
+  roi_defense_modeling:
     capabilities:
     - roi_defense_modeling
     dependencies: []
-    updated_at: '2026-02-20T02:22:54'
+    id: roi_defense_modeling
     last_test_ok: true
-  run:
-    id: run
-    skill_id: run
-    name: run
-    skill_name: run
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/notebooklm/scripts/run.py
-    meta_path: ''
-    version: 1.0.0
+    meta_path: skills/roi_defense_modeling/meta.yaml
+    name: roi_defense_modeling
+    path: skills/roi_defense_modeling/skill.py
+    purpose: ''
+    skill_id: roi_defense_modeling
+    skill_name: roi_defense_modeling
     status: active
+    type: action
+    updated_at: '2026-02-20T02:22:54'
+    version: 1.0.0
+  run:
     capabilities:
     - run
     dependencies: []
-    updated_at: '2026-02-24T15:05:06'
+    id: run
     last_test_ok: true
-  sandbox_manager:
-    id: sandbox_manager
-    skill_id: sandbox_manager
-    name: sandbox_manager
-    skill_name: sandbox_manager
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/hosted-agents/scripts/sandbox_manager.py
     meta_path: ''
-    version: 1.0.0
+    name: run
+    path: skills/warehouse/skills/notebooklm/scripts/run.py
+    purpose: Legacy auto-registered skill.
+    skill_id: run
+    skill_name: run
     status: active
+    type: action
+    updated_at: '2026-02-24T15:05:06'
+    version: 1.0.0
+  sandbox_manager:
     capabilities:
     - sandbox_manager
     dependencies: []
-    updated_at: '2026-02-24T15:05:05'
+    id: sandbox_manager
     last_test_ok: true
-  scalable_api_architecture:
-    id: scalable_api_architecture
-    skill_id: scalable_api_architecture
-    name: scalable_api_architecture
-    skill_name: scalable_api_architecture
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: D:\agent-factory\skills\forge\scalable_api_architecture.py
     meta_path: ''
-    version: 1.0.0
+    name: sandbox_manager
+    path: skills/warehouse/skills/hosted-agents/scripts/sandbox_manager.py
+    purpose: Legacy auto-registered skill.
+    skill_id: sandbox_manager
+    skill_name: sandbox_manager
     status: active
+    type: action
+    updated_at: '2026-02-24T15:05:05'
+    version: 1.0.0
+  scalable_api_architecture:
     capabilities:
     - scalable_api_architecture
     dependencies: []
-    updated_at: '2026-03-05T02:32:48'
+    id: scalable_api_architecture
     last_test_ok: true
-  search:
-    id: search
-    skill_id: search
-    name: search
-    skill_name: search
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/ui-ux-pro-max/scripts/search.py
     meta_path: ''
-    version: 1.0.0
+    name: scalable_api_architecture
+    path: skills/forge/scalable_api_architecture.py
+    purpose: Legacy auto-registered skill.
+    skill_id: scalable_api_architecture
+    skill_name: scalable_api_architecture
     status: active
+    type: action
+    updated_at: '2026-03-05T02:32:48'
+    version: 1.0.0
+  search:
     capabilities:
     - search
     dependencies: []
-    updated_at: '2026-02-24T15:05:13'
+    id: search
     last_test_ok: true
-  seasonal_ingredient_procurement:
-    id: seasonal_ingredient_procurement
-    skill_id: seasonal_ingredient_procurement
-    name: seasonal_ingredient_procurement
-    skill_name: seasonal_ingredient_procurement
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: D:\agent-factory\skills\forge\seasonal_ingredient_procurement.py
     meta_path: ''
-    version: 1.0.0
+    name: search
+    path: skills/warehouse/skills/ui-ux-pro-max/scripts/search.py
+    purpose: Legacy auto-registered skill.
+    skill_id: search
+    skill_name: search
     status: active
+    type: action
+    updated_at: '2026-02-24T15:05:13'
+    version: 1.0.0
+  seasonal_ingredient_procurement:
     capabilities:
     - seasonal_ingredient_procurement
     dependencies: []
-    updated_at: '2026-03-05T02:32:48'
+    id: seasonal_ingredient_procurement
     last_test_ok: true
-  seasonal_omakase_inventory_optimization:
-    id: seasonal_omakase_inventory_optimization
-    skill_id: seasonal_omakase_inventory_optimization
-    name: seasonal_omakase_inventory_optimization
-    skill_name: seasonal_omakase_inventory_optimization
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: D:\agent-factory\skills\forge\seasonal_omakase_inventory_optimization.py
     meta_path: ''
-    version: 1.0.0
+    name: seasonal_ingredient_procurement
+    path: skills/forge/seasonal_ingredient_procurement.py
+    purpose: Legacy auto-registered skill.
+    skill_id: seasonal_ingredient_procurement
+    skill_name: seasonal_ingredient_procurement
     status: active
+    type: action
+    updated_at: '2026-03-05T02:32:48'
+    version: 1.0.0
+  seasonal_omakase_inventory_optimization:
     capabilities:
     - seasonal_omakase_inventory_optimization
     dependencies: []
-    updated_at: '2026-03-05T02:32:49'
+    id: seasonal_omakase_inventory_optimization
     last_test_ok: true
-  session_catchup:
-    id: session_catchup
-    skill_id: session_catchup
-    name: session_catchup
-    skill_name: session-catchup
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/planning-with-files/scripts/session-catchup.py
     meta_path: ''
-    version: 1.0.0
+    name: seasonal_omakase_inventory_optimization
+    path: skills/forge/seasonal_omakase_inventory_optimization.py
+    purpose: Legacy auto-registered skill.
+    skill_id: seasonal_omakase_inventory_optimization
+    skill_name: seasonal_omakase_inventory_optimization
     status: active
+    type: action
+    updated_at: '2026-03-05T02:32:49'
+    version: 1.0.0
+  session_catchup:
     capabilities:
     - session_catchup
     dependencies: []
-    updated_at: '2026-02-24T15:05:08'
+    id: session_catchup
     last_test_ok: true
-  setup_environment:
-    id: setup_environment
-    skill_id: setup_environment
-    name: setup_environment
-    skill_name: setup_environment
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/notebooklm/scripts/setup_environment.py
     meta_path: ''
-    version: 1.0.0
+    name: session_catchup
+    path: skills/warehouse/skills/planning-with-files/scripts/session-catchup.py
+    purpose: Legacy auto-registered skill.
+    skill_id: session_catchup
+    skill_name: session-catchup
     status: active
+    type: action
+    updated_at: '2026-02-24T15:05:08'
+    version: 1.0.0
+  setup_environment:
     capabilities:
     - setup_environment
     dependencies: []
-    updated_at: '2026-02-24T15:05:06'
+    id: setup_environment
     last_test_ok: true
-  simplify_redlines:
-    id: simplify_redlines
-    skill_id: simplify_redlines
-    name: simplify_redlines
-    skill_name: simplify_redlines
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/xlsx/scripts/office/helpers/simplify_redlines.py
     meta_path: ''
-    version: 1.0.0
+    name: setup_environment
+    path: skills/warehouse/skills/notebooklm/scripts/setup_environment.py
+    purpose: Legacy auto-registered skill.
+    skill_id: setup_environment
+    skill_name: setup_environment
     status: active
+    type: action
+    updated_at: '2026-02-24T15:05:06'
+    version: 1.0.0
+  simplify_redlines:
     capabilities:
     - simplify_redlines
     dependencies: []
-    updated_at: '2026-02-24T15:16:29'
+    id: simplify_redlines
     last_test_ok: true
-  soffice:
-    id: soffice
-    skill_id: soffice
-    name: soffice
-    skill_name: soffice
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/xlsx/scripts/office/soffice.py
     meta_path: ''
-    version: 1.0.0
+    name: simplify_redlines
+    path: skills/warehouse/skills/xlsx/scripts/office/helpers/simplify_redlines.py
+    purpose: Legacy auto-registered skill.
+    skill_id: simplify_redlines
+    skill_name: simplify_redlines
     status: active
+    type: action
+    updated_at: '2026-02-24T15:16:29'
+    version: 1.0.0
+  soffice:
     capabilities:
     - soffice
     dependencies: []
-    updated_at: '2026-02-24T15:16:29'
+    id: soffice
     last_test_ok: true
-  state_machine_exception_planning:
-    id: state_machine_exception_planning
-    skill_id: state_machine_exception_planning
-    name: state_machine_exception_planning
-    skill_name: state_machine_exception_planning
-    type: action
-    purpose: ''
-    path: skills/state_machine_exception_planning/skill.py
-    meta_path: skills/state_machine_exception_planning/meta.yaml
-    version: 1.0.0
+    meta_path: ''
+    name: soffice
+    path: skills/warehouse/skills/xlsx/scripts/office/soffice.py
+    purpose: Legacy auto-registered skill.
+    skill_id: soffice
+    skill_name: soffice
     status: active
+    type: action
+    updated_at: '2026-02-24T15:16:29'
+    version: 1.0.0
+  state_machine_exception_planning:
     capabilities:
     - state_machine_exception_planning
     dependencies: []
-    updated_at: '2026-02-20T02:22:54'
+    id: state_machine_exception_planning
     last_test_ok: true
-  stitch_design:
-    id: stitch_design
-    skill_id: stitch_design
-    name: Stitch AI Design Tool
-    skill_name: Stitch AI Design Tool
-    type: action
+    meta_path: skills/state_machine_exception_planning/meta.yaml
+    name: state_machine_exception_planning
+    path: skills/state_machine_exception_planning/skill.py
     purpose: ''
-    path: skills/stitch_design/skill.py
-    meta_path: skills/stitch_design/meta.yaml
-    version: 1.0.0
+    skill_id: state_machine_exception_planning
+    skill_name: state_machine_exception_planning
     status: active
+    type: action
+    updated_at: '2026-02-20T02:22:54'
+    version: 1.0.0
+  stitch_design:
     capabilities:
     - stitch_design
     - ai_ui_gen
     - code_spec
     dependencies: []
-    updated_at: '2026-02-13T02:10:00'
+    id: stitch_design
     last_test_ok: true
-  thumbnail:
-    id: thumbnail
-    skill_id: thumbnail
-    name: thumbnail
-    skill_name: thumbnail
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/pptx/scripts/thumbnail.py
-    meta_path: ''
-    version: 1.0.0
+    meta_path: skills/stitch_design/meta.yaml
+    name: Stitch AI Design Tool
+    path: skills/stitch_design/skill.py
+    purpose: ''
+    skill_id: stitch_design
+    skill_name: Stitch AI Design Tool
     status: active
+    type: action
+    updated_at: '2026-02-13T02:10:00'
+    version: 1.0.0
+  thumbnail:
     capabilities:
     - thumbnail
     dependencies: []
-    updated_at: '2026-02-24T15:05:09'
+    id: thumbnail
     last_test_ok: true
-  trigger_rule_design:
-    id: trigger_rule_design
-    skill_id: trigger_rule_design
-    name: trigger_rule_design
-    skill_name: trigger_rule_design
-    type: action
-    purpose: ''
-    path: skills/trigger_rule_design/skill.py
-    meta_path: skills/trigger_rule_design/meta.yaml
-    version: 1.0.0
+    meta_path: ''
+    name: thumbnail
+    path: skills/warehouse/skills/pptx/scripts/thumbnail.py
+    purpose: Legacy auto-registered skill.
+    skill_id: thumbnail
+    skill_name: thumbnail
     status: active
+    type: action
+    updated_at: '2026-02-24T15:05:09'
+    version: 1.0.0
+  trigger_rule_design:
     capabilities:
     - trigger_rule_design
     dependencies: []
-    updated_at: '2026-02-20T02:22:54'
+    id: trigger_rule_design
     last_test_ok: true
-  unpack:
-    id: unpack
-    skill_id: unpack
-    name: unpack
-    skill_name: unpack
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/xlsx/scripts/office/unpack.py
-    meta_path: ''
-    version: 1.0.0
+    meta_path: skills/trigger_rule_design/meta.yaml
+    name: trigger_rule_design
+    path: skills/trigger_rule_design/skill.py
+    purpose: ''
+    skill_id: trigger_rule_design
+    skill_name: trigger_rule_design
     status: active
+    type: action
+    updated_at: '2026-02-20T02:22:54'
+    version: 1.0.0
+  unpack:
     capabilities:
     - unpack
     dependencies: []
-    updated_at: '2026-02-24T15:16:29'
+    id: unpack
     last_test_ok: true
-  user_flow_optimization:
-    id: user_flow_optimization
-    skill_id: user_flow_optimization
-    name: User Flow Optimization
-    skill_name: User Flow Optimization
-    type: action
-    purpose: ''
-    path: skills/user_flow_optimization/skill.py
-    meta_path: skills/user_flow_optimization/meta.yaml
-    version: 1.0.0
+    meta_path: ''
+    name: unpack
+    path: skills/warehouse/skills/xlsx/scripts/office/unpack.py
+    purpose: Legacy auto-registered skill.
+    skill_id: unpack
+    skill_name: unpack
     status: active
+    type: action
+    updated_at: '2026-02-24T15:16:29'
+    version: 1.0.0
+  user_flow_optimization:
     capabilities:
     - user_flow
     - mermaid
     - diagram
     dependencies: []
-    updated_at: '2026-02-12T18:15:00'
+    id: user_flow_optimization
     last_test_ok: true
-  utilities:
-    id: utilities
-    skill_id: utilities
-    name: utilities
-    skill_name: utilities
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/docx/scripts/utilities.py
-    meta_path: ''
-    version: 1.0.0
+    meta_path: skills/user_flow_optimization/meta.yaml
+    name: User Flow Optimization
+    path: skills/user_flow_optimization/skill.py
+    purpose: ''
+    skill_id: user_flow_optimization
+    skill_name: User Flow Optimization
     status: active
+    type: action
+    updated_at: '2026-02-12T18:15:00'
+    version: 1.0.0
+  utilities:
     capabilities:
     - utilities
     dependencies: []
-    updated_at: '2026-02-24T15:05:04'
+    id: utilities
     last_test_ok: true
-  validate:
-    id: validate
-    skill_id: validate
-    name: validate
-    skill_name: validate
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/xlsx/scripts/office/validate.py
     meta_path: ''
-    version: 1.0.0
+    name: utilities
+    path: skills/warehouse/skills/docx/scripts/utilities.py
+    purpose: Legacy auto-registered skill.
+    skill_id: utilities
+    skill_name: utilities
     status: active
+    type: action
+    updated_at: '2026-02-24T15:05:04'
+    version: 1.0.0
+  validate:
     capabilities:
     - validate
     dependencies: []
-    updated_at: '2026-02-24T15:16:29'
+    id: validate
     last_test_ok: true
-  validators:
-    id: validators
-    skill_id: validators
-    name: validators
-    skill_name: validators
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/slack-gif-creator/core/validators.py
     meta_path: ''
-    version: 1.0.0
+    name: validate
+    path: skills/warehouse/skills/xlsx/scripts/office/validate.py
+    purpose: Legacy auto-registered skill.
+    skill_id: validate
+    skill_name: validate
     status: active
+    type: action
+    updated_at: '2026-02-24T15:16:29'
+    version: 1.0.0
+  validators:
     capabilities:
     - validators
     dependencies: []
-    updated_at: '2026-02-24T15:05:12'
+    id: validators
     last_test_ok: true
-  with_server:
-    id: with_server
-    skill_id: with_server
-    name: with_server
-    skill_name: with_server
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: skills/warehouse/skills/webapp-testing/scripts/with_server.py
     meta_path: ''
-    version: 1.0.0
+    name: validators
+    path: skills/warehouse/skills/slack-gif-creator/core/validators.py
+    purpose: Legacy auto-registered skill.
+    skill_id: validators
+    skill_name: validators
     status: active
+    type: action
+    updated_at: '2026-02-24T15:05:12'
+    version: 1.0.0
+  with_server:
     capabilities:
     - with_server
     dependencies: []
-    updated_at: '2026-02-24T15:05:13'
+    id: with_server
     last_test_ok: true
-  zero_downtime_deployment_playbook:
-    id: zero_downtime_deployment_playbook
-    skill_id: zero_downtime_deployment_playbook
-    name: zero_downtime_deployment_playbook
-    skill_name: zero_downtime_deployment_playbook
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: D:\agent-factory\skills\forge\zero_downtime_deployment_playbook.py
     meta_path: ''
-    version: 1.0.0
+    name: with_server
+    path: skills/warehouse/skills/webapp-testing/scripts/with_server.py
+    purpose: Legacy auto-registered skill.
+    skill_id: with_server
+    skill_name: with_server
     status: active
+    type: action
+    updated_at: '2026-02-24T15:05:13'
+    version: 1.0.0
+  zero_downtime_deployment_playbook:
     capabilities:
     - zero_downtime_deployment_playbook
     dependencies: []
-    updated_at: '2026-03-05T02:32:49'
+    id: zero_downtime_deployment_playbook
     last_test_ok: true
-  zero_integration_parsing_spec:
-    id: zero_integration_parsing_spec
-    skill_id: zero_integration_parsing_spec
-    name: zero_integration_parsing_spec
-    skill_name: zero_integration_parsing_spec
-    type: action
-    purpose: ''
-    path: skills/zero_integration_parsing_spec/skill.py
-    meta_path: skills/zero_integration_parsing_spec/meta.yaml
-    version: 1.0.0
+    meta_path: ''
+    name: zero_downtime_deployment_playbook
+    path: skills/forge/zero_downtime_deployment_playbook.py
+    purpose: Legacy auto-registered skill.
+    skill_id: zero_downtime_deployment_playbook
+    skill_name: zero_downtime_deployment_playbook
     status: active
+    type: action
+    updated_at: '2026-03-05T02:32:49'
+    version: 1.0.0
+  zero_integration_parsing_spec:
     capabilities:
     - zero_integration_parsing_spec
     dependencies: []
+    id: zero_integration_parsing_spec
+    last_test_ok: true
+    meta_path: skills/zero_integration_parsing_spec/meta.yaml
+    name: zero_integration_parsing_spec
+    path: skills/zero_integration_parsing_spec/skill.py
+    purpose: ''
+    skill_id: zero_integration_parsing_spec
+    skill_name: zero_integration_parsing_spec
+    status: active
+    type: action
     updated_at: '2026-02-20T02:22:54'
-    last_test_ok: true
-  needs_issue:
-    id: needs_issue
-    skill_id: needs_issue
-    name: needs_issue
-    skill_name: needs_issue
-    type: action
-    purpose: Dynamically forged skill for r
-    path: D:\agent-factory\skills\forge\needs_issue.py
-    meta_path: ''
     version: 1.0.0
-    status: active
-    capabilities:
-    - needs_issue
-    dependencies: []
-    updated_at: '2026-03-05T02:09:29'
-    last_test_ok: true
-  file_handler:
-    id: file_handler
-    skill_id: file_handler
-    name: file_handler
-    skill_name: file_handler
-    type: action
-    purpose: Legacy auto-registered skill.
-    path: D:\agent-factory\skills\forge\file_handler.py
-    meta_path: ''
-    version: 1.0.0
-    status: active
-    capabilities:
-    - file_handler
-    dependencies: []
-    updated_at: '2026-03-05T02:32:48'
-    last_test_ok: true
-install_candidates: {}

@@ -38,7 +38,7 @@ class DynamicOrchestrator:
         self.memory_hub = AstMemoryHub()
         self.evaluator = StrategyEvaluator(model_name=engine_id)
         
-    async def _lilith_decide_next(self, project_desc: str, roles: List[str]) -> List[Dict[str, str]]:
+    async def _lilith_decide_next(self, project_desc: str, roles: List[str], workspace: str | None = None) -> List[Dict[str, str]]:
         """
         Lilith (Main AI) analyzes the current board state and actively determines the next 
         set of micro-tasks to spawn and assign to available agents.
@@ -52,10 +52,21 @@ class DynamicOrchestrator:
         if not available_roles:
             return [] # Everyone is busy
             
+        # [Stability FIX] Inject the tactical plan (.todo.md) into context
+        todo_content = ""
+        workspace = workspace or os.getcwd() # Need workspace path if not passed
+        todo_path = os.path.join(workspace, ".todo.md")
+        if os.path.exists(todo_path):
+            with open(todo_path, "r", encoding="utf-8") as f:
+                todo_content = f.read()
+
         prompt = f"""
         You are Lilith, the Master Orchestrator (Sisyphus-class) of Agent Factory V3.
         Your goal is to complete this project: {project_desc}
         
+        ## Tactical Plan (.todo.md):
+        {todo_content}
+
         ## Current Board State:
         Completed works: {json.dumps(self.state_board['completed_subtasks'], ensure_ascii=False)}
         Failed works: {json.dumps(self.state_board['failed_subtasks'], ensure_ascii=False)}
@@ -67,9 +78,9 @@ class DynamicOrchestrator:
         {json.dumps(available_roles, ensure_ascii=False)}
         
         ## INSTRUCTION:
-        Based on the current state, determine the NEXT immediate sub-tasks that should be executed in parallel.
+        Based on the .todo.md roadmap and the current state, determine the NEXT immediate sub-tasks that should be executed in parallel.
         Assign them to the available idle agents. You do not have to assign work to everyone if not needed.
-        If the project is completely finished and no more tasks are needed, return an empty array.
+        If the project is completely finished and no more tasks are needed (all .todo.md items reached), return an empty array.
         
         Return JSON ONLY:
         {{
@@ -91,7 +102,7 @@ class DynamicOrchestrator:
                 
             tasks = data.get("next_tasks", [])
             with open("dynamic_log.txt", "a", encoding="utf-8") as f:
-                f.write(f"\n[Lilith] Roles: {available_roles}\nTasks: {tasks}\nRaw: {response_text}\n")
+                f.write(f"\n[Lilith] Cycle: {getattr(self, '_current_cycle', '?')}\nRoles: {available_roles}\nTasks: {tasks}\nRaw: {json.dumps(data, ensure_ascii=False)}\n")
                 
             if not tasks:
                 print_agent_msg("Lilith", f"[Debug] Raw response returned empty tasks. Raw data: {response_text}", "🔍")
@@ -182,10 +193,11 @@ class DynamicOrchestrator:
         
         while cycle < max_cycles:
             cycle += 1
+            self._current_cycle = cycle # Track cycle for logging
             print_agent_msg("Lilith", f"--- Dynamic Sync Cycle {cycle} ---", "👑")
             
             # 1. Ask Lilith for the next tickets
-            new_tasks = await self._lilith_decide_next(project_desc, roles)
+            new_tasks = await self._lilith_decide_next(project_desc, roles, workspace)
             
             if not new_tasks:
                 # Check if anyone is still working

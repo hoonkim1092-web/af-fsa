@@ -1,4 +1,4 @@
-﻿
+
 import os
 import json
 import time
@@ -20,6 +20,7 @@ _genai_client = genai.Client(api_key=_google_api_key) if _google_api_key else No
 
 CACHE_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "models_cache.json")
 CACHE_EXPIRY = 24 * 60 * 60  # 24 hours in seconds
+FORCED_MODEL_ENV = "AGENT_FORCE_MODEL"
 
 
 # =============================================================================
@@ -68,6 +69,91 @@ def save_cache(models: list):
         log(f"Model cache saved to {CACHE_FILE}")
     except Exception as e:
         log(f"Error saving cache: {e}")
+
+
+def normalize_model_name(model_name: str) -> str:
+    """
+    Normalize model ID before provider calls.
+    Gemini IDs are normalized to include 'models/' prefix.
+    """
+    name = str(model_name or "").strip()
+    if not name:
+        return name
+    lower = name.lower()
+    if lower.startswith("models/"):
+        return name
+    if lower.startswith("gemini"):
+        return f"models/{name}"
+    return name
+
+
+def get_forced_model_override() -> str:
+    raw = str(os.getenv(FORCED_MODEL_ENV, "") or "").strip()
+    if not raw:
+        # Project-specific temporary override for minesweeper forge runs.
+        proj = str(os.getenv("AGENT_PROJECT_ID", "") or "").strip().lower()
+        if proj == "minesweeper":
+            return "models/gemini-3-flash-preview"
+        return ""
+    return normalize_model_name(raw)
+
+
+def _is_not_found_error(exc: Exception) -> bool:
+    text = str(exc or "").lower()
+    return ("404" in text) or ("not_found" in text) or ("not found" in text)
+
+
+def _build_gemini_retry_candidates(model_name: str) -> list[str]:
+    base = normalize_model_name(model_name)
+    candidates = [base]
+
+    if "gemini" in base.lower():
+        fallback = "models/gemini-2.0-flash"
+        if fallback not in candidates:
+            candidates.append(fallback)
+        try:
+            dynamic = normalize_model_name(get_dynamic_default_model("flash"))
+            if dynamic and dynamic not in candidates:
+                candidates.append(dynamic)
+        except Exception:
+            pass
+    return candidates
+
+
+def generate_content_with_self_heal(client, model_name: str, contents, **kwargs):
+    """
+    Google SDK self-heal wrapper for model 404.
+    Retries with normalized Gemini model candidates on NOT_FOUND.
+    """
+    last_exc = None
+    for candidate in _build_gemini_retry_candidates(model_name):
+        try:
+            return client.models.generate_content(model=candidate, contents=contents, **kwargs)
+        except Exception as exc:
+            last_exc = exc
+            if not _is_not_found_error(exc):
+                raise
+            log(f"[Self-Heal] model not found: {candidate} -> trying next candidate")
+    if last_exc:
+        raise last_exc
+
+
+def create_chat_with_self_heal(client, model_name: str, **kwargs):
+    """
+    Google SDK chat session self-heal wrapper for model 404.
+    Retries with normalized Gemini model candidates on NOT_FOUND.
+    """
+    last_exc = None
+    for candidate in _build_gemini_retry_candidates(model_name):
+        try:
+            return client.chats.create(model=candidate, **kwargs)
+        except Exception as exc:
+            last_exc = exc
+            if not _is_not_found_error(exc):
+                raise
+            log(f"[Self-Heal] chat model not found: {candidate} -> trying next candidate")
+    if last_exc:
+        raise last_exc
 
 
 # =============================================================================
@@ -191,26 +277,40 @@ def find_latest_model(tag: str, available_models: list) -> str:
     pattern = tag.replace("-*", r"-[\d\.]+").replace("*", r"[\d\.]+")
     matches = []
     for m in available_models:
+        # [Stability FIX] Keep the 'models/' prefix if present to avoid 404s in SDK
         m_name = m.replace("models/", "")
+        
+        # [Stability FIX] 'lite' 모델은 현재 API 지원이 불안정하거나 (404/503) 
+        # 특정 메서드를 지원하지 않을 수 있으므로 자동 선택에서 제외함.
+        if "lite" in m_name.lower():
+            continue
+
         if re.search(pattern, m_name):
             ver_match = re.search(r"(\d+\.\d+|\d+)", m_name)
             version = float(ver_match.group(1)) if ver_match else 0.0
             
-            # 사용자 요청: preview 등 최신 모델을 무조건 강력한 최우선으로 반영
-            # exp: 2점, preview: 1점, 안정판(없음): 0점으로 가중치 부여하여 더 높은 버전을 우선시함
+            # 사용자 요청: 안정판(Stable) 모델을 최우선으로 반영하되, 
+            # 3.x 대비 2.0의 신뢰도가 높으므로 2.0 계열에 보정치를 주거나 
+            # preview/exp 선호도를 낮춤 (안정성 확보)
             priority = 0
             if "exp" in m_name:
-                priority = 2
+                priority = -2  # 실험용은 가장 낮게
             elif "preview" in m_name:
-                priority = 1
+                priority = -1  # 프리뷰도 가급적 회피
+            elif m_name.startswith("gemini-2.0"):
+                priority = 5   # 현재 가장 안정적인 2.0 계열 우대
                 
-            matches.append({"name": m_name, "version": version, "priority": priority})
+            matches.append({"name": m, "version": version, "priority": priority})
             
     if not matches:
-        # 하드코딩 제거: 패턴에서 동적으로 기본 별칭을 추출 (예: 'gemini-*-flash' → 'gemini-flash')
-        return tag.replace("-*", "").replace("*", "")
+        # 하드코딩 제거: 패턴에서 동적으로 기본 별칭을 추출
+        fallback = tag.replace("-*", "").replace("*", "")
+        # fallback 시에도 gemini-2.0-flash 가급적 유도
+        if "flash" in fallback: return "models/gemini-2.0-flash"
+        return fallback
         
-    matches.sort(key=lambda x: (x["version"], x["priority"]), reverse=True)
+    # 우선순위(안정성) -> 버전 순으로 정렬 (안정된 모델 중 최신 버전)
+    matches.sort(key=lambda x: (x["priority"], x["version"]), reverse=True)
     return matches[0]["name"]
 
 
@@ -220,14 +320,24 @@ def get_dynamic_default_model(tier: str = "flash") -> str:
     지정된 tier(flash 또는 pro)의 가장 최신 버전 모델명을 동적으로 반환합니다.
     하드코딩된 버전 번호(예: '2.0')를 일절 사용하지 않습니다.
     """
+    forced = get_forced_model_override()
+    if forced:
+        log(f"[Forced Model] {FORCED_MODEL_ENV}={forced}")
+        return forced
+
     available = get_available_models()
-    selected = find_latest_model(f"gemini-*-{tier}", available)
+    selected = normalize_model_name(find_latest_model(f"gemini-*-{tier}", available))
     log(f"[Dynamic Default] tier={tier} → {selected}")
     return selected
 
 
 def get_best_model(priority_list: list = None) -> str:
     """우선순위 리스트 기반 최적 Gemini 모델 선택."""
+    forced = get_forced_model_override()
+    if forced:
+        log(f"[Forced Model] {FORCED_MODEL_ENV}={forced}")
+        return forced
+
     if priority_list is None:
         # 하드코딩 없이 API 목록에서 최신 모델을 직접 추출
         return get_dynamic_default_model("pro")
@@ -235,11 +345,11 @@ def get_best_model(priority_list: list = None) -> str:
     for p in priority_list:
         for m in available:
             if p in m:
-                return m
+                return normalize_model_name(m)
     if available:
-        return available[0]
+        return normalize_model_name(available[0])
     # 최후의 수단: 동적 기본 모델 (버전 하드코딩 배제)
-    return get_dynamic_default_model("flash")
+    return normalize_model_name(get_dynamic_default_model("flash"))
 
 
 # =============================================================================
@@ -257,10 +367,18 @@ def resolve_dynamic_model(engine_id: str) -> ModelSelection:
     [Plan A] 역할 전문화 + 자가 진화 + 사용자 확인 기반 교차 폴백.
 
     반환: ModelSelection(model, tier, reason)
-      - tier == 'primary'        → 정상 실행
-      - tier == 'cross_fallback' → ModelRouter가 사용자에게 경고 후 동의 시 실행
-      - tier == 'free_fallback'  → ModelRouter가 사용자에게 경고 후 동의 시 실행
+      - tier == 'primary'        -> 정상 실행
+      - tier == 'cross_fallback' -> ModelRouter가 사용자에게 경고 후 동의 시 실행
+      - tier == 'free_fallback'  -> ModelRouter가 사용자에게 경고 후 동의 시 실행
     """
+    forced = get_forced_model_override()
+    if forced:
+        return ModelSelection(
+            normalize_model_name(forced),
+            TIER_PRIMARY,
+            f"[forced] {FORCED_MODEL_ENV} override active",
+        )
+
     available = get_available_models()
     keys = {
         "google":    bool(os.getenv("GOOGLE_API_KEY")),
@@ -301,13 +419,13 @@ def resolve_dynamic_model(engine_id: str) -> ModelSelection:
         return sel
 
     def _cross(model: str, reason: str) -> ModelSelection:
-        return _check_callable(ModelSelection(model, TIER_CROSS_FALLBACK, reason))
+        return _check_callable(ModelSelection(normalize_model_name(model), TIER_CROSS_FALLBACK, reason))
 
     def _free(model: str, reason: str) -> ModelSelection:
-        return _check_callable(ModelSelection(model, TIER_FREE_FALLBACK, reason))
+        return _check_callable(ModelSelection(normalize_model_name(model), TIER_FREE_FALLBACK, reason))
 
     def _primary(model: str) -> ModelSelection:
-        return _check_callable(ModelSelection(model, TIER_PRIMARY, ""))
+        return _check_callable(ModelSelection(normalize_model_name(model), TIER_PRIMARY, ""))
 
     # ─────────────────────────────────────────────────────────────────────────
     # [1] Google Gemini — Super Researcher / Release Agents
@@ -478,20 +596,16 @@ def _infer_engine_id(role: str) -> str:
 
 def resolve_preferred_model(role: str) -> str:
     """
-    에이전트 역할(role) 기반으로 **현재 등록된 API 키**를 고려하여
-    최적의 선호 모델명을 자동 반환한다.
-
-    - UNCALLABLE 상태이면 모델명은 반환하되 tier='uncallable' 이므로
-      호출자는 경고 로그를 남겨야 한다.
-    - 반환값: 모델 ID 문자열 (예: "models/gemini-2.5-pro-preview-06-05")
+    [USER REQUEST] Stability Override: Force gemini-2.0-flash for ALL roles.
+    이전에는 역할별로 Claude/GPT를 매핑했으나, 현재 지뢰찾기 프로젝트의 안정성을 위해 
+    사용자의 요청에 따라 무조건 'models/gemini-2.0-flash'만 반환하도록 고정함.
     """
-    engine_id = _infer_engine_id(role)
-    try:
-        selection = resolve_dynamic_model(engine_id)
-        return selection.model
-    except Exception as e:
-        log(f"resolve_preferred_model fallback to gemini-flash: {e}")
-        return get_dynamic_default_model("flash")
+    forced = get_forced_model_override()
+    if forced:
+        log(f"[Stability Override] Forcing '{forced}' for role: {role}")
+        return forced
+    log(f"[Stability Override] Forcing 'models/gemini-2.0-flash' for role: {role}")
+    return "models/gemini-2.0-flash"
 
 
 # 엔진 ID → 표시 이름 (CLI 출력용)
@@ -544,4 +658,3 @@ def print_agent_model_summary(agent: dict, selected_model: str = "", selected_ti
     print(f"+{sep}+")
     print("  To override: AGENT_CHAT_MODEL=<model> python agent_launcher.py")
     print("  Or edit YAML runtime_rules.preferred_model directly.\n")
-

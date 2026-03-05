@@ -1,6 +1,7 @@
 import os
 import json
 from google import genai
+from model_utils import normalize_model_name, generate_content_with_self_heal
 from core.utils import safe_id, now_iso, write_text, write_yaml, strip_code_fences, sha256_text, quick_guard, run_isolated
 from core.config_paths import SKILLS_DIR, RUNS_DIR
 
@@ -66,7 +67,7 @@ class SandboxedBuilder:
             return False, None, fail_meta
 
         _client = genai.Client(api_key=_api_key)
-        _model_name = self.mr.pick("builder")
+        _model_name = normalize_model_name(self.mr.pick("builder"))
         base_prompt = f"""
 당신은 파이썬 스킬 모듈을 작성한다.
 Skill: "{skill_name}"
@@ -101,7 +102,7 @@ Evidence(JSON): {json.dumps(target_evidence, ensure_ascii=False)}
 
             print(f"[Builder] Building skill '{skill_id}' attempt {i+1}/{MAX_ITERATIONS}...")
             try:
-                res = _client.models.generate_content(model=_model_name, contents=current_prompt)
+                res = generate_content_with_self_heal(_client, _model_name, current_prompt)
             except Exception as e:
                 print(f"[Builder] WARN: LLM call failed: {e}")
                 last = {"ok": False, "reason": f"llm_error:{type(e).__name__}", "detail": str(e)[:300]}
