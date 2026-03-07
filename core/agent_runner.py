@@ -301,6 +301,7 @@ except Exception as e:
 class AgentRunner:
     def __init__(self, model_router: ModelRouter):
         self.mr = model_router
+        self._knowledge_skills = []
 
     def _resolve_system_prompt(self, agent: dict) -> str:
         direct = str(agent.get("system_ko", "")).strip()
@@ -514,6 +515,7 @@ class AgentRunner:
         # Legacy support + Caching
         if not hasattr(self, '_skill_module_cache'):
             self._skill_module_cache = {}
+        self._knowledge_skills = []
             
         loaded_skills = []
         skill_ids = agent.get("skills", [])
@@ -551,8 +553,7 @@ class AgentRunner:
                 from core.knowledge_skill import parse_skill_md
                 
                 md_path = None
-                base_skills_dir = os.path.join(os.getcwd(), 'skills')
-                for base in [base_skills_dir, WAREHOUSE_DIR, FORGE_DIR]:
+                for base in [PROJECT_SKILLS_DIR, SKILLS_DIR, WAREHOUSE_DIR, FORGE_DIR]:
                     candidate = os.path.join(base, sid, "skill.md")
                     if os.path.exists(candidate):
                         md_path = candidate
@@ -588,7 +589,15 @@ class AgentRunner:
         print(f"\n🚀 [Runner] 에이전트 실행 시작: {agent.get('name')}")
         started = time.time()
         run_id = run_id or f"run_{int(started)}"
-        run_dir = os.path.join(RUNS_DIR, run_id)
+        target_workspace = os.path.abspath(workspace) if workspace else PROJECT_ROOT
+        project_id = safe_id(os.path.basename(target_workspace)) if workspace else PROJECT_ID
+        runs_dir = os.path.join(target_workspace, "runs") if workspace else RUNS_DIR
+        data_dir = os.path.join(target_workspace, "data") if workspace else DATA_DIR
+        artifacts_dir = os.path.join(target_workspace, "artifacts") if workspace else ARTIFACTS_DIR
+        os.makedirs(runs_dir, exist_ok=True)
+        os.makedirs(data_dir, exist_ok=True)
+        os.makedirs(artifacts_dir, exist_ok=True)
+        run_dir = os.path.join(runs_dir, run_id)
         os.makedirs(run_dir, exist_ok=True)
         transcript = []
 
@@ -602,7 +611,7 @@ class AgentRunner:
         def _flush_trace(result: dict):
             data = {
                 "run_id": run_id,
-                "project_id": PROJECT_ID,
+                "project_id": project_id,
                 "agent_name": str(agent.get("name", "")),
                 "agent_role": str(agent.get("role", "")),
                 "task": str(task_input or ""),
@@ -613,16 +622,12 @@ class AgentRunner:
             _safe_write_json(os.path.join(run_dir, "chat_trace.json"), data)
         approval_rejects = 0
         
-        # 1. Load Skills
-        modules = self.load_skills(agent)
-        
-        # 2. Context Setup
-        # Inject context into modules if they have a 'ctx' global or similar
         ctx = {
             "agent": agent,
-            "data_dir": DATA_DIR,
-            "artifacts_dir": ARTIFACTS_DIR,
-            "workspace": workspace or os.getcwd()
+            "data_dir": data_dir,
+            "artifacts_dir": artifacts_dir,
+            "workspace": target_workspace,
+            "project_id": project_id,
         }
         ok_ctx, msg_ctx = validate_context_with_schema(ctx)
         if not ok_ctx:
@@ -631,6 +636,10 @@ class AgentRunner:
             result = {"ok": False, "reason": f"context_schema:{msg_ctx}", "latency_ms": int((time.time() - started) * 1000), "approval_rejects": approval_rejects}
             _append_trace("error", {"stage": "context_schema", "message": str(msg_ctx)})
             _flush_trace(result)
+            return result
+
+        # 1. Load Skills
+        modules = self.load_skills(agent)
         policy_runner = PolicyRuntime(base_dir=BASE_DIR)
         policy = policy_runner.resolve_agent_policy(agent)
         agent_name = agent.get("name", "")
@@ -686,7 +695,7 @@ class AgentRunner:
         agent_state = {
             "task_input": task_input,
             "intent": "complex_feature" if is_complex else "trivial",
-            "workspace": workspace or PROJECT_ROOT
+            "workspace": target_workspace
         }
         
         if not bus.run_pre_execute(agent_state):

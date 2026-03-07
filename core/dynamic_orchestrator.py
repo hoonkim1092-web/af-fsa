@@ -108,9 +108,10 @@ class DynamicOrchestrator:
                 print_agent_msg("Lilith", f"[Debug] Raw response returned empty tasks. Raw data: {response_text}", "🔍")
                 # [Stability FIX] If data is null or tasks are truly empty despite available roles,
                 # return a placeholder to keep the loop alive during API 503 spikes.
-                if not data or not tasks:
+                if not data:
                     print_agent_msg("Lilith", "LLM response empty (possible API Overload). Retrying next cycle...", "⚠️")
                     return [{"assigned_role": "__placeholder__", "subtask_instruction": "retry"}]
+                return []
             else:
                 print_agent_msg("Lilith", f"[Debug] LLM returned tasks: {tasks}. Available roles: {available_roles}", "🔍")
                 

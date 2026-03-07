@@ -9,13 +9,42 @@ import os
 import json
 import copy
 
-from core.config_paths import DASHBOARD_PATH, PROJECT_ID, CONTEXT_SCHEMA_PATH
+from core.config_paths import BASE_DIR, DASHBOARD_PATH, PROJECT_ID
 from core.file_io import read_yaml
 
 # =============================================================================
 # Dashboard Cache
 # =============================================================================
 _DASHBOARD_CACHE: tuple[int, int, dict] | None = None
+
+
+def _normalize_dashboard_path(path_text: str) -> str:
+    p = str(path_text or "").strip()
+    if not p:
+        return p
+    if not os.path.isabs(p):
+        return p.replace("\\", "/")
+    try:
+        rel = os.path.relpath(os.path.abspath(p), BASE_DIR)
+        if not rel.startswith(".."):
+            return rel.replace("\\", "/")
+    except Exception:
+        pass
+    return p.replace("\\", "/")
+
+
+def _normalize_dashboard_entry(value):
+    if isinstance(value, dict):
+        normalized = {}
+        for key, item in value.items():
+            if isinstance(key, str) and key.endswith("_path") and isinstance(item, str):
+                normalized[key] = _normalize_dashboard_path(item)
+            else:
+                normalized[key] = _normalize_dashboard_entry(item)
+        return normalized
+    if isinstance(value, list):
+        return [_normalize_dashboard_entry(item) for item in value]
+    return value
 
 
 def append_dashboard_run(entry: dict):
@@ -46,7 +75,8 @@ def append_dashboard_run(entry: dict):
 
     data.setdefault("project_id", PROJECT_ID)
     data.setdefault("runs", [])
-    data["runs"].append(entry)
+    data["runs"] = [_normalize_dashboard_entry(copy.deepcopy(item)) for item in data["runs"]]
+    data["runs"].append(_normalize_dashboard_entry(copy.deepcopy(entry)))
     data["runs"] = data["runs"][-300:]
     with open(path, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
@@ -64,6 +94,8 @@ def _safe_write_json(path: str, data: dict):
 
 
 def validate_context_with_schema(ctx: dict) -> tuple[bool, str]:
+    from core.config_paths import CONTEXT_SCHEMA_PATH
+
     schema = read_yaml(CONTEXT_SCHEMA_PATH)
     reqs = schema.get("required_keys", []) if isinstance(schema, dict) else []
     types = schema.get("types", {}) if isinstance(schema, dict) else {}

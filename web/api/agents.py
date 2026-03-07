@@ -1,6 +1,8 @@
 ﻿"""
 Agent catalog/create/edit API for web UI.
 """
+import os
+import shutil
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -67,8 +69,67 @@ def _safe_id(text: str) -> str:
     return s or "agent"
 
 
-def _agent_file(agent_id: str) -> Path:
-    return AGENTS_DIR / f"{_safe_id(agent_id)}.yaml"
+def _project_root(project_id: str | None = None) -> Path | None:
+    pid = _safe_id(project_id or "")
+    if pid:
+        return _ROOT_DIR / "projects" / pid
+    project_root = str(os.getenv("AGENT_PROJECT_ROOT", "") or "").strip()
+    return Path(project_root) if project_root else None
+
+
+def _project_agents_dir(project_id: str | None = None) -> Path | None:
+    project_root = _project_root(project_id)
+    if project_root is None:
+        return None
+    return project_root / "agents"
+
+
+def _agent_file(agent_id: str, project_id: str | None = None) -> Path:
+    project_dir = _project_agents_dir(project_id)
+    base_dir = project_dir if project_dir is not None else AGENTS_DIR
+    return base_dir / f"{_safe_id(agent_id)}.yaml"
+
+
+def _scan_agent_items(base_dir: Path) -> dict[str, Path]:
+    items: dict[str, Path] = {}
+    if not base_dir.exists():
+        return items
+    for item in sorted(base_dir.iterdir()):
+        if item.suffix in (".yaml", ".yml"):
+            items[item.stem] = item
+        elif item.is_dir() and not item.name.startswith(".") and (item / "agent.yaml").exists():
+            items[item.name] = item
+    return items
+
+
+def _effective_agent_items(project_id: str | None = None) -> list[Path]:
+    items = _scan_agent_items(AGENTS_DIR)
+    project_dir = _project_agents_dir(project_id)
+    if project_dir is not None:
+        items.update(_scan_agent_items(project_dir))
+    return [items[key] for key in sorted(items)]
+
+
+def _resolve_agent_file(agent_id: str, project_id: str | None = None) -> Path:
+    target = _agent_file(agent_id, project_id)
+    if target.exists():
+        return target
+    fallback = AGENTS_DIR / f"{_safe_id(agent_id)}.yaml"
+    if fallback.exists():
+        return fallback
+    return target
+
+
+def _ensure_editable_agent_file(agent_id: str, project_id: str | None = None) -> Path:
+    target = _agent_file(agent_id, project_id)
+    if target.exists():
+        return target
+    if project_id:
+        source = AGENTS_DIR / f"{_safe_id(agent_id)}.yaml"
+        if source.exists():
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(source, target)
+    return target
 
 
 def _extract_role(data: dict, default: str = "") -> str:
@@ -148,12 +209,13 @@ def _load_agent_dir(path: Path) -> dict | None:
 
 
 @router.get("/agents")
-async def list_agents():
+async def list_agents(project_id: str | None = None):
     agents = []
-    if not AGENTS_DIR.exists():
+    items = _effective_agent_items(project_id)
+    if not items:
         return {"agents": []}
 
-    for item in sorted(AGENTS_DIR.iterdir()):
+    for item in items:
         if item.suffix in (".yaml", ".yml"):
             info = _load_agent_yaml(item)
             if info:
@@ -167,12 +229,13 @@ async def list_agents():
 
 
 @router.get("/agents/catalog")
-async def list_agent_catalog():
-    if not AGENTS_DIR.exists():
+async def list_agent_catalog(project_id: str | None = None):
+    yaml_paths = [path for path in _effective_agent_items(project_id) if path.suffix in (".yaml", ".yml")]
+    if not yaml_paths:
         return {"agents": [], "count": 0, "editable_categories": EDITABLE_CATEGORIES}
 
     items = []
-    for path in sorted(AGENTS_DIR.glob("*.yaml")):
+    for path in yaml_paths:
         try:
             data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
             if isinstance(data, dict):
@@ -183,9 +246,9 @@ async def list_agent_catalog():
 
 
 @router.post("/agents")
-async def create_agent(req: AgentCreateRequest):
-    AGENTS_DIR.mkdir(parents=True, exist_ok=True)
-    path = _agent_file(req.agent_id)
+async def create_agent(req: AgentCreateRequest, project_id: str | None = None):
+    path = _agent_file(req.agent_id, project_id)
+    path.parent.mkdir(parents=True, exist_ok=True)
     if path.exists():
         raise HTTPException(status_code=409, detail=f"agent already exists: {path.stem}")
 
@@ -217,8 +280,8 @@ async def create_agent(req: AgentCreateRequest):
 
 
 @router.patch("/agents/{agent_id}")
-async def patch_agent(agent_id: str, req: AgentPatchRequest):
-    path = _agent_file(agent_id)
+async def patch_agent(agent_id: str, req: AgentPatchRequest, project_id: str | None = None):
+    path = _ensure_editable_agent_file(agent_id, project_id)
     if not path.exists():
         raise HTTPException(status_code=404, detail=f"agent not found: {_safe_id(agent_id)}")
 
@@ -268,9 +331,9 @@ _ENGINE_LABELS: dict[str, str] = {
 
 
 @router.get("/agents/{agent_id}/model-info")
-async def get_agent_model_info(agent_id: str):
+async def get_agent_model_info(agent_id: str, project_id: str | None = None):
     """에이전트의 역할 · 추론 엔진 · 선호 모델을 반환한다."""
-    path = _agent_file(agent_id)
+    path = _resolve_agent_file(agent_id, project_id)
     if not path.exists():
         raise HTTPException(status_code=404, detail=f"agent not found: {_safe_id(agent_id)}")
 
@@ -307,13 +370,13 @@ async def get_agent_model_info(agent_id: str):
 
 
 @router.patch("/agents/{agent_id}/model")
-async def update_agent_model(agent_id: str, body: dict):
+async def update_agent_model(agent_id: str, body: dict, project_id: str | None = None):
     """preferred_model만 빠르게 교체한다. body: {preferred_model: str}"""
     new_model = str(body.get("preferred_model", "")).strip()
     if not new_model:
         raise HTTPException(status_code=422, detail="preferred_model is required")
 
-    path = _agent_file(agent_id)
+    path = _ensure_editable_agent_file(agent_id, project_id)
     if not path.exists():
         raise HTTPException(status_code=404, detail=f"agent not found: {_safe_id(agent_id)}")
 
@@ -328,19 +391,21 @@ async def update_agent_model(agent_id: str, body: dict):
 
 @router.post("/agents/backfill")
 
-async def backfill_preferred_models():
+async def backfill_preferred_models(project_id: str | None = None):
     """
     기존 에이전트 YAML 중 preferred_model이 없는 항목에 role 기반으로 자동 설정.
     웹 UI 설정 페이지에서 "일괄 자동 설정" 버튼으로 호출할 수 있다.
     """
-    if not AGENTS_DIR.exists():
+    items = [path for path in _effective_agent_items(project_id) if path.suffix in (".yaml", ".yml")]
+    if not items:
         return {"ok": True, "updated": 0, "skipped": 0, "results": []}
 
     updated, skipped = 0, 0
     results = []
 
-    for path in sorted(AGENTS_DIR.glob("*.yaml")):
+    for raw_path in items:
         try:
+            path = _ensure_editable_agent_file(raw_path.stem, project_id) if project_id else raw_path
             data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
             if not isinstance(data, dict):
                 skipped += 1

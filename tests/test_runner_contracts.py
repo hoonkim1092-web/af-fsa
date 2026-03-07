@@ -110,3 +110,26 @@ def test_load_skills_uses_cache_and_invalidates_on_file_change(monkeypatch, tmp_
     assert loaded_third
     assert loaded_third[0] is not loaded_second[0]
     assert int(getattr(loaded_third[0], "COUNTER", 0)) == 2
+
+
+def test_load_skills_collects_knowledge_markdown(monkeypatch, tmp_path):
+    al = _load_launcher(monkeypatch)
+    runner = al.AgentRunner(al.ModelRouter())
+
+    skill_dir = tmp_path / "knowledge_skill"
+    skill_dir.mkdir(parents=True, exist_ok=True)
+    (skill_dir / "skill.md").write_text(
+        "---\nname: Knowledge Skill\ndescription: prompt injection\n---\n\n# Steps\n1. test\n",
+        encoding="utf-8",
+    )
+
+    import core.agent_runner as ar
+
+    monkeypatch.setattr(ar, "PROJECT_SKILLS_DIR", str(tmp_path))
+    monkeypatch.setattr(ar, "SKILLS_DIR", str(tmp_path))
+
+    loaded = runner.load_skills({"skills": ["knowledge_skill"]})
+
+    assert loaded == []
+    assert len(runner._knowledge_skills) == 1
+    assert runner._knowledge_skills[0].id == "knowledge_skill"

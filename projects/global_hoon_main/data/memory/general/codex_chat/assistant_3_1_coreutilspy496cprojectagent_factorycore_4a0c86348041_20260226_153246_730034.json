@@ -1,17 +1,17 @@
-{
-  "key": "assistant 패치최적화 적용 완료했습니다 그리고 네가 받은 3단계만 남음 메시지는 현재 코드 기준으로는 맞지 않습니다1 메모리 엔진 보강  coreutilspy496CProjectagent-factorycore",
-  "value": "[assistant] 패치+최적화 적용 완료했습니다. 그리고 네가 받은 “3단계만 남음” 메시지는 현재 코드 기준으로는 맞지 않습니다.  1. 메모리 엔진 보강   [core/utils.py:496](C:\\Project\\agent-factory\\core\\utils.py)   - `read_core_memory`를 로컬/전역 계층 병합(로컬 우선)으로 개선   - `core.json` + 개별 JSON 메모리 레코드 동시 지원   - 최신순 스캔/정렬 및 출...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-02-26T15:32:46.730730+00:00",
-  "updated_at": "2026-02-26T15:32:46.730730+00:00",
-  "details": {
-    "text": "[assistant] 패치+최적화 적용 완료했습니다. 그리고 네가 받은 “3단계만 남음” 메시지는 현재 코드 기준으로는 맞지 않습니다.\n\n1. 메모리 엔진 보강  \n[core/utils.py:496](C:\\Project\\agent-factory\\core\\utils.py)  \n- `read_core_memory`를 로컬/전역 계층 병합(로컬 우선)으로 개선  \n- `core.json` + 개별 JSON 메모리 레코드 동시 지원  \n- 최신순 스캔/정렬 및 출력 제한으로 프롬프트 부하 최적화\n\n2. 시너지 툴 실연결 + 안전성 최적화  \n[core/synergy_runner.py:77](C:\\Project\\agent-factory\\core\\synergy_runner.py)  \n- `run_ultrawork`, `run_hash_edit` 실행 브릿지 구현  \n- `build_synergy_tools`로 실제 callable 툴(`synergy_omo_hash_edit`, `synergy_omo_ultrawork`) 생성  \n- 쉘 실행 경로를 argv 우선으로 바꿔 task 문자열 주입 리스크 완화  \n- 툴이 없을 때 브리핑이 “사용 가능”으로 잘못 나오던 문제 수정\n\n3. 에이전트 실행 경로에 자동 주입  \n[core/agent_runner.py:269](C:\\Project\\agent-factory\\core\\agent_runner.py)  \n- 실행 시 시너지 툴 attach  \n- `read_core_memory(..., max_items=10, max_files_per_root=240)` 호출로 브리핑 주입  \n- 붙은 시너지 툴 이름만 시스템 프롬프트에 반영\n\n4. 네가 말한 “3단계(동기화 확장)” 상태 확인  \n- 전역 scope/user-key 파라미터 이미 존재: [scripts/project_context_sync.py:475](C:\\Project\\agent-factory\\scripts\\project_context_sync.py)  \n- `sync_easy.ps1`에서 `AGENT_GLOBAL_USER_KEY` 감지 후 전역 동기화 호출 이미 존재: [scripts/sync_easy.ps1:83](C:\\Project\\agent-factory\\scripts\\sync_easy.ps1)  \n- 전역 경로/키 해석도 이미 존재: [core/config_paths.py:42](C:\\Project\\agent-factory\\core\\config_paths.py)\n\n검증  \n- `python -m py_compile core\\utils.py core\\synergy_runner.py core\\agent_runner.py` 통과  \n- 시너지 브리핑/툴 attach 동작 확인 완료\n\n참고  \n- 현재 워크트리에 변경 파일이 많고, `core/synergy_runner.py`는 현재 untracked 상태입니다. 원하면 내가 지금 이 3개 파일만 기준으로 깔끔하게 커밋 단위까지 정리해줄게.",
-    "event_timestamp": "2026-02-26T15:15:59.343Z",
-    "session_file": "C:/Users/home/.codex/sessions/2026/02/26/rollout-2026-02-26T14-17-53-019c9861-d21e-7892-9d8b-fe2b91c755de.jsonl",
-    "session_line": 1261
-  }
+{
+  "key": "assistant 패치최적화 적용 완료했습니다 그리고 네가 받은 3단계만 남음 메시지는 현재 코드 기준으로는 맞지 않습니다1 메모리 엔진 보강  coreutilspy496CProjectagent-factorycore",
+  "value": "[assistant] 패치+최적화 적용 완료했습니다. 그리고 네가 받은 “3단계만 남음” 메시지는 현재 코드 기준으로는 맞지 않습니다.  1. 메모리 엔진 보강   [core/utils.py:496](C:\\Project\\agent-factory\\core\\utils.py)   - `read_core_memory`를 로컬/전역 계층 병합(로컬 우선)으로 개선   - `core.json` + 개별 JSON 메모리 레코드 동시 지원   - 최신순 스캔/정렬 및 출...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-02-26T15:32:46.730730+00:00",
+  "updated_at": "2026-02-26T15:32:46.730730+00:00",
+  "details": {
+    "text": "[assistant] 패치+최적화 적용 완료했습니다. 그리고 네가 받은 “3단계만 남음” 메시지는 현재 코드 기준으로는 맞지 않습니다.\n\n1. 메모리 엔진 보강  \n[core/utils.py:496](C:\\Project\\agent-factory\\core\\utils.py)  \n- `read_core_memory`를 로컬/전역 계층 병합(로컬 우선)으로 개선  \n- `core.json` + 개별 JSON 메모리 레코드 동시 지원  \n- 최신순 스캔/정렬 및 출력 제한으로 프롬프트 부하 최적화\n\n2. 시너지 툴 실연결 + 안전성 최적화  \n[core/synergy_runner.py:77](C:\\Project\\agent-factory\\core\\synergy_runner.py)  \n- `run_ultrawork`, `run_hash_edit` 실행 브릿지 구현  \n- `build_synergy_tools`로 실제 callable 툴(`synergy_omo_hash_edit`, `synergy_omo_ultrawork`) 생성  \n- 쉘 실행 경로를 argv 우선으로 바꿔 task 문자열 주입 리스크 완화  \n- 툴이 없을 때 브리핑이 “사용 가능”으로 잘못 나오던 문제 수정\n\n3. 에이전트 실행 경로에 자동 주입  \n[core/agent_runner.py:269](C:\\Project\\agent-factory\\core\\agent_runner.py)  \n- 실행 시 시너지 툴 attach  \n- `read_core_memory(..., max_items=10, max_files_per_root=240)` 호출로 브리핑 주입  \n- 붙은 시너지 툴 이름만 시스템 프롬프트에 반영\n\n4. 네가 말한 “3단계(동기화 확장)” 상태 확인  \n- 전역 scope/user-key 파라미터 이미 존재: [scripts/project_context_sync.py:475](C:\\Project\\agent-factory\\scripts\\project_context_sync.py)  \n- `sync_easy.ps1`에서 `AGENT_GLOBAL_USER_KEY` 감지 후 전역 동기화 호출 이미 존재: [scripts/sync_easy.ps1:83](C:\\Project\\agent-factory\\scripts\\sync_easy.ps1)  \n- 전역 경로/키 해석도 이미 존재: [core/config_paths.py:42](C:\\Project\\agent-factory\\core\\config_paths.py)\n\n검증  \n- `python -m py_compile core\\utils.py core\\synergy_runner.py core\\agent_runner.py` 통과  \n- 시너지 브리핑/툴 attach 동작 확인 완료\n\n참고  \n- 현재 워크트리에 변경 파일이 많고, `core/synergy_runner.py`는 현재 untracked 상태입니다. 원하면 내가 지금 이 3개 파일만 기준으로 깔끔하게 커밋 단위까지 정리해줄게.",
+    "event_timestamp": "2026-02-26T15:15:59.343Z",
+    "session_file": "C:/Users/home/.codex/sessions/2026/02/26/rollout-2026-02-26T14-17-53-019c9861-d21e-7892-9d8b-fe2b91c755de.jsonl",
+    "session_line": 1261
+  }
 }

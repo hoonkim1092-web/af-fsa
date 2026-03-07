@@ -9,6 +9,10 @@ def _load_launcher(monkeypatch, project_root):
     monkeypatch.setenv("AGENT_PROJECT_ID", "proj_wf")
     import core.config_paths
     importlib.reload(core.config_paths)
+    import core.file_io
+    importlib.reload(core.file_io)
+    import core.dashboard
+    importlib.reload(core.dashboard)
     import core.utils
     importlib.reload(core.utils)
     import core.agent_runner
@@ -54,3 +58,37 @@ def test_workflow_state_failed_and_stops_next_stage(monkeypatch, tmp_path):
     assert state["status"] == "failed"
     assert state["stages"][0]["status"] == "failed"
     assert state["stages"][1]["status"] == "pending"
+
+
+def test_workflow_persists_portable_paths(monkeypatch, tmp_path):
+    al = _load_launcher(monkeypatch, tmp_path / "proj_paths")
+
+    wf_path = tmp_path / "workflow_portable.yaml"
+    al.write_yaml(
+        str(wf_path),
+        {
+            "owner_agent": "General",
+            "stages": [
+                {"id": "MAIN", "name": "Main", "objective": "portable paths"},
+            ],
+        },
+    )
+
+    factory = al.AgentFactory()
+    factory.run = lambda task_input, role_spec="General": {"ok": True, "reason": "", "latency_ms": 1, "approval_rejects": 0}
+
+    factory.run_workflow("portable test", workflow_path=str(wf_path), role_specs=["General"])
+
+    run_dirs = [d for d in os.listdir(al.RUNS_DIR) if d.startswith("wf_")]
+    latest = sorted(run_dirs)[-1]
+    state_abs_path = os.path.join(al.RUNS_DIR, latest, "state.json")
+    with open(state_abs_path, "r", encoding="utf-8") as f:
+        state = al.json.load(f)
+
+    with open(al.DASHBOARD_PATH, "r", encoding="utf-8") as f:
+        dashboard = al.json.load(f)
+    latest_run = dashboard["runs"][-1]
+
+    assert state["workflow_path"] == os.path.relpath(str(wf_path), al.BASE_DIR).replace("\\", "/")
+    assert latest_run["workflow_path"] == os.path.relpath(str(wf_path), al.BASE_DIR).replace("\\", "/")
+    assert latest_run["state_path"] == os.path.relpath(state_abs_path, al.BASE_DIR).replace("\\", "/")

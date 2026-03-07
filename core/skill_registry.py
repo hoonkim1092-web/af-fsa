@@ -174,16 +174,19 @@ def register_skill(
     capabilities: List[str] = None,
     status: str = "active",
     version: str = "1.0.0",
+    stype: str | None = None,
 ) -> str:
     registry_data = _load_registry()
     skills = registry_data.get("skills", {})
     sid = _safe_id(skill_name)
     prev = skills.get(sid, {}) if isinstance(skills.get(sid), dict) else {}
+    skill_type = str(stype or prev.get("type") or "action").strip().lower() or "action"
     entry = {
         "id": sid,
         "skill_id": sid,
         "name": str(prev.get("name") or sid),
         "skill_name": str(prev.get("skill_name") or skill_name),
+        "type": skill_type,
         "purpose": str(purpose or prev.get("purpose") or ""),
         "path": str(path or prev.get("path") or ""),
         "meta_path": str(prev.get("meta_path") or ""),

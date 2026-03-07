@@ -9,8 +9,20 @@ def _boot_safe_id(text: str) -> str:
     return t or "default"
 
 global_project_root = os.getenv("AGENT_PROJECT_ROOT", None)
-GOOGLE_API_KEY = factory_config.google_api_key
-OPENAI_API_KEY = factory_config.openai_api_key
+
+
+def _config_value(name: str, env_key: str) -> str:
+    if isinstance(factory_config, dict):
+        value = factory_config.get(name)
+    else:
+        value = getattr(factory_config, name, None)
+    if value:
+        return str(value)
+    return str(os.getenv(env_key, "") or "")
+
+
+GOOGLE_API_KEY = _config_value("google_api_key", "GOOGLE_API_KEY")
+OPENAI_API_KEY = _config_value("openai_api_key", "OPENAI_API_KEY")
 if not GOOGLE_API_KEY and not OPENAI_API_KEY:
     raise RuntimeError("Neither GOOGLE_API_KEY nor OPENAI_API_KEY found in env/.env")
 # [New SDK] genai.Client은 각 모듈에서 개별 생성 (config_paths는 경로만 담당)

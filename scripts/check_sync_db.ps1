@@ -1,5 +1,5 @@
 param(
-    [string]$Projects = "logi-mind-v22,agent-factory",
+    [string]$Projects = "logi-mind-v22,agent-factory,@repo",
     [string]$Table = "project_context_sync"
 )
 
@@ -18,6 +18,37 @@ function Normalize-Key([string]$Text) {
     $v = ""
     if ($null -ne $Text) { $v = $Text.ToLower() }
     return [regex]::Replace($v, "[^a-z0-9]+", "")
+}
+
+function Is-SamePath([string]$Left, [string]$Right) {
+    try {
+        return ((Resolve-Path $Left).Path -eq (Resolve-Path $Right).Path)
+    } catch {
+        return $false
+    }
+}
+
+function Is-RepoRootAlias([string]$RepoRoot, [string]$ProjectInput) {
+    $raw = ""
+    if ($null -ne $ProjectInput) { $raw = $ProjectInput.Trim() }
+    if (-not $raw) { return $false }
+
+    switch ($raw.ToLower()) {
+        "@repo" { return $true }
+        "@root" { return $true }
+        "." { return $true }
+        "./" { return $true }
+        ".\" { return $true }
+    }
+
+    $candidate = $raw
+    if (-not [System.IO.Path]::IsPathRooted($candidate)) {
+        $candidate = Join-Path $RepoRoot $candidate
+    }
+    if (-not (Test-Path $candidate -PathType Container)) {
+        return $false
+    }
+    return (Is-SamePath $candidate $RepoRoot)
 }
 
 function Load-DotEnv([string]$EnvPath) {
@@ -41,22 +72,45 @@ function Resolve-ProjectPath([string]$RepoRoot, [string]$ProjectInput) {
 
     $safe = Safe-Id $raw
     $targetKey = Normalize-Key $raw
+    $projectsRoot = Join-Path $RepoRoot "projects"
+    $siblingsRoot = Split-Path -Parent $RepoRoot
+
+    if (Is-RepoRootAlias -RepoRoot $RepoRoot -ProjectInput $raw) {
+        return $RepoRoot
+    }
+
+    if ([System.IO.Path]::IsPathRooted($raw)) {
+        if (Test-Path $raw -PathType Container) {
+            return (Resolve-Path $raw).Path
+        }
+    } else {
+        $direct = Join-Path $RepoRoot $raw
+        if (Test-Path $direct -PathType Container) {
+            return (Resolve-Path $direct).Path
+        }
+    }
 
     $candidates = @(
-        (Join-Path $RepoRoot "projects\$raw"),
-        (Join-Path $RepoRoot "projects\$safe"),
-        (Join-Path (Split-Path -Parent $RepoRoot) $raw),
-        (Join-Path (Split-Path -Parent $RepoRoot) $safe)
+        (Join-Path $projectsRoot $raw),
+        (Join-Path $projectsRoot $safe),
+        (Join-Path $siblingsRoot $raw),
+        (Join-Path $siblingsRoot $safe)
     )
     foreach ($p in $candidates) {
-        if (Test-Path $p) { return (Resolve-Path $p).Path }
+        if (-not (Test-Path $p -PathType Container)) { continue }
+        if (Is-SamePath $p $RepoRoot) { continue }
+        return (Resolve-Path $p).Path
     }
 
-    foreach ($p in (Get-ChildItem -Path (Join-Path $RepoRoot "projects") -Directory -ErrorAction SilentlyContinue)) {
+    foreach ($p in (Get-ChildItem -Path $projectsRoot -Directory -ErrorAction SilentlyContinue)) {
         if ((Normalize-Key $p.Name) -eq $targetKey) { return $p.FullName }
     }
-    foreach ($p in (Get-ChildItem -Path (Split-Path -Parent $RepoRoot) -Directory -ErrorAction SilentlyContinue)) {
+    foreach ($p in (Get-ChildItem -Path $siblingsRoot -Directory -ErrorAction SilentlyContinue)) {
+        if (Is-SamePath $p.FullName $RepoRoot) { continue }
         if ((Normalize-Key $p.Name) -eq $targetKey) { return $p.FullName }
+    }
+    if ($targetKey -and ((Normalize-Key (Split-Path -Leaf $RepoRoot)) -eq $targetKey)) {
+        return $RepoRoot
     }
     return ""
 }

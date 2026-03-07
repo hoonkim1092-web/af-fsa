@@ -1,15 +1,35 @@
-
-[Lilith] Cycle: 1
-Roles: ['Architect', 'LogicDeveloper', 'UIDeveloper']
-Tasks: []
-Raw: {}
+
+[Lilith] Cycle: 1
+Roles: ['Architect', 'LogicDeveloper', 'UIDeveloper']
+Tasks: []
+Raw: {}
+
+[Lilith] Cycle: ?
+Roles: ['dev']
+Tasks: []
+Raw: {"next_tasks": []}
+
+[Lilith] Cycle: 1
+Roles: ['Architect', 'LogicDeveloper', 'UIDeveloper']
+Tasks: []
+Raw: {}
 
 [Lilith] Cycle: ?
 Roles: ['dev']
 Tasks: []
 Raw: {"next_tasks": []}
 
-[Lilith] Cycle: 1
-Roles: ['Architect', 'LogicDeveloper', 'UIDeveloper']
+[Lilith] Cycle: ?
+Roles: ['dev']
 Tasks: []
-Raw: {}
+Raw: {"next_tasks": []}
+
+[Lilith] Cycle: ?
+Roles: ['dev']
+Tasks: []
+Raw: {"next_tasks": []}
+
+[Lilith] Cycle: ?
+Roles: ['dev']
+Tasks: []
+Raw: {"next_tasks": []}

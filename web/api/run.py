@@ -19,9 +19,24 @@ ROOT_DIR = Path(__file__).parent.parent.parent
 class RunRequest(BaseModel):
     agent_id: str
     task: str
+    project_id: str | None = None
     auto_approve: bool = False
     execution_mode: str = "approval"
     fsa: bool = False
+
+
+def _safe_id(text: str) -> str:
+    t = (text or "").strip().lower()
+    out = []
+    for ch in t:
+        if ("a" <= ch <= "z") or ("0" <= ch <= "9") or ch == "_":
+            out.append(ch)
+        else:
+            out.append("_")
+    s = "".join(out).strip("_")
+    while "__" in s:
+        s = s.replace("__", "_")
+    return s or "default"
 
 
 @router.post("/run")
@@ -84,6 +99,9 @@ async def run_agent(req: RunRequest, request: Request):
             # 에이전트 실행
             from agent_launcher import AgentFactory
             factory = AgentFactory()
+            workspace = None
+            if req.project_id:
+                workspace = str(ROOT_DIR / "projects" / _safe_id(req.project_id))
 
             yield {"event": "status", "data": json.dumps({
                 "type": "running",
@@ -98,6 +116,7 @@ async def run_agent(req: RunRequest, request: Request):
                     task_input=req.task,
                     role_spec=req.agent_id,
                     execution_mode=execution_mode,
+                    workspace=workspace,
                 )
             )
 

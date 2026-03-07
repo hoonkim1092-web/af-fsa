@@ -16,7 +16,7 @@ class FSALoop:
         self.evaluator = StrategyEvaluator(model_name=runner.mr.pick('evaluator') if hasattr(runner.mr, 'pick') else 'gemini-1.5-pro-latest')
         self.max_cycles = 5
 
-    def run_mission(self, agent: dict, task_input: str, run_id: str):
+    def run_mission(self, agent: dict, task_input: str, run_id: str, workspace: str | None = None):
         print(f"\n🌀 [FSALoop] 풀 셀프 자동화 모드(FSA) 시작: {run_id}")
         
         current_task = task_input
@@ -28,7 +28,13 @@ class FSALoop:
             self.git.commit(commit_msg)
             
             # 2. Work Phase (Autonomous)
-            result = self.runner.run(agent, current_task, run_id=f"{run_id}_c{cycle}", auto_approve=True)
+            result = self.runner.run(
+                agent,
+                current_task,
+                run_id=f"{run_id}_c{cycle}",
+                auto_approve=True,
+                workspace=workspace,
+            )
             
             if result.get("ok"):
                 print(f"✅ [Cycle {cycle}] 성공적으로 완료됨.")

@@ -1,17 +1,17 @@
-{
-  "key": "assistant 방향은 맞습니다 다만 지금 제안 그대로면 편의성은 올라가고 보안오염 리스크도 크게 올라갑니다핵심 리스크 심각도 순1 Critical User DNA 기반 단일 global_brain_sync는 프로",
-  "value": "[assistant] 방향은 맞습니다. 다만 지금 제안 그대로면 편의성은 올라가고, 보안/오염 리스크도 크게 올라갑니다.  **핵심 리스크 (심각도 순)** 1. `Critical` `User DNA` 기반 단일 `global_brain_sync`는 프로젝트 경계가 사라져 잘못된 기억 주입(오염)과 권한 초과 참조가 발생하기 쉽습니다. 2. `Critical` 전역 메모리 자동 로딩은 프롬프트 인젝션/오답이 모든 프로젝트로 전파되는 “단일 장애점”이 됩니다...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-02-26T15:32:46.151051+00:00",
-  "updated_at": "2026-02-26T15:32:46.151051+00:00",
-  "details": {
-    "text": "[assistant] 방향은 맞습니다. 다만 지금 제안 그대로면 편의성은 올라가고, 보안/오염 리스크도 크게 올라갑니다.\n\n**핵심 리스크 (심각도 순)**\n1. `Critical` `User DNA` 기반 단일 `global_brain_sync`는 프로젝트 경계가 사라져 잘못된 기억 주입(오염)과 권한 초과 참조가 발생하기 쉽습니다.\n2. `Critical` 전역 메모리 자동 로딩은 프롬프트 인젝션/오답이 모든 프로젝트로 전파되는 “단일 장애점”이 됩니다.\n3. `High` `%APPDATA%` 고정 저장은 좋지만, 암호화·키관리·장치 분실 대응(키 폐기/재발급) 없으면 민감정보 유출 위험이 큽니다.\n4. `High` 다중 PC 동기화는 충돌 해결 정책(버전 벡터/이벤트 로그) 없으면 최신성 역전, 중복, 유실이 납니다.\n5. `Medium` “어디서든 같은 기억”은 재현성(reproducibility)을 해칠 수 있어, 실행 당시 어떤 기억이 주입됐는지 추적 로그가 필요합니다.\n\n**권장 아키텍처 (수정안)**\n1. 메모리 스코프를 분리하세요: `global(user)` / `workspace(project)` / `session`.\n2. 키를 `user_id + scope + workspace_id(optional)`로 두고, 기본 조회는 `workspace -> global` 순서로 제한하세요.\n3. 전역에는 “안전한 메타지식(선호/스타일/반복 규칙)”만 저장하고, 코드/비밀값/민감 로그는 프로젝트 스코프에 남기세요.\n4. 저장 전 파이프라인을 넣으세요: `PII redaction -> classifier -> confidence/TTL -> write`.\n5. 동기화는 `append-only event log` + `idempotent upsert`로 구현하고, 충돌 시 `last_write_wins`가 아니라 `type별 merge rule`을 두세요.\n6. 반드시 사용자 제어를 넣으세요: `이 프로젝트에 전역 기억 적용` 토글, 조회 로그, 항목별 삭제/만료.\n\n**3개 제안 항목별 코멘트**\n1. KI 전역 뇌: 유지하되, “전역 저장 허용 타입” 화이트리스트가 필수입니다.\n2. 중앙 웨어하우스: 가능하지만 “단일 테이블”보다 `memory_items`, `memory_links`, `memory_events` 분리가 안전합니다.\n3. 서비스화: 좋은 방향입니다. 다만 상주형 에이전트는 최소 권한 토큰·암호화·감사로그가 선행돼야 합니다.\n\n원하면 이걸 바로 `MVP 설계서(스키마 + API + 마이그레이션 단계)`로 구체화해드릴게요.",
-    "event_timestamp": "2026-02-26T11:39:06.711Z",
-    "session_file": "C:/Users/home/.codex/sessions/2026/02/26/rollout-2026-02-26T14-17-53-019c9861-d21e-7892-9d8b-fe2b91c755de.jsonl",
-    "session_line": 13
-  }
+{
+  "key": "assistant 방향은 맞습니다 다만 지금 제안 그대로면 편의성은 올라가고 보안오염 리스크도 크게 올라갑니다핵심 리스크 심각도 순1 Critical User DNA 기반 단일 global_brain_sync는 프로",
+  "value": "[assistant] 방향은 맞습니다. 다만 지금 제안 그대로면 편의성은 올라가고, 보안/오염 리스크도 크게 올라갑니다.  **핵심 리스크 (심각도 순)** 1. `Critical` `User DNA` 기반 단일 `global_brain_sync`는 프로젝트 경계가 사라져 잘못된 기억 주입(오염)과 권한 초과 참조가 발생하기 쉽습니다. 2. `Critical` 전역 메모리 자동 로딩은 프롬프트 인젝션/오답이 모든 프로젝트로 전파되는 “단일 장애점”이 됩니다...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-02-26T15:32:46.151051+00:00",
+  "updated_at": "2026-02-26T15:32:46.151051+00:00",
+  "details": {
+    "text": "[assistant] 방향은 맞습니다. 다만 지금 제안 그대로면 편의성은 올라가고, 보안/오염 리스크도 크게 올라갑니다.\n\n**핵심 리스크 (심각도 순)**\n1. `Critical` `User DNA` 기반 단일 `global_brain_sync`는 프로젝트 경계가 사라져 잘못된 기억 주입(오염)과 권한 초과 참조가 발생하기 쉽습니다.\n2. `Critical` 전역 메모리 자동 로딩은 프롬프트 인젝션/오답이 모든 프로젝트로 전파되는 “단일 장애점”이 됩니다.\n3. `High` `%APPDATA%` 고정 저장은 좋지만, 암호화·키관리·장치 분실 대응(키 폐기/재발급) 없으면 민감정보 유출 위험이 큽니다.\n4. `High` 다중 PC 동기화는 충돌 해결 정책(버전 벡터/이벤트 로그) 없으면 최신성 역전, 중복, 유실이 납니다.\n5. `Medium` “어디서든 같은 기억”은 재현성(reproducibility)을 해칠 수 있어, 실행 당시 어떤 기억이 주입됐는지 추적 로그가 필요합니다.\n\n**권장 아키텍처 (수정안)**\n1. 메모리 스코프를 분리하세요: `global(user)` / `workspace(project)` / `session`.\n2. 키를 `user_id + scope + workspace_id(optional)`로 두고, 기본 조회는 `workspace -> global` 순서로 제한하세요.\n3. 전역에는 “안전한 메타지식(선호/스타일/반복 규칙)”만 저장하고, 코드/비밀값/민감 로그는 프로젝트 스코프에 남기세요.\n4. 저장 전 파이프라인을 넣으세요: `PII redaction -> classifier -> confidence/TTL -> write`.\n5. 동기화는 `append-only event log` + `idempotent upsert`로 구현하고, 충돌 시 `last_write_wins`가 아니라 `type별 merge rule`을 두세요.\n6. 반드시 사용자 제어를 넣으세요: `이 프로젝트에 전역 기억 적용` 토글, 조회 로그, 항목별 삭제/만료.\n\n**3개 제안 항목별 코멘트**\n1. KI 전역 뇌: 유지하되, “전역 저장 허용 타입” 화이트리스트가 필수입니다.\n2. 중앙 웨어하우스: 가능하지만 “단일 테이블”보다 `memory_items`, `memory_links`, `memory_events` 분리가 안전합니다.\n3. 서비스화: 좋은 방향입니다. 다만 상주형 에이전트는 최소 권한 토큰·암호화·감사로그가 선행돼야 합니다.\n\n원하면 이걸 바로 `MVP 설계서(스키마 + API + 마이그레이션 단계)`로 구체화해드릴게요.",
+    "event_timestamp": "2026-02-26T11:39:06.711Z",
+    "session_file": "C:/Users/home/.codex/sessions/2026/02/26/rollout-2026-02-26T14-17-53-019c9861-d21e-7892-9d8b-fe2b91c755de.jsonl",
+    "session_line": 13
+  }
 }

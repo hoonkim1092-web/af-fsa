@@ -24,7 +24,7 @@ function To-ProjectArgs([string]$t) {
 
     $key = $raw.ToLower()
     switch ($key) {
-        "all" { return @{ IsMulti = $true; Value = "logi-mind-v22,agent-factory" } }
+        "all" { return @{ IsMulti = $true; Value = "logi-mind-v22,agent-factory,@repo" } }
         default {
             $items = @($raw -split "," | ForEach-Object { $_.Trim() } | Where-Object { $_ } | Select-Object -Unique)
             if (@($items).Count -gt 1) {
@@ -33,7 +33,7 @@ function To-ProjectArgs([string]$t) {
             if (@($items).Count -eq 1) {
                 return @{ IsMulti = $false; Value = $items[0] }
             }
-            return @{ IsMulti = $true; Value = "logi-mind-v22,agent-factory" }
+            return @{ IsMulti = $true; Value = "logi-mind-v22,agent-factory,@repo" }
         }
     }
 }

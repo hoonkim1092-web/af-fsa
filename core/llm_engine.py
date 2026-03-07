@@ -75,6 +75,14 @@ def get_best_model(fallback_list=None) -> str:
     return get_latest_flash_model()
 
 
+def _flash_auto_upgrade_enabled() -> bool:
+    project_id = str(os.getenv("AGENT_PROJECT_ID", "") or "").strip().lower()
+    if project_id:
+        return project_id == "minesweeper"
+    project_root = str(os.getenv("AGENT_PROJECT_ROOT", "") or "").strip().replace("\\", "/").rstrip("/")
+    return project_root.endswith("/projects/minesweeper")
+
+
 # =============================================================================
 # [LLMEngine] Release 에이전트용 실행 엔진
 # 다중 키 Load Balancer + Auto-Upgrade + 재시도 로직 포함
@@ -88,6 +96,7 @@ class LLMEngine:
     """
 
     def __init__(self, model_name: str = None):
+        explicit_model_requested = model_name is not None
         # model_name이 없으면 동적으로 최신 Flash를 선택 (버전 하드코딩 배제)
         if model_name is None:
             model_name = get_latest_flash_model()
@@ -100,7 +109,7 @@ class LLMEngine:
         forced = get_forced_model_override()
         
         should_upgrade = False
-        if "gemini" in model_name and "flash" in model_name:
+        if explicit_model_requested and _flash_auto_upgrade_enabled() and "gemini" in model_name and "flash" in model_name:
             if forced and normalize_model_name(forced) == model_name:
                 should_upgrade = False
             elif "gemini-3" in model_name: # Gemini 3은 현재 최신 실험 버전이므로 유지

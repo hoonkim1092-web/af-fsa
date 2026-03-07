@@ -10,6 +10,10 @@ def _load_utils(monkeypatch, project_root):
     monkeypatch.setenv("AGENT_PROJECT_ID", "utils_cache")
     import core.config_paths
     importlib.reload(core.config_paths)
+    import core.file_io
+    importlib.reload(core.file_io)
+    import core.dashboard
+    importlib.reload(core.dashboard)
     import core.utils
     return importlib.reload(core.utils)
 
@@ -45,6 +49,31 @@ def test_append_dashboard_run_keeps_recent_300(monkeypatch, tmp_path):
     assert runs[-1]["idx"] == 304
 
 
+def test_append_dashboard_run_normalizes_path_fields(monkeypatch, tmp_path):
+    u = _load_utils(monkeypatch, tmp_path / "proj_paths")
+    state_path = os.path.join(u.PROJECT_ROOT, "runs", "wf_123", "state.json")
+    workflow_path = os.path.join(u.BASE_DIR, "tests", "_tmp", "wf.yaml")
+
+    u.append_dashboard_run(
+        {
+            "state_path": state_path,
+            "workflow_path": workflow_path,
+            "nested": {"artifact_path": os.path.join(u.PROJECT_ROOT, "artifacts", "out.txt")},
+        }
+    )
+
+    with open(u.DASHBOARD_PATH, "r", encoding="utf-8") as f:
+        data = u.json.load(f)
+    row = data["runs"][-1]
+
+    assert row["state_path"] == os.path.relpath(state_path, u.BASE_DIR).replace("\\", "/")
+    assert row["workflow_path"] == os.path.relpath(workflow_path, u.BASE_DIR).replace("\\", "/")
+    assert row["nested"]["artifact_path"] == os.path.relpath(
+        os.path.join(u.PROJECT_ROOT, "artifacts", "out.txt"),
+        u.BASE_DIR,
+    ).replace("\\", "/")
+
+
 def test_read_yaml_cache_hash_verify_detects_same_stat_change(monkeypatch, tmp_path):
     monkeypatch.setenv("YAML_CACHE_VERIFY_HASH", "1")
     u = _load_utils(monkeypatch, tmp_path / "proj3")
@@ -67,6 +96,7 @@ def test_read_yaml_cache_hash_verify_detects_same_stat_change(monkeypatch, tmp_p
 def test_read_yaml_cache_eviction_lru(monkeypatch, tmp_path):
     monkeypatch.setenv("YAML_CACHE_MAX_ENTRIES", "2")
     u = _load_utils(monkeypatch, tmp_path / "proj4")
+    import core.file_io
     p1 = tmp_path / "proj4" / "a.yaml"
     p2 = tmp_path / "proj4" / "b.yaml"
     p3 = tmp_path / "proj4" / "c.yaml"
@@ -75,5 +105,5 @@ def test_read_yaml_cache_eviction_lru(monkeypatch, tmp_path):
         p.write_text(f"v: {i}\n", encoding="utf-8")
         _ = u.read_yaml(str(p))
 
-    assert len(u._YAML_CACHE) == 2
-    assert str(p1) not in u._YAML_CACHE
+    assert len(core.file_io._YAML_CACHE) == 2
+    assert str(p1) not in core.file_io._YAML_CACHE

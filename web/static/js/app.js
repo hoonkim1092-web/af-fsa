@@ -11,6 +11,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     let agentCatalog = [];
     let currentEventSource = null;
     let pendingFallback = null;
+    const currentProjectId = (() => {
+        const params = new URLSearchParams(window.location.search);
+        return (params.get('project_id') || params.get('project') || '').trim();
+    })();
+
+    function withProject(path) {
+        if (!currentProjectId) return path;
+        const url = new URL(path, window.location.origin);
+        url.searchParams.set('project_id', currentProjectId);
+        return `${url.pathname}${url.search}`;
+    }
 
     // ─── DOM refs ──────────────────────────────────────────────────────
     const $ = (sel) => document.querySelector(sel);
@@ -66,7 +77,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // ─── Load Agents ───────────────────────────────────────────────────
     async function loadAgents() {
         try {
-            const res = await fetch('/api/agents');
+            const res = await fetch(withProject('/api/agents'));
             const data = await res.json();
             agents = data.agents || [];
 
@@ -124,7 +135,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     async function loadAgentCatalog() {
         try {
-            const res = await fetch('/api/agents/catalog');
+            const res = await fetch(withProject('/api/agents/catalog'));
             const data = await res.json();
             agentCatalog = data.agents || [];
             renderEditableCategories(data.editable_categories || []);
@@ -260,6 +271,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 body: JSON.stringify({
                     agent_id: agentId,
                     task,
+                    project_id: currentProjectId || undefined,
                     auto_approve: autoApprove,
                     execution_mode: fsaMode ? 'fsa' : 'approval',
                     fsa: fsaMode,
@@ -357,6 +369,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 body: JSON.stringify({
                     agent_id: $('#agentSelect').value,
                     task,
+                    project_id: currentProjectId || undefined,
                     auto_approve: true,
                     execution_mode: ($('#fsaMode')?.checked || false) ? 'fsa' : 'approval',
                     fsa: $('#fsaMode')?.checked || false,
@@ -374,7 +387,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     async function fetchModelInfo(agentId) {
         try {
-            const res = await fetch(`/api/agents/${agentId}/model-info`);
+            const res = await fetch(withProject(`/api/agents/${agentId}/model-info`));
             return res.ok ? await res.json() : null;
         } catch { return null; }
     }
@@ -409,7 +422,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!input) return;
         const newModel = input.value.trim();
         if (!newModel) return;
-        const res = await fetch(`/api/agents/${agentId}/model`, {
+        const res = await fetch(withProject(`/api/agents/${agentId}/model`), {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ preferred_model: newModel }),
@@ -426,7 +439,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const container = $('#agentModelList');
         if (!container) return;
         try {
-            const res = await fetch('/api/agents');
+            const res = await fetch(withProject('/api/agents'));
             if (!res.ok) return;
             const data = await res.json();
             const agentList = data.agents || [];
@@ -464,7 +477,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             role: ($('#createAgentRole')?.value || '').trim(),
         };
         if (!payload.agent_id || !payload.name || !payload.role) return;
-        const res = await fetch('/api/agents', {
+        const res = await fetch(withProject('/api/agents'), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
@@ -501,7 +514,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             preferred_model: ($('#editPreferredModel')?.value || '').trim(),
             codex_directive: ($('#editCodexDirective')?.value || '').trim(),
         };
-        const res = await fetch(`/api/agents/${agentId}`, {
+        const res = await fetch(withProject(`/api/agents/${agentId}`), {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ updates }),

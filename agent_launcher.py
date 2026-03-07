@@ -139,7 +139,7 @@ class AgentFactory:
         data = {
             "run_id": run_id,
             "project_id": PROJECT_ID,
-            "workflow_path": workflow_path,
+            "workflow_path": to_portable_path(workflow_path),
             "status": "running",
             "created_at": now_iso(),
             "updated_at": now_iso(),
@@ -165,6 +165,8 @@ class AgentFactory:
                 data = json.load(f)
         except Exception:
             return
+        if str(data.get("workflow_path", "")).strip():
+            data["workflow_path"] = to_portable_path(str(data.get("workflow_path")))
         for s in data.get("stages", []):
             if str(s.get("id")) == str(stage_id):
                 s["status"] = status
@@ -183,18 +185,44 @@ class AgentFactory:
                 data = json.load(f)
         except Exception:
             return
+        if str(data.get("workflow_path", "")).strip():
+            data["workflow_path"] = to_portable_path(str(data.get("workflow_path")))
         data["status"] = status
         data["updated_at"] = now_iso()
         _safe_write_json(state_path, data)
 
-    def run(self, task_input: str, role_spec: str = "General", enable_build: bool = False, execution_mode: str = "approval"):
+    def _invoke_runner(self, agent: dict, task_input: str, run_id: str, auto_approve: bool, workspace: str | None = None):
+        params = inspect.signature(self.runner.run).parameters
+        kwargs = {}
+        if "run_id" in params:
+            kwargs["run_id"] = run_id
+        if "auto_approve" in params:
+            kwargs["auto_approve"] = auto_approve
+        if "workspace" in params:
+            kwargs["workspace"] = workspace
+        return self.runner.run(agent, task_input, **kwargs) or {}
+
+    def _get_agent(self, role_spec: str, workspace: str | None = None) -> dict:
+        params = inspect.signature(self.agent_mgr.get_or_create).parameters
+        if "workspace" in params:
+            return self.agent_mgr.get_or_create(role_spec, workspace=workspace)
+        return self.agent_mgr.get_or_create(role_spec)
+
+    def run(
+        self,
+        task_input: str,
+        role_spec: str = "General",
+        enable_build: bool = False,
+        execution_mode: str = "approval",
+        workspace: str | None = None,
+    ):
         run_id = f"run_{int(time.time())}"
         print(f"\nRUN={run_id}")
         print(f"- Role: {role_spec}")
         print(f"- Mode: {execution_mode}")
         print(f"- Task: {task_input}")
 
-        agent = self.agent_mgr.get_or_create(role_spec)
+        agent = self._get_agent(role_spec, workspace=workspace)
         reqs = self.req.analyze(agent, task_input)
         file_missing = self._missing_local_skill_files(agent)
 
@@ -207,6 +235,8 @@ class AgentFactory:
             print(f"\n[RunOnly] build disabled, skipping: {skipped_build_targets}")
 
         if initial_targets and enable_build:
+            approval_policy = self._read_approval_policy()
+            approval_gate = self._ask_skill_change_approval if approval_policy.get("require_skill_change_approval", False) else None
             # [GAP-3] Unified Pipeline: Himari(Skeleton) -> Builder(Release) -> Registry
             installed = self.procurer.procure_multiple(
                 agent=agent,
@@ -214,21 +244,20 @@ class AgentFactory:
                 reqs=reqs,
                 run_id=run_id,
                 execution_mode=execution_mode,
-                approval_gate=self._ask_skill_change_approval,
+                approval_gate=approval_gate,
+                workspace=workspace,
             )
             if installed:
-                agent = self.agent_mgr.get_or_create(role_spec)
+                agent = self._get_agent(role_spec, workspace=workspace)
 
-        try:
-            if execution_mode == "fsa":
-                run_metrics = self.ultra.run_mission(agent, task_input, run_id=run_id) or {}
-            else:
-                run_metrics = self.runner.run(agent, task_input, run_id=run_id, auto_approve=False) or {}
-        except TypeError as e:
-            if "unexpected keyword argument 'run_id'" in str(e):
-                run_metrics = self.runner.run(agent, task_input) or {}
-            else:
-                raise
+        if execution_mode == "fsa":
+            ultra_params = inspect.signature(self.ultra.run_mission).parameters
+            ultra_kwargs = {"run_id": run_id}
+            if "workspace" in ultra_params:
+                ultra_kwargs["workspace"] = workspace
+            run_metrics = self.ultra.run_mission(agent, task_input, **ultra_kwargs) or {}
+        else:
+            run_metrics = self._invoke_runner(agent, task_input, run_id=run_id, auto_approve=False, workspace=workspace)
 
         append_dashboard_run(
             {

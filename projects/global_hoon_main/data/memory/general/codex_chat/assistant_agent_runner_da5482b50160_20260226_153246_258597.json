@@ -1,17 +1,17 @@
-{
-  "key": "assistant agent_runner 패치가 인코딩 문자열 때문에 한 번 실패해서 작은 단위로 나눠 안전하게 적용하겠습니다",
-  "value": "[assistant] `agent_runner` 패치가 인코딩 문자열 때문에 한 번 실패해서, 작은 단위로 나눠 안전하게 적용하겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-02-26T15:32:46.258727+00:00",
-  "updated_at": "2026-02-26T15:32:46.258727+00:00",
-  "details": {
-    "text": "[assistant] `agent_runner` 패치가 인코딩 문자열 때문에 한 번 실패해서, 작은 단위로 나눠 안전하게 적용하겠습니다.",
-    "event_timestamp": "2026-02-26T14:00:04.988Z",
-    "session_file": "C:/Users/home/.codex/sessions/2026/02/26/rollout-2026-02-26T14-17-53-019c9861-d21e-7892-9d8b-fe2b91c755de.jsonl",
-    "session_line": 230
-  }
+{
+  "key": "assistant agent_runner 패치가 인코딩 문자열 때문에 한 번 실패해서 작은 단위로 나눠 안전하게 적용하겠습니다",
+  "value": "[assistant] `agent_runner` 패치가 인코딩 문자열 때문에 한 번 실패해서, 작은 단위로 나눠 안전하게 적용하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-02-26T15:32:46.258727+00:00",
+  "updated_at": "2026-02-26T15:32:46.258727+00:00",
+  "details": {
+    "text": "[assistant] `agent_runner` 패치가 인코딩 문자열 때문에 한 번 실패해서, 작은 단위로 나눠 안전하게 적용하겠습니다.",
+    "event_timestamp": "2026-02-26T14:00:04.988Z",
+    "session_file": "C:/Users/home/.codex/sessions/2026/02/26/rollout-2026-02-26T14-17-53-019c9861-d21e-7892-9d8b-fe2b91c755de.jsonl",
+    "session_line": 230
+  }
 }

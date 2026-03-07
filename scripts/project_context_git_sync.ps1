@@ -28,6 +28,47 @@ function Normalize-Key([string]$Text) {
     return [regex]::Replace($v, "[^a-z0-9]+", "")
 }
 
+function Is-SamePath([string]$Left, [string]$Right) {
+    try {
+        return ((Resolve-Path $Left).Path -eq (Resolve-Path $Right).Path)
+    } catch {
+        return $false
+    }
+}
+
+function Is-RepoRootAlias([string]$RepoRoot, [string]$ProjectInput) {
+    $raw = ""
+    if ($null -ne $ProjectInput) { $raw = $ProjectInput.Trim() }
+    if (-not $raw) { return $false }
+
+    switch ($raw.ToLower()) {
+        "@repo" { return $true }
+        "@root" { return $true }
+        "." { return $true }
+        "./" { return $true }
+        ".\" { return $true }
+    }
+
+    $candidate = $raw
+    if (-not [System.IO.Path]::IsPathRooted($candidate)) {
+        $candidate = Join-Path $RepoRoot $candidate
+    }
+    if (-not (Test-Path $candidate -PathType Container)) {
+        return $false
+    }
+    return (Is-SamePath $candidate $RepoRoot)
+}
+
+function Is-GitRepoPath([string]$Path) {
+    try {
+        $out = git -C $Path rev-parse --show-toplevel 2>$null
+        if ($LASTEXITCODE -ne 0) { return $false }
+        return (Is-SamePath "$out".Trim() $Path)
+    } catch {
+        return $false
+    }
+}
+
 function Parse-ProjectInputs([string]$Single, [string]$Multi) {
     $items = @()
     if ($Single) { $items += $Single }
@@ -48,40 +89,72 @@ function Resolve-ProjectPath([string]$RepoRoot, [string]$ProjectInput) {
 
     $safe = Safe-Id $raw
     $key = Normalize-Key $raw
+    $repoKey = Normalize-Key (Split-Path -Leaf $RepoRoot)
+    $projectsRoot = Join-Path $RepoRoot "projects"
+    $siblingsRoot = Split-Path -Parent $RepoRoot
+    $preferRepoRootOnCollision = ($key -and ($repoKey -eq $key))
 
-    # 0) Current repo root when name matches.
-    if ($key -and ((Normalize-Key (Split-Path -Leaf $RepoRoot)) -eq $key)) {
+    # 0) Explicit repo-root aliases only.
+    if (Is-RepoRootAlias -RepoRoot $RepoRoot -ProjectInput $raw) {
         return $RepoRoot
     }
 
-    $projectsRoot = Join-Path $RepoRoot "projects"
-    $siblingsRoot = Split-Path -Parent $RepoRoot
+    # 1) Existing path as-given or relative to the repo root.
+    $directCandidates = @()
+    if ([System.IO.Path]::IsPathRooted($raw)) {
+        $directCandidates += $raw
+    } else {
+        $directCandidates += (Join-Path $RepoRoot $raw)
+    }
+    foreach ($p in $directCandidates) {
+        if (Test-Path $p -PathType Container) {
+            if (Is-SamePath $p $RepoRoot) { return $RepoRoot }
+            return (Resolve-Path $p).Path
+        }
+    }
 
-    # 1) Sibling dirs first (e.g. D:\logi-mind-v22).
+    # 2) Prefer local projects/ when the name collides with the workspace repo.
+    $p1 = Join-Path $projectsRoot $raw
+    if (Test-Path $p1 -PathType Container) {
+        if ((-not $preferRepoRootOnCollision) -or (Is-GitRepoPath $p1)) {
+            return (Resolve-Path $p1).Path
+        }
+    }
+    if ($safe) {
+        $p2 = Join-Path $projectsRoot $safe
+        if (Test-Path $p2 -PathType Container) {
+            if ((-not $preferRepoRootOnCollision) -or (Is-GitRepoPath $p2)) {
+                return (Resolve-Path $p2).Path
+            }
+        }
+    }
+    foreach ($p in (Get-ChildItem -Path $projectsRoot -Directory -ErrorAction SilentlyContinue)) {
+        if ((Normalize-Key $p.Name) -ne $key) { continue }
+        if ($preferRepoRootOnCollision -and (-not (Is-GitRepoPath $p.FullName))) { continue }
+        return $p.FullName
+    }
+
+    # 3) Then allow sibling repos, but never treat the current repo root as a sibling hit.
     $cands = @()
     $cands += (Join-Path $siblingsRoot $raw)
     if ($safe) { $cands += (Join-Path $siblingsRoot $safe) }
     foreach ($p in $cands) {
+        if (-not (Test-Path $p -PathType Container)) { continue }
+        if (Is-SamePath $p $RepoRoot) { continue }
         if (Test-Path $p -PathType Container) { return (Resolve-Path $p).Path }
     }
 
-    # 2) projects/ fallback.
-    $p1 = Join-Path $projectsRoot $raw
-    if (Test-Path $p1 -PathType Container) { return (Resolve-Path $p1).Path }
-    if ($safe) {
-        $p2 = Join-Path $projectsRoot $safe
-        if (Test-Path $p2 -PathType Container) { return (Resolve-Path $p2).Path }
-    }
-
-    # 3) Normalized scan in siblings, then projects.
     foreach ($p in (Get-ChildItem -Path $siblingsRoot -Directory -ErrorAction SilentlyContinue)) {
-        if ((Normalize-Key $p.Name) -eq $key) { return $p.FullName }
-    }
-    foreach ($p in (Get-ChildItem -Path $projectsRoot -Directory -ErrorAction SilentlyContinue)) {
+        if (Is-SamePath $p.FullName $RepoRoot) { continue }
         if ((Normalize-Key $p.Name) -eq $key) { return $p.FullName }
     }
 
-    # Create under projects as last resort.
+    # 4) Bare repo-name fallback only after local/sibling project checks.
+    if ($key -and ($repoKey -eq $key)) {
+        return $RepoRoot
+    }
+
+    # 5) Create under projects as last resort.
     $created = Join-Path $projectsRoot $safe
     New-Item -ItemType Directory -Path $created -Force | Out-Null
     return (Resolve-Path $created).Path

@@ -1,17 +1,17 @@
-{
-  "key": "assistant 다른 프로젝트로 넘어가도 가능합니다 다만 지금 계획은 2군데를 꼭 수정해야 실제로 동작합니다Findings1 Critical 메모리 엔진 대상이 빗나가 있습니다 현재 런타임은 cortexpy가 아니",
-  "value": "[assistant] 다른 프로젝트로 넘어가도 가능합니다. 다만 지금 계획은 2군데를 꼭 수정해야 실제로 동작합니다.  **Findings** 1. `Critical` 메모리 엔진 대상이 빗나가 있습니다. 현재 런타임은 `cortex.py`가 아니라 `core_memory`를 씁니다.   [core/agent_runner.py:397](/C:/Project/agent-factory/core/agent_runner.py:397)   [skills/core_m...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-02-26T15:32:46.240547+00:00",
-  "updated_at": "2026-02-26T15:32:46.240547+00:00",
-  "details": {
-    "text": "[assistant] 다른 프로젝트로 넘어가도 가능합니다. 다만 지금 계획은 2군데를 꼭 수정해야 실제로 동작합니다.\n\n**Findings**\n1. `Critical` 메모리 엔진 대상이 빗나가 있습니다. 현재 런타임은 `cortex.py`가 아니라 `core_memory`를 씁니다.  \n[core/agent_runner.py:397](/C:/Project/agent-factory/core/agent_runner.py:397)  \n[skills/core_memory/skill.py:25](/C:/Project/agent-factory/skills/core_memory/skill.py:25)  \n`cortex.py`만 바꾸면 실제 “기억 저장/회수” 경로가 안 바뀔 가능성이 큽니다. ([skills/core/cortex.py:93](/C:/Project/agent-factory/skills/core/cortex.py:93))\n\n2. `Critical` `user:{key}` 단일 레코드에 현재 스냅샷 구조를 그대로 넣으면 충돌/오염 위험이 큽니다.  \n현재 스냅샷은 `artifacts/data/runs/docs/...`를 광범위하게 담고, pull 시 로컬에 그대로 씁니다.  \n[scripts/project_context_sync.py:338](/C:/Project/agent-factory/scripts/project_context_sync.py:338)  \n[scripts/project_context_sync.py:463](/C:/Project/agent-factory/scripts/project_context_sync.py:463)  \n[scripts/project_context_sync.py:516](/C:/Project/agent-factory/scripts/project_context_sync.py:516)\n\n3. `High` `start_db all`은 전역이 아니라 프로젝트 목록 하드코딩입니다.  \n[scripts/sync_easy.ps1:27](/C:/Project/agent-factory/scripts/sync_easy.ps1:27)  \n그래서 새 프로젝트에서 자동 연속성이 안 생깁니다.\n\n4. `High` “이 채팅창 맥락” 자동 동기화는 현재 코드에 브리지가 없습니다. `antigravity_link.py`는 라우팅/실행만 합니다.  \n[antigravity_link.py:39](/C:/Project/agent-factory/antigravity_link.py:39)\n\n**결론**\n계획 방향은 맞습니다.  \n단, 구현 포커스는 `cortex.py`보다 `core_memory + project_context_sync(global 전용 payload) + start_db 흐름`으로 옮겨야 합니다.\n\n**권장 수정 포인트**\n1. `AGENT_GLOBAL_USER_KEY` 도입은 `config_paths.py`에 반영.  \n2. 계층형 메모리는 `skills/core_memory/skill.py`에서 `local -> global` 조회로 구현.  \n3. `project_context_sync.py`에 `--scope global --user-key` 추가하되 global payload는 “요약/기억 항목만” 별도 수집.  \n4. `start_db all`에서 프로젝트 pull 후 global pull을 추가(우선순위: local override).  \n5. `agent_runner.py`에 `[Global Context Briefing]` 주입(토큰 상한 포함).\n\n원하면 이대로 바로 코드 패치까지 진행하겠습니다.",
-    "event_timestamp": "2026-02-26T13:56:25.673Z",
-    "session_file": "C:/Users/home/.codex/sessions/2026/02/26/rollout-2026-02-26T14-17-53-019c9861-d21e-7892-9d8b-fe2b91c755de.jsonl",
-    "session_line": 163
-  }
+{
+  "key": "assistant 다른 프로젝트로 넘어가도 가능합니다 다만 지금 계획은 2군데를 꼭 수정해야 실제로 동작합니다Findings1 Critical 메모리 엔진 대상이 빗나가 있습니다 현재 런타임은 cortexpy가 아니",
+  "value": "[assistant] 다른 프로젝트로 넘어가도 가능합니다. 다만 지금 계획은 2군데를 꼭 수정해야 실제로 동작합니다.  **Findings** 1. `Critical` 메모리 엔진 대상이 빗나가 있습니다. 현재 런타임은 `cortex.py`가 아니라 `core_memory`를 씁니다.   [core/agent_runner.py:397](/C:/Project/agent-factory/core/agent_runner.py:397)   [skills/core_m...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-02-26T15:32:46.240547+00:00",
+  "updated_at": "2026-02-26T15:32:46.240547+00:00",
+  "details": {
+    "text": "[assistant] 다른 프로젝트로 넘어가도 가능합니다. 다만 지금 계획은 2군데를 꼭 수정해야 실제로 동작합니다.\n\n**Findings**\n1. `Critical` 메모리 엔진 대상이 빗나가 있습니다. 현재 런타임은 `cortex.py`가 아니라 `core_memory`를 씁니다.  \n[core/agent_runner.py:397](/C:/Project/agent-factory/core/agent_runner.py:397)  \n[skills/core_memory/skill.py:25](/C:/Project/agent-factory/skills/core_memory/skill.py:25)  \n`cortex.py`만 바꾸면 실제 “기억 저장/회수” 경로가 안 바뀔 가능성이 큽니다. ([skills/core/cortex.py:93](/C:/Project/agent-factory/skills/core/cortex.py:93))\n\n2. `Critical` `user:{key}` 단일 레코드에 현재 스냅샷 구조를 그대로 넣으면 충돌/오염 위험이 큽니다.  \n현재 스냅샷은 `artifacts/data/runs/docs/...`를 광범위하게 담고, pull 시 로컬에 그대로 씁니다.  \n[scripts/project_context_sync.py:338](/C:/Project/agent-factory/scripts/project_context_sync.py:338)  \n[scripts/project_context_sync.py:463](/C:/Project/agent-factory/scripts/project_context_sync.py:463)  \n[scripts/project_context_sync.py:516](/C:/Project/agent-factory/scripts/project_context_sync.py:516)\n\n3. `High` `start_db all`은 전역이 아니라 프로젝트 목록 하드코딩입니다.  \n[scripts/sync_easy.ps1:27](/C:/Project/agent-factory/scripts/sync_easy.ps1:27)  \n그래서 새 프로젝트에서 자동 연속성이 안 생깁니다.\n\n4. `High` “이 채팅창 맥락” 자동 동기화는 현재 코드에 브리지가 없습니다. `antigravity_link.py`는 라우팅/실행만 합니다.  \n[antigravity_link.py:39](/C:/Project/agent-factory/antigravity_link.py:39)\n\n**결론**\n계획 방향은 맞습니다.  \n단, 구현 포커스는 `cortex.py`보다 `core_memory + project_context_sync(global 전용 payload) + start_db 흐름`으로 옮겨야 합니다.\n\n**권장 수정 포인트**\n1. `AGENT_GLOBAL_USER_KEY` 도입은 `config_paths.py`에 반영.  \n2. 계층형 메모리는 `skills/core_memory/skill.py`에서 `local -> global` 조회로 구현.  \n3. `project_context_sync.py`에 `--scope global --user-key` 추가하되 global payload는 “요약/기억 항목만” 별도 수집.  \n4. `start_db all`에서 프로젝트 pull 후 global pull을 추가(우선순위: local override).  \n5. `agent_runner.py`에 `[Global Context Briefing]` 주입(토큰 상한 포함).\n\n원하면 이대로 바로 코드 패치까지 진행하겠습니다.",
+    "event_timestamp": "2026-02-26T13:56:25.673Z",
+    "session_file": "C:/Users/home/.codex/sessions/2026/02/26/rollout-2026-02-26T14-17-53-019c9861-d21e-7892-9d8b-fe2b91c755de.jsonl",
+    "session_line": 163
+  }
 }

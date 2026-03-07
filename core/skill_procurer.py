@@ -15,11 +15,13 @@ import re
 import glob
 import shutil
 import datetime
+import inspect
 import subprocess
 
 from model_utils import get_best_model, resolve_dynamic_model
 from core.llm_engine import LLMEngine
 from core.skill_registry import check_skill_exists, register_skill
+from core.utils import resolve_skill_paths, safe_id
 
 
 def log(step, msg):
@@ -215,32 +217,81 @@ class SkillOrchestrator:
         self.builder = builder
         self.agent_mgr = agent_mgr
 
-    def procure_multiple(self, agent, skill_names, reqs, run_id, execution_mode="approval", approval_gate=None):
-        installed = []
-        for name in skill_names:
-            path = procure_skill(name, agent.get("role", "General"))
-            if path and os.path.exists(path):
-                installed.append(name)
+    def procure_multiple(
+        self,
+        agent,
+        skill_names,
+        reqs,
+        run_id,
+        execution_mode="approval",
+        approval_gate=None,
+        workspace: str | None = None,
+    ):
+        installed: list[str] = []
+        built_metas: list[dict] = []
+        targets = [normalize_skill_id(name) for name in skill_names if normalize_skill_id(name)]
+        if not targets:
+            return installed
+
+        try:
+            research_bundle = self.research.research(agent, reqs, build_targets=targets) if self.research else {}
+        except Exception as e:
+            log("RESEARCH", f"Research failed: {e}")
+            research_bundle = {}
+
+        evidence_pack = research_bundle.get("evidence_pack", {}) if isinstance(research_bundle, dict) else {}
+        evidence_targets = evidence_pack.get("targets", {}) if isinstance(evidence_pack, dict) else {}
+        auto_approve = execution_mode == "fsa"
+
+        for name in targets:
+            evidence = evidence_targets.get(name, {}) if isinstance(evidence_targets, dict) else {}
+            candidate_id = normalize_skill_id(str(evidence.get("top_candidate", "")))
+            candidate_path = resolve_skill_paths(candidate_id)[0] if candidate_id else None
+            verified_candidate = bool(candidate_id and evidence.get("verified") and candidate_path)
+
+            action = "install" if verified_candidate else "build"
+            approval_target = candidate_id or name
+            if approval_gate and not approval_gate(agent.get("role"), [approval_target], action, auto_approve):
                 continue
 
-            if approval_gate and not approval_gate(agent.get("role"), [name], "build", execution_mode == "fsa"):
-                continue
-
-            from core.utils import normalize_skill_id
-            evidence = self.research.research_topic(f"Python code pattern for {name} for {agent.get('role')}")
+            if verified_candidate:
+                if hasattr(self.registry, "ensure_lock_for_existing_skill"):
+                    self.registry.ensure_lock_for_existing_skill(candidate_id)
+                installable = True
+                if hasattr(self.registry, "is_installable"):
+                    installable = bool(self.registry.is_installable(candidate_id))
+                if installable:
+                    installed.append(candidate_id)
+                    continue
 
             ok, code_path, meta = self.builder.build_skill(
                 agent=agent,
                 skill_name=name,
                 reqs=reqs,
                 run_id=run_id,
-                evidence_pack={"targets": {normalize_skill_id(name): evidence}}
+                evidence_pack=evidence_pack,
             )
 
-            if ok:
-                self.registry.register_built(meta, os.path.dirname(code_path))
-                installed.append(name)
+            if not ok or not code_path or not isinstance(meta, dict):
+                continue
 
+            self.registry.register_built(meta, os.path.dirname(code_path))
+            built_metas.append(meta)
+
+            built_id = safe_id(str(meta.get("id") or name))
+            installable = True
+            if hasattr(self.registry, "is_installable"):
+                installable = bool(self.registry.is_installable(built_id))
+            if installable:
+                installed.append(built_id)
+
+        if built_metas and hasattr(self.registry, "workflow_apply"):
+            self.registry.workflow_apply(built_metas)
         if installed:
-            self.agent_mgr.install_skills(agent.get("role"), installed)
-        return installed
+            params = inspect.signature(self.agent_mgr.install_skills).parameters
+            install_args = [agent.get("role"), list(dict.fromkeys(installed))]
+            if "workspace" in params:
+                self.agent_mgr.install_skills(*install_args, workspace=workspace)
+            else:
+                self.agent_mgr.install_skills(*install_args)
+        return list(dict.fromkeys(installed))

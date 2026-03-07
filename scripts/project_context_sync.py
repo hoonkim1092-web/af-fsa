@@ -14,6 +14,7 @@ from pathlib import Path
 DEFAULT_EXCLUDE_GLOBS = (
     "docs/task.md",
 )
+REPO_ROOT_ALIASES = ("@repo", "@root", ".", "./", ".\\")
 
 
 def load_dotenv_simple(root: Path) -> None:
@@ -68,48 +69,75 @@ def sync_project_id(text: str) -> str:
     return safe_id(text).replace("-", "_")
 
 
+def _same_path(left: Path, right: Path) -> bool:
+    try:
+        return left.resolve() == right.resolve()
+    except Exception:
+        return False
+
+
+def _project_sync_id_for_path(repo_root: Path, project_root: Path) -> str:
+    repo_name_key = normalize_match_key(repo_root.name)
+    project_name_key = normalize_match_key(project_root.name)
+    projects_root = (repo_root / "projects").resolve()
+    project_root_resolved = project_root.resolve()
+
+    # Preserve the existing sync key for the workspace repo root.
+    if _same_path(project_root_resolved, repo_root):
+        return sync_project_id(repo_root.name)
+
+    # Avoid colliding with the repo-root key when a local project shares the same name.
+    if project_root_resolved.parent == projects_root and project_name_key == repo_name_key:
+        return f"project_{sync_project_id(project_root.name)}"
+
+    return sync_project_id(project_root.name)
+
+
+def _is_repo_root_alias(repo_root: Path, raw: str) -> bool:
+    token = str(raw or "").strip()
+    if not token:
+        return False
+    if token.lower() in REPO_ROOT_ALIASES:
+        return True
+    try:
+        candidate = Path(token).expanduser()
+        if not candidate.is_absolute():
+            candidate = repo_root / candidate
+        return candidate.exists() and candidate.is_dir() and _same_path(candidate, repo_root)
+    except Exception:
+        return False
+
+
 def resolve_project_root(repo_root: Path, project_input: str) -> tuple[str, Path]:
     projects_root = repo_root / "projects"
     projects_root.mkdir(parents=True, exist_ok=True)
 
     raw = str(project_input or "").strip()
     safe = safe_id(raw)
-    sync_id = sync_project_id(raw)
     key = normalize_match_key(raw)
 
-    # 0) Current repo root if input matches repo name.
-    if key and key == normalize_match_key(repo_root.name):
-        return sync_id, repo_root
+    # 0) Explicit current repo root aliases only.
+    if _is_repo_root_alias(repo_root, raw):
+        return _project_sync_id_for_path(repo_root, repo_root), repo_root
 
-    # 1) Sibling project directory support first (e.g. D:\logi-mind-v22).
-    siblings_root = repo_root.parent
-    sibling_candidates = []
+    # 1) Existing path as-given or relative to the repo root.
+    direct_candidates = []
     if raw:
-        sibling_candidates.append(siblings_root / raw)
-    if safe:
-        sibling_candidates.append(siblings_root / safe)
-    for cand in sibling_candidates:
+        direct_path = Path(raw).expanduser()
+        direct_candidates.append(direct_path if direct_path.is_absolute() else repo_root / direct_path)
+    for cand in direct_candidates:
         if cand.exists() and cand.is_dir():
-            return sync_id, cand
+            resolved = cand.resolve()
+            return _project_sync_id_for_path(repo_root, resolved), resolved
 
-    if key:
-        sibling_matches = []
-        for p in siblings_root.iterdir():
-            if not p.is_dir():
-                continue
-            if normalize_match_key(p.name) == key:
-                sibling_matches.append(p)
-        if len(sibling_matches) == 1:
-            return sync_id, sibling_matches[0]
-
-    # 2) Local projects/ fallback.
+    # 2) Local projects/ first so a nested project can win over the repo-root name.
     exact_dir = projects_root / raw
     if raw and exact_dir.exists() and exact_dir.is_dir():
-        return sync_id, exact_dir
+        return _project_sync_id_for_path(repo_root, exact_dir), exact_dir
 
     safe_dir = projects_root / safe
     if safe and safe_dir.exists() and safe_dir.is_dir():
-        return sync_id, safe_dir
+        return _project_sync_id_for_path(repo_root, safe_dir), safe_dir
 
     if key:
         matches = []
@@ -119,12 +147,39 @@ def resolve_project_root(repo_root: Path, project_input: str) -> tuple[str, Path
             if normalize_match_key(p.name) == key:
                 matches.append(p)
         if len(matches) == 1:
-            return sync_id, matches[0]
+            return _project_sync_id_for_path(repo_root, matches[0]), matches[0]
 
-    # Create canonical local directory if nothing matched.
+    # 3) Sibling project directory support next (e.g. D:\logi-mind-v22).
+    siblings_root = repo_root.parent
+    sibling_candidates = []
+    if raw:
+        sibling_candidates.append(siblings_root / raw)
+    if safe:
+        sibling_candidates.append(siblings_root / safe)
+    for cand in sibling_candidates:
+        if cand.exists() and cand.is_dir() and not _same_path(cand, repo_root):
+            return _project_sync_id_for_path(repo_root, cand), cand
+
+    if key:
+        sibling_matches = []
+        for p in siblings_root.iterdir():
+            if not p.is_dir():
+                continue
+            if _same_path(p, repo_root):
+                continue
+            if normalize_match_key(p.name) == key:
+                sibling_matches.append(p)
+        if len(sibling_matches) == 1:
+            return _project_sync_id_for_path(repo_root, sibling_matches[0]), sibling_matches[0]
+
+    # 4) Current repo root is the last fallback when only the name matches.
+    if key and key == normalize_match_key(repo_root.name):
+        return _project_sync_id_for_path(repo_root, repo_root), repo_root
+
+    # 5) Create canonical local directory if nothing matched.
     chosen = projects_root / safe
     chosen.mkdir(parents=True, exist_ok=True)
-    return sync_id, chosen
+    return _project_sync_id_for_path(repo_root, chosen), chosen
 
 
 def resolve_global_root(repo_root: Path, user_key: str) -> tuple[str, Path]:
