@@ -28,6 +28,7 @@ def main():
     parser.add_argument("--mode", choices=["approval", "fsa"], default="approval", help="실행 모드 (기본: approval, 자율: fsa)")
     parser.add_argument("--fsa", action="store_true", help="풀 셀프 자동화(Full Self Automation) 모드 활성화 단축키")
     parser.add_argument("--build", action="store_true", help="Build missing skills before run")
+    parser.add_argument("--pipeline", choices=["auto", "single", "project"], default="auto", help="실행 파이프라인 선택")
     args = parser.parse_args()
     execution_mode = "fsa" if (args.fsa or args.mode == "fsa") else "approval"
 
@@ -36,21 +37,16 @@ def main():
         print("유효한 프로젝트 ID를 입력하세요.")
         return
 
-    role = args.role
-    if not role:
-        print("\n[Agent Setup]")
-        role = input("  에이전트 역할 (기본값 'General Assistant'): ").strip()
-        if not role:
-            role = "General Assistant"
-
     task = args.task
     if not task:
-        print(f"\n[Task for '{role}']")
+        print("\n[Task Input]")
         task = input("  요청할 작업 내용을 입력하세요: ").strip()
 
     if not task:
         print("작업 내용이 비어 있어 종료합니다.")
         return
+
+    role = (args.role or "").strip() or "General Assistant"
 
     project_root = os.path.join(FACTORY_DIR, "projects", project_id)
     os.makedirs(project_root, exist_ok=True)
@@ -73,7 +69,13 @@ def main():
             roles = [x.strip() for x in (args.agents or "").split(",") if x.strip()]
             factory.run_workflow(task_input=task, workflow_path=args.workflow, role_specs=roles)
         else:
-            factory.run(task_input=task, role_spec=role, enable_build=bool(args.build), execution_mode=execution_mode)
+            factory.run(
+                task_input=task,
+                role_spec=role,
+                enable_build=bool(args.build),
+                execution_mode=execution_mode,
+                pipeline_mode=args.pipeline,
+            )
     except KeyboardInterrupt:
         print("\n사용자가 실행을 중단했습니다.")
     except Exception as e:

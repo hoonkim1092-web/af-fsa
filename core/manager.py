@@ -1,3 +1,4 @@
+import inspect
 import os
 from google import genai
 from model_utils import normalize_model_name, generate_content_with_self_heal
@@ -56,7 +57,14 @@ JSON 출력:
         if not skill_ids:
             return []
         path = self._agent_path(role_spec, workspace)
-        agent = read_yaml(path) if os.path.exists(path) else self.get_or_create(role_spec, workspace)
+        if os.path.exists(path):
+            agent = read_yaml(path)
+        else:
+            params = inspect.signature(self.get_or_create).parameters
+            if "workspace" in params:
+                agent = self.get_or_create(role_spec, workspace=workspace)
+            else:
+                agent = self.get_or_create(role_spec)
         current = [safe_id(str(s)) for s in (agent.get("skills") or []) if str(s).strip()]
         merged = list(dict.fromkeys(current + [safe_id(s) for s in skill_ids]))
         agent["skills"] = merged

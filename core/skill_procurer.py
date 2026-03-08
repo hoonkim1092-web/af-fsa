@@ -233,8 +233,17 @@ class SkillOrchestrator:
         if not targets:
             return installed
 
+        exact_matches: dict[str, str] = {}
+        unresolved_targets: list[str] = []
+        for name in targets:
+            exact_path, _exact_meta = resolve_skill_paths(name)
+            if exact_path:
+                exact_matches[name] = exact_path
+            else:
+                unresolved_targets.append(name)
+
         try:
-            research_bundle = self.research.research(agent, reqs, build_targets=targets) if self.research else {}
+            research_bundle = self.research.research(agent, reqs, build_targets=unresolved_targets) if (self.research and unresolved_targets) else {}
         except Exception as e:
             log("RESEARCH", f"Research failed: {e}")
             research_bundle = {}
@@ -244,8 +253,21 @@ class SkillOrchestrator:
         auto_approve = execution_mode == "fsa"
 
         for name in targets:
+            if name in exact_matches:
+                if approval_gate and not approval_gate(agent.get("role"), [name], "install", auto_approve):
+                    continue
+                if hasattr(self.registry, "ensure_lock_for_existing_skill"):
+                    self.registry.ensure_lock_for_existing_skill(name)
+                installable = True
+                if hasattr(self.registry, "is_installable"):
+                    installable = bool(self.registry.is_installable(name))
+                if installable:
+                    installed.append(name)
+                    continue
+
             evidence = evidence_targets.get(name, {}) if isinstance(evidence_targets, dict) else {}
-            candidate_id = normalize_skill_id(str(evidence.get("top_candidate", "")))
+            raw_candidate = evidence.get("top_candidate")
+            candidate_id = normalize_skill_id(raw_candidate) if raw_candidate else ""
             candidate_path = resolve_skill_paths(candidate_id)[0] if candidate_id else None
             verified_candidate = bool(candidate_id and evidence.get("verified") and candidate_path)
 

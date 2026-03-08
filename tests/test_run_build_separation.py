@@ -35,10 +35,12 @@ def test_run_default_skips_build(monkeypatch):
 def test_run_with_build_executes_builder(monkeypatch):
     al = _load_launcher(monkeypatch)
     factory = al.AgentFactory()
+    import core.skill_procurer as sp
 
     factory.agent_mgr.get_or_create = lambda role_spec: {"name": "t", "role": "r", "skills": []}
     factory.req.analyze = lambda _agent, _task: {"goal": "g", "missing_skills": ["new_skill"], "constraints": []}
     factory._missing_local_skill_files = lambda _agent: []
+    monkeypatch.setattr(sp, "resolve_skill_paths", lambda sid: (None, None))
     factory.research.research = lambda _agent, _reqs, build_targets=None: {
         "evidence_pack": {
             "targets": {

@@ -16,6 +16,16 @@ class HimariResearchAgent:
     def __init__(self, mr):
         self.mr = mr
 
+    def _himari_identity(self) -> dict:
+        path = os.path.join(AGENTS_DIR, "himari.yaml")
+        data = read_yaml(path) if os.path.exists(path) else {}
+        if not isinstance(data, dict):
+            data = {}
+        data.setdefault("name", "Himari")
+        data.setdefault("role", "Project Research Director")
+        data.setdefault("signature_lines", ["근거를 먼저 고정합니다."])
+        return data
+
     def _approve_notebooklm_insight(self, insight: str) -> bool:
         preview = (insight or "").strip()
         if not preview:
@@ -87,6 +97,105 @@ class HimariResearchAgent:
         }
         return score, verify
 
+    def _fallback_project_brief(self, task_input: str) -> dict:
+        text = (task_input or "").lower()
+        required_skills: list[str] = []
+        role_hints: list[str] = []
+        deliverables: list[str] = []
+        risks: list[str] = []
+
+        if any(token in text for token in ("game", "게임", "poker", "포커")):
+            required_skills.extend([
+                "gameplay_core",
+                "state_machine",
+                "frontend_game_ui",
+                "integration_test_guard",
+            ])
+            role_hints.extend(["game_logic_dev", "frontend_dev", "qa_engineer"])
+            deliverables.extend(["게임 규칙 구현", "플레이 UI", "회귀 테스트"])
+            risks.extend(["상태 전이 복잡도", "룰 판정 오류"])
+        if any(token in text for token in ("web", "ui", "페이지", "screen", "frontend")):
+            required_skills.append("frontend_game_ui")
+            role_hints.append("frontend_dev")
+        if any(token in text for token in ("api", "db", "backend", "서버")):
+            required_skills.append("backend_service")
+            role_hints.append("backend_dev")
+            risks.append("데이터 모델 정합성")
+        if not required_skills:
+            required_skills.extend(["implementation_plan", "integration_test_guard"])
+        if not role_hints:
+            role_hints.extend(["general_dev", "qa_engineer"])
+        if not deliverables:
+            deliverables.append("작동하는 구현 결과")
+
+        return {
+            "goal": task_input,
+            "constraints": ["network_allowed", "no_system_tools", "data_io_allowed"],
+            "required_skills": list(dict.fromkeys(required_skills)),
+            "role_hints": list(dict.fromkeys(role_hints))[:5],
+            "deliverables": deliverables[:6],
+            "risks": list(dict.fromkeys(risks))[:6],
+            "research_notes": ["LLM unavailable; heuristic brief generated."],
+            "tech_stack": [],
+        }
+
+    def research_project_brief(self, agent: dict, task_input: str, workspace: str | None = None) -> dict:
+        identity = agent if isinstance(agent, dict) and agent else self._himari_identity()
+        sig = get_random_signature(identity)
+        print_agent_msg(identity.get("name", "Himari"), f"프로젝트 착수 리서치를 시작합니다: {task_input}", sig)
+
+        target_workspace = workspace or os.getenv("AGENT_PROJECT_ROOT") or os.getcwd()
+        workspace_notes = []
+        todo_path = os.path.join(target_workspace, ".todo.md")
+        if os.path.exists(todo_path):
+            workspace_notes.append(f"existing_todo={todo_path}")
+
+        _api_key = os.getenv("GOOGLE_API_KEY")
+        _client = genai.Client(api_key=_api_key) if _api_key else None
+        _model_name = normalize_model_name(self.mr.pick("requirement"))
+        prompt = f"""
+You are Himari, a project research director.
+Task: {task_input}
+Workspace notes: {workspace_notes}
+
+Return JSON only:
+{{
+  "goal": "single sentence goal",
+  "constraints": ["constraint"],
+  "required_skills": ["snake_case_skill"],
+  "role_hints": ["snake_case_role"],
+  "deliverables": ["deliverable"],
+  "risks": ["risk"],
+  "research_notes": ["note"],
+  "tech_stack": ["option"]
+}}
+
+Rules:
+- required_skills: 3 to 8 concrete skills in English snake_case.
+- role_hints: 2 to 5 practical implementation roles.
+- deliverables and risks should be short Korean phrases.
+""".strip()
+        try:
+            res = generate_content_with_self_heal(_client, _model_name, prompt) if _client else None
+            data = safe_json_load(res.text if res else "{}")
+            if not isinstance(data, dict):
+                raise ValueError("project_brief_not_dict")
+            data.setdefault("goal", task_input)
+            data["constraints"] = [str(x) for x in (data.get("constraints") or []) if str(x).strip()]
+            data["required_skills"] = [safe_id(str(x)) for x in (data.get("required_skills") or []) if str(x).strip()]
+            data["role_hints"] = [safe_id(str(x)) for x in (data.get("role_hints") or []) if str(x).strip()]
+            data["deliverables"] = [str(x).strip() for x in (data.get("deliverables") or []) if str(x).strip()]
+            data["risks"] = [str(x).strip() for x in (data.get("risks") or []) if str(x).strip()]
+            data["research_notes"] = [str(x).strip() for x in (data.get("research_notes") or []) if str(x).strip()]
+            data["tech_stack"] = [str(x).strip() for x in (data.get("tech_stack") or []) if str(x).strip()]
+            if not data["required_skills"]:
+                raise ValueError("required_skills_missing")
+            if not data["role_hints"]:
+                raise ValueError("role_hints_missing")
+            return data
+        except Exception:
+            return self._fallback_project_brief(task_input)
+
     def research(self, agent: dict, reqs: dict, build_targets: list[str] | None = None) -> dict:
         missing = [safe_id(str(s)) for s in (build_targets or reqs.get("missing_skills") or []) if str(s).strip()]
         idx = self._registry_skill_index()
@@ -104,7 +213,7 @@ class HimariResearchAgent:
         # --- NotebookLM Research (V22.0 Hybrid Reasoning) ---
         notebook_insight = ""
         if missing:
-            himari_cfg = read_yaml(os.path.join(AGENTS_DIR, "himari.yaml"))
+            himari_cfg = self._himari_identity()
             sig = get_random_signature(himari_cfg)
             # [MISMATCH-3 FIX] 모든 미싱 스킬에 대해 리서치 (최대 3개)
             research_targets = missing[:3]
@@ -218,7 +327,7 @@ LocalSkillCatalog(JSON): {json.dumps(skill_catalog, ensure_ascii=False)}
         needs = [safe_id(str(n)) for n in (needs or []) if str(n).strip()]
         if not needs:
             return {}
-        himari_cfg = read_yaml(os.path.join(AGENTS_DIR, "himari.yaml"))
+        himari_cfg = self._himari_identity()
         sig = get_random_signature(himari_cfg)
         print_agent_msg("Himari", f"외부 스킬 소스에서 설치 가능한 후보를 탐색합니다: {needs}", sig)
         installed = registry.resolve_and_install_external(needs, reqs=reqs)

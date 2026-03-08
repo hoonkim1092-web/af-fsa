@@ -17,11 +17,13 @@ def _load_launcher(monkeypatch):
 def test_factory_reuses_verified_skill(monkeypatch):
     al = _load_launcher(monkeypatch)
     factory = al.AgentFactory()
+    import core.skill_procurer as sp
 
     agent = {"name": "t", "role": "r", "skills": []}
     factory.agent_mgr.get_or_create = lambda role_spec: agent
     factory.req.analyze = lambda _agent, _task: {"goal": "g", "missing_skills": ["needs_issue"], "constraints": []}
     factory._missing_local_skill_files = lambda _agent: []
+    monkeypatch.setattr(sp, "resolve_skill_paths", lambda sid: ("issue_tracker.py", None) if sid == "issue_tracker" else (None, None))
     factory.research.research = lambda _agent, _reqs, build_targets=None: {
         "evidence_pack": {
             "targets": {
@@ -52,11 +54,13 @@ def test_factory_reuses_verified_skill(monkeypatch):
 def test_factory_builds_unresolved_skill_and_registers(monkeypatch):
     al = _load_launcher(monkeypatch)
     factory = al.AgentFactory()
+    import core.skill_procurer as sp
 
     agent = {"name": "t", "role": "r", "skills": []}
     factory.agent_mgr.get_or_create = lambda role_spec: agent
     factory.req.analyze = lambda _agent, _task: {"goal": "g", "missing_skills": ["new_skill"], "constraints": []}
     factory._missing_local_skill_files = lambda _agent: []
+    monkeypatch.setattr(sp, "resolve_skill_paths", lambda sid: (None, None))
     factory.research.research = lambda _agent, _reqs, build_targets=None: {
         "evidence_pack": {
             "targets": {

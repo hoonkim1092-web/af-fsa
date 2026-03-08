@@ -57,6 +57,8 @@ from core.agent_runner import ModelRouter, AgentRunner
 from core.git_manager import GitManager
 from core.fsa_loop import FSALoop
 from core.dynamic_orchestrator import DynamicOrchestrator
+from core.request_router import RequestRouter
+from core.project_pipeline import ProjectPipeline
 # Redundant AST and Sandbox logic removed (handled by core.utils and core.executor)
 
 # =============================================================================
@@ -84,12 +86,19 @@ class AgentFactory:
         self.git = GitManager()
         self.runner = AgentRunner(self.mr)
         self.ultra = FSALoop(self.runner)
+        self.request_router = RequestRouter()
         # [GAP-3] Unified pipeline: Himari(Skeleton) + Builder(Release)
         self.procurer = SkillOrchestrator(
             registry=self.registry,
             research_agent=self.research,
             builder=self.builder,
             agent_mgr=self.agent_mgr,
+        )
+        self.project_pipeline = ProjectPipeline(
+            mr=self.mr,
+            agent_mgr=self.agent_mgr,
+            research_agent=self.research,
+            procurer=self.procurer,
         )
 
     def _missing_local_skill_files(self, agent: dict) -> list[str]:
@@ -215,12 +224,26 @@ class AgentFactory:
         enable_build: bool = False,
         execution_mode: str = "approval",
         workspace: str | None = None,
+        pipeline_mode: str = "auto",
     ):
         run_id = f"run_{int(time.time())}"
         print(f"\nRUN={run_id}")
         print(f"- Role: {role_spec}")
         print(f"- Mode: {execution_mode}")
         print(f"- Task: {task_input}")
+
+        route = self.request_router.route(task_input=task_input, role_spec=role_spec, pipeline_mode=pipeline_mode)
+        if route.get("pipeline") == "project":
+            target_workspace = workspace or PROJECT_ROOT
+            print(f"\n[Router] project pipeline selected: {route.get('reasoning', '')}")
+            return self.project_pipeline.run(
+                task_input=task_input,
+                workspace=target_workspace,
+                execution_mode=execution_mode,
+                enable_build=enable_build,
+                requested_role=role_spec,
+                route=route,
+            )
 
         agent = self._get_agent(role_spec, workspace=workspace)
         reqs = self.req.analyze(agent, task_input)
@@ -360,7 +383,11 @@ class AgentFactory:
                 role_reason = ""
                 for attempt in range(1, max_stage_retries + 1):
                     stage_attempts = max(stage_attempts, attempt)
-                    result = self.run(task_input=stage_task, role_spec=role) or {}
+                    run_params = inspect.signature(self.run).parameters
+                    run_kwargs = {"task_input": stage_task, "role_spec": role}
+                    if "pipeline_mode" in run_params:
+                        run_kwargs["pipeline_mode"] = "single"
+                    result = self.run(**run_kwargs) or {}
                     run_count += 1
                     role_ok = bool(result.get("ok", False))
                     role_reason = str(result.get("reason", ""))
