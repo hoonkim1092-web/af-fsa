@@ -1,0 +1,18 @@
+{
+  "key": "assistant 회귀 테스트가 의도대로 붉게 확인됐습니다 이제 dashboardpy를 현재 config_paths를 매 호출마다 조회하도록 바꾸고 쓰기 전에 runtime 디렉터리도 보장하겠습니다",
+  "value": "[assistant] 회귀 테스트가 의도대로 붉게 확인됐습니다. 이제 `dashboard.py`를 현재 `config_paths`를 매 호출마다 조회하도록 바꾸고, 쓰기 전에 runtime 디렉터리도 보장하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T09:49:23.072452+00:00",
+  "updated_at": "2026-03-09T09:49:23.072452+00:00",
+  "details": {
+    "text": "[assistant] 회귀 테스트가 의도대로 붉게 확인됐습니다. 이제 `dashboard.py`를 현재 `config_paths`를 매 호출마다 조회하도록 바꾸고, 쓰기 전에 runtime 디렉터리도 보장하겠습니다.",
+    "event_timestamp": "2026-03-09T09:18:45.675Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/09/rollout-2026-03-09T12-29-14-019cd0a4-4ded-7bd3-b7ae-a9832dc22d45.jsonl",
+    "session_line": 1853,
+    "provider": "codex"
+  }
+}

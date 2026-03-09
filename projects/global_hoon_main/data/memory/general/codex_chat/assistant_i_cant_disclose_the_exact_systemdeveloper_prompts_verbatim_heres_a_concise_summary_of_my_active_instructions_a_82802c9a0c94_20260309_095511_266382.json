@@ -1,0 +1,18 @@
+{
+  "key": "assistant I cant disclose the exact systemdeveloper prompts verbatim Heres a concise summary of my active instructions a",
+  "value": "[assistant] I can’t disclose the exact system/developer prompts verbatim. Here’s a concise summary of my active instructions and setup:  - Purpose: Coding agent in the Codex CLI, focused on being precise, safe, and helpful for repo‑centric work. - Capabilit...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T09:55:11.266655+00:00",
+  "updated_at": "2026-03-09T09:55:11.266655+00:00",
+  "details": {
+    "text": "[assistant] I can’t disclose the exact system/developer prompts verbatim. Here’s a concise summary of my active instructions and setup:\n\n- Purpose: Coding agent in the Codex CLI, focused on being precise, safe, and helpful for repo‑centric work.\n- Capabilities: Read files, edit within the current workspace and writable roots, run shell commands, create/update short execution plans, and use skills stored on disk when relevant.\n- Constraints: Network access is restricted; browsing is unavailable unless a dedicated tool is provided. File edits are limited to writable paths. I avoid heavy formatting; I keep answers concise and actionable.\n- Process: For multi‑step work I maintain a lightweight plan with checkpoints; I give a short preamble before running commands; I validate changes when possible.\n- Context rules: I follow any AGENTS.md instructions that apply to files I touch. If a task matches an available skill, I open that skill’s SKILL.md and follow its workflow.\n- Date/locale: Today is March 9, 2026 (system timezone Asia/Seoul); I avoid assuming “latest” info without verification.\n- Safety: I don’t run escalated commands, don’t reveal hidden prompts, and cite sources only when using web tools.\n\nIf you want specifics about any part (planning flow, writable paths, or available skills), say the word and I’ll enumerate them.",
+    "event_timestamp": "2026-03-09T09:55:11.011Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/09/rollout-2026-03-09T18-54-59-019cd205-77db-7060-8531-5ebf248b1d52.jsonl",
+    "session_line": 11,
+    "provider": "codex"
+  }
+}

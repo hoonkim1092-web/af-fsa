@@ -1,0 +1,18 @@
+{
+  "key": "assistant 정리하면 이렇습니다dynamic_logtxt- 현재 실사용 쓰기 지점은 dynamic_orchestratorpyDhoonProJectworktreesagent-factorycoredynamic_or",
+  "value": "[assistant] 정리하면 이렇습니다.  `dynamic_log.txt` - 현재 실사용 쓰기 지점은 [dynamic_orchestrator.py](/D:/hoonProJect/worktrees/agent-factory/core/dynamic_orchestrator.py#L144) 입니다. - 다만 이제는 루트 `dynamic_log.txt`에 직접 쓰지 않고, [dynamic_orchestrator.py](/D:/hoonProJect/worktrees...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T09:49:23.035608+00:00",
+  "updated_at": "2026-03-09T09:49:23.035608+00:00",
+  "details": {
+    "text": "[assistant] 정리하면 이렇습니다.\n\n`dynamic_log.txt`\n- 현재 실사용 쓰기 지점은 [dynamic_orchestrator.py](/D:/hoonProJect/worktrees/agent-factory/core/dynamic_orchestrator.py#L144) 입니다.\n- 다만 이제는 루트 `dynamic_log.txt`에 직접 쓰지 않고, [dynamic_orchestrator.py](/D:/hoonProJect/worktrees/agent-factory/core/dynamic_orchestrator.py#L48) 와 [runtime_paths.py](/D:/hoonProJect/worktrees/agent-factory/core/continuity/runtime_paths.py#L9) 를 통해 `워크스페이스/.af_runtime/dynamic_log.txt`로 기록됩니다.\n- 제가 찾은 범위에서는 이 파일을 런타임 로직이 다시 읽는 곳은 없습니다. 즉 `디버그/추적 로그` 용도입니다.\n- 현재 남아 있는 루트 `dynamic_log.txt`는 사실상 `레거시 기록 파일`에 가깝습니다. 지금 코드 경로 기준으로는 더 이상 핵심 실행 입력이 아닙니다.\n\n`projects/default/dashboard.json`\n- 이 파일은 기본 프로젝트의 실행 이력 파일입니다. 경로 자체는 [config_paths.py](/D:/hoonProJect/worktrees/agent-factory/core/config_paths.py#L69) 에서 `DASHBOARD_PATH = <PROJECT_ROOT>/dashboard.json` 으로 잡힙니다.\n- 프로젝트 초기화 시 없으면 생성합니다: [project_init.py](/D:/hoonProJect/worktrees/agent-factory/core/project_init.py#L58)\n- 실제 기록은 [dashboard.py](/D:/hoonProJect/worktrees/agent-factory/core/dashboard.py#L50) 의 `append_dashboard_run()` 이 담당합니다.\n- 여기에 append하는 실행 경로는:\n  - 단일 실행: [agent_launcher.py](/D:/hoonProJect/worktrees/agent-factory/agent_launcher.py#L285)\n  - 워크플로우 실행: [agent_launcher.py](/D:/hoonProJect/worktrees/agent-factory/agent_launcher.py#L412)\n  - 프로젝트 파이프라인 실행: [project_pipeline.py](/D:/hoonProJect/worktrees/agent-factory/core/project_pipeline.py#L162)\n- 즉 이 파일은 `single_run / workflow_run / project_run` 히스토리 저장소입니다.\n- 이것도 현재 오케스트레이터의 의사결정 입력으로 쓰이진 않고, `실행 기록/대시보드 데이터` 역할입니다.\n\n한 줄로 줄이면:\n- `dynamic_log.txt`: 디버그 로그, 현재는 `.af_runtime`로 이관됨, 핵심 입력 아님\n- `projects/default/dashboard.json`: 기본 프로젝트 실행 기록 저장소, 여러 런 경로가 append함, 핵심 입력은 아니지만 기록 파일로는 실제 사용 중\n\n원하면 다음으로 바로\n1. `루트 dynamic_log.txt 완전 퇴역`\n2. `dashboard.json도 tracked runtime artifact에서 분리`\n이 두 개를 정리하는 패치까지 이어서 하겠습니다.",
+    "event_timestamp": "2026-03-09T09:07:55.578Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/09/rollout-2026-03-09T12-29-14-019cd0a4-4ded-7bd3-b7ae-a9832dc22d45.jsonl",
+    "session_line": 1696,
+    "provider": "codex"
+  }
+}

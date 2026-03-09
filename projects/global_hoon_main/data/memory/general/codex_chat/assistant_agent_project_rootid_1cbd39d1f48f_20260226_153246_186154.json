@@ -1,17 +1,17 @@
-{
-  "key": "assistant 런처 레벨에서 경로를 고정하는지도 같이 확인하겠습니다 여기서 AGENT_PROJECT_ROOTID를 주입하면 폴더 이동 없이도 같은 메모리 스코프를 강제할 수 있습니다",
-  "value": "[assistant] 런처 레벨에서 경로를 고정하는지도 같이 확인하겠습니다. 여기서 `AGENT_PROJECT_ROOT/ID`를 주입하면, 폴더 이동 없이도 같은 메모리 스코프를 강제할 수 있습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-02-26T15:32:46.186302+00:00",
-  "updated_at": "2026-02-26T15:32:46.186302+00:00",
-  "details": {
-    "text": "[assistant] 런처 레벨에서 경로를 고정하는지도 같이 확인하겠습니다. 여기서 `AGENT_PROJECT_ROOT/ID`를 주입하면, 폴더 이동 없이도 같은 메모리 스코프를 강제할 수 있습니다.",
-    "event_timestamp": "2026-02-26T11:45:00.674Z",
-    "session_file": "C:/Users/home/.codex/sessions/2026/02/26/rollout-2026-02-26T14-17-53-019c9861-d21e-7892-9d8b-fe2b91c755de.jsonl",
-    "session_line": 79
-  }
+{
+  "key": "assistant 런처 레벨에서 경로를 고정하는지도 같이 확인하겠습니다 여기서 AGENT_PROJECT_ROOTID를 주입하면 폴더 이동 없이도 같은 메모리 스코프를 강제할 수 있습니다",
+  "value": "[assistant] 런처 레벨에서 경로를 고정하는지도 같이 확인하겠습니다. 여기서 `AGENT_PROJECT_ROOT/ID`를 주입하면, 폴더 이동 없이도 같은 메모리 스코프를 강제할 수 있습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-02-26T15:32:46.186302+00:00",
+  "updated_at": "2026-02-26T15:32:46.186302+00:00",
+  "details": {
+    "text": "[assistant] 런처 레벨에서 경로를 고정하는지도 같이 확인하겠습니다. 여기서 `AGENT_PROJECT_ROOT/ID`를 주입하면, 폴더 이동 없이도 같은 메모리 스코프를 강제할 수 있습니다.",
+    "event_timestamp": "2026-02-26T11:45:00.674Z",
+    "session_file": "C:/Users/home/.codex/sessions/2026/02/26/rollout-2026-02-26T14-17-53-019c9861-d21e-7892-9d8b-fe2b91c755de.jsonl",
+    "session_line": 79
+  }
 }

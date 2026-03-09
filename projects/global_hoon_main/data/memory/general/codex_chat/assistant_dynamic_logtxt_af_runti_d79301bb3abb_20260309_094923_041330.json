@@ -1,0 +1,18 @@
+{
+  "key": "assistant dynamic_logtxt만 말하는 거라면 네 삭제해도 됩니다  현재 기준으로는 디버그 로그일 뿐이고 실행 입력으로 다시 읽지 않습니다 지금 코드도 루트 파일이 아니라 워크스페이스별 af_runti",
+  "value": "[assistant] `dynamic_log.txt`만 말하는 거라면 `네, 삭제해도 됩니다.`   현재 기준으로는 디버그 로그일 뿐이고, 실행 입력으로 다시 읽지 않습니다. 지금 코드도 루트 파일이 아니라 워크스페이스별 `.af_runtime/dynamic_log.txt`에 쓰도록 바뀌었습니다: [dynamic_orchestrator.py](/D:/hoonProJect/worktrees/agent-factory/core/dynamic_orchestrato...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T09:49:23.041437+00:00",
+  "updated_at": "2026-03-09T09:49:23.041437+00:00",
+  "details": {
+    "text": "[assistant] `dynamic_log.txt`만 말하는 거라면 `네, 삭제해도 됩니다.`  \n현재 기준으로는 디버그 로그일 뿐이고, 실행 입력으로 다시 읽지 않습니다. 지금 코드도 루트 파일이 아니라 워크스페이스별 `.af_runtime/dynamic_log.txt`에 쓰도록 바뀌었습니다: [dynamic_orchestrator.py](/D:/hoonProJect/worktrees/agent-factory/core/dynamic_orchestrator.py#L48), [dynamic_orchestrator.py](/D:/hoonProJect/worktrees/agent-factory/core/dynamic_orchestrator.py#L144)\n\n하지만 `projects/default/dashboard.json`까지 같은 논리로 보면 안 됩니다.  \n이건 디버그 로그가 아니라 실행 이력 파일입니다. 지워도 코드가 즉시 망가지진 않고, 없으면 다시 생성되지만 기존 run 기록은 사라집니다: [dashboard.py](/D:/hoonProJect/worktrees/agent-factory/core/dashboard.py#L50), [project_init.py](/D:/hoonProJect/worktrees/agent-factory/core/project_init.py#L58)\n\n한 줄 결론:\n- `dynamic_log.txt`: 삭제해도 됨\n- `projects/default/dashboard.json`: 삭제는 가능하지만 기록 손실 감수해야 함\n\n원하면 지금 바로 `dynamic_log.txt`는 정리하고, `dashboard.json`은 유지할지 말지 기준까지 같이 정리해드리겠습니다.",
+    "event_timestamp": "2026-03-09T09:09:54.934Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/09/rollout-2026-03-09T12-29-14-019cd0a4-4ded-7bd3-b7ae-a9832dc22d45.jsonl",
+    "session_line": 1713,
+    "provider": "codex"
+  }
+}

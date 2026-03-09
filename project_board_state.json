@@ -1,10 +1,10 @@
-{
-  "completed_subtasks": [],
-  "failed_subtasks": [],
-  "agents_status": {
-    "Architect": "idle",
-    "LogicDeveloper": "idle",
-    "UIDeveloper": "idle"
-  },
-  "current_status": "completed"
+{
+  "completed_subtasks": [],
+  "failed_subtasks": [],
+  "agents_status": {
+    "Architect": "idle",
+    "LogicDeveloper": "idle",
+    "UIDeveloper": "idle"
+  },
+  "current_status": "completed"
 }

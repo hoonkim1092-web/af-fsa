@@ -3,18 +3,13 @@ skills:
   abc:
     capabilities:
     - abc
-    dependencies: []
     id: abc
     last_test_ok: true
-    meta_path: D:\agent-factory\tests\_tmp\af-test-476c752d\skills\abc\meta.yaml
+    meta_path: D:\hoonProJect\worktrees\agent-factory\tests\_tmp\af-test-01ceb829\skills\abc\meta.yaml
     name: abc
-    path: D:\agent-factory\tests\_tmp\af-test-476c752d\skills\abc\skill.py
-    purpose: ''
-    skill_id: abc
-    skill_name: abc
-    status: canary
-    type: action
-    updated_at: '2026-02-25T03:02:37'
+    path: D:\hoonProJect\worktrees\agent-factory\tests\_tmp\af-test-01ceb829\skills\abc\skill.py
+    status: candidate
+    updated_at: '2026-03-09T18:55:42'
     version: 0.1.0
   accept_changes:
     capabilities:

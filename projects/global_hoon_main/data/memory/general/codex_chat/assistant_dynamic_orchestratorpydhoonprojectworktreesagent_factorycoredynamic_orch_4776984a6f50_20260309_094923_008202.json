@@ -1,0 +1,18 @@
+{
+  "key": "assistant 연속성 레이어와 훅 모듈화를 먼저 넣었습니다 스케줄링 권한은 그대로 dynamic_orchestratorpyDhoonProJectworktreesagent-factorycoredynamic_orch",
+  "value": "[assistant] 연속성 레이어와 훅 모듈화를 먼저 넣었습니다. 스케줄링 권한은 그대로 [dynamic_orchestrator.py](/D:/hoonProJect/worktrees/agent-factory/core/dynamic_orchestrator.py#L17)에 남겨두고, 상태 영속화는 [manifest_store.py](/D:/hoonProJect/worktrees/agent-factory/core/continuity/manifest_store....",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T09:49:23.008494+00:00",
+  "updated_at": "2026-03-09T09:49:23.008494+00:00",
+  "details": {
+    "text": "[assistant] 연속성 레이어와 훅 모듈화를 먼저 넣었습니다. 스케줄링 권한은 그대로 [dynamic_orchestrator.py](/D:/hoonProJect/worktrees/agent-factory/core/dynamic_orchestrator.py#L17)에 남겨두고, 상태 영속화는 [manifest_store.py](/D:/hoonProJect/worktrees/agent-factory/core/continuity/manifest_store.py#L14)로 분리했습니다. 오케스트레이터는 실행 중 상태를 스냅샷하고 재시작 시 `interrupted_subtasks`로 복원하며, 런타임 로그도 루트가 아니라 워크스페이스별 [runtime_paths.py](/D:/hoonProJect/worktrees/agent-factory/core/continuity/runtime_paths.py#L9) 아래 `.af_runtime`로 떨어지게 바꿨습니다. 관련 진입점은 [dynamic_orchestrator.py](/D:/hoonProJect/worktrees/agent-factory/core/dynamic_orchestrator.py#L48)입니다.\n\n훅 쪽은 공통 계약을 [base.py](/D:/hoonProJect/worktrees/agent-factory/core/hooks/base.py#L8)로 올리고, 버스는 [event_bus.py](/D:/hoonProJect/worktrees/agent-factory/core/hooks/event_bus.py#L9)에서 `pre/post tool call`까지 확장했습니다. 기존 가드레일은 [guardrails.py](/D:/hoonProJect/worktrees/agent-factory/core/hooks/guardrails.py#L9)로 분리했고, 실제 러너 연결은 [agent_runner.py](/D:/hoonProJect/worktrees/agent-factory/core/agent_runner.py#L835)와 [agent_runner.py](/D:/hoonProJect/worktrees/agent-factory/core/agent_runner.py#L853)에 넣었습니다. 테스트는 [test_orchestrator_manifest.py](/D:/hoonProJect/worktrees/agent-factory/tests/test_orchestrator_manifest.py#L53), [test_hook_event_bus.py](/D:/hoonProJect/worktrees/agent-factory/tests/test_hook_event_bus.py#L47)로 고정했고, 불필요한 추적 테스트 산출물 `tests/_tmp/*`, `tests/test_out.md`는 삭제 대상으로 정리했습니다. 이후 재생성 방지를 위해 [.gitignore](/D:/hoonProJect/worktrees/agent-factory/.gitignore#L28)와 [conftest.py](/D:/hoonProJect/worktrees/agent-factory/tests/conftest.py#L16)도 보강했습니다.\n\n검증은 `python -m pytest tests/test_hook_event_bus.py tests/test_orchestrator_manifest.py tests/test_dynamic_orchestrator_workspace_scope.py tests/test_runner_contracts.py tests/test_project_pipeline.py tests/test_session_bridge.py tests/test_project_context_sync.py`로 했고 `23 passed, 1 warning`입니다.  \n남아 있는 점은 두 개입니다. `dynamic_log.txt`와 `projects/default/dashboard.json`은 기존 런타임 이력 파일이라 자동 복원은 하지 않았고, `docs/CQA-Tree-v0.1.1.pdf`도 그대로 뒀습니다. 다음 단계로 바로 `claude_cli/gemini_cli/codex_cli` provider 분리 작업 들어가면 됩니다.",
+    "event_timestamp": "2026-03-09T08:20:11.413Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/09/rollout-2026-03-09T12-29-14-019cd0a4-4ded-7bd3-b7ae-a9832dc22d45.jsonl",
+    "session_line": 1418,
+    "provider": "codex"
+  }
+}

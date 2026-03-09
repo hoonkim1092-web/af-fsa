@@ -1,255 +1,255 @@
-On branch feat/unified-skill-pipeline-2026
-Your branch is up to date with 'origin/feat/unified-skill-pipeline-2026'.
-
-Changes to be committed:
-  (use "git restore --staged <file>..." to unstage)
-	modified:   .todo.md
-	modified:   AGENTS.md
-	modified:   GEMINI.md
-	modified:   MASTER_SPEC_TEMPLATE.md
-	modified:   PROJECT_LOG.md
-	new file:   Parallelization_plan.md
-	modified:   README.md
-	modified:   SPEC_skill_evolution.md
-	modified:   SYNC_GUIDE.md
-	modified:   agents/BuiltanAIAgentThatBecomesSmarter.md
-	modified:   agents/backend-architect-agent/profile.md
-	modified:   agents/backend-dev-agent/profile.md
-	modified:   agents/calculus-tutor-agent/profile.md
-	modified:   agents/chef-agent/profile.md
-	modified:   agents/deadbyte.yaml
-	modified:   agents/general-assistant-agent/profile.md
-	modified:   agents/himari-test-agent-agent/profile.md
-	modified:   agents/himari.yaml
-	modified:   agents/iguro_obanai.yaml
-	modified:   agents/iguro_obanai/profile.md
-	modified:   agents/japanese-restaurant-master-chef-agent/profile.md
-	modified:   agents/lilith-agent/profile.md
-	modified:   agents/lilith.yaml
-	modified:   agents/marketer-agent/profile.md
-	modified:   agents/saiba_midori.yaml
-	modified:   agents/stock-analyst-agent/profile.md
-	modified:   agents/system-admin-(uses-run_command-tool)-agent/profile.md
-	modified:   agents/system-admin-agent/profile.md
-	modified:   agents/tanjiro_logimind_planning_director.yaml
-	modified:   agents/test-agent-agent/profile.md
-	modified:   agents/test-assistant-agent/profile.md
-	modified:   agents/test_agent.yaml
-	modified:   agents/web-app-specialist-agent/profile.md
-	modified:   artifacts/context_sync_schema.sql
-	modified:   artifacts/db_customization_loader.py
-	modified:   artifacts/db_customization_playbook.md
-	modified:   artifacts/db_customization_schema.sql
-	modified:   artifacts/db_customization_seed_sample.sql
-	modified:   artifacts/design_review_landing_page.md
-	modified:   artifacts/design_tokens.json
-	modified:   artifacts/test/stitch_design_20260213021009.md
-	modified:   docs/AGENT_FACTORY_PITCH.md
-	modified:   docs/ENGINE_FLOW.md
-	modified:   docs/RELEASE_SPEC.md
-	modified:   docs/ai_architecture_guide.md
-	modified:   docs/benchmark_oh_my_opencode.md
-	modified:   docs/functional_spec.md
-	modified:   docs/global_synergy_plan.md
-	modified:   docs/global_task.md
-	modified:   docs/notebooklm_audio_overview.md
-	modified:   docs/registry_schema.md
-	modified:   docs/runtime_modes.md
-	modified:   docs/technical_plan.md
-	modified:   factory_manual.md
-	modified:   implementation_plan.md
-	new file:   skills/forge/needs_issue.py
-	modified:   skills/registry.yaml
-	modified:   skills/skill_docs.md
-	modified:   syncCompyne/AGENTS.md
-	modified:   syncCompyne/LOG_COMMANDS.md
-	modified:   syncCompyne/PROJECT_LOG.md
-	modified:   syncCompyne/WORKSPACE_CONTEXT.md
-	modified:   syncCompyne/memory_store.py
-	modified:   syncCompyne/project_log_cli.py
-	modified:   syncCompyne/workspace_context_cli.py
-
-Changes not staged for commit:
-  (use "git add <file>..." to update what will be committed)
-  (use "git restore <file>..." to discard changes in working directory)
-	modified:   .shared_memory/shared_memory.db
-	modified:   config/schema.py
-	modified:   core/concurrency.py
-	modified:   core/synergy_runner.py
-	modified:   data/memory/smoke/test_cat/test_key_123.json
-	modified:   data/memory/test_cat/test_key_123.json
-	modified:   debug.log
-	modified:   debug_log.txt
-	modified:   debug_log2.txt
-	modified:   dynamic_log.txt
-	modified:   err.txt
-	modified:   final_test_log.txt
-	modified:   models_cache.json
-	modified:   nlm_answer.txt
-	modified:   policy.yaml
-	modified:   project_board_state.json
-	modified:   projects/agent_factory/dashboard.json
-	modified:   projects/global_hoon_main/data/memory/codex/_bridge_state/session_cursor.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_1_1_high_chat_tracejson_append_trace_flush_trace_da2b6d4c77c5_20260226_160958_710873.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_1_agents_yaml_yaml_2_yaml_namerole_aa4d86c8fb8c_20260226_160958_806867.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_1_critical_skillscore_memoryskillpy25cproject_dd579c4170b9_20260226_153246_205814.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_1_critical_user_dna_global_brain_sync_9cc8fea88884_20260226_153246_150366.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_1_read_core_memory_2_omo_477ae0f2881e_20260226_153246_653283.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_267d24de79ae_20260226_153246_841968.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_29739ba8f47b_20260226_160958_708274.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_2_1_high_coreutilspy441cprojectagent_factorycoreuti_a87efc27ad55_20260226_153246_632029.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_2_agent_runner_trace_codex_session_bridge_cursor_1e030d5f13be_20260226_160958_718265.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_2_findings1_critical_cortexpy_ce1d58255a24_20260226_153246_239773.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_2cc39c0490da_20260226_153246_339085.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_3_006fed4ff0bd_20260226_153246_721343.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_3_1_coreutilspy496cprojectagent_factorycore_4a0c86348041_20260226_153246_730034.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_3_utilspy_synergy_runnerpy_agent_runnerpy_b0e4adf8bdf0_20260226_153246_625568.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_3d59536bed6f_20260226_153246_719086.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_4_powershellenvironmentsetenvironmentvariableagent_global_user_keyhoon_mainuserenvagent_b80aac98b05f_20260226_153246_470127.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_55830eebe2ad_20260226_153246_303911.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_5_config_pathscore_memorysyncagent_runner_131c3837e709_20260226_153246_246663.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_6204e58b3bc2_20260226_153246_200231.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_70c92fa81166_20260226_153246_249650.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_74586bc835ed_20260226_160958_813438.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_8af4a13c0bee_20260226_153246_264807.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_9a956cf59f50_20260226_153246_334681.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_af7277e6a24c_20260226_153246_716595.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_agent_factory_start_db_a2102fba25fa_20260226_153246_157124.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_agent_global_user_key_1_c_a3454635f94a_20260226_153246_305780.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_agent_global_user_key_2_1_os_8bf03169bc91_20260226_153246_409915.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_agent_global_user_key_antigravity_94576033b035_20260226_153246_340873.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_agent_global_user_key_cbe05cac0b08_20260226_153246_452975.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_agent_global_user_key_env_fallback_env_d0146839b84d_20260226_153246_376082.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_agent_global_user_key_hoon_main_036b2f99d456_20260226_153246_803343.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_agent_global_user_key_hoon_main_db_pc_pc_projectsgloba_144c9a9e5f1b_20260226_153246_542149.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_agent_global_user_keyhoon_main_hoon_main_3ad26311921f_20260226_153246_459198.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_agent_project_rootid_1cbd39d1f48f_20260226_153246_186154.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_agent_runner_da5482b50160_20260226_153246_258597.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_agent_runner_tool_functions_aa1762d20053_20260226_153246_714268.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_agent_runner_trace_flush_codex_session_bridge_stale_cursor_cdxcmd_cd617533f58b_20260226_160958_720872.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_agent_runner_utils_sync_bridge_d6392ded2f6a_20260226_160958_697732.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_agent_runnerpy_run_74a6eb947aa1_20260226_160958_722931.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_agent_runnerpy_utf_8_bom_bom_cc353c560b91_20260226_160958_733340.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_agents_scriptsgenerate_agents_mdpy_yaml_ed94b727c3c3_20260226_160958_792089.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_agents_yaml_profilemd_yaml_d954878d4711_20260226_160958_794428.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_agentsmd_b35f107c198d_20260226_160958_811086.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_agentsmd_coreresearcherpy_a9aa9173f7f3_20260226_160958_804982.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_agentsmd_synccompyneagentsmd_97666841d170_20260226_160958_802970.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_antigravity_1_pc_agent_global_user_keyhoon_main_2_273f0b5162f5_20260226_153246_590452.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_antigravity_3cc64cff1749_20260226_153246_337159.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_antigravity_antigravity_linkpy_059ccb685725_20260226_153246_313259.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_antigravity_antigravity_linkpy_yesno_01dbe1911986_20260226_153246_746558.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_antigravity_linkpy_antigravity_linkpy75cprojectagent_factoryanti_749db0a419ce_20260226_160958_693575.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_antigravity_linkpy_factory_managerpy_c8f852c74add_20260226_153246_198194.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_antigravity_linkpy_global_userdatamemoryantigravity_a93b326834f5_20260226_153246_317492.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_antigravity_o_codex_x_0068eb3bfc3a_20260226_153246_351779.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_bed87f37bc9a_20260226_153246_446544.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_bom_jsonl_bom_203c754e41aa_20260226_153246_798043.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_cdx_cdxcmd_codex_7280047c6335_20260226_153246_370301.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_cdx_codex_0393e7357846_20260226_153246_360006.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_cdx_codex_1d0cf16bd502_20260226_153246_368155.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_cdx_codex_cdx_cdxcmd20cprojectagent_factorycdxcmd20_b6d3757ac871_20260226_153246_380631.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_cdx_env_end_db_powershell_sync_easyps1_env_fallback_0feaf51c1f93_20260226_153329_832606.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_cdxcmd_adb905a29ffb_20260226_153246_789093.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_cdxcmd_cdx_debug1_7865d7b2a017_20260226_160958_727181.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_cdxcmd_db6a16a4893d_20260226_153246_372321.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_cdxcmd_e3755e1c0070_20260226_153246_786624.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_codex_1_cdx_cdxcmd20cprojectagent_factorycdxcmd20_agent_glob_cbcd68be1614_20260226_160958_689202.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_codex_agent_factory_end_db_runsjson_datamemoryjson_2aea07cac9d4_20260226_153246_775675.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_codex_antigravity_61479a424f2a_20260226_153246_347562.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_codex_antigravity_linkpy_7e1f86d4d1f0_20260226_153246_191567.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_codex_cdx_6090b42ece77_20260226_153246_362105.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_codex_cdxcmd_codex_session_bridgepy_c2fb5e75eb1e_20260226_153246_784365.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_codex_codexsessionsjsonl_0c657b07a342_20260226_153246_365620.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_codex_session_bridge_cursor_cursor_34a8fc4e0d67_20260226_160958_725008.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_config_paths_91d41a6bf3c6_20260226_153246_252551.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_core_memory_agent_runner_4f6f42464df5_20260226_153246_256682.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_core_memory_local_global_scope_2e35b8bb9421_20260226_153246_254613.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_coreconfig_pathspy42cprojectagent_factorycoreconfig_pathspy42_agent_global_user_key_global_pro_383cdfe67461_20260226_153246_602578.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_coreconfig_pathspy_agent_factory_18cf9d120022_20260226_153246_178785.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_cp949_utf_8_python_b7903ad413a4_20260226_160958_816214.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_ctxdata_dir_f49254919621_20260226_153246_189660.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_diff_b2c60eb63a9b_20260226_153246_267047.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_e2e298a05210_20260226_153246_301935.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_e40c9dece3a5_20260226_153246_629873.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_end_db_supabase_end_db_end_sync_sync_easy_project_context_syncpy_4956b38b86f8_20260226_153246_740163.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_env_fallback_75fc210a10e8_20260226_153246_855298.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_extract_user_text_assistant_e217484e40c5_20260226_153246_800704.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_fbd979dc0829_20260226_153246_723639.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_global_user_keydatamemoryantigravity_74d679745b16_20260226_153246_749594.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_hoon_main_powershellenvagent_global_user_keyenvironmentgetenvironmentv_c37bb6e430ab_20260226_153246_474742.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_missing_global_user_key_f7e4e69c3dd7_20260226_153246_791829.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_no_matches_powershell_1_ctrl_c_2_user_66a177dd9f87_20260226_153246_465368.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_os_codex_session_bridge_windows_fallback_1a9abed5cce1_20260226_153246_557032.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_os_env_powershellsetx_agent_glob_6dffee67ce2b_20260226_153246_439092.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_pc_agent_factory_1_agent_global_fb813aa1787b_20260226_153246_620539.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_pc_codex_codex_codex_session_bridgepycprojectagent_c35563c46188_20260226_153246_564281.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_pc_os_codex_codex_home_codex_sessions_root_3eebc70705e5_20260226_153246_560086.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_powershellenvagent_global_user_keyenvironmentgetenvironmentvariableagent_340c12285695_20260226_153246_481051.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_prochoon_main_userhoon_main_agent_gl_f1fdbf21ba05_20260226_153246_536164.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_py_compile_cursor_228264ea6edb_20260226_160958_730719.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_runschat_trace_antigravity_e5a6769ebb98_20260226_153246_742210.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_safe_id_fallback_1bdedeab51d1_20260226_153246_374227.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_scope_global_user_key_payload_7095fa3c4f75_20260226_153246_261490.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_scriptsgenerate_agents_mdpy_agentsmd_diff_13b91c5c2bc3_20260226_160958_818951.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_scriptsgenerate_agents_mdpy_yaml_agentsmd_36009ef36fda_20260226_160958_809240.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_scriptsgenerate_agents_mdpycprojectagent_factoryscriptsgenerate_agents_mdpy_agents_a75eaccb9877_20260226_160958_820896.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_scriptssync_easyps1_target_agent_factory_ffbcd8f2a5c6_20260226_153246_108510.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_skillscore_memoryskillpy_datamemory_scriptsproject_context_syncpy_projec_5b90f31208a8_20260226_153246_159658.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_start_db_agenet_factory_start_dbcmdcprojectagent_factorystart_dbcmd3_start_sy_6b56e6f1e2fd_20260226_153246_125560.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_start_dbcmd_start_synccmd_synccmdpowershell_d105461e24fd_20260226_153246_103246.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_start_dbcmdstart_synccmd_66b33fcbba18_20260226_153246_169485.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_sync_guidemd_d56b2fb0efdf_20260226_153246_184335.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_synergy_runner_f8371dde8a05_20260226_153246_726202.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_synergy_runner_utilsread_core_memory_325bf426b1ac_20260226_153246_710173.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_synergy_runner_utilsread_core_memory_agent_runner_31ad219a35ba_20260226_153246_707823.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_windows_5c3e6b41f1b2_20260226_153246_851834.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_yaml_yaml_name_role_232e9f4705e1_20260226_160958_796510.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_yes_end_db_db_sync_up_db_end_dbcmd3cprojectagent_factoryend_dbcmd3_end_synccmd24c_493894c034a4_20260226_153246_753315.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_22bd86cc0a59_20260226_153246_357853.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_2a5d83a5f3eb_20260226_153246_552750.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_400ad6813640_20260226_153246_450889.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_629713d977e3_20260226_153246_592756.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_64ca6dc1ca72_20260226_153246_635085.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_7a6e1089f224_20260226_153246_441103.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_9bded36ae071_20260226_153246_418121.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_a544bee67f5c_20260226_153246_468128.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_ab37978c1537_20260226_153246_773490.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_agent_factory_agent_factory_codex_12f60c8b305d_20260226_153246_147480.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_agent_factory_start_db_codex_fe7eebab2e9a_20260226_153246_154443.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_agent_global_user_key_1_os_2_env_4407368e1806_20260226_153246_387022.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_agentsmd_instructions_for_cprojectagent_factoryinstructions_skillsa_skill_is_a_set_of_local_instructions_to_follow_b8159ec71e20_20260226_160958_783123.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_agentsmd_instructions_for_cprojectagent_factoryinstructions_skillsa_skill_is_a_set_of_local_instructions_to_follow_f8031a42c318_20260226_153246_138379.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_antigravity_316a2c05bc37_20260226_153246_588039.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_antigravity_9155de7ef2af_20260226_153246_345464.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_antigravity_97a1ef22851e_20260226_160958_695907.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_b78b89c0439d_20260226_160958_715091.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_bd4b872da31d_20260226_153246_308689.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_ca7dc36e6f65_20260226_153246_350008.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_ccf599881eaa_20260226_153246_242667.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_e65d7908b5e0_20260226_153246_782309.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_end_db_antigravity_201ae2978647_20260226_160958_691630.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_end_db_antigravity_5556b0e6aa4e_20260226_153246_733927.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_envagent_global_user_key_environmentgetenvironmentvariableagent_global_user_keyuser_e831467de9d1_20260226_153246_477160.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_envagent_global_user_key_environmentgetenvironmentvariableagent_global_user_keyuser_f90c5240a997_20260226_153246_533673.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_environment_context_cwdcprojectagent_factorycwd_shellpowershellshellenvironment_context_9c891268a955_20260226_160958_787129.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_environment_context_cwdcprojectagent_factorycwd_shellpowershellshellenvironment_context_eb5dfaf2a2f1_20260226_153246_143758.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_environmentsetenvironmentvariableagent_global_user_keyhoon_main_user_envagent_global_user_key_hoon_main_envagen_a0ee595a43b0_20260226_153246_472479.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_no_matches_cmdlet_0306ae396630_20260226_153246_462861.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_pc_agent_factory_12d3017c76f1_20260226_153246_606642.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_pc_e387b9058d43_20260226_153246_538668.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_scriptsgenerate_agents_mdpy_agents_yaml_agentsmd_architect_pm_ac8378e22c40_20260226_160958_789042.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_technical_plan_detail_global_intelligence_service_transition_global_intelligence_servi_98437ea119bb_20260226_153246_217041.json
-	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_utilspy_read_core_memory_omo_8f45975ba701_20260226_153246_622944.json
-	modified:   pytest.log
-	modified:   pytest_err.log
-	modified:   run_output.txt
-
-Untracked files:
-  (use "git add <file>..." to include in what will be committed)
-	error.log
-	out.txt
-	st_out.txt
-	status.txt
-	status_short.txt
-
+On branch feat/unified-skill-pipeline-2026
+Your branch is up to date with 'origin/feat/unified-skill-pipeline-2026'.
+
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+	modified:   .todo.md
+	modified:   AGENTS.md
+	modified:   GEMINI.md
+	modified:   MASTER_SPEC_TEMPLATE.md
+	modified:   PROJECT_LOG.md
+	new file:   Parallelization_plan.md
+	modified:   README.md
+	modified:   SPEC_skill_evolution.md
+	modified:   SYNC_GUIDE.md
+	modified:   agents/BuiltanAIAgentThatBecomesSmarter.md
+	modified:   agents/backend-architect-agent/profile.md
+	modified:   agents/backend-dev-agent/profile.md
+	modified:   agents/calculus-tutor-agent/profile.md
+	modified:   agents/chef-agent/profile.md
+	modified:   agents/deadbyte.yaml
+	modified:   agents/general-assistant-agent/profile.md
+	modified:   agents/himari-test-agent-agent/profile.md
+	modified:   agents/himari.yaml
+	modified:   agents/iguro_obanai.yaml
+	modified:   agents/iguro_obanai/profile.md
+	modified:   agents/japanese-restaurant-master-chef-agent/profile.md
+	modified:   agents/lilith-agent/profile.md
+	modified:   agents/lilith.yaml
+	modified:   agents/marketer-agent/profile.md
+	modified:   agents/saiba_midori.yaml
+	modified:   agents/stock-analyst-agent/profile.md
+	modified:   agents/system-admin-(uses-run_command-tool)-agent/profile.md
+	modified:   agents/system-admin-agent/profile.md
+	modified:   agents/tanjiro_logimind_planning_director.yaml
+	modified:   agents/test-agent-agent/profile.md
+	modified:   agents/test-assistant-agent/profile.md
+	modified:   agents/test_agent.yaml
+	modified:   agents/web-app-specialist-agent/profile.md
+	modified:   artifacts/context_sync_schema.sql
+	modified:   artifacts/db_customization_loader.py
+	modified:   artifacts/db_customization_playbook.md
+	modified:   artifacts/db_customization_schema.sql
+	modified:   artifacts/db_customization_seed_sample.sql
+	modified:   artifacts/design_review_landing_page.md
+	modified:   artifacts/design_tokens.json
+	modified:   artifacts/test/stitch_design_20260213021009.md
+	modified:   docs/AGENT_FACTORY_PITCH.md
+	modified:   docs/ENGINE_FLOW.md
+	modified:   docs/RELEASE_SPEC.md
+	modified:   docs/ai_architecture_guide.md
+	modified:   docs/benchmark_oh_my_opencode.md
+	modified:   docs/functional_spec.md
+	modified:   docs/global_synergy_plan.md
+	modified:   docs/global_task.md
+	modified:   docs/notebooklm_audio_overview.md
+	modified:   docs/registry_schema.md
+	modified:   docs/runtime_modes.md
+	modified:   docs/technical_plan.md
+	modified:   factory_manual.md
+	modified:   implementation_plan.md
+	new file:   skills/forge/needs_issue.py
+	modified:   skills/registry.yaml
+	modified:   skills/skill_docs.md
+	modified:   syncCompyne/AGENTS.md
+	modified:   syncCompyne/LOG_COMMANDS.md
+	modified:   syncCompyne/PROJECT_LOG.md
+	modified:   syncCompyne/WORKSPACE_CONTEXT.md
+	modified:   syncCompyne/memory_store.py
+	modified:   syncCompyne/project_log_cli.py
+	modified:   syncCompyne/workspace_context_cli.py
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   .shared_memory/shared_memory.db
+	modified:   config/schema.py
+	modified:   core/concurrency.py
+	modified:   core/synergy_runner.py
+	modified:   data/memory/smoke/test_cat/test_key_123.json
+	modified:   data/memory/test_cat/test_key_123.json
+	modified:   debug.log
+	modified:   debug_log.txt
+	modified:   debug_log2.txt
+	modified:   dynamic_log.txt
+	modified:   err.txt
+	modified:   final_test_log.txt
+	modified:   models_cache.json
+	modified:   nlm_answer.txt
+	modified:   policy.yaml
+	modified:   project_board_state.json
+	modified:   projects/agent_factory/dashboard.json
+	modified:   projects/global_hoon_main/data/memory/codex/_bridge_state/session_cursor.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_1_1_high_chat_tracejson_append_trace_flush_trace_da2b6d4c77c5_20260226_160958_710873.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_1_agents_yaml_yaml_2_yaml_namerole_aa4d86c8fb8c_20260226_160958_806867.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_1_critical_skillscore_memoryskillpy25cproject_dd579c4170b9_20260226_153246_205814.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_1_critical_user_dna_global_brain_sync_9cc8fea88884_20260226_153246_150366.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_1_read_core_memory_2_omo_477ae0f2881e_20260226_153246_653283.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_267d24de79ae_20260226_153246_841968.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_29739ba8f47b_20260226_160958_708274.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_2_1_high_coreutilspy441cprojectagent_factorycoreuti_a87efc27ad55_20260226_153246_632029.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_2_agent_runner_trace_codex_session_bridge_cursor_1e030d5f13be_20260226_160958_718265.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_2_findings1_critical_cortexpy_ce1d58255a24_20260226_153246_239773.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_2cc39c0490da_20260226_153246_339085.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_3_006fed4ff0bd_20260226_153246_721343.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_3_1_coreutilspy496cprojectagent_factorycore_4a0c86348041_20260226_153246_730034.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_3_utilspy_synergy_runnerpy_agent_runnerpy_b0e4adf8bdf0_20260226_153246_625568.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_3d59536bed6f_20260226_153246_719086.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_4_powershellenvironmentsetenvironmentvariableagent_global_user_keyhoon_mainuserenvagent_b80aac98b05f_20260226_153246_470127.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_55830eebe2ad_20260226_153246_303911.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_5_config_pathscore_memorysyncagent_runner_131c3837e709_20260226_153246_246663.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_6204e58b3bc2_20260226_153246_200231.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_70c92fa81166_20260226_153246_249650.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_74586bc835ed_20260226_160958_813438.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_8af4a13c0bee_20260226_153246_264807.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_9a956cf59f50_20260226_153246_334681.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_af7277e6a24c_20260226_153246_716595.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_agent_factory_start_db_a2102fba25fa_20260226_153246_157124.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_agent_global_user_key_1_c_a3454635f94a_20260226_153246_305780.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_agent_global_user_key_2_1_os_8bf03169bc91_20260226_153246_409915.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_agent_global_user_key_antigravity_94576033b035_20260226_153246_340873.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_agent_global_user_key_cbe05cac0b08_20260226_153246_452975.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_agent_global_user_key_env_fallback_env_d0146839b84d_20260226_153246_376082.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_agent_global_user_key_hoon_main_036b2f99d456_20260226_153246_803343.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_agent_global_user_key_hoon_main_db_pc_pc_projectsgloba_144c9a9e5f1b_20260226_153246_542149.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_agent_global_user_keyhoon_main_hoon_main_3ad26311921f_20260226_153246_459198.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_agent_project_rootid_1cbd39d1f48f_20260226_153246_186154.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_agent_runner_da5482b50160_20260226_153246_258597.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_agent_runner_tool_functions_aa1762d20053_20260226_153246_714268.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_agent_runner_trace_flush_codex_session_bridge_stale_cursor_cdxcmd_cd617533f58b_20260226_160958_720872.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_agent_runner_utils_sync_bridge_d6392ded2f6a_20260226_160958_697732.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_agent_runnerpy_run_74a6eb947aa1_20260226_160958_722931.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_agent_runnerpy_utf_8_bom_bom_cc353c560b91_20260226_160958_733340.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_agents_scriptsgenerate_agents_mdpy_yaml_ed94b727c3c3_20260226_160958_792089.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_agents_yaml_profilemd_yaml_d954878d4711_20260226_160958_794428.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_agentsmd_b35f107c198d_20260226_160958_811086.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_agentsmd_coreresearcherpy_a9aa9173f7f3_20260226_160958_804982.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_agentsmd_synccompyneagentsmd_97666841d170_20260226_160958_802970.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_antigravity_1_pc_agent_global_user_keyhoon_main_2_273f0b5162f5_20260226_153246_590452.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_antigravity_3cc64cff1749_20260226_153246_337159.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_antigravity_antigravity_linkpy_059ccb685725_20260226_153246_313259.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_antigravity_antigravity_linkpy_yesno_01dbe1911986_20260226_153246_746558.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_antigravity_linkpy_antigravity_linkpy75cprojectagent_factoryanti_749db0a419ce_20260226_160958_693575.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_antigravity_linkpy_factory_managerpy_c8f852c74add_20260226_153246_198194.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_antigravity_linkpy_global_userdatamemoryantigravity_a93b326834f5_20260226_153246_317492.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_antigravity_o_codex_x_0068eb3bfc3a_20260226_153246_351779.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_bed87f37bc9a_20260226_153246_446544.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_bom_jsonl_bom_203c754e41aa_20260226_153246_798043.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_cdx_cdxcmd_codex_7280047c6335_20260226_153246_370301.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_cdx_codex_0393e7357846_20260226_153246_360006.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_cdx_codex_1d0cf16bd502_20260226_153246_368155.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_cdx_codex_cdx_cdxcmd20cprojectagent_factorycdxcmd20_b6d3757ac871_20260226_153246_380631.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_cdx_env_end_db_powershell_sync_easyps1_env_fallback_0feaf51c1f93_20260226_153329_832606.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_cdxcmd_adb905a29ffb_20260226_153246_789093.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_cdxcmd_cdx_debug1_7865d7b2a017_20260226_160958_727181.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_cdxcmd_db6a16a4893d_20260226_153246_372321.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_cdxcmd_e3755e1c0070_20260226_153246_786624.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_codex_1_cdx_cdxcmd20cprojectagent_factorycdxcmd20_agent_glob_cbcd68be1614_20260226_160958_689202.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_codex_agent_factory_end_db_runsjson_datamemoryjson_2aea07cac9d4_20260226_153246_775675.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_codex_antigravity_61479a424f2a_20260226_153246_347562.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_codex_antigravity_linkpy_7e1f86d4d1f0_20260226_153246_191567.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_codex_cdx_6090b42ece77_20260226_153246_362105.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_codex_cdxcmd_codex_session_bridgepy_c2fb5e75eb1e_20260226_153246_784365.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_codex_codexsessionsjsonl_0c657b07a342_20260226_153246_365620.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_codex_session_bridge_cursor_cursor_34a8fc4e0d67_20260226_160958_725008.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_config_paths_91d41a6bf3c6_20260226_153246_252551.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_core_memory_agent_runner_4f6f42464df5_20260226_153246_256682.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_core_memory_local_global_scope_2e35b8bb9421_20260226_153246_254613.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_coreconfig_pathspy42cprojectagent_factorycoreconfig_pathspy42_agent_global_user_key_global_pro_383cdfe67461_20260226_153246_602578.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_coreconfig_pathspy_agent_factory_18cf9d120022_20260226_153246_178785.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_cp949_utf_8_python_b7903ad413a4_20260226_160958_816214.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_ctxdata_dir_f49254919621_20260226_153246_189660.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_diff_b2c60eb63a9b_20260226_153246_267047.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_e2e298a05210_20260226_153246_301935.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_e40c9dece3a5_20260226_153246_629873.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_end_db_supabase_end_db_end_sync_sync_easy_project_context_syncpy_4956b38b86f8_20260226_153246_740163.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_env_fallback_75fc210a10e8_20260226_153246_855298.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_extract_user_text_assistant_e217484e40c5_20260226_153246_800704.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_fbd979dc0829_20260226_153246_723639.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_global_user_keydatamemoryantigravity_74d679745b16_20260226_153246_749594.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_hoon_main_powershellenvagent_global_user_keyenvironmentgetenvironmentv_c37bb6e430ab_20260226_153246_474742.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_missing_global_user_key_f7e4e69c3dd7_20260226_153246_791829.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_no_matches_powershell_1_ctrl_c_2_user_66a177dd9f87_20260226_153246_465368.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_os_codex_session_bridge_windows_fallback_1a9abed5cce1_20260226_153246_557032.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_os_env_powershellsetx_agent_glob_6dffee67ce2b_20260226_153246_439092.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_pc_agent_factory_1_agent_global_fb813aa1787b_20260226_153246_620539.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_pc_codex_codex_codex_session_bridgepycprojectagent_c35563c46188_20260226_153246_564281.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_pc_os_codex_codex_home_codex_sessions_root_3eebc70705e5_20260226_153246_560086.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_powershellenvagent_global_user_keyenvironmentgetenvironmentvariableagent_340c12285695_20260226_153246_481051.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_prochoon_main_userhoon_main_agent_gl_f1fdbf21ba05_20260226_153246_536164.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_py_compile_cursor_228264ea6edb_20260226_160958_730719.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_runschat_trace_antigravity_e5a6769ebb98_20260226_153246_742210.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_safe_id_fallback_1bdedeab51d1_20260226_153246_374227.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_scope_global_user_key_payload_7095fa3c4f75_20260226_153246_261490.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_scriptsgenerate_agents_mdpy_agentsmd_diff_13b91c5c2bc3_20260226_160958_818951.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_scriptsgenerate_agents_mdpy_yaml_agentsmd_36009ef36fda_20260226_160958_809240.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_scriptsgenerate_agents_mdpycprojectagent_factoryscriptsgenerate_agents_mdpy_agents_a75eaccb9877_20260226_160958_820896.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_scriptssync_easyps1_target_agent_factory_ffbcd8f2a5c6_20260226_153246_108510.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_skillscore_memoryskillpy_datamemory_scriptsproject_context_syncpy_projec_5b90f31208a8_20260226_153246_159658.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_start_db_agenet_factory_start_dbcmdcprojectagent_factorystart_dbcmd3_start_sy_6b56e6f1e2fd_20260226_153246_125560.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_start_dbcmd_start_synccmd_synccmdpowershell_d105461e24fd_20260226_153246_103246.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_start_dbcmdstart_synccmd_66b33fcbba18_20260226_153246_169485.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_sync_guidemd_d56b2fb0efdf_20260226_153246_184335.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_synergy_runner_f8371dde8a05_20260226_153246_726202.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_synergy_runner_utilsread_core_memory_325bf426b1ac_20260226_153246_710173.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_synergy_runner_utilsread_core_memory_agent_runner_31ad219a35ba_20260226_153246_707823.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_windows_5c3e6b41f1b2_20260226_153246_851834.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_yaml_yaml_name_role_232e9f4705e1_20260226_160958_796510.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/assistant_yes_end_db_db_sync_up_db_end_dbcmd3cprojectagent_factoryend_dbcmd3_end_synccmd24c_493894c034a4_20260226_153246_753315.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_22bd86cc0a59_20260226_153246_357853.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_2a5d83a5f3eb_20260226_153246_552750.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_400ad6813640_20260226_153246_450889.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_629713d977e3_20260226_153246_592756.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_64ca6dc1ca72_20260226_153246_635085.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_7a6e1089f224_20260226_153246_441103.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_9bded36ae071_20260226_153246_418121.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_a544bee67f5c_20260226_153246_468128.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_ab37978c1537_20260226_153246_773490.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_agent_factory_agent_factory_codex_12f60c8b305d_20260226_153246_147480.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_agent_factory_start_db_codex_fe7eebab2e9a_20260226_153246_154443.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_agent_global_user_key_1_os_2_env_4407368e1806_20260226_153246_387022.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_agentsmd_instructions_for_cprojectagent_factoryinstructions_skillsa_skill_is_a_set_of_local_instructions_to_follow_b8159ec71e20_20260226_160958_783123.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_agentsmd_instructions_for_cprojectagent_factoryinstructions_skillsa_skill_is_a_set_of_local_instructions_to_follow_f8031a42c318_20260226_153246_138379.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_antigravity_316a2c05bc37_20260226_153246_588039.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_antigravity_9155de7ef2af_20260226_153246_345464.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_antigravity_97a1ef22851e_20260226_160958_695907.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_b78b89c0439d_20260226_160958_715091.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_bd4b872da31d_20260226_153246_308689.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_ca7dc36e6f65_20260226_153246_350008.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_ccf599881eaa_20260226_153246_242667.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_e65d7908b5e0_20260226_153246_782309.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_end_db_antigravity_201ae2978647_20260226_160958_691630.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_end_db_antigravity_5556b0e6aa4e_20260226_153246_733927.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_envagent_global_user_key_environmentgetenvironmentvariableagent_global_user_keyuser_e831467de9d1_20260226_153246_477160.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_envagent_global_user_key_environmentgetenvironmentvariableagent_global_user_keyuser_f90c5240a997_20260226_153246_533673.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_environment_context_cwdcprojectagent_factorycwd_shellpowershellshellenvironment_context_9c891268a955_20260226_160958_787129.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_environment_context_cwdcprojectagent_factorycwd_shellpowershellshellenvironment_context_eb5dfaf2a2f1_20260226_153246_143758.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_environmentsetenvironmentvariableagent_global_user_keyhoon_main_user_envagent_global_user_key_hoon_main_envagen_a0ee595a43b0_20260226_153246_472479.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_no_matches_cmdlet_0306ae396630_20260226_153246_462861.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_pc_agent_factory_12d3017c76f1_20260226_153246_606642.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_pc_e387b9058d43_20260226_153246_538668.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_scriptsgenerate_agents_mdpy_agents_yaml_agentsmd_architect_pm_ac8378e22c40_20260226_160958_789042.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_technical_plan_detail_global_intelligence_service_transition_global_intelligence_servi_98437ea119bb_20260226_153246_217041.json
+	modified:   projects/global_hoon_main/data/memory/general/codex_chat/user_utilspy_read_core_memory_omo_8f45975ba701_20260226_153246_622944.json
+	modified:   pytest.log
+	modified:   pytest_err.log
+	modified:   run_output.txt
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	error.log
+	out.txt
+	st_out.txt
+	status.txt
+	status_short.txt
+

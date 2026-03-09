@@ -1,17 +1,17 @@
-{
-  "key": "assistant start_db agenet-factory의 실행 본체는 아래 체인으로 구현돼 있습니다- 엔트리 start_dbcmdCProjectagent-factorystart_dbcmd3    start_sy",
-  "value": "[assistant] `start_db agenet-factory`의 실행 본체는 아래 체인으로 구현돼 있습니다.  - 엔트리: [start_db.cmd](/C:/Project/agent-factory/start_db.cmd):3     `start_sync.cmd`를 `db` 백엔드로 호출합니다. - 1차 라우팅: [start_sync.cmd](/C:/Project/agent-factory/start_sync.cmd):23-25     `sync down...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-02-26T15:32:46.126467+00:00",
-  "updated_at": "2026-02-26T15:32:46.126467+00:00",
-  "details": {
-    "text": "[assistant] `start_db agenet-factory`의 실행 본체는 아래 체인으로 구현돼 있습니다.\n\n- 엔트리: [start_db.cmd](/C:/Project/agent-factory/start_db.cmd):3  \n  `start_sync.cmd`를 `db` 백엔드로 호출합니다.\n- 1차 라우팅: [start_sync.cmd](/C:/Project/agent-factory/start_sync.cmd):23-25  \n  `sync down db <target> <agent>` 형태로 넘깁니다.\n- 2차 라우팅: [sync.cmd](/C:/Project/agent-factory/sync.cmd):13-16  \n  `scripts/sync_easy.ps1`를 실행합니다.\n- DB 백엔드 본체: [scripts/sync_easy.ps1](/C:/Project/agent-factory/scripts/sync_easy.ps1):63-76  \n  `python scripts/project_context_sync.py --project <target> --mode pull` 호출합니다.\n- 최종 구현(프로젝트 해석/DB pull): [scripts/project_context_sync.py](/C:/Project/agent-factory/scripts/project_context_sync.py):65-127, 500-522\n\n`agenet-factory` 오타에 대해선 자동 교정이 없습니다. 그대로 프로젝트 입력으로 처리되어, 내부 sync key는 `agenet_factory`로 사용됩니다([project_context_sync.py](/C:/Project/agent-factory/scripts/project_context_sync.py):65-68).",
-    "event_timestamp": "2026-02-26T02:03:01.651Z",
-    "session_file": "C:/Users/home/.codex/sessions/2026/02/26/rollout-2026-02-26T10-57-08-019c97aa-06f3-7cc2-a880-740be668fee4.jsonl",
-    "session_line": 146
-  }
+{
+  "key": "assistant start_db agenet-factory의 실행 본체는 아래 체인으로 구현돼 있습니다- 엔트리 start_dbcmdCProjectagent-factorystart_dbcmd3    start_sy",
+  "value": "[assistant] `start_db agenet-factory`의 실행 본체는 아래 체인으로 구현돼 있습니다.  - 엔트리: [start_db.cmd](/C:/Project/agent-factory/start_db.cmd):3     `start_sync.cmd`를 `db` 백엔드로 호출합니다. - 1차 라우팅: [start_sync.cmd](/C:/Project/agent-factory/start_sync.cmd):23-25     `sync down...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-02-26T15:32:46.126467+00:00",
+  "updated_at": "2026-02-26T15:32:46.126467+00:00",
+  "details": {
+    "text": "[assistant] `start_db agenet-factory`의 실행 본체는 아래 체인으로 구현돼 있습니다.\n\n- 엔트리: [start_db.cmd](/C:/Project/agent-factory/start_db.cmd):3  \n  `start_sync.cmd`를 `db` 백엔드로 호출합니다.\n- 1차 라우팅: [start_sync.cmd](/C:/Project/agent-factory/start_sync.cmd):23-25  \n  `sync down db <target> <agent>` 형태로 넘깁니다.\n- 2차 라우팅: [sync.cmd](/C:/Project/agent-factory/sync.cmd):13-16  \n  `scripts/sync_easy.ps1`를 실행합니다.\n- DB 백엔드 본체: [scripts/sync_easy.ps1](/C:/Project/agent-factory/scripts/sync_easy.ps1):63-76  \n  `python scripts/project_context_sync.py --project <target> --mode pull` 호출합니다.\n- 최종 구현(프로젝트 해석/DB pull): [scripts/project_context_sync.py](/C:/Project/agent-factory/scripts/project_context_sync.py):65-127, 500-522\n\n`agenet-factory` 오타에 대해선 자동 교정이 없습니다. 그대로 프로젝트 입력으로 처리되어, 내부 sync key는 `agenet_factory`로 사용됩니다([project_context_sync.py](/C:/Project/agent-factory/scripts/project_context_sync.py):65-68).",
+    "event_timestamp": "2026-02-26T02:03:01.651Z",
+    "session_file": "C:/Users/home/.codex/sessions/2026/02/26/rollout-2026-02-26T10-57-08-019c97aa-06f3-7cc2-a880-740be668fee4.jsonl",
+    "session_line": 146
+  }
 }

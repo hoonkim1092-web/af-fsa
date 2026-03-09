@@ -1,17 +1,17 @@
-{
-  "key": "assistant 지금 질문은 end_db가 무엇을 Supabase로 올리는지 확인하면 정확히 답할 수 있습니다 end_db - end_sync - sync_easy - project_context_syncpy 경로",
-  "value": "[assistant] 지금 질문은 `end_db`가 무엇을 Supabase로 올리는지 확인하면 정확히 답할 수 있습니다. `end_db -> end_sync -> sync_easy -> project_context_sync.py` 경로를 따라 실제 동기화 대상에 antigravity 채팅 로그가 포함되는지 바로 확인하겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-02-26T15:32:46.740354+00:00",
-  "updated_at": "2026-02-26T15:32:46.740354+00:00",
-  "details": {
-    "text": "[assistant] 지금 질문은 `end_db`가 무엇을 Supabase로 올리는지 확인하면 정확히 답할 수 있습니다. `end_db -> end_sync -> sync_easy -> project_context_sync.py` 경로를 따라 실제 동기화 대상에 antigravity 채팅 로그가 포함되는지 바로 확인하겠습니다.",
-    "event_timestamp": "2026-02-26T15:23:33.855Z",
-    "session_file": "C:/Users/home/.codex/sessions/2026/02/26/rollout-2026-02-26T14-17-53-019c9861-d21e-7892-9d8b-fe2b91c755de.jsonl",
-    "session_line": 1272
-  }
+{
+  "key": "assistant 지금 질문은 end_db가 무엇을 Supabase로 올리는지 확인하면 정확히 답할 수 있습니다 end_db - end_sync - sync_easy - project_context_syncpy 경로",
+  "value": "[assistant] 지금 질문은 `end_db`가 무엇을 Supabase로 올리는지 확인하면 정확히 답할 수 있습니다. `end_db -> end_sync -> sync_easy -> project_context_sync.py` 경로를 따라 실제 동기화 대상에 antigravity 채팅 로그가 포함되는지 바로 확인하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-02-26T15:32:46.740354+00:00",
+  "updated_at": "2026-02-26T15:32:46.740354+00:00",
+  "details": {
+    "text": "[assistant] 지금 질문은 `end_db`가 무엇을 Supabase로 올리는지 확인하면 정확히 답할 수 있습니다. `end_db -> end_sync -> sync_easy -> project_context_sync.py` 경로를 따라 실제 동기화 대상에 antigravity 채팅 로그가 포함되는지 바로 확인하겠습니다.",
+    "event_timestamp": "2026-02-26T15:23:33.855Z",
+    "session_file": "C:/Users/home/.codex/sessions/2026/02/26/rollout-2026-02-26T14-17-53-019c9861-d21e-7892-9d8b-fe2b91c755de.jsonl",
+    "session_line": 1272
+  }
 }

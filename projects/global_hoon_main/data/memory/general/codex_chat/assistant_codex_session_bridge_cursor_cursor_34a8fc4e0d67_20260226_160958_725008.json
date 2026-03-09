@@ -1,17 +1,17 @@
-{
-  "key": "assistant codex_session_bridge에는 cursor 유실 복구를 넣겠습니다 세션 파일이 회전정리되어 cursor가 사라져도 자동으로 최신 스캔으로 되돌아가게 바꿉니다",
-  "value": "[assistant] `codex_session_bridge`에는 cursor 유실 복구를 넣겠습니다. 세션 파일이 회전/정리되어 cursor가 사라져도 자동으로 최신 스캔으로 되돌아가게 바꿉니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-02-26T16:09:58.725149+00:00",
-  "updated_at": "2026-02-26T16:09:58.725149+00:00",
-  "details": {
-    "text": "[assistant] `codex_session_bridge`에는 cursor 유실 복구를 넣겠습니다. 세션 파일이 회전/정리되어 cursor가 사라져도 자동으로 최신 스캔으로 되돌아가게 바꿉니다.",
-    "event_timestamp": "2026-02-26T16:07:57.471Z",
-    "session_file": "C:/Users/home/.codex/sessions/2026/02/26/rollout-2026-02-26T14-17-53-019c9861-d21e-7892-9d8b-fe2b91c755de.jsonl",
-    "session_line": 1773
-  }
+{
+  "key": "assistant codex_session_bridge에는 cursor 유실 복구를 넣겠습니다 세션 파일이 회전정리되어 cursor가 사라져도 자동으로 최신 스캔으로 되돌아가게 바꿉니다",
+  "value": "[assistant] `codex_session_bridge`에는 cursor 유실 복구를 넣겠습니다. 세션 파일이 회전/정리되어 cursor가 사라져도 자동으로 최신 스캔으로 되돌아가게 바꿉니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-02-26T16:09:58.725149+00:00",
+  "updated_at": "2026-02-26T16:09:58.725149+00:00",
+  "details": {
+    "text": "[assistant] `codex_session_bridge`에는 cursor 유실 복구를 넣겠습니다. 세션 파일이 회전/정리되어 cursor가 사라져도 자동으로 최신 스캔으로 되돌아가게 바꿉니다.",
+    "event_timestamp": "2026-02-26T16:07:57.471Z",
+    "session_file": "C:/Users/home/.codex/sessions/2026/02/26/rollout-2026-02-26T14-17-53-019c9861-d21e-7892-9d8b-fe2b91c755de.jsonl",
+    "session_line": 1773
+  }
 }
