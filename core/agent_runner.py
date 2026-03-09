@@ -25,7 +25,11 @@ from core.policy_runtime import PolicyRuntime
 from core.hooks.event_bus import HookEventBus
 from core.hooks.guardrails import IntentGateHook, TodoContinuationEnforcer, ToolOutputTruncator
 from core.providers.cli import CliChatRequest, execute_cli_chat
-from core.providers.registry import default_chat_model_for_provider, get_requested_cli_providers
+from core.providers.registry import (
+    default_chat_model_for_provider,
+    get_requested_cli_providers,
+    strip_engine_api_keys,
+)
 from model_utils import (
     get_best_model,
     print_agent_model_summary,
@@ -147,7 +151,7 @@ def build_child_env() -> dict:
         v = os.environ.get(k)
         if v:
             child[k] = v
-    return child
+    return strip_engine_api_keys(child)
 
 # =============================================================================
 # 3) Isolated Run (Lite) - -I ?좎?, -S ?쒓굅(pandas ?덉슜)
@@ -697,7 +701,9 @@ class AgentRunner:
             # 2. 지능형 분류기 (Stage 1 AI Funnel) - 하드코딩 배제
             # 단순 길이/단어 배열 매칭이 아닌 Flash 모델을 통한 진짜 "의도" 판별
             try:
-                client = genai.Client(api_key=GOOGLE_API_KEY) if GOOGLE_API_KEY else genai.Client()
+                if not GOOGLE_API_KEY:
+                    raise RuntimeError("google_api_key_disabled_or_missing")
+                client = genai.Client(api_key=GOOGLE_API_KEY)
                 prompt = (
                     f"에이전트 역할: {role_summary or agent_name}\n"
                     f"사용자 요청: {task_text}\n\n"
@@ -839,7 +845,7 @@ class AgentRunner:
         gemini_model = normalize_model_name(model_name if not (is_codex_model(model_name) or is_claude_model(model_name)) else get_best_model(["gemini-2.5-flash", "gemini-2.5-pro"]))
         try:
             # [신규 SDK] genai.Client 기반 채팅 세션 생성
-            gemini_client = genai.Client(api_key=GOOGLE_API_KEY) if GOOGLE_API_KEY else genai.Client()
+            gemini_client = genai.Client(api_key=GOOGLE_API_KEY)
             chat = create_chat_with_self_heal(
                 gemini_client,
                 gemini_model,

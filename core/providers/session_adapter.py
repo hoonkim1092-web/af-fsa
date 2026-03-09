@@ -26,6 +26,14 @@ def _quote_command(parts: list[str]) -> str:
     return " ".join(__import__("shlex").quote(part) for part in parts)
 
 
+def _merge_pythonpath(repo_root: Path) -> str:
+    existing = str(os.getenv("PYTHONPATH", "") or "").strip()
+    parts = [str(repo_root)]
+    if existing:
+        parts.extend(part for part in existing.split(os.pathsep) if part)
+    return os.pathsep.join(dict.fromkeys(parts))
+
+
 def _load_json(path: Path) -> dict[str, Any]:
     try:
         return json.loads(path.read_text(encoding="utf-8"))
@@ -250,6 +258,7 @@ def prepare_cli_session(request, command: list[str]) -> dict[str, Any]:
     workspace = str(Path(request.workspace).resolve())
     run_id = str(getattr(request, "run_id", "") or f"{spec.provider_id}_run")
     paths = _runtime_paths(spec.provider_id, workspace, run_id)
+    repo_root = _repo_root()
 
     state = {
         "provider_id": spec.provider_id,
@@ -267,8 +276,9 @@ def prepare_cli_session(request, command: list[str]) -> dict[str, Any]:
         "AGENT_CLI_PROVIDER": spec.provider_id,
         "AGENT_CLI_RUN_ID": run_id,
         "AGENT_CLI_WORKSPACE": workspace,
-        "AGENT_CLI_REPO_ROOT": str(_repo_root()),
+        "AGENT_CLI_REPO_ROOT": str(repo_root),
         "AGENT_CLI_SESSION_STATE_PATH": str(paths["state_path"]),
+        "PYTHONPATH": _merge_pythonpath(repo_root),
     }
 
     settings_path = None
@@ -337,7 +347,21 @@ def _assistant_excerpt(payload: dict[str, Any]) -> str:
     return ""
 
 
-def _hook_output(provider_base: str, event_name: str, context: str) -> dict[str, Any] | None:
+def _is_headless_session(state: dict[str, Any]) -> bool:
+    command = state.get("command")
+    if not isinstance(command, list):
+        return False
+    parts = [str(part).strip() for part in command if str(part).strip()]
+    return any(part in {"-p", "--prompt"} for part in parts)
+
+
+def _hook_output(
+    provider_base: str,
+    event_name: str,
+    context: str,
+    *,
+    headless: bool = False,
+) -> dict[str, Any] | None:
     if not context:
         return None
     if provider_base == "claude" and event_name in {"SessionStart", "UserPromptSubmit"}:
@@ -347,6 +371,8 @@ def _hook_output(provider_base: str, event_name: str, context: str) -> dict[str,
                 "additionalContext": context,
             }
         }
+    if provider_base == "gemini" and headless:
+        return None
     if provider_base == "gemini" and event_name in {"SessionStart", "BeforeAgent"}:
         return {
             "hookSpecificOutput": {
@@ -373,6 +399,7 @@ def handle_hook_event(
     transcript_path = str(payload.get("transcript_path", "") or "").strip()
     session_id = str(payload.get("session_id", "") or "").strip()
     assistant_excerpt = _assistant_excerpt(payload)
+    headless = _is_headless_session(state)
 
     state.update(
         {
@@ -411,7 +438,7 @@ def handle_hook_event(
     write_resume_brief(workspace_path, trigger=event_name or "hook")
 
     context = _build_continuity_context(str(workspace_path), provider_id, run_id)
-    return _hook_output(provider_base, event_name, context)
+    return _hook_output(provider_base, event_name, context, headless=headless)
 
 
 __all__ = [

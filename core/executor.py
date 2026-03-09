@@ -6,6 +6,7 @@ import tempfile
 import time
 
 from core.policy import resolve_runtime_mode
+from core.providers.registry import strip_engine_api_keys
 
 
 def run_skill_safely(
@@ -49,6 +50,7 @@ def run_skill_safely(
         "PYTHONPATH",
     }
     child_env = {k: v for k, v in os.environ.items() if k in allowlist} if isolated else dict(os.environ)
+    child_env = strip_engine_api_keys(child_env)
 
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     default_run_dir = os.path.join(base_dir, "runs")

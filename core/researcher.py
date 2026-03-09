@@ -4,6 +4,7 @@ import subprocess
 import sys
 from google import genai
 from model_utils import normalize_model_name, generate_content_with_self_heal
+from core.providers.registry import get_engine_api_key
 from core.utils import (
     safe_id, read_yaml, write_yaml, now_iso, get_random_signature,
     print_agent_msg, safe_json_load, resolve_skill_paths, resolve_existing_path
@@ -150,7 +151,7 @@ class HimariResearchAgent:
         if os.path.exists(todo_path):
             workspace_notes.append(f"existing_todo={todo_path}")
 
-        _api_key = os.getenv("GOOGLE_API_KEY")
+        _api_key = get_engine_api_key("google")
         _client = genai.Client(api_key=_api_key) if _api_key else None
         _model_name = normalize_model_name(self.mr.pick("requirement"))
         prompt = f"""
@@ -235,7 +236,7 @@ Rules:
                 print("⏭️ [Himari] NotebookLM 근거 반영이 보류되었습니다.")
 
         # [New SDK] Client 기반 리서치 (Triad: requirement = Gemini Pro)
-        _api_key = os.getenv("GOOGLE_API_KEY")
+        _api_key = get_engine_api_key("google")
         if not _api_key:
             print("⚠️ [Himari] GOOGLE_API_KEY 없음 — LLM 리서치를 건너뛰고 fallback 매칭만 수행합니다.")
         _client = genai.Client(api_key=_api_key) if _api_key else None

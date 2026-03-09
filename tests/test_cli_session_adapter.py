@@ -35,6 +35,8 @@ def test_prepare_cli_session_writes_claude_hook_settings(tmp_path: Path):
     assert settings["hooks"]["UserPromptSubmit"]
     assert settings["hooks"]["PreCompact"]
     assert settings["hooks"]["SessionEnd"]
+    assert "PYTHONPATH" in prepared["env"]
+    assert prepared["env"]["PYTHONPATH"]
     assert state["provider_id"] == "claude_cli"
     assert state["run_id"] == "run_claude_1"
 
@@ -65,6 +67,8 @@ def test_prepare_cli_session_routes_gemini_hooks_via_generated_defaults_file(tmp
     assert settings["hooks"]["AfterAgent"]
     assert settings["hooks"]["PreCompress"]
     assert settings["hooks"]["SessionEnd"]
+    assert "PYTHONPATH" in prepared["env"]
+    assert prepared["env"]["PYTHONPATH"]
 
 
 def test_handle_hook_event_returns_context_and_runs_bridge(monkeypatch, tmp_path: Path):
@@ -133,3 +137,67 @@ def test_handle_hook_event_returns_context_and_runs_bridge(monkeypatch, tmp_path
     assert bridge_calls
     assert bridge_calls[-1]["provider_id"] == "claude"
     assert bridge_calls[-1]["sessions_root"].endswith(str(Path("sessions") / "claude"))
+
+
+def test_handle_hook_event_skips_gemini_context_in_headless_mode(tmp_path: Path):
+    workspace = tmp_path / "workspace"
+    workspace.mkdir(parents=True, exist_ok=True)
+
+    prepare_cli_session(
+        CliChatRequest(
+            provider_id="gemini_cli",
+            model="gemini",
+            system_prompt="system prompt",
+            task_input="reply exactly",
+            workspace=str(workspace),
+            run_id="run_gemini_headless",
+        ),
+        ["gemini", "-p", "reply exactly"],
+    )
+
+    output = handle_hook_event(
+        "gemini",
+        {
+            "hook_event_name": "SessionStart",
+            "session_id": "session-1",
+            "transcript_path": str(tmp_path / "sessions" / "gemini" / "transcript.json"),
+        },
+        workspace=str(workspace),
+        run_id="run_gemini_headless",
+        repo_root=str(tmp_path / "repo"),
+    )
+
+    assert output is None
+
+
+def test_handle_hook_event_keeps_gemini_context_for_interactive_sessions(tmp_path: Path):
+    workspace = tmp_path / "workspace"
+    workspace.mkdir(parents=True, exist_ok=True)
+    (workspace / ".todo.md").write_text("- [ ] resume prior task\n", encoding="utf-8")
+
+    prepare_cli_session(
+        CliChatRequest(
+            provider_id="gemini_cli",
+            model="gemini",
+            system_prompt="system prompt",
+            task_input="resume work",
+            workspace=str(workspace),
+            run_id="run_gemini_interactive",
+        ),
+        ["gemini"],
+    )
+
+    output = handle_hook_event(
+        "gemini",
+        {
+            "hook_event_name": "SessionStart",
+            "session_id": "session-2",
+            "transcript_path": str(tmp_path / "sessions" / "gemini" / "transcript.json"),
+        },
+        workspace=str(workspace),
+        run_id="run_gemini_interactive",
+        repo_root=str(tmp_path / "repo"),
+    )
+
+    assert "additionalContext" in output["hookSpecificOutput"]
+    assert "resume prior task" in output["hookSpecificOutput"]["additionalContext"]

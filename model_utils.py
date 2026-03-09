@@ -9,12 +9,13 @@ import urllib.parse
 from typing import NamedTuple, List, Dict, Any, Optional
 from google import genai
 from config.schema import factory_config
+from core.providers.registry import get_engine_api_key
 
 # sys.stdout.reconfigure(encoding='utf-8')  # [BUG #1 제거] 모듈 레벨에서 강제 reconfigure는
 # 비-UTF-8 실행 환경(윈도우 cp949 등)에서 예외를 유발할 수 있음.
 # 학습 환경 전용이 필요하다면 agent_launcher / CLI 단에서만 호출할 것.
 
-_google_api_key = os.getenv("GOOGLE_API_KEY")
+_google_api_key = get_engine_api_key("google")
 _genai_client = genai.Client(api_key=_google_api_key) if _google_api_key else None
 
 CACHE_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "models_cache.json")
@@ -180,7 +181,7 @@ def get_available_models(force_refresh: bool = False) -> list[str]:
 
 def fetch_openai_models() -> list[str]:
     """OpenAI API에서 gpt-* / o-시리즈 모델 동적 조회. 키 없으면 []."""
-    api_key = os.getenv("OPENAI_API_KEY")
+    api_key = get_engine_api_key("openai")
     if not api_key:
         return []
     try:
@@ -201,7 +202,7 @@ def fetch_openai_models() -> list[str]:
 
 def fetch_anthropic_models() -> list[str]:
     """Anthropic API에서 claude-* 모델 동적 조회. 키 없으면 []."""
-    api_key = os.getenv("ANTHROPIC_API_KEY")
+    api_key = get_engine_api_key("anthropic")
     if not api_key:
         return []
     try:
@@ -376,9 +377,9 @@ def resolve_dynamic_model(engine_id: str) -> ModelSelection:
 
     available = get_available_models()
     keys = {
-        "google":    bool(os.getenv("GOOGLE_API_KEY")),
-        "openai":    bool(os.getenv("OPENAI_API_KEY")),
-        "anthropic": bool(os.getenv("ANTHROPIC_API_KEY")),
+        "google":    bool(get_engine_api_key("google")),
+        "openai":    bool(get_engine_api_key("openai")),
+        "anthropic": bool(get_engine_api_key("anthropic")),
     }
 
     def _check_callable(sel: ModelSelection) -> ModelSelection:

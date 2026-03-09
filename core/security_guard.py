@@ -13,6 +13,7 @@ import subprocess
 import sys
 
 from core.config_paths import DATA_DIR, ARTIFACTS_DIR
+from core.providers.registry import strip_engine_api_keys
 from core.file_io import write_text
 from core.executor import run_skill_safely
 
@@ -160,4 +161,5 @@ except Exception as e:
 
 
 def build_child_env() -> dict:
-    return {k: os.environ.get(k) for k in CHILD_ENV_PASSTHROUGH if os.environ.get(k)}
+    env = {k: os.environ.get(k) for k in CHILD_ENV_PASSTHROUGH if os.environ.get(k)}
+    return strip_engine_api_keys(env)

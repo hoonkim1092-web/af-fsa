@@ -11,6 +11,7 @@ import os
 import json
 import time
 from google import genai
+from core.providers.registry import engine_api_keys_disabled, get_engine_api_key
 from model_utils import normalize_model_name, generate_content_with_self_heal
 
 # =============================================================================
@@ -23,9 +24,14 @@ _current_key_idx = 0
 def _load_gemini_keys():
     global _gemini_keys
     if not _gemini_keys:
+        if engine_api_keys_disabled():
+            return _gemini_keys
         for k, v in os.environ.items():
             if k.startswith("GOOGLE_API_KEY") and v.strip():
                 _gemini_keys.append(v.strip())
+        fallback = get_engine_api_key("google")
+        if fallback and fallback not in _gemini_keys:
+            _gemini_keys.append(fallback)
     return _gemini_keys
 
 def get_next_gemini_key() -> str | None:

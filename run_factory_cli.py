@@ -28,6 +28,7 @@ def main():
     parser.add_argument("--mode", choices=["approval", "fsa"], default="approval", help="실행 모드 (기본: approval, 자율: fsa)")
     parser.add_argument("--fsa", action="store_true", help="풀 셀프 자동화(Full Self Automation) 모드 활성화 단축키")
     parser.add_argument("--build", action="store_true", help="Build missing skills before run")
+    parser.add_argument("--no-cli-auto-install", action="store_true", help="누락된 Claude/Gemini/Codex CLI 자동 설치 비활성화")
     parser.add_argument("--pipeline", choices=["auto", "single", "project"], default="auto", help="실행 파이프라인 선택")
     args = parser.parse_args()
     execution_mode = "fsa" if (args.fsa or args.mode == "fsa") else "approval"
@@ -54,6 +55,11 @@ def main():
     os.environ["AGENT_PROJECT_ROOT"] = project_root
     if args.model:
         os.environ["AGENT_CHAT_MODEL"] = args.model.strip()
+    if args.no_cli_auto_install:
+        os.environ["AGENT_AUTO_INSTALL_CLI"] = "0"
+    else:
+        os.environ.setdefault("AGENT_AUTO_INSTALL_CLI", "1")
+    os.environ.setdefault("AGENT_DISABLE_ENGINE_API_KEYS", "1")
 
     from agent_launcher import AgentFactory
 

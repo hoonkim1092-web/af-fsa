@@ -2,6 +2,7 @@ import os
 import json
 from google import genai
 from model_utils import normalize_model_name, generate_content_with_self_heal
+from core.providers.registry import get_engine_api_key
 from core.utils import safe_id, now_iso, write_text, write_yaml, strip_code_fences, sha256_text, quick_guard, run_isolated
 from core.config_paths import SKILLS_DIR, RUNS_DIR
 
@@ -53,7 +54,7 @@ class SandboxedBuilder:
             return False, None, fail_meta
 
         # [New SDK] Client 기반 스킬 빌더 (Triad: builder 단계 = Claude/GPT)
-        _api_key = os.getenv("GOOGLE_API_KEY")
+        _api_key = get_engine_api_key("google")
         if not _api_key:
             print(f"[Builder] WARN: GOOGLE_API_KEY missing -- cannot build '{skill_name}'")
             fail_meta = {

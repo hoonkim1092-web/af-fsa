@@ -2,6 +2,7 @@ import inspect
 import os
 from google import genai
 from model_utils import normalize_model_name, generate_content_with_self_heal
+from core.providers.registry import get_engine_api_key, supports_cli_bootstrap
 from core.utils import (
     safe_id, read_yaml, write_yaml, now_iso, get_random_signature,
     print_agent_msg, safe_json_load, apply_agent_overrides, safe_generate
@@ -12,6 +13,24 @@ class AgentManager:
     """Manages Agent YAML files and storage."""
     def __init__(self, mr):
         self.mr = mr
+
+    def _build_fallback_agent(self, role_spec: str) -> dict:
+        role_text = str(role_spec or "").strip() or "General Assistant"
+        agent_id = safe_id(role_text) or "agent"
+        return {
+            "name": f"agent_{agent_id}",
+            "role": role_text,
+            "tone": "calm, direct, pragmatic",
+            "traits": ["practical", "concise", "execution-focused"],
+            "system_ko": (
+                f"당신은 {role_text} 역할의 에이전트입니다. "
+                "주어진 작업을 실용적으로 정리하고, 필요한 경우 짧고 명확한 결과를 제공합니다."
+            ),
+            "signature_lines": [
+                f"[{role_text}] 작업을 진행합니다.",
+                f"[{role_text}] 필요한 범위만 정확히 처리합니다.",
+            ],
+        }
 
     def _agent_path(self, role_spec: str, workspace: str | None = None) -> str:
         base_dir = os.path.join(workspace, "agents") if workspace else AGENTS_DIR
@@ -32,7 +51,7 @@ class AgentManager:
             return apply_agent_overrides(data, role_spec)
 
         # [New SDK] Client 기반 에이전트 생성 (Triad: agent_create = Gemini Pro)
-        _api_key = os.getenv("GOOGLE_API_KEY")
+        _api_key = get_engine_api_key("google")
         _client = genai.Client(api_key=_api_key) if _api_key else None
         _model_name = normalize_model_name(self.mr.pick("agent_create"))
         prompt = f"""
@@ -46,9 +65,16 @@ JSON 출력:
 3. **signature_lines**: 에이전트가 대화를 시작할 때 사용할 시그니처 대사(한국어)를 3~5개 작성하세요. 캐릭터의 성격을 잘 드러내야 합니다.
 """
         res = generate_content_with_self_heal(_client, _model_name, prompt) if _client else None
-        data = safe_json_load(res.text)
+        data = safe_json_load(res.text if res else "{}")
+        if not data and supports_cli_bootstrap():
+            data = self._build_fallback_agent(role_spec)
         data["name"] = data.get("name") or f"agent_{safe_id(role_spec)}"
         data["role"] = data.get("role") or role_spec
+        data["tone"] = data.get("tone") or "calm, direct, pragmatic"
+        data["traits"] = data.get("traits") or ["practical", "concise", "execution-focused"]
+        fallback = self._build_fallback_agent(role_spec)
+        data["system_ko"] = data.get("system_ko") or fallback["system_ko"]
+        data["signature_lines"] = data.get("signature_lines") or fallback["signature_lines"]
         data["created_at"] = now_iso()
         write_yaml(path, data)
         return apply_agent_overrides(data, role_spec)
@@ -113,7 +139,7 @@ JSON 출력:
 """
         try:
             # [New SDK] Client 기반 요구사항 분석 (Triad: requirement = Gemini Pro)
-            _api_key = os.getenv("GOOGLE_API_KEY")
+            _api_key = get_engine_api_key("google")
             _client = genai.Client(api_key=_api_key) if _api_key else None
             _model_name = normalize_model_name(self.mr.pick("requirement"))
             res = generate_content_with_self_heal(_client, _model_name, prompt) if _client else None

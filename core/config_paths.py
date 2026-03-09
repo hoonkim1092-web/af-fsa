@@ -1,7 +1,7 @@
 import os
 import re
 from config.schema import factory_config
-from core.providers.registry import supports_cli_bootstrap
+from core.providers.registry import engine_api_keys_disabled, supports_cli_bootstrap
 
 def _boot_safe_id(text: str) -> str:
     t = (text or "").strip().lower()
@@ -22,9 +22,9 @@ def _config_value(name: str, env_key: str) -> str:
     return str(os.getenv(env_key, "") or "")
 
 
-GOOGLE_API_KEY = _config_value("google_api_key", "GOOGLE_API_KEY")
-OPENAI_API_KEY = _config_value("openai_api_key", "OPENAI_API_KEY")
-if not GOOGLE_API_KEY and not OPENAI_API_KEY and not supports_cli_bootstrap():
+GOOGLE_API_KEY = "" if engine_api_keys_disabled() else _config_value("google_api_key", "GOOGLE_API_KEY")
+OPENAI_API_KEY = "" if engine_api_keys_disabled() else _config_value("openai_api_key", "OPENAI_API_KEY")
+if not GOOGLE_API_KEY and not OPENAI_API_KEY and not supports_cli_bootstrap() and not engine_api_keys_disabled():
     raise RuntimeError("Neither GOOGLE_API_KEY nor OPENAI_API_KEY found in env/.env")
 # [New SDK] genai.Client은 각 모듈에서 개별 생성 (config_paths는 경로만 담당)
 
