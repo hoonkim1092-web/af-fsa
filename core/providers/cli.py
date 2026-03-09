@@ -37,6 +37,8 @@ class CliProviderSpec:
     output_format_flags: tuple[str, ...] = ()
     fixed_flags: tuple[str, ...] = ()
     combine_system_prompt: bool = False
+    workspace_access_flag: str | None = None
+    headless_edit_flags: tuple[str, ...] = ()
 
 
 _CLI_SPECS = {
@@ -50,6 +52,8 @@ _CLI_SPECS = {
         model_flag="--model",
         system_prompt_flag="--append-system-prompt",
         output_format_flags=("--output-format", "json"),
+        workspace_access_flag="--add-dir",
+        headless_edit_flags=("--permission-mode", "acceptEdits"),
     ),
     "gemini_cli": CliProviderSpec(
         provider_id="gemini_cli",
@@ -61,6 +65,8 @@ _CLI_SPECS = {
         model_flag="-m",
         output_format_flags=("--output-format", "json"),
         combine_system_prompt=True,
+        workspace_access_flag="--include-directories",
+        headless_edit_flags=("--approval-mode", "auto_edit"),
     ),
     "codex_cli": CliProviderSpec(
         provider_id="codex_cli",
@@ -71,6 +77,8 @@ _CLI_SPECS = {
         model_flag="-m",
         fixed_flags=("-c", 'model_reasoning_effort="low"'),
         combine_system_prompt=True,
+        workspace_access_flag="--add-dir",
+        headless_edit_flags=("--full-auto",),
     ),
 }
 
@@ -295,17 +303,25 @@ def _should_include_model(request: CliChatRequest, spec: CliProviderSpec) -> boo
     return True
 
 
+def _build_workspace_access_flags(request: CliChatRequest, spec: CliProviderSpec) -> list[str]:
+    if not spec.workspace_access_flag:
+        return []
+    repo_root = _detect_repo_root(request.workspace)
+    workspace = str(request.workspace or "").strip()
+    if repo_root and workspace and os.path.normcase(repo_root) != os.path.normcase(workspace):
+        return [spec.workspace_access_flag, repo_root]
+    return []
+
+
 def build_cli_command(request: CliChatRequest) -> list[str]:
     spec = get_cli_provider_spec(request.provider_id)
     cmd = _resolve_base_command(spec)
 
     if _should_include_model(request, spec):
         cmd.extend([spec.model_flag, str(request.model)])
-    if spec.provider_id == "gemini_cli":
-        repo_root = _detect_repo_root(request.workspace)
-        workspace = str(request.workspace or "").strip()
-        if repo_root and workspace and os.path.normcase(repo_root) != os.path.normcase(workspace):
-            cmd.extend(["--include-directories", repo_root])
+    if spec.headless_edit_flags:
+        cmd.extend(spec.headless_edit_flags)
+    cmd.extend(_build_workspace_access_flags(request, spec))
     if spec.fixed_flags:
         cmd.extend(spec.fixed_flags)
     if spec.output_format_flags:

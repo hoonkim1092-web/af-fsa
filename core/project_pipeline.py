@@ -14,6 +14,8 @@ from core.utils import (
     write_yaml,
 )
 
+PROJECT_ROLE_BASELINE_SKILLS = ("file_handler", "core_memory")
+
 
 class ProjectPipeline:
     """Front-loads research and planning before multi-agent execution."""
@@ -36,6 +38,25 @@ class ProjectPipeline:
 
     def _role_agent_path(self, role_id: str, workspace: str) -> str:
         return os.path.join(workspace, "agents", f"{safe_id(role_id)}.yaml")
+
+    def _merge_role_baseline(self, agent_data: dict) -> dict:
+        merged = dict(agent_data or {})
+        existing_skills = [safe_id(str(s)) for s in (merged.get("skills") or []) if str(s).strip()]
+        merged["skills"] = list(dict.fromkeys(existing_skills + list(PROJECT_ROLE_BASELINE_SKILLS)))
+
+        runtime_rules = merged.get("runtime_rules", {})
+        if not isinstance(runtime_rules, dict):
+            runtime_rules = {}
+        allowed_skills = [
+            safe_id(str(s))
+            for s in (runtime_rules.get("allowed_skills") or [])
+            if str(s).strip()
+        ]
+        runtime_rules["allowed_skills"] = list(
+            dict.fromkeys(allowed_skills + list(PROJECT_ROLE_BASELINE_SKILLS))
+        )
+        merged["runtime_rules"] = runtime_rules
+        return merged
 
     def _write_todo(self, workspace: str, role_plan: dict) -> str:
         todo_items = [str(x).strip() for x in (role_plan.get("todo_items") or []) if str(x).strip()]
@@ -74,6 +95,7 @@ class ProjectPipeline:
             agent = self.agent_mgr.get_or_create(role_id, workspace=workspace)
             agent_path = self._role_agent_path(role_id, workspace)
             agent_data = read_yaml(agent_path) if os.path.exists(agent_path) else dict(agent)
+            agent_data = self._merge_role_baseline(agent_data)
             agent_data["name"] = str(agent_data.get("name") or role_name)
             agent_data["role"] = role_name
             agent_data["project_role"] = {

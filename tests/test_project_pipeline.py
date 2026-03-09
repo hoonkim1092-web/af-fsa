@@ -114,6 +114,11 @@ def test_project_pipeline_writes_planning_artifacts_and_roles(monkeypatch, tmp_p
     assert os.path.exists(tmp_path / ".todo.md")
     assert os.path.exists(tmp_path / "agents" / "frontend_dev.yaml")
     assert os.path.exists(tmp_path / "agents" / "qa_engineer.yaml")
+    frontend_agent = al.read_yaml(tmp_path / "agents" / "frontend_dev.yaml")
+    assert "file_handler" in frontend_agent["skills"]
+    assert "core_memory" in frontend_agent["skills"]
+    assert "file_handler" in frontend_agent["runtime_rules"]["allowed_skills"]
+    assert "core_memory" in frontend_agent["runtime_rules"]["allowed_skills"]
     assert procure_calls == [
         ("Frontend Dev", ["frontend_game_ui"], str(tmp_path)),
         ("QA Engineer", ["integration_test_guard"], str(tmp_path)),

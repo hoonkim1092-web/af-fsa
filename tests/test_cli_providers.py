@@ -59,9 +59,9 @@ def test_config_paths_ignores_engine_api_keys_when_disabled(monkeypatch, tmp_pat
 @pytest.mark.parametrize(
     ("provider_id", "expected_prefix", "expected_items"),
     [
-        ("claude_cli", ["claude"], ["-p", "--append-system-prompt", "--output-format", "json"]),
-        ("gemini_cli", ["gemini"], ["-p", "--output-format", "json"]),
-        ("codex_cli", ["codex", "exec"], ["-c", "model_reasoning_effort=\"low\""]),
+        ("claude_cli", ["claude"], ["-p", "--append-system-prompt", "--output-format", "json", "--permission-mode", "acceptEdits"]),
+        ("gemini_cli", ["gemini"], ["-p", "--output-format", "json", "--approval-mode", "auto_edit"]),
+        ("codex_cli", ["codex", "exec"], ["-c", "model_reasoning_effort=\"low\"", "--full-auto"]),
     ],
 )
 def test_build_cli_command_uses_provider_specific_defaults(provider_id, expected_prefix, expected_items):
@@ -185,23 +185,31 @@ def test_gemini_cli_normalized_default_alias_omits_model_flag():
     assert "-m" not in cmd
 
 
-def test_gemini_cli_includes_repo_root_when_workspace_is_nested(monkeypatch):
+@pytest.mark.parametrize(
+    ("provider_id", "expected_flag"),
+    [
+        ("claude_cli", "--add-dir"),
+        ("gemini_cli", "--include-directories"),
+        ("codex_cli", "--add-dir"),
+    ],
+)
+def test_cli_provider_includes_repo_root_when_workspace_is_nested(monkeypatch, provider_id, expected_flag):
     from core.providers.cli import CliChatRequest, build_cli_command
 
     monkeypatch.setattr("core.providers.cli._detect_repo_root", lambda _workspace: r"D:\repo")
 
     cmd = build_cli_command(
         CliChatRequest(
-            provider_id="gemini_cli",
-            model="gemini",
+            provider_id=provider_id,
+            model="gemini" if provider_id == "gemini_cli" else "test-model",
             system_prompt="system prompt",
             task_input="execute task",
             workspace=r"D:\repo\projects\demo",
         )
     )
 
-    assert "--include-directories" in cmd
-    idx = cmd.index("--include-directories")
+    assert expected_flag in cmd
+    idx = cmd.index(expected_flag)
     assert cmd[idx + 1] == r"D:\repo"
 
 

@@ -2,7 +2,7 @@ import inspect
 import os
 from google import genai
 from model_utils import normalize_model_name, generate_content_with_self_heal
-from core.providers.registry import get_engine_api_key, supports_cli_bootstrap
+from core.engine_auth import get_engine_api_key, supports_cli_bootstrap
 from core.utils import (
     safe_id, read_yaml, write_yaml, now_iso, get_random_signature,
     print_agent_msg, safe_json_load, apply_agent_overrides, safe_generate
@@ -23,12 +23,12 @@ class AgentManager:
             "tone": "calm, direct, pragmatic",
             "traits": ["practical", "concise", "execution-focused"],
             "system_ko": (
-                f"당신은 {role_text} 역할의 에이전트입니다. "
-                "주어진 작업을 실용적으로 정리하고, 필요한 경우 짧고 명확한 결과를 제공합니다."
+                f"당신은 {role_text} 역할의 실행 에이전트다. "
+                "현재 워크스페이스 안에서 필요한 파일을 직접 만들거나 수정해 작업 결과를 남겨라."
             ),
             "signature_lines": [
-                f"[{role_text}] 작업을 진행합니다.",
-                f"[{role_text}] 필요한 범위만 정확히 처리합니다.",
+                f"[{role_text}] 바로 실행합니다.",
+                f"[{role_text}] 작업 결과를 파일로 남깁니다.",
             ],
         }
 

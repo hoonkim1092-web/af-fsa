@@ -2,21 +2,19 @@ import asyncio
 import json
 import os
 import time
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 from core.agent_runner import AgentRunner
 from core.ast_memory_hub import AstMemoryHub
-from core.continuity.manifest_store import OrchestratorManifestStore
-from core.continuity.runtime_paths import workspace_runtime_file
 from core.evaluator import StrategyEvaluator
 from core.llm_engine import LLMEngine
 from core.manager import AgentManager
-from core.utils import print_agent_msg, safe_json_load
+from core.utils import print_agent_msg, safe_id, safe_json_load
 
 
 class DynamicOrchestrator:
     """
-    Agent Factory V3: dynamic multi-agent orchestrator driven by a central PM model.
+    Dynamic multi-agent orchestrator driven by a central PM model.
     """
 
     def __init__(self, mr, max_concurrent: int = 5):
@@ -30,60 +28,122 @@ class DynamicOrchestrator:
 
         self.task_queue: asyncio.Queue = asyncio.Queue()
         self.active_tasks: Dict[str, asyncio.Task] = {}
-        self.active_task_meta: Dict[str, Dict[str, Any]] = {}
         self.state_board: Dict[str, Any] = {
             "completed_subtasks": [],
             "failed_subtasks": [],
-            "interrupted_subtasks": [],
             "agents_status": {},
             "current_status": "",
         }
         self.memory_hub = AstMemoryHub()
         self.evaluator = StrategyEvaluator(model_name=engine_id)
-        self.manifest_store: Optional[OrchestratorManifestStore] = None
-        self._workspace: str = ""
-        self._roles: List[str] = []
-        self._project_desc: str = ""
 
-    def _runtime_file(self, filename: str):
-        workspace = self._workspace or os.getcwd()
-        return workspace_runtime_file(workspace, filename)
+    def _open_todo_items(self, workspace: str) -> List[str]:
+        todo_path = os.path.join(workspace, ".todo.md")
+        if not os.path.exists(todo_path):
+            return []
 
-    def _append_runtime_log(self, filename: str, message: str) -> None:
-        path = self._runtime_file(filename)
-        with path.open("a", encoding="utf-8") as handle:
-            handle.write(message)
+        items: List[str] = []
+        with open(todo_path, "r", encoding="utf-8") as handle:
+            for raw in handle:
+                line = str(raw or "").strip()
+                if line.startswith("- [ ] "):
+                    items.append(line[6:].strip())
+                elif line.startswith("- ") and not line.startswith("- [x] "):
+                    items.append(line[2:].strip())
+        return [item for item in items if item]
 
-    def _ensure_state_defaults(self) -> None:
-        self.state_board.setdefault("completed_subtasks", [])
-        self.state_board.setdefault("failed_subtasks", [])
-        self.state_board.setdefault("interrupted_subtasks", [])
-        self.state_board.setdefault("agents_status", {})
-        self.state_board.setdefault("current_status", "")
+    def _completed_todo_items(self, workspace: str) -> List[str]:
+        todo_path = os.path.join(workspace, ".todo.md")
+        if not os.path.exists(todo_path):
+            return []
 
-    def _snapshot_state(self, force: bool = False) -> None:
-        self._ensure_state_defaults()
-        if not self.manifest_store:
-            return
-        self.manifest_store.save_snapshot(
-            self.state_board,
-            active_assignments=self.active_task_meta,
-            roles=self._roles,
-            project_desc=self._project_desc,
-            force=force,
-        )
+        items: List[str] = []
+        with open(todo_path, "r", encoding="utf-8") as handle:
+            for raw in handle:
+                line = str(raw or "").strip()
+                if line.startswith("- [x] "):
+                    items.append(line[6:].strip())
+        return [item for item in items if item]
 
-    def _initialize_runtime_state(self, project_desc: str, roles: List[str], workspace: str | None = None) -> None:
-        self._workspace = workspace or os.getcwd()
-        self._roles = list(roles)
-        self._project_desc = project_desc
-        self.manifest_store = OrchestratorManifestStore(self._workspace)
-        self.state_board = self.manifest_store.load_resume_state()
-        self._ensure_state_defaults()
-        for role in roles:
-            self.state_board["agents_status"].setdefault(role, "idle")
-        self.state_board["current_status"] = "running"
-        self._snapshot_state(force=True)
+    def _completed_subtask_keys(self) -> set[str]:
+        keys: set[str] = set()
+        for bucket in ("completed_subtasks", "failed_subtasks", "interrupted_subtasks"):
+            for item in self.state_board.get(bucket, []) or []:
+                if not isinstance(item, dict):
+                    continue
+                text = str(item.get("subtask") or "").strip()
+                if text:
+                    keys.add(safe_id(text))
+        return keys
+
+    def _todo_matches_role(self, todo_text: str, role: str) -> bool:
+        prefix = str(todo_text or "").split(":", 1)[0]
+        return safe_id(prefix) == safe_id(role)
+
+    def _todo_role_prefix(self, todo_text: str) -> str:
+        text = str(todo_text or "")
+        if ":" not in text:
+            return ""
+        prefix = text.split(":", 1)[0]
+        return safe_id(prefix)
+
+    def _todo_fully_completed(self, workspace: str) -> bool:
+        completed_items = self._completed_todo_items(workspace)
+        open_items = self._open_todo_items(workspace)
+        return bool(completed_items) and not open_items
+
+    def _fallback_next_tasks(self, available_roles: List[str], workspace: str) -> List[Dict[str, str]]:
+        todo_items = self._open_todo_items(workspace)
+        if not todo_items:
+            return []
+
+        completed = self._completed_subtask_keys()
+        pending = [item for item in todo_items if safe_id(item) not in completed]
+        if not pending:
+            return []
+
+        tasks: List[Dict[str, str]] = []
+        used_items: set[str] = set()
+
+        for role in available_roles:
+            match = next(
+                (item for item in pending if item not in used_items and self._todo_matches_role(item, role)),
+                None,
+            )
+            if not match:
+                continue
+            used_items.add(match)
+            tasks.append(
+                {
+                    "assigned_role": role,
+                    "subtask_instruction": match,
+                    "estimated_complexity": "HIGH",
+                }
+            )
+
+        for role in available_roles:
+            if any(task.get("assigned_role") == role for task in tasks):
+                continue
+            match = next(
+                (
+                    item
+                    for item in pending
+                    if item not in used_items and not self._todo_role_prefix(item)
+                ),
+                None,
+            )
+            if not match:
+                break
+            used_items.add(match)
+            tasks.append(
+                {
+                    "assigned_role": role,
+                    "subtask_instruction": match,
+                    "estimated_complexity": "HIGH",
+                }
+            )
+
+        return tasks
 
     async def _lilith_decide_next(
         self,
@@ -101,6 +161,8 @@ class DynamicOrchestrator:
 
         todo_content = ""
         target_workspace = workspace or os.getcwd()
+        if self._todo_fully_completed(target_workspace):
+            return []
         todo_path = os.path.join(target_workspace, ".todo.md")
         if os.path.exists(todo_path):
             with open(todo_path, "r", encoding="utf-8") as handle:
@@ -116,7 +178,6 @@ class DynamicOrchestrator:
         ## Current Board State:
         Completed works: {json.dumps(self.state_board['completed_subtasks'], ensure_ascii=False)}
         Failed works: {json.dumps(self.state_board['failed_subtasks'], ensure_ascii=False)}
-        Interrupted works: {json.dumps(self.state_board['interrupted_subtasks'], ensure_ascii=False)}
 
         ## Global Context (Shared AST Memory):
         {self.memory_hub.get_summary()}
@@ -140,27 +201,42 @@ class DynamicOrchestrator:
             response = await asyncio.to_thread(self.llm.generate_json, prompt)
             data = response if isinstance(response, dict) else safe_json_load(response)
             tasks = data.get("next_tasks", [])
-            self._append_runtime_log(
-                "dynamic_log.txt",
-                (
+            completed = self._completed_subtask_keys() | {
+                safe_id(item) for item in self._completed_todo_items(target_workspace)
+            }
+            filtered_tasks = []
+            for task in tasks:
+                if task.get("assigned_role") not in available_roles:
+                    continue
+                task_key = safe_id(str(task.get("subtask_instruction") or ""))
+                if task_key and task_key in completed:
+                    continue
+                filtered_tasks.append(task)
+            with open("dynamic_log.txt", "a", encoding="utf-8") as handle:
+                handle.write(
                     f"\n[Lilith] Cycle: {getattr(self, '_current_cycle', '?')}\n"
-                    f"Roles: {available_roles}\nTasks: {tasks}\nRaw: {json.dumps(data, ensure_ascii=False)}\n"
-                ),
-            )
-            if not tasks:
+                    f"Roles: {available_roles}\nTasks: {tasks}\nFilteredTasks: {filtered_tasks}\nRaw: {json.dumps(data, ensure_ascii=False)}\n"
+                )
+
+            if not filtered_tasks:
+                fallback_tasks = self._fallback_next_tasks(available_roles, target_workspace)
+                if fallback_tasks:
+                    return fallback_tasks
                 if not data:
                     print_agent_msg("Lilith", "LLM response empty. Retrying next cycle...", "")
                     return [{"assigned_role": "__placeholder__", "subtask_instruction": "retry"}]
                 return []
-            return [task for task in tasks if task.get("assigned_role") in available_roles]
+            return filtered_tasks
         except Exception as exc:
             print_agent_msg("Lilith", f"Failed to dynamically generate next tasks: {exc}", "")
+            fallback_tasks = self._fallback_next_tasks(available_roles, target_workspace)
+            if fallback_tasks:
+                return fallback_tasks
             return [{"assigned_role": "__placeholder__", "subtask_instruction": "error_retry"}]
 
     async def _execute_agent_task(self, role: str, subtask: str, run_id: str, workspace: str | None = None):
         print_agent_msg("System", f"Dispatching [{role}] -> {subtask[:50]}...", "")
         self.state_board["agents_status"][role] = "working"
-        self._snapshot_state()
 
         try:
             target_workspace = workspace or os.getcwd()
@@ -178,7 +254,6 @@ class DynamicOrchestrator:
                 self.state_board["completed_subtasks"].append(
                     {"role": role, "subtask": subtask, "result": "Success"}
                 )
-                self._snapshot_state()
                 await self.memory_hub.update_ast_state(
                     filepath=f"Project_Scope_{role}",
                     author_role=role,
@@ -203,26 +278,19 @@ class DynamicOrchestrator:
                         "evaluator_advice": eval_res.get("new_instruction"),
                     }
                 )
-                self._snapshot_state()
-                if eval_res.get("action") == "pivot":
-                    print_agent_msg("Evaluator", f"Strategy pivot required for {role}.", "")
-                else:
-                    print_agent_msg("Evaluator", f"Suggesting retry for {role}.", "")
         except Exception as exc:
             self.state_board["failed_subtasks"].append(
                 {"role": role, "subtask": subtask, "reason": str(exc)}
             )
-            self._snapshot_state()
             print_agent_msg(role, f"Task crashed: {exc}", "")
         finally:
             self.state_board["agents_status"][role] = "idle"
             self.active_tasks.pop(run_id, None)
-            self.active_task_meta.pop(run_id, None)
-            self._snapshot_state()
 
     async def _orchestration_loop(self, project_desc: str, roles: List[str], workspace: str | None = None):
         target_workspace = workspace or os.getcwd()
-        self._initialize_runtime_state(project_desc, roles, target_workspace)
+        for role in roles:
+            self.state_board["agents_status"][role] = "idle"
 
         cycle = 0
         max_cycles = 15
@@ -252,39 +320,25 @@ class DynamicOrchestrator:
                 if role and instruction and role in roles and self.state_board["agents_status"].get(role) == "idle":
                     task_id = f"run_{int(time.time())}_{role}"
                     self.state_board["agents_status"][role] = "working"
-                    self.active_task_meta[task_id] = {
-                        "role": role,
-                        "subtask": instruction,
-                        "workspace": target_workspace,
-                    }
-                    self._snapshot_state()
                     task_obj = asyncio.create_task(self._execute_agent_task(role, instruction, task_id, target_workspace))
                     self.active_tasks[task_id] = task_obj
 
             await asyncio.sleep(2)
 
-        if cycle >= max_cycles:
-            self.state_board["current_status"] = "stopped_max_cycles"
-            print_agent_msg("Lilith", "Maximum orchestration cycles reached.", "")
-        else:
-            self.state_board["current_status"] = "completed"
+        self.state_board["current_status"] = "stopped_max_cycles" if cycle >= max_cycles else "completed"
 
         if self.active_tasks:
             print_agent_msg("Lilith", "Waiting for remaining tasks to complete before exit...", "")
             await asyncio.gather(*self.active_tasks.values(), return_exceptions=True)
-
-        self._snapshot_state(force=True)
 
     def run_project(self, project_desc: str, roles: List[str], workspace: str | None = None) -> Dict[str, Any]:
         print_agent_msg("System", "Initializing Dynamic LLM-Driven Orchestrator (V3)", "")
         try:
             asyncio.run(self._orchestration_loop(project_desc, roles, workspace))
         except Exception as exc:
-            self.state_board["current_status"] = "crashed"
-            self._snapshot_state(force=True)
             import traceback
 
-            with self._runtime_file("crash.log").open("w", encoding="utf-8") as handle:
+            with open("crash.log", "w", encoding="utf-8") as handle:
                 handle.write(traceback.format_exc())
             print_agent_msg("System", f"Orchestration loop crashed: {exc}", "")
         return self.state_board
