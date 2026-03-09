@@ -61,7 +61,18 @@ if ($Backend -eq "git") {
 }
 
 $dbScript = Join-Path $PSScriptRoot "project_context_sync.py"
+$resumeScript = Join-Path $PSScriptRoot "write_resume_brief.py"
 Set-Location $repoRoot
+if ($mode -eq "push") {
+    if ($proj.IsMulti) {
+        & python $resumeScript --projects $proj.Value --trigger sync_push
+    } else {
+        & python $resumeScript --project $proj.Value --trigger sync_push
+    }
+    if ($LASTEXITCODE -ne 0) {
+        exit $LASTEXITCODE
+    }
+}
 if ($proj.IsMulti) {
     if ($Agent) {
         & python $dbScript --projects $proj.Value --mode $mode --agent $Agent

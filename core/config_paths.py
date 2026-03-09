@@ -1,6 +1,7 @@
 import os
 import re
 from config.schema import factory_config
+from core.providers.registry import supports_cli_bootstrap
 
 def _boot_safe_id(text: str) -> str:
     t = (text or "").strip().lower()
@@ -23,7 +24,7 @@ def _config_value(name: str, env_key: str) -> str:
 
 GOOGLE_API_KEY = _config_value("google_api_key", "GOOGLE_API_KEY")
 OPENAI_API_KEY = _config_value("openai_api_key", "OPENAI_API_KEY")
-if not GOOGLE_API_KEY and not OPENAI_API_KEY:
+if not GOOGLE_API_KEY and not OPENAI_API_KEY and not supports_cli_bootstrap():
     raise RuntimeError("Neither GOOGLE_API_KEY nor OPENAI_API_KEY found in env/.env")
 # [New SDK] genai.Client은 각 모듈에서 개별 생성 (config_paths는 경로만 담당)
 
@@ -59,13 +60,14 @@ AGENTS_DIR = os.path.join(PROJECT_ROOT, "agents")
 RUNS_DIR = os.path.join(PROJECT_ROOT, "runs")
 DATA_DIR = os.path.join(PROJECT_ROOT, "data")
 ARTIFACTS_DIR = os.path.join(PROJECT_ROOT, "artifacts")
+PROJECT_RUNTIME_DIR = os.path.join(PROJECT_ROOT, ".af_runtime")
 PROJECT_SKILLS_DIR = os.path.join(PROJECT_ROOT, "skills")
 EXTERNAL_CACHE_DIR = os.path.join(SKILLS_DIR, "_external_cache")
 PROJECT_SETTINGS_PATH = os.path.join(PROJECT_ROOT, "settings.yaml")
 POLICIES_PATH = os.path.join(PROJECT_ROOT, "policies.yaml")
 CONTEXT_SCHEMA_PATH = os.path.join(PROJECT_ROOT, "context_schema.yaml")
 SKILL_LOCK_PATH = os.path.join(PROJECT_ROOT, "skill-lock.yaml")
-DASHBOARD_PATH = os.path.join(PROJECT_ROOT, "dashboard.json")
+DASHBOARD_PATH = os.path.join(PROJECT_RUNTIME_DIR, "dashboard.json")
 PROJECT_WORKFLOW_PATH = os.path.join(PROJECT_ROOT, "workflow.yaml")
 
 GLOBAL_AGENTS_PATH = os.path.join(GLOBAL_PROJECT_ROOT, "agents")
@@ -86,6 +88,7 @@ for d in [
     RUNS_DIR,
     DATA_DIR,
     ARTIFACTS_DIR,
+    PROJECT_RUNTIME_DIR,
     PROJECT_SKILLS_DIR,
     EXTERNAL_CACHE_DIR,
     GLOBAL_PROJECT_ROOT,

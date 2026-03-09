@@ -23,6 +23,7 @@ def test_project_scaffold_files_created(monkeypatch, tmp_path):
     assert os.path.exists(al.CONTEXT_SCHEMA_PATH)
     assert os.path.exists(al.SKILL_LOCK_PATH)
     assert os.path.exists(al.DASHBOARD_PATH)
+    assert os.path.basename(os.path.dirname(al.DASHBOARD_PATH)) == ".af_runtime"
 
 
 def test_register_built_updates_skill_lock(monkeypatch, tmp_path):

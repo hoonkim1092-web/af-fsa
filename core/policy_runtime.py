@@ -1,6 +1,15 @@
 import os
 from config.schema import factory_config
 
+
+def _config_to_dict(config) -> dict:
+    if hasattr(config, "model_dump"):
+        return config.model_dump()
+    if hasattr(config, "dict"):
+        return config.dict()
+    return config if isinstance(config, dict) else {}
+
+
 def resolve_quality_gate_policy(target_skill: str, config=None) -> dict:
     """
     Returns the resolved quality gate policy for a given skill.
@@ -8,8 +17,8 @@ def resolve_quality_gate_policy(target_skill: str, config=None) -> dict:
     """
     if config is None:
         config = factory_config
-        
-    cfg_dict = config.dict() if hasattr(config, 'dict') else config
+
+    cfg_dict = _config_to_dict(config)
     global_qg = cfg_dict.get("quality_gate", {})
     fallback = global_qg.get("fallback", "manual")
     timeout = global_qg.get("timeout_sec", 60)
@@ -33,7 +42,7 @@ class PolicyRuntime:
         Merge global factory constraints with agent-specific runtime rules.
         """
         runtime_rules = agent.get("runtime_rules", {})
-        cfg_dict = factory_config.dict() if hasattr(factory_config, 'dict') else factory_config
+        cfg_dict = _config_to_dict(factory_config)
         merged = dict(cfg_dict.get("global_policy", {}))
         merged.update(runtime_rules)
         return merged

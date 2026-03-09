@@ -9,7 +9,6 @@ import os
 import json
 import copy
 
-from core.config_paths import BASE_DIR, DASHBOARD_PATH, PROJECT_ID
 from core.file_io import read_yaml
 
 # =============================================================================
@@ -18,14 +17,20 @@ from core.file_io import read_yaml
 _DASHBOARD_CACHE: tuple[int, int, dict] | None = None
 
 
-def _normalize_dashboard_path(path_text: str) -> str:
+def _current_dashboard_config() -> tuple[str, str, str]:
+    from core import config_paths as cfg
+
+    return cfg.BASE_DIR, cfg.DASHBOARD_PATH, cfg.PROJECT_ID
+
+
+def _normalize_dashboard_path(path_text: str, base_dir: str) -> str:
     p = str(path_text or "").strip()
     if not p:
         return p
     if not os.path.isabs(p):
         return p.replace("\\", "/")
     try:
-        rel = os.path.relpath(os.path.abspath(p), BASE_DIR)
+        rel = os.path.relpath(os.path.abspath(p), base_dir)
         if not rel.startswith(".."):
             return rel.replace("\\", "/")
     except Exception:
@@ -33,23 +38,23 @@ def _normalize_dashboard_path(path_text: str) -> str:
     return p.replace("\\", "/")
 
 
-def _normalize_dashboard_entry(value):
+def _normalize_dashboard_entry(value, base_dir: str):
     if isinstance(value, dict):
         normalized = {}
         for key, item in value.items():
             if isinstance(key, str) and key.endswith("_path") and isinstance(item, str):
-                normalized[key] = _normalize_dashboard_path(item)
+                normalized[key] = _normalize_dashboard_path(item, base_dir)
             else:
-                normalized[key] = _normalize_dashboard_entry(item)
+                normalized[key] = _normalize_dashboard_entry(item, base_dir)
         return normalized
     if isinstance(value, list):
-        return [_normalize_dashboard_entry(item) for item in value]
+        return [_normalize_dashboard_entry(item, base_dir) for item in value]
     return value
 
 
 def append_dashboard_run(entry: dict):
     global _DASHBOARD_CACHE
-    path = DASHBOARD_PATH
+    base_dir, path, project_id = _current_dashboard_config()
     try:
         st = os.stat(path)
         stat_sig = (int(st.st_mtime_ns), int(st.st_size))
@@ -65,19 +70,20 @@ def append_dashboard_run(entry: dict):
                 with open(path, "r", encoding="utf-8") as f:
                     data = json.load(f)
             except Exception:
-                data = {"project_id": PROJECT_ID, "runs": []}
+                data = {"project_id": project_id, "runs": []}
     else:
         try:
             with open(path, "r", encoding="utf-8") as f:
                 data = json.load(f)
         except Exception:
-            data = {"project_id": PROJECT_ID, "runs": []}
+            data = {"project_id": project_id, "runs": []}
 
-    data.setdefault("project_id", PROJECT_ID)
+    data.setdefault("project_id", project_id)
     data.setdefault("runs", [])
-    data["runs"] = [_normalize_dashboard_entry(copy.deepcopy(item)) for item in data["runs"]]
-    data["runs"].append(_normalize_dashboard_entry(copy.deepcopy(entry)))
+    data["runs"] = [_normalize_dashboard_entry(copy.deepcopy(item), base_dir) for item in data["runs"]]
+    data["runs"].append(_normalize_dashboard_entry(copy.deepcopy(entry), base_dir))
     data["runs"] = data["runs"][-300:]
+    os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
     try:

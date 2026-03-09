@@ -12,7 +12,7 @@ import json
 import yaml
 
 from core.config_paths import (
-    POLICIES_PATH, PROJECT_ID, CONTEXT_SCHEMA_PATH,
+    POLICIES_PATH, PROJECT_ID, PROJECT_ROOT, CONTEXT_SCHEMA_PATH,
     SKILL_LOCK_PATH, DASHBOARD_PATH, PROJECT_WORKFLOW_PATH,
     PROJECT_SETTINGS_PATH,
 )
@@ -57,8 +57,14 @@ def ensure_project_files():
 
     if not os.path.exists(DASHBOARD_PATH):
         os.makedirs(os.path.dirname(DASHBOARD_PATH), exist_ok=True)
+        legacy_dashboard_path = os.path.join(PROJECT_ROOT, "dashboard.json")
+        if os.path.exists(legacy_dashboard_path):
+            with open(legacy_dashboard_path, "r", encoding="utf-8") as src:
+                payload = json.load(src)
+        else:
+            payload = {"project_id": PROJECT_ID, "runs": []}
         with open(DASHBOARD_PATH, "w", encoding="utf-8") as f:
-            json.dump({"project_id": PROJECT_ID, "runs": []}, f, ensure_ascii=False, indent=2)
+            json.dump(payload, f, ensure_ascii=False, indent=2)
 
     if not os.path.exists(PROJECT_WORKFLOW_PATH):
         os.makedirs(os.path.dirname(PROJECT_WORKFLOW_PATH), exist_ok=True)

@@ -1,8 +1,0 @@
-required_keys:
-- agent
-- data_dir
-- artifacts_dir
-types:
-  agent: dict
-  artifacts_dir: str
-  data_dir: str

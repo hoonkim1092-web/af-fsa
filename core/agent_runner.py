@@ -22,7 +22,10 @@ from core.utils import _safe_write_json
 from core.registry import ToolRegistry
 from core.tool_runtime import ToolRuntimeWrapper
 from core.policy_runtime import PolicyRuntime
-from core.hooks.event_bus import HookEventBus, IntentGateHook, TodoContinuationEnforcer, ToolOutputTruncator
+from core.hooks.event_bus import HookEventBus
+from core.hooks.guardrails import IntentGateHook, TodoContinuationEnforcer, ToolOutputTruncator
+from core.providers.cli import CliChatRequest, execute_cli_chat
+from core.providers.registry import default_chat_model_for_provider, get_requested_cli_providers
 from model_utils import (
     get_best_model,
     print_agent_model_summary,
@@ -59,6 +62,10 @@ class ModelRouter:
                 return forced
 
             # [우선순위 2] simple 작업 → 비용 최적화(Flash/Lightweight 계열)
+            cli_providers = get_requested_cli_providers(os.getenv("AGENT_CHAT_PROVIDER"))
+            if cli_providers:
+                return default_chat_model_for_provider(cli_providers[0])
+
             if not is_complex:
                 sel = resolve_dynamic_model("lightweight")
                 return sel.model
@@ -511,6 +518,28 @@ class AgentRunner:
                 return False
         return False
 
+    def _run_with_cli_provider(
+        self,
+        provider_id: str,
+        model_name: str,
+        sys_prompt: str,
+        task_input: str,
+        workspace: str,
+        run_id: str,
+        auto_approve: bool = False,
+    ) -> dict:
+        return execute_cli_chat(
+            CliChatRequest(
+                provider_id=provider_id,
+                model=model_name,
+                system_prompt=sys_prompt,
+                task_input=task_input,
+                workspace=workspace,
+                run_id=run_id,
+                auto_approve=auto_approve,
+            )
+        )
+
     def load_skills(self, agent: dict) -> list:
         # Legacy support + Caching
         if not hasattr(self, '_skill_module_cache'):
@@ -735,6 +764,60 @@ class AgentRunner:
             print(f"💬 [Agent] {greeting}")
             sys_prompt += f"\n\n[Signature]\n{greeting}"
 
+        cli_providers = get_requested_cli_providers(os.getenv("AGENT_CHAT_PROVIDER"))
+        cli_failures = []
+        if cli_providers:
+            for provider_id in cli_providers:
+                cli_result = self._run_with_cli_provider(
+                    provider_id,
+                    model_name,
+                    sys_prompt,
+                    task_input,
+                    target_workspace,
+                    run_id=run_id,
+                    auto_approve=auto_approve,
+                )
+                if cli_result.get("ok"):
+                    cli_text = str(cli_result.get("text", "") or "").strip()
+                    if cli_text:
+                        print(f"?ì¨¼ {cli_text}")
+                    result = {
+                        "ok": True,
+                        "reason": provider_id,
+                        "latency_ms": int((time.time() - started) * 1000),
+                        "approval_rejects": approval_rejects,
+                    }
+                    _append_trace(
+                        "assistant",
+                        {
+                            "channel": provider_id,
+                            "text": cli_text,
+                            "command": cli_result.get("command", []),
+                        },
+                    )
+                    _flush_trace(result)
+                    return result
+
+                cli_failures.append(cli_result)
+                _append_trace(
+                    "error",
+                    {
+                        "stage": provider_id,
+                        "message": str(cli_result.get("reason") or cli_result.get("stderr") or "cli_provider_failed"),
+                    },
+                )
+
+            if cli_failures and not GOOGLE_API_KEY and not OPENAI_API_KEY:
+                last_failure = cli_failures[-1]
+                result = {
+                    "ok": False,
+                    "reason": str(last_failure.get("reason") or "cli_provider_failed"),
+                    "latency_ms": int((time.time() - started) * 1000),
+                    "approval_rejects": approval_rejects,
+                }
+                _flush_trace(result)
+                return result
+
         if self._agent_prefers_codex(agent, model_name):
             codex_ok = self._run_with_codex(model_name, sys_prompt, task_input, tool_functions)
             if codex_ok:
@@ -831,12 +914,28 @@ class AgentRunner:
                                         _append_trace("tool_reject", {"name": str(fname), "skill_id": str(skill_id)})
                                         response = safe_send("해당 도구는 승인되지 않았습니다. 다른 방법으로 진행하세요.")
                                         continue
+                                tool_decision = bus.run_pre_tool_call(agent_state, fname, fargs)
+                                if not tool_decision.allowed:
+                                    approval_rejects += 1
+                                    _append_trace(
+                                        "tool_reject",
+                                        {
+                                            "name": str(fname),
+                                            "skill_id": str(skill_id),
+                                            "reason": str(tool_decision.reason or "blocked_by_hook"),
+                                        },
+                                    )
+                                    response = safe_send(
+                                        f"Tool call blocked by runtime hook: {tool_decision.reason or 'blocked_by_hook'}"
+                                    )
+                                    continue
+
                                 # Execute
-                                res_obj = tool_func(**fargs)
-                                
+                                res_obj = tool_func(**dict(tool_decision.tool_args or fargs))
+                                res_obj = bus.run_post_tool_call(agent_state, fname, res_obj)
+
                                 # Fire POST hooks (e.g. ToolOutputTruncator)
-                                if isinstance(res_obj, dict):
-                                    res_obj = bus.run_post_execute(agent_state, res_obj)
+                                res_obj = bus.run_post_execute(agent_state, res_obj)
                                 
                                 print(f"  -> Result: {str(res_obj)[:100]}...", flush=True)
                                 _append_trace("tool_result", {"name": str(fname), "result": str(res_obj)[:800]})
