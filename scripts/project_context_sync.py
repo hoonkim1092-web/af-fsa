@@ -14,7 +14,7 @@ from pathlib import Path
 DEFAULT_EXCLUDE_GLOBS = (
     "docs/task.md",
 )
-REPO_ROOT_ALIASES = ("@repo", "@root", ".", "./", ".\\")
+REPO_ROOT_ALIASES = ("@repo", "@root", "repo", "root", ".", "./", ".\\")
 
 
 def load_dotenv_simple(root: Path) -> None:

@@ -62,6 +62,16 @@ def test_resolve_project_root_supports_explicit_repo_alias(tmp_path: Path):
     assert resolved == repo_root
 
 
+def test_resolve_project_root_supports_powershell_safe_repo_alias(tmp_path: Path):
+    repo_root = tmp_path / "agent-factory"
+    (repo_root / "projects" / "agent_factory").mkdir(parents=True, exist_ok=True)
+
+    sync_id, resolved = resolve_project_root(repo_root, "repo")
+
+    assert sync_id == "agent_factory"
+    assert resolved == repo_root
+
+
 def test_resolve_project_root_normalizes_project_path_to_collision_safe_sync_id(tmp_path: Path):
     repo_root = tmp_path / "agent-factory"
     local_project = repo_root / "projects" / "agent_factory"
