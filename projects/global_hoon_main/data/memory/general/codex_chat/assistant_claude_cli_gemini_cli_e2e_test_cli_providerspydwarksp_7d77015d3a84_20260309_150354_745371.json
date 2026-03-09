@@ -1,0 +1,18 @@
+{
+  "key": "assistant 맞습니다 실제 Claude CLI와 Gemini CLI E2E는 아직 못 돌린 상태였습니다 이번에 확인한 결과는 이렇습니다자동 검증은 통과했습니다- test_cli_providerspyDwarkSp",
+  "value": "[assistant] 맞습니다. 실제 `Claude CLI`와 `Gemini CLI` E2E는 아직 못 돌린 상태였습니다. 이번에 확인한 결과는 이렇습니다.  자동 검증은 통과했습니다. - [test_cli_providers.py](D:/warkSpaces/agent-factory/tests/test_cli_providers.py) - [test_cli_session_adapter.py](D:/warkSpaces/agent-factory/tests/test...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T15:03:54.745536+00:00",
+  "updated_at": "2026-03-09T15:03:54.745536+00:00",
+  "details": {
+    "text": "[assistant] 맞습니다. 실제 `Claude CLI`와 `Gemini CLI` E2E는 아직 못 돌린 상태였습니다. 이번에 확인한 결과는 이렇습니다.\n\n자동 검증은 통과했습니다.\n- [test_cli_providers.py](D:/warkSpaces/agent-factory/tests/test_cli_providers.py)\n- [test_cli_session_adapter.py](D:/warkSpaces/agent-factory/tests/test_cli_session_adapter.py)\n- [test_resume_brief_session_adapter.py](D:/warkSpaces/agent-factory/tests/test_resume_brief_session_adapter.py)\n- [test_resume_brief.py](D:/warkSpaces/agent-factory/tests/test_resume_brief.py)\n\n실행 결과:\n- `14 passed, 1 warning`\n\n하지만 실제 CLI 스모크는 못 했습니다.\n- `claude` 명령: 설치/경로 미확인 (`Get-Command claude` 실패)\n- `gemini` 명령: 설치/경로 미확인 (`Get-Command gemini` 실패)\n- 전역 npm 설치 확인 결과도 `@openai/codex`만 있고 Claude/Gemini CLI는 없었습니다.\n\n즉 현재 상태는:\n- 코드 레벨 provider/session adapter 검증은 됨\n- 실제 외부 `claude` / `gemini` 바이너리를 호출하는 E2E 검증은 아직 안 됨\n\n참고로 테스트/세션 동기화로 작업복사본에는 메모리 아티팩트가 생겼습니다. 기존 `_.7z` 삭제 상태 외에 `projects/global_hoon_main/...` 아래 파일들이 추가/수정됐습니다.\n\n원하면 다음 둘 중 하나로 바로 이어가겠습니다.\n- Claude/Gemini CLI를 이 머신에 설치 또는 경로 연결\n- 설치된 경로를 `AGENT_CLAUDE_CLI_COMMAND`, `AGENT_GEMINI_CLI_COMMAND`로 지정한 뒤 실제 `run_factory_cli.py` 스모크 실행",
+    "event_timestamp": "2026-03-09T14:51:13.397Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 253,
+    "provider": "codex"
+  }
+}

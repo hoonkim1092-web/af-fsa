@@ -1,0 +1,18 @@
+{
+  "key": "assistant gh는 설치돼 있고 다른 CLI는 별도로 확인이 필요합니다 프로필 로딩 오류를 피해서 인증 상태 명령을 직접 확인하겠습니다",
+  "value": "[assistant] `gh`는 설치돼 있고, 다른 CLI는 별도로 확인이 필요합니다. 프로필 로딩 오류를 피해서 인증 상태 명령을 직접 확인하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T14:39:12.894093+00:00",
+  "updated_at": "2026-03-09T14:39:12.894093+00:00",
+  "details": {
+    "text": "[assistant] `gh`는 설치돼 있고, 다른 CLI는 별도로 확인이 필요합니다. 프로필 로딩 오류를 피해서 인증 상태 명령을 직접 확인하겠습니다.",
+    "event_timestamp": "2026-03-09T13:54:32.313Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T22-53-58-019cd2e0-4483-7943-8fd7-1e4deab29ea9.jsonl",
+    "session_line": 20,
+    "provider": "codex"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "key": "assistant OPENAI_OK",
+  "value": "[assistant] OPENAI_OK",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T14:39:12.891390+00:00",
+  "updated_at": "2026-03-09T14:39:12.891390+00:00",
+  "details": {
+    "text": "[assistant] OPENAI_OK",
+    "event_timestamp": "2026-03-07T17:40:10.138Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/08/rollout-2026-03-08T02-40-07-019cc962-96ef-7480-acd3-5da859fe749f.jsonl",
+    "session_line": 9,
+    "provider": "codex"
+  }
+}

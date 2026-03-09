@@ -20,16 +20,12 @@ env/
 # --- Runtime/Test Artifacts ---
 projects/default/runs/
 projects/agent_factory/runs/
-projects/*/dashboard.json
+projects/gemini_e2e/
 test_output/
 dynamic_log.txt
 project_board_state.json
 pytest_out*.txt
 tests/_tmp_probe/
-tests/_tmp/
-tests/test_out.md
-.af_runtime/
-resume_brief.md
 tmp*/
 .tmp_validation*/
 

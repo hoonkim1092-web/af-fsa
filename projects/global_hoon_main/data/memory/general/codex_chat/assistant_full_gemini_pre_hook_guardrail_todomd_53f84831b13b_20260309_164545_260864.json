@@ -1,0 +1,18 @@
+{
+  "key": "assistant full 경로 실패 원인은 Gemini가 아니라 pre-hook guardrail이었습니다 이 러너는 문자열 길이상 복잡 작업으로 판단되면 todomd나 보드가 있어야 통과합니다 그 조건을 맞춰서 ",
+  "value": "[assistant] full 경로 실패 원인은 Gemini가 아니라 pre-hook guardrail이었습니다. 이 러너는 문자열 길이상 복잡 작업으로 판단되면 `.todo.md`나 보드가 있어야 통과합니다. 그 조건을 맞춰서 다시 태우겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T16:45:45.260959+00:00",
+  "updated_at": "2026-03-09T16:45:45.260959+00:00",
+  "details": {
+    "text": "[assistant] full 경로 실패 원인은 Gemini가 아니라 pre-hook guardrail이었습니다. 이 러너는 문자열 길이상 복잡 작업으로 판단되면 `.todo.md`나 보드가 있어야 통과합니다. 그 조건을 맞춰서 다시 태우겠습니다.",
+    "event_timestamp": "2026-03-09T16:33:16.658Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 1444,
+    "provider": "codex"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "key": "assistant teststest_managerpy는 이번 CLI bootstrapAPI key 무시 동작을 검증하는 테스트로 보입니다 원본 worktree 쪽에도 같은 파일이 있는지 확인해서 맞으면 후속 커밋으로",
+  "value": "[assistant] `tests/test_manager.py`는 이번 CLI bootstrap/API key 무시 동작을 검증하는 테스트로 보입니다. 원본 worktree 쪽에도 같은 파일이 있는지 확인해서, 맞으면 후속 커밋으로 추가하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T16:56:09.370030+00:00",
+  "updated_at": "2026-03-09T16:56:09.370030+00:00",
+  "details": {
+    "text": "[assistant] `tests/test_manager.py`는 이번 CLI bootstrap/API key 무시 동작을 검증하는 테스트로 보입니다. 원본 worktree 쪽에도 같은 파일이 있는지 확인해서, 맞으면 후속 커밋으로 추가하겠습니다.",
+    "event_timestamp": "2026-03-09T16:50:35.793Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 1809,
+    "provider": "codex"
+  }
+}

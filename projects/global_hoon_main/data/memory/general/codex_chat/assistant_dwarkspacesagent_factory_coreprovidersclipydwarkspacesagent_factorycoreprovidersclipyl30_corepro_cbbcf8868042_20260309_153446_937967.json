@@ -1,0 +1,18 @@
+{
+  "key": "assistant DwarkSpacesagent-factory에 반영했습니다핵심 변경은 coreprovidersclipyDwarkSpacesagent-factorycoreprovidersclipyL30 corepro",
+  "value": "[assistant] `D:\\warkSpaces\\agent-factory`에 반영했습니다.  핵심 변경은 [core/providers/cli.py](D:/warkSpaces/agent-factory/core/providers/cli.py#L30), [core/providers/cli.py](D:/warkSpaces/agent-factory/core/providers/cli.py#L147), [core/providers/cli.py](D:/warkSpaces...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T15:34:46.938547+00:00",
+  "updated_at": "2026-03-09T15:34:46.938547+00:00",
+  "details": {
+    "text": "[assistant] `D:\\warkSpaces\\agent-factory`에 반영했습니다.\n\n핵심 변경은 [core/providers/cli.py](D:/warkSpaces/agent-factory/core/providers/cli.py#L30), [core/providers/cli.py](D:/warkSpaces/agent-factory/core/providers/cli.py#L147), [core/providers/cli.py](D:/warkSpaces/agent-factory/core/providers/cli.py#L260)입니다. `claude`/`gemini`/`codex` 실행 파일이 없으면, `AGENT_AUTO_INSTALL_CLI`가 켜져 있을 때 해당 provider만 `npm install -g ...`로 자동 설치한 뒤 같은 요청을 즉시 한 번 더 재시도합니다. 설치 명령은 `AGENT_CLAUDE_CLI_INSTALL_COMMAND`, `AGENT_GEMINI_CLI_INSTALL_COMMAND`, `AGENT_CODEX_CLI_INSTALL_COMMAND`로 override 가능합니다.\n\n사용자 진입점에서는 [run_factory_cli.py](D:/warkSpaces/agent-factory/run_factory_cli.py#L59)에서 자동 설치를 기본 활성화했고, 끄고 싶으면 `--no-cli-auto-install`을 쓰면 됩니다. 회귀 테스트도 [tests/test_cli_providers.py](D:/warkSpaces/agent-factory/tests/test_cli_providers.py#L166), [tests/test_cli_providers.py](D:/warkSpaces/agent-factory/tests/test_cli_providers.py#L208)에 추가했습니다.\n\n검증은 `python -m pytest -q tests\\test_cli_providers.py tests\\test_cli_session_adapter.py tests\\test_resume_brief_session_adapter.py tests\\test_resume_brief.py`로 했고 `16 passed, 1 warning`입니다. 다만 실제 npm 설치/로그인까지는 이 턴에서 라이브로 실행하지 않았으니, 다음 실제 실행에서 네트워크와 provider 인증 상태는 별도로 봐야 합니다.\n\n기본 설치 패키지 선택은 공식 소스를 기준으로 잡았습니다.\n- Claude Code: https://docs.anthropic.com/en/docs/claude-code/setup\n- Gemini CLI: https://github.com/google-gemini/gemini-cli\n\n참고로 워크트리에는 원래 있던 `_.7z` 삭제 상태와 메모리 아티팩트 파일들이 그대로 남아 있습니다.",
+    "event_timestamp": "2026-03-09T15:04:32.914Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 445,
+    "provider": "codex"
+  }
+}
