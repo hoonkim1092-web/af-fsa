@@ -1,11 +1,18 @@
 ﻿import argparse
 import os
+import sys
 from datetime import datetime
 
 import yaml
 
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+if ROOT not in sys.path:
+    sys.path.insert(0, ROOT)
+
+from core.install_candidate_utils import normalize_install_candidate_collection
+
+
 SKILLS_DIR = os.path.join(ROOT, "skills")
 REGISTRY_PATH = os.path.join(SKILLS_DIR, "registry.yaml")
 
@@ -114,14 +121,8 @@ def discover_forge_skills(existing: dict) -> dict:
 
 
 def normalize_install_candidates(raw: dict) -> dict:
-    if not isinstance(raw, dict):
-        return {}
     out = {}
-    for k, v in raw.items():
-        sid = safe_id(str(k))
-        if not sid or not isinstance(v, dict):
-            continue
-        item = dict(v)
+    for sid, item in normalize_install_candidate_collection(raw).items():
         path = str(item.get("path") or "").strip().replace("\\", "/")
         if path:
             if os.path.isabs(path):

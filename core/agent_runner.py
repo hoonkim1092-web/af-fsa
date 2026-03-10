@@ -54,8 +54,6 @@ from model_utils import (
     generate_content_with_self_heal,
     create_chat_with_self_heal,
 )
-from google import genai
-from google.genai import types as genai_types
 
 def _safe_print(*args, **kwargs):
     enc = getattr(sys.stdout, "encoding", None) or "utf-8"
@@ -467,6 +465,7 @@ class AgentRunner:
             try:
                 if not GOOGLE_API_KEY:
                     raise RuntimeError("google_api_key_disabled_or_missing")
+                from google import genai
                 client = genai.Client(api_key=GOOGLE_API_KEY)
                 prompt = (
                     f"에이전트 역할: {role_summary or agent_name}\n"
@@ -609,6 +608,8 @@ class AgentRunner:
         gemini_model = normalize_model_name(model_name if not (is_codex_model(model_name) or is_claude_model(model_name)) else get_best_model(["gemini-2.5-flash", "gemini-2.5-pro"]))
         try:
             # [신규 SDK] genai.Client 기반 채팅 세션 생성
+            from google import genai
+            from google.genai import types as genai_types
             gemini_client = genai.Client(api_key=GOOGLE_API_KEY)
             chat = create_chat_with_self_heal(
                 gemini_client,

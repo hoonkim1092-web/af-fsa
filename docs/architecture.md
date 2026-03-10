@@ -7,6 +7,8 @@
 - Last updated: 2026-03-10
 - Status: active
 - Scope: `agent_launcher.py`, `core/project_init.py`, `core/project_pipeline.py`, `core/agent_runner.py`, `core/providers/*`, `core/hooks/*`, `scripts/cli_hook_bridge.py`, `scripts/session_bridge.py`
+- Note: `core/builder.py` now prefers configured CLI providers for skill code generation and falls back to Gemini SDK only when CLI is unavailable and a Google API key exists.
+- Note: external skill procurement now supports source-priority resolution (`claude_repo -> codex_repo -> registry/external_cache`) before builder fallback, and importer support exists via `scripts/import_external_skill_candidates.py`.
 
 ## 문서 언어 규칙
 - 이 저장소에서 생성하거나 수정하는 모든 문서는 운영체제 언어 코드에 맞는 언어로 작성한다.

@@ -4,7 +4,21 @@
 
 ## Top-Level Keys
 - `skills`: map keyed by `skill_id`
-- `install_candidates`: map keyed by candidate id
+- `install_candidates`: map keyed by candidate id
+
+## Install Candidate Entry
+
+```yaml
+install_candidates:
+  claude_repo_issue_tracker:
+    id: issue_tracker
+    name: issue_tracker
+    path: skills/_external_cache/claude/repo_a/skills/issue_tracker/skill.py
+    source_id: claude_repo
+    source_repo: repo_a
+    source_url: https://example.com/repo_a.git
+    capabilities: [issue_tracker]
+```
 
 ## Skill Entry
 ```yaml

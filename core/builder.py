@@ -1,15 +1,136 @@
-import os
 import json
-from google import genai
-from model_utils import normalize_model_name, generate_content_with_self_heal
-from core.providers.registry import get_engine_api_key
-from core.utils import safe_id, now_iso, write_text, write_yaml, strip_code_fences, sha256_text, quick_guard, run_isolated
-from core.config_paths import SKILLS_DIR, RUNS_DIR
+import os
+from core.config_paths import RUNS_DIR, SKILLS_DIR
+from core.providers.cli import CliChatRequest, execute_cli_chat
+from core.providers.registry import (
+    default_chat_model_for_provider,
+    get_engine_api_key,
+    get_requested_cli_providers,
+)
+from core.utils import (
+    now_iso,
+    quick_guard,
+    run_isolated,
+    safe_id,
+    sha256_text,
+    strip_code_fences,
+    write_text,
+    write_yaml,
+)
+
 
 class SandboxedBuilder:
     """Builds agent skills in a sandboxed environment."""
+
     def __init__(self, mr):
         self.mr = mr
+
+    def _build_prompt(self, agent: dict, skill_name: str, reqs: dict, target_evidence: dict) -> str:
+        return (
+            "You are generating a reusable Python skill module.\n"
+            f'Skill: "{skill_name}"\n'
+            f'AgentRole: {agent.get("role")}\n'
+            f'Goal: {reqs.get("goal")}\n'
+            f'Constraints: {reqs.get("constraints")}\n'
+            f"Evidence(JSON): {json.dumps(target_evidence, ensure_ascii=False)}\n\n"
+            "Requirements:\n"
+            "- Implement exactly three functions: propose(ctx)->dict, apply(ctx)->dict, test(ctx)->dict.\n"
+            "- test(ctx) must return a dict containing ok.\n"
+            '- Read inputs only from ctx["data_dir"] when needed.\n'
+            '- Write outputs only under ctx["artifacts_dir"] when needed.\n'
+            "- Return plain Python code only.\n\n"
+            "Forbidden:\n"
+            "- os, sys, subprocess, shutil, importlib, pathlib, glob, ctypes\n"
+            "- eval, exec, __import__, compile, input\n"
+        )
+
+    def _builder_cli_providers(self) -> list[str]:
+        raw = str(os.getenv("AGENT_BUILDER_PROVIDER", "") or "").strip()
+        if raw:
+            return get_requested_cli_providers(raw)
+        return get_requested_cli_providers(os.getenv("AGENT_CHAT_PROVIDER"))
+
+    def _builder_cli_model(self, provider_id: str) -> str:
+        override = str(os.getenv("AGENT_BUILDER_MODEL", "") or "").strip()
+        if override:
+            return override
+        return default_chat_model_for_provider(provider_id)
+
+    def _generate_code_via_cli(
+        self,
+        *,
+        provider_id: str,
+        prompt: str,
+        workspace: str,
+        run_id: str,
+    ) -> dict:
+        request = CliChatRequest(
+            provider_id=provider_id,
+            model=self._builder_cli_model(provider_id),
+            system_prompt=(
+                "You generate Python skill modules. "
+                "Return only raw Python code. "
+                "Do not use markdown fences. "
+                "Do not add explanations. "
+                "Do not use tools and do not edit files."
+            ),
+            task_input=prompt,
+            workspace=workspace,
+            run_id=run_id,
+            timeout_sec=int(os.getenv("AGENT_BUILDER_CLI_TIMEOUT_SEC", "600") or "600"),
+            auto_approve=False,
+        )
+        return execute_cli_chat(request)
+
+    def _generate_code(
+        self,
+        *,
+        prompt: str,
+        workspace: str,
+        run_id: str,
+    ) -> tuple[str, dict]:
+        cli_failures: list[dict] = []
+        for provider_id in self._builder_cli_providers():
+            result = self._generate_code_via_cli(
+                provider_id=provider_id,
+                prompt=prompt,
+                workspace=workspace,
+                run_id=f"{run_id}_{safe_id(provider_id)}",
+            )
+            if result.get("ok"):
+                return str(result.get("text", "") or ""), {
+                    "backend": provider_id,
+                    "reason": str(result.get("reason") or provider_id),
+                    "detail": "",
+                }
+            cli_failures.append(result)
+
+        api_key = get_engine_api_key("google")
+        if not api_key:
+            if cli_failures:
+                last = cli_failures[-1]
+                return "", {
+                    "backend": "cli",
+                    "reason": str(last.get("reason") or "builder_cli_failed"),
+                    "detail": str(last.get("stderr") or last.get("stdout") or "")[:300],
+                }
+            return "", {
+                "backend": "sdk",
+                "reason": "no_api_key",
+                "detail": "",
+            }
+
+        from model_utils import generate_content_with_self_heal, normalize_model_name
+        from google import genai
+
+        client = genai.Client(api_key=api_key)
+        model_name = normalize_model_name(self.mr.pick("builder"))
+        response = generate_content_with_self_heal(client, model_name, prompt)
+        return str(response.text if response else ""), {
+            "backend": "sdk",
+            "reason": "sdk",
+            "detail": "",
+        }
 
     def build_skill(
         self,
@@ -19,12 +140,10 @@ class SandboxedBuilder:
         run_id: str,
         evidence_pack: dict,
     ) -> tuple[bool, str | None, dict]:
-        # [Constitution: Planning-First] 승인된 evidence_pack 없이 코드 생성 금지
         if not evidence_pack or not isinstance(evidence_pack, dict):
             print(f"[Planning-First Gate] BLOCKED: evidence_pack empty -- skill '{skill_name}' rejected")
             return False, None, {"id": skill_name, "status": "blocked", "reason": "planning_first_violated"}
 
-        # Constants from core.utils
         from core.utils import MAX_ITERATIONS, TEST_TIMEOUT_SEC
 
         skill_id = safe_id(skill_name)
@@ -53,97 +172,73 @@ class SandboxedBuilder:
             write_yaml(meta_path, fail_meta)
             return False, None, fail_meta
 
-        # [New SDK] Client 기반 스킬 빌더 (Triad: builder 단계 = Claude/GPT)
-        _api_key = get_engine_api_key("google")
-        if not _api_key:
-            print(f"[Builder] WARN: GOOGLE_API_KEY missing -- cannot build '{skill_name}'")
-            fail_meta = {
-                "id": skill_id, "name": skill_name, "status": "disabled",
-                "version": "0.1.0", "capabilities": [skill_name],
-                "created_at": now_iso(), "updated_at": now_iso(),
-                "last_test_ok": False,
-                "last_test_detail": {"ok": False, "reason": "no_api_key"},
-            }
-            write_yaml(meta_path, fail_meta)
-            return False, None, fail_meta
-
-        _client = genai.Client(api_key=_api_key)
-        _model_name = normalize_model_name(self.mr.pick("builder"))
-        base_prompt = f"""
-당신은 파이썬 스킬 모듈을 작성한다.
-Skill: "{skill_name}"
-AgentRole: {agent.get("role")}
-Goal: {reqs.get("goal")}
-Constraints: {reqs.get("constraints")}
-Evidence(JSON): {json.dumps(target_evidence, ensure_ascii=False)}
-
-필수:
-- 함수 3개: propose(ctx)->dict, apply(ctx)->dict, test(ctx)->dict(반드시 ok 키 포함)
-- 데이터 입력: ctx["data_dir"] 아래 파일을 읽는다.
-- 산출물 저장: ctx["artifacts_dir"] 아래로 저장해야 하지만, 가능하면 dict로 반환.
-금지:
-- os/sys/subprocess/shutil/importlib/pathlib/glob/ctypes 등 사용 금지
-- eval/exec/__import__/compile/input 금지
-출력:
-- 마크다운 없이 파이썬 코드만
-"""
-
+        base_prompt = self._build_prompt(agent, skill_name, reqs, target_evidence)
         last = {"ok": False, "reason": "not_started"}
-        feedback_history = []  # [BUG-2 FIX] 실패 피드백 누적
+        feedback_history: list[str] = []
 
         for i in range(MAX_ITERATIONS):
-            # [BUG-2 FIX] 이전 실패 사유를 프롬프트에 추가하여 LLM 자가 교정 유도
             if feedback_history:
-                feedback_section = "\n\n[이전 시도 실패 이력 — 반드시 아래 오류를 회피하세요]\n"
-                for idx, fb in enumerate(feedback_history, 1):
-                    feedback_section += f"시도 {idx}: {fb}\n"
-                current_prompt = base_prompt + feedback_section
+                feedback_lines = ["", "Previous failures to avoid:"]
+                for idx, item in enumerate(feedback_history, 1):
+                    feedback_lines.append(f"{idx}. {item}")
+                current_prompt = base_prompt + "\n".join(feedback_lines) + "\n"
             else:
                 current_prompt = base_prompt
 
-            print(f"[Builder] Building skill '{skill_id}' attempt {i+1}/{MAX_ITERATIONS}...")
+            print(f"[Builder] Building skill '{skill_id}' attempt {i + 1}/{MAX_ITERATIONS}...")
             try:
-                res = generate_content_with_self_heal(_client, _model_name, current_prompt)
-            except Exception as e:
-                print(f"[Builder] WARN: LLM call failed: {e}")
-                last = {"ok": False, "reason": f"llm_error:{type(e).__name__}", "detail": str(e)[:300]}
-                feedback_history.append(f"LLM 호출 오류: {type(e).__name__}")
+                code_text, generation_meta = self._generate_code(
+                    prompt=current_prompt,
+                    workspace=run_dir,
+                    run_id=f"{run_id}_{skill_id}_build_{i + 1}",
+                )
+            except Exception as exc:
+                print(f"[Builder] WARN: LLM call failed: {exc}")
+                last = {"ok": False, "reason": f"llm_error:{type(exc).__name__}", "detail": str(exc)[:300]}
+                feedback_history.append(f"LLM call error: {type(exc).__name__}")
                 continue
 
-            code = strip_code_fences(res.text if res else "")
+            if not code_text.strip():
+                reason = str(generation_meta.get("reason") or "builder_codegen_failed")
+                detail = str(generation_meta.get("detail") or "")[:300]
+                print(f"[Builder] WARN: code generation failed via {generation_meta.get('backend')}: {reason}")
+                last = {"ok": False, "reason": reason, "detail": detail}
+                feedback_history.append(f"Code generation failed: {reason}")
+                continue
 
-            ok, vios = quick_guard(code)
+            code = strip_code_fences(code_text)
+            ok, violations = quick_guard(code)
             if not ok:
-                last = {"ok": False, "reason": "guard_block", "violations": vios}
-                feedback_history.append(f"보안 가드 차단 — 금지 패턴 감지: {', '.join(vios[:3])}")
+                last = {"ok": False, "reason": "guard_block", "violations": violations}
+                feedback_history.append(
+                    f"Guard blocked code due to forbidden patterns: {', '.join(violations[:3])}"
+                )
                 continue
 
             write_text(code_path, code)
+            test_ok, test_json, test_err = run_isolated(code_path, timeout_sec=TEST_TIMEOUT_SEC)
+            last = {"test_ok": test_ok, "test_json": test_json, "stderr": (test_err or "")[:500]}
 
-            t_ok, t_json, t_err = run_isolated(code_path, timeout_sec=TEST_TIMEOUT_SEC)
-            last = {"test_ok": t_ok, "test_json": t_json, "stderr": (t_err or "")[:500]}
+            if not test_ok:
+                feedback_history.append(f"Isolated test failed: {(test_err or 'unknown error')[:200]}")
+                continue
 
-            if not t_ok:
-                err_summary = (t_err or "unknown error")[:200]
-                feedback_history.append(f"테스트 실패 — stderr: {err_summary}")
-
-            if t_ok:
-                meta = {
-                    "id": skill_id,
-                    "name": skill_name,
-                    "status": "active",
-                    "version": "0.1.0",
-                    "capabilities": [skill_name],
-                    "created_at": now_iso(),
-                    "updated_at": now_iso(),
-                    "code_hash": sha256_text(code),
-                    "last_test_ok": True,
-                    "last_test_detail": t_json,
-                }
-                write_yaml(meta_path, meta)
-                write_text(os.path.join(run_dir, f"{skill_id}_skill.py"), code)
-                write_yaml(os.path.join(run_dir, f"{skill_id}_meta.yaml"), meta)
-                return True, code_path, meta
+            meta = {
+                "id": skill_id,
+                "name": skill_name,
+                "status": "active",
+                "version": "0.1.0",
+                "capabilities": [skill_name],
+                "created_at": now_iso(),
+                "updated_at": now_iso(),
+                "code_hash": sha256_text(code),
+                "last_test_ok": True,
+                "last_test_detail": test_json,
+            }
+            write_yaml(meta_path, meta)
+            write_text(os.path.join(run_dir, f"{skill_id}_skill.py"), code)
+            write_yaml(os.path.join(run_dir, f"{skill_id}_meta.yaml"), meta)
+            return True, code_path, meta
 
         fail_meta = {
             "id": skill_id,

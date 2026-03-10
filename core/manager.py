@@ -1,7 +1,5 @@
 import inspect
 import os
-from google import genai
-from model_utils import normalize_model_name, generate_content_with_self_heal
 from core.engine_auth import get_engine_api_key, supports_cli_bootstrap
 from core.utils import (
     safe_id, read_yaml, write_yaml, now_iso, get_random_signature,
@@ -52,8 +50,14 @@ class AgentManager:
 
         # [New SDK] Client 기반 에이전트 생성 (Triad: agent_create = Gemini Pro)
         _api_key = get_engine_api_key("google")
-        _client = genai.Client(api_key=_api_key) if _api_key else None
-        _model_name = normalize_model_name(self.mr.pick("agent_create"))
+        if _api_key:
+            from google import genai
+            from model_utils import normalize_model_name, generate_content_with_self_heal
+            _client = genai.Client(api_key=_api_key)
+            _model_name = normalize_model_name(self.mr.pick("agent_create"))
+        else:
+            _client = None
+            _model_name = ""
         prompt = f"""
 ROLE_SPEC: "{role_spec}"
 JSON 출력:
@@ -140,8 +144,14 @@ JSON 출력:
         try:
             # [New SDK] Client 기반 요구사항 분석 (Triad: requirement = Gemini Pro)
             _api_key = get_engine_api_key("google")
-            _client = genai.Client(api_key=_api_key) if _api_key else None
-            _model_name = normalize_model_name(self.mr.pick("requirement"))
+            if _api_key:
+                from google import genai
+                from model_utils import normalize_model_name, generate_content_with_self_heal
+                _client = genai.Client(api_key=_api_key)
+                _model_name = normalize_model_name(self.mr.pick("requirement"))
+            else:
+                _client = None
+                _model_name = ""
             res = generate_content_with_self_heal(_client, _model_name, prompt) if _client else None
             data = safe_json_load(res.text if res else "{}")
         except Exception as e:

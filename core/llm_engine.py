@@ -10,7 +10,6 @@ core/llm_engine.py
 import os
 import json
 import time
-from google import genai
 from core.providers.registry import engine_api_keys_disabled, get_engine_api_key
 from model_utils import normalize_model_name, generate_content_with_self_heal
 
@@ -137,7 +136,11 @@ class LLMEngine:
         key = get_current_gemini_key()
         if not key:
             print("[WARNING] No GOOGLE_API_KEY found.")
-        self._client = genai.Client(api_key=key) if key else None
+        if key:
+            from google import genai
+            self._client = genai.Client(api_key=key)
+        else:
+            self._client = None
 
     def _execute_with_retry(self, prompt: str) -> str | None:
         max_retries = (len(_gemini_keys) if _gemini_keys else 1) * 3

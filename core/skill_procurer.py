@@ -18,8 +18,6 @@ import datetime
 import inspect
 import subprocess
 
-from model_utils import get_best_model, resolve_dynamic_model
-from core.llm_engine import LLMEngine
 from core.skill_registry import check_skill_exists, register_skill
 from core.utils import resolve_skill_paths, safe_id
 
@@ -148,6 +146,9 @@ def procure_skill(skill_name, role, skill_type="action"):
 
 def forge_new_skill(skill_name, role, coding_engine=None, skill_type="action"):
     """LLM으로 새 스킬(코드 또는 지식 문서)을 생성(포징)"""
+    from model_utils import get_best_model, resolve_dynamic_model
+    from core.llm_engine import LLMEngine
+
     if coding_engine is None:
         sel = resolve_dynamic_model("codex")
         coding_engine = sel.model if hasattr(sel, "model") else str(sel)
@@ -217,6 +218,176 @@ class SkillOrchestrator:
         self.builder = builder
         self.agent_mgr = agent_mgr
 
+    @staticmethod
+    def _record_external_attempts(need_id: str, evidence_pack: dict, result: dict):
+        if not isinstance(evidence_pack, dict) or not isinstance(result, dict):
+            return
+        targets = evidence_pack.get("targets", {})
+        if not isinstance(targets, dict):
+            return
+        target = targets.get(need_id)
+        if not isinstance(target, dict):
+            return
+        attempts = result.get("attempts", [])
+        if isinstance(attempts, list):
+            target["external_attempts"] = attempts
+        installed_from = str(result.get("installed_from") or "").strip()
+        if installed_from:
+            target["external_installed_from"] = installed_from
+
+    @classmethod
+    def _record_external_skip(cls, need_id: str, evidence_pack: dict, source_id: str, reason: str):
+        cls._record_external_attempts(
+            need_id,
+            evidence_pack,
+            {
+                "need_id": need_id,
+                "installed_skill_id": "",
+                "installed_from": "",
+                "attempts": [
+                    {
+                        "source_id": source_id,
+                        "status": "approval_rejected",
+                        "reason": reason,
+                    }
+                ],
+            },
+        )
+
+    @staticmethod
+    def _extract_external_result(detail: dict, need_id: str) -> tuple[str, dict]:
+        if not isinstance(detail, dict):
+            return "", {}
+        installed = detail.get("installed", {})
+        results = detail.get("results", {})
+        installed_skill_id = ""
+        if isinstance(installed, dict):
+            raw_installed = str(installed.get(need_id) or "").strip()
+            installed_skill_id = safe_id(raw_installed) if raw_installed else ""
+        result = results.get(need_id, {}) if isinstance(results, dict) else {}
+        return installed_skill_id, result if isinstance(result, dict) else {}
+
+    def _try_external_install(self, need_id: str, reqs: dict, evidence_pack: dict) -> tuple[str, dict]:
+        if hasattr(self.registry, "resolve_and_install_external_detailed"):
+            detail = self.registry.resolve_and_install_external_detailed(
+                [need_id],
+                reqs=reqs,
+                evidence_pack=evidence_pack,
+            )
+            installed_skill_id, result = self._extract_external_result(detail, need_id)
+            self._record_external_attempts(need_id, evidence_pack, result)
+            return installed_skill_id, result
+
+        if hasattr(self.registry, "resolve_and_install_external"):
+            installed = self.registry.resolve_and_install_external(
+                [need_id],
+                reqs=reqs,
+                evidence_pack=evidence_pack,
+            )
+            installed_skill_id = ""
+            if isinstance(installed, dict):
+                raw_installed = str(installed.get(need_id) or "").strip()
+                installed_skill_id = safe_id(raw_installed) if raw_installed else ""
+            result = {
+                "need_id": need_id,
+                "installed_skill_id": installed_skill_id,
+                "installed_from": "external" if installed_skill_id else "",
+                "attempts": [] if installed_skill_id else [
+                    {
+                        "source_id": "external",
+                        "status": "miss",
+                        "reason": "not_installed",
+                    }
+                ],
+            }
+            self._record_external_attempts(need_id, evidence_pack, result)
+            return installed_skill_id, result
+
+        return "", {}
+
+    @staticmethod
+    def _log_external_outcome(skill_name: str, result: dict):
+        if not isinstance(result, dict):
+            return
+        installed_from = str(result.get("installed_from") or "").strip()
+        if installed_from:
+            log("EXTERNAL", f"Installed external skill for '{skill_name}' from '{installed_from}'")
+            return
+
+        attempts = result.get("attempts", [])
+        if not isinstance(attempts, list) or not attempts:
+            return
+
+        reasons = []
+        for attempt in attempts:
+            if not isinstance(attempt, dict):
+                continue
+            source_id = safe_id(str(attempt.get("source_id") or "external")) or "external"
+            status = str(attempt.get("status") or "unknown")
+            reason = str(attempt.get("reason") or "no_reason")
+            if status == "miss":
+                reasons.append(f"{source_id}:miss")
+            elif status != "installed":
+                reasons.append(f"{source_id}:{reason}")
+        if reasons:
+            log("EXTERNAL", f"No reusable external skill for '{skill_name}' ({', '.join(reasons)})")
+
+    @staticmethod
+    def _build_failure_info(meta):
+        if not isinstance(meta, dict):
+            return "unknown", ""
+
+        detail_meta = meta.get("last_test_detail")
+        if not isinstance(detail_meta, dict):
+            detail_meta = {}
+
+        reason = str(detail_meta.get("reason") or meta.get("reason") or "unknown")
+        detail = str(
+            detail_meta.get("detail")
+            or detail_meta.get("stderr")
+            or meta.get("detail")
+            or ""
+        )[:240]
+        return reason, detail
+
+    def _log_build_outcome(self, skill_name, ok, code_path, meta):
+        if ok and code_path and isinstance(meta, dict):
+            built_id = safe_id(str(meta.get("id") or skill_name))
+            log("BUILD", f"Built skill '{skill_name}' as '{built_id}'")
+            return
+
+        reason, detail = self._build_failure_info(meta)
+
+        if reason == "no_api_key":
+            log(
+                "BUILD",
+                (
+                    f"Skipped build for '{skill_name}': no CLI provider configured and no Google API key "
+                    "for SDK fallback. Set AGENT_CHAT_PROVIDER or AGENT_BUILDER_PROVIDER for CLI-only mode."
+                ),
+            )
+            return
+
+        if reason == "planning_first_violated":
+            log("BUILD", f"Skipped build for '{skill_name}': planning-first gate rejected empty evidence")
+            return
+
+        if reason == "missing_evidence_pack":
+            log("BUILD", f"Skipped build for '{skill_name}': research did not produce evidence for this target")
+            return
+
+        if reason == "guard_block":
+            log("BUILD", f"Rejected generated code for '{skill_name}' via safety guard")
+            return
+
+        if reason == "builder_cli_failed" or reason.endswith("_cli"):
+            suffix = f" ({detail})" if detail else ""
+            log("BUILD", f"CLI build failed for '{skill_name}': {reason}{suffix}")
+            return
+
+        suffix = f" ({detail})" if detail else ""
+        log("BUILD", f"Skill build failed for '{skill_name}': {reason}{suffix}")
+
     def procure_multiple(
         self,
         agent,
@@ -271,12 +442,9 @@ class SkillOrchestrator:
             candidate_path = resolve_skill_paths(candidate_id)[0] if candidate_id else None
             verified_candidate = bool(candidate_id and evidence.get("verified") and candidate_path)
 
-            action = "install" if verified_candidate else "build"
-            approval_target = candidate_id or name
-            if approval_gate and not approval_gate(agent.get("role"), [approval_target], action, auto_approve):
-                continue
-
             if verified_candidate:
+                if approval_gate and not approval_gate(agent.get("role"), [candidate_id], "install", auto_approve):
+                    continue
                 if hasattr(self.registry, "ensure_lock_for_existing_skill"):
                     self.registry.ensure_lock_for_existing_skill(candidate_id)
                 installable = True
@@ -286,6 +454,41 @@ class SkillOrchestrator:
                     installed.append(candidate_id)
                     continue
 
+            external_skill_id = ""
+            external_result = {}
+            external_install_allowed = True
+            if approval_gate:
+                external_install_allowed = approval_gate(agent.get("role"), [name], "install", auto_approve)
+
+            if external_install_allowed:
+                external_skill_id, external_result = self._try_external_install(name, reqs, evidence_pack)
+            else:
+                self._record_external_skip(name, evidence_pack, "approval_gate", "install_denied")
+                external_result = {
+                    "need_id": name,
+                    "installed_skill_id": "",
+                    "installed_from": "",
+                    "attempts": [
+                        {
+                            "source_id": "approval_gate",
+                            "status": "approval_rejected",
+                            "reason": "install_denied",
+                        }
+                    ],
+                }
+
+            self._log_external_outcome(name, external_result)
+            if external_skill_id:
+                installable = True
+                if hasattr(self.registry, "is_installable"):
+                    installable = bool(self.registry.is_installable(external_skill_id))
+                if installable:
+                    installed.append(external_skill_id)
+                    continue
+
+            if approval_gate and not approval_gate(agent.get("role"), [name], "build", auto_approve):
+                continue
+
             ok, code_path, meta = self.builder.build_skill(
                 agent=agent,
                 skill_name=name,
@@ -293,6 +496,8 @@ class SkillOrchestrator:
                 run_id=run_id,
                 evidence_pack=evidence_pack,
             )
+
+            self._log_build_outcome(name, ok, code_path, meta)
 
             if not ok or not code_path or not isinstance(meta, dict):
                 continue

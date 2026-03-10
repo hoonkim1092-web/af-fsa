@@ -19,7 +19,6 @@ from config.schema import factory_config
 # Core utilities are now imported from core.utils
 from core.utils import *
 
-from google import genai  # [New SDK]
 try:
     from openai import OpenAI
 except Exception:

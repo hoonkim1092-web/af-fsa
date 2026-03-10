@@ -21,6 +21,10 @@ env/
 projects/default/runs/
 projects/agent_factory/runs/
 projects/gemini_e2e/
+projects/*/resume_brief.md
+projects/*/.af_runtime/cli_sessions/
+projects/*/.af_runtime/direct_exec_result.json
+projects/gemini_live_edit_fix/
 test_output/
 dynamic_log.txt
 project_board_state.json

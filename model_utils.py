@@ -7,7 +7,6 @@ import urllib.request
 import urllib.error
 import urllib.parse
 from typing import NamedTuple, List, Dict, Any, Optional
-from google import genai
 from config.schema import factory_config
 from core.providers.registry import get_engine_api_key
 
@@ -15,8 +14,7 @@ from core.providers.registry import get_engine_api_key
 # 비-UTF-8 실행 환경(윈도우 cp949 등)에서 예외를 유발할 수 있음.
 # 학습 환경 전용이 필요하다면 agent_launcher / CLI 단에서만 호출할 것.
 
-_google_api_key = get_engine_api_key("google")
-_genai_client = genai.Client(api_key=_google_api_key) if _google_api_key else None
+_genai_client = None
 
 CACHE_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "models_cache.json")
 CACHE_EXPIRY = 24 * 60 * 60  # 24 hours in seconds
@@ -44,6 +42,21 @@ TIER_UNCALLABLE      = "uncallable"       # 어떤 키도 없어 실행 불가�
 def log(msg: str):
     caller = sys._getframe(1).f_globals.get('__name__')
     print(f"[{caller}] * {msg}")
+
+
+def _get_genai_client():
+    global _genai_client
+    if _genai_client is not None:
+        return _genai_client
+
+    api_key = get_engine_api_key("google")
+    if not api_key:
+        return None
+
+    from google import genai
+
+    _genai_client = genai.Client(api_key=api_key)
+    return _genai_client
 
 
 def load_cache():
@@ -164,9 +177,10 @@ def get_available_models(force_refresh: bool = False) -> list[str]:
     log("Fetching available models from Google API...")
     try:
         models = []
-        if _genai_client is None:
+        client = _get_genai_client()
+        if client is None:
             raise RuntimeError("No GOOGLE_API_KEY configured")
-        for m in _genai_client.models.list():
+        for m in client.models.list():
             if hasattr(m, 'supported_actions') and 'generateContent' in (m.supported_actions or []):
                 models.append(m.name)
             elif hasattr(m, 'supported_generation_methods') and 'generateContent' in (m.supported_generation_methods or []):

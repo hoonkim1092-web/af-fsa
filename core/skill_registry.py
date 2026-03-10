@@ -7,7 +7,7 @@ from typing import Dict, List, Optional
 
 import yaml
 
-from core.llm_engine import LLMEngine
+from core.external_skill_source_ids import normalize_external_source_id
 
 REGISTRY_FILE = os.path.join(os.getcwd(), "skills", "registry.yaml")
 DOCS_FILE = os.path.join(os.getcwd(), "skills", "skill_docs.md")
@@ -74,9 +74,12 @@ def _normalize_registry_data(data: dict) -> dict:
             if isinstance(v, dict):
                 item = dict(v)
                 item["id"] = _safe_id(str(item.get("id") or cid))
+                raw_source_id = str(item.get("source_id") or item.get("source") or "").strip()
+                item["source_id"] = normalize_external_source_id(raw_source_id, default="registry")
+                item.pop("source", None)
                 install_candidates[cid] = item
             elif isinstance(v, str) and v.strip():
-                install_candidates[cid] = {"id": cid, "path": v.strip()}
+                install_candidates[cid] = {"id": cid, "path": v.strip(), "source_id": "registry"}
     elif isinstance(raw_candidates, list):
         for i, item in enumerate(raw_candidates):
             if not isinstance(item, dict):
@@ -84,6 +87,9 @@ def _normalize_registry_data(data: dict) -> dict:
             cid = _safe_id(str(item.get("id") or f"cand_{i}"))
             n = dict(item)
             n["id"] = cid
+            raw_source_id = str(n.get("source_id") or n.get("source") or "").strip()
+            n["source_id"] = normalize_external_source_id(raw_source_id, default="registry")
+            n.pop("source", None)
             install_candidates[cid] = n
 
     return {"skills": skills, "install_candidates": install_candidates}
@@ -136,6 +142,8 @@ def _generate_docs(registry_data: Dict):
 
 
 def check_skill_exists(skill_name: str, purpose_description: str) -> Optional[str]:
+    from core.llm_engine import LLMEngine
+
     registry_data = _load_registry()
     skills = registry_data.get("skills", {})
     if not skills:

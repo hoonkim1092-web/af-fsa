@@ -1,14 +1,15 @@
 import os
 import shutil
-import subprocess
 from core.utils import (
     safe_id, read_yaml, write_yaml, now_iso, resolve_skill_paths,
     resolve_existing_path, to_portable_path, is_portable_rel_path,
     read_skill_lock, lock_skill_state, append_dashboard_run
 )
+from core.external_skill_source_ids import normalize_external_source_id
 from core.config_paths import (
-    REGISTRY_PATH, SKILLS_DIR, EXTERNAL_CACHE_DIR, WORKFLOW_PATH
+    REGISTRY_PATH, SKILLS_DIR, WORKFLOW_PATH
 )
+from core.external_skill_sources import ExternalSkillResolver
 from core.policy import resolve_quality_gate_policy
 
 def read_project_policies():
@@ -109,6 +110,10 @@ class RegistryManager:
                         continue
                     n_item["path"] = rp
                 n_item["id"] = safe_id(str(item.get("id") or sid))
+                n_item["source_id"] = normalize_external_source_id(
+                    str(item.get("source_id") or item.get("source") or "registry"),
+                    default="registry",
+                )
                 normalized[sid] = n_item
                 if str(item) != str(n_item):
                     changed = True
@@ -129,7 +134,7 @@ class RegistryManager:
                     path = str(item).strip()
                     if not is_portable_rel_path(path):
                         continue
-                    out.append({"id": sid, "path": path, "capabilities": [sid]})
+                    out.append({"id": sid, "path": path, "capabilities": [sid], "source_id": "registry"})
                     continue
                 if isinstance(item, dict):
                     path = str(item.get("path") or "").strip()
@@ -140,45 +145,12 @@ class RegistryManager:
                         "name": str(item.get("name") or sid),
                         "path": path,
                         "source_url": str(item.get("source_url") or ""),
+                        "source_id": normalize_external_source_id(
+                            str(item.get("source_id") or item.get("source") or "registry"),
+                            default="registry",
+                        ),
                         "capabilities": [safe_id(str(x)) for x in (item.get("capabilities") or []) if str(x).strip()],
                     })
-        return out
-
-    def _sync_external_sources(self):
-        policies = read_project_policies()
-        urls: list[str] = []
-        pol_urls = policies.get("external_skill_sources", []) if isinstance(policies, dict) else []
-        if isinstance(pol_urls, list):
-            urls.extend([str(x).strip() for x in pol_urls if str(x).strip()])
-
-        env_urls = [x.strip() for x in str(os.getenv("AGENT_EXTERNAL_SKILL_REPOS", "")).split(",") if x.strip()]
-        urls.extend(env_urls)
-        urls = list(dict.fromkeys(urls))
-        if not urls:
-            return
-
-        for url in urls:
-            repo_name = safe_id(os.path.basename(url).replace(".git", "")) or "external_repo"
-            dst = os.path.join(EXTERNAL_CACHE_DIR, repo_name)
-            try:
-                if os.path.exists(dst):
-                    subprocess.run(["git", "-C", dst, "pull", "--ff-only"], check=False, capture_output=True, text=True, timeout=20)
-                else:
-                    subprocess.run(["git", "clone", "--depth", "1", url, dst], check=False, capture_output=True, text=True, timeout=45)
-            except Exception:
-                continue
-
-    def _scan_cache_candidates(self) -> list[dict]:
-        out: list[dict] = []
-        if not os.path.exists(EXTERNAL_CACHE_DIR):
-            return out
-        for root, _dirs, files in os.walk(EXTERNAL_CACHE_DIR):
-            for fn in files:
-                if not fn.endswith(".py") or fn.startswith("_") or fn.startswith("test_"):
-                    continue
-                py_path = os.path.join(root, fn)
-                sid = safe_id(os.path.splitext(fn)[0])
-                out.append({"id": sid, "path": py_path, "source": "external_cache"})
         return out
 
     def _install_skill_file(self, need_id: str, source_path: str, source_label: str = "external") -> tuple[bool, str]:
@@ -217,37 +189,30 @@ class RegistryManager:
         lock_skill_state(sid, {"version": "1.0.0", "status": "active"})
         return True, sid
 
-    def resolve_and_install_external(self, needs: list[str], reqs: dict | None = None) -> dict[str, str]:
-        installed: dict[str, str] = {}
-        needs = [safe_id(str(n)) for n in (needs or []) if str(n).strip()]
-        if not needs: return installed
+    def resolve_and_install_external_detailed(
+        self,
+        needs: list[str],
+        reqs: dict | None = None,
+        evidence_pack: dict | None = None,
+    ) -> dict:
+        resolver = ExternalSkillResolver(
+            project_policies=read_project_policies(),
+            install_candidates=self._iter_install_candidates(),
+            install_fn=self._install_skill_file,
+            path_resolver=self._resolve_path,
+            match_fn=self._score_need_match,
+        )
+        return resolver.resolve_and_install(needs, reqs=reqs, evidence_pack=evidence_pack)
 
-        # local pool, registry candidates, external cache
-        self._sync_external_sources()
-        reg_pool = self._iter_install_candidates()
-        cache_pool = self._scan_cache_candidates()
-
-        for need in needs:
-            if resolve_skill_paths(need)[0]:
-                installed[need] = need
-                continue
-            
-            chosen_path = None
-            # 1) Exact match check (omitted for brevity, assume similar to launcher)
-            # 2) Token scoring
-            best_score = -1
-            for cand in reg_pool + cache_pool:
-                path = self._resolve_path(str(cand.get("path", "")))
-                if not path: continue
-                sc = self._score_need_match(need, str(cand.get("id", "")))
-                if sc > best_score:
-                    best_score = sc
-                    chosen_path = path
-
-            if chosen_path:
-                ok, _ = self._install_skill_file(need, chosen_path)
-                if ok: installed[need] = need
-        return installed
+    def resolve_and_install_external(
+        self,
+        needs: list[str],
+        reqs: dict | None = None,
+        evidence_pack: dict | None = None,
+    ) -> dict[str, str]:
+        result = self.resolve_and_install_external_detailed(needs, reqs=reqs, evidence_pack=evidence_pack)
+        installed = result.get("installed", {})
+        return installed if isinstance(installed, dict) else {}
 
     def _quality_gate_policy(self) -> dict:
         qg = resolve_quality_gate_policy(read_project_policies())
