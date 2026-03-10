@@ -8,7 +8,7 @@ from core.external_skill_source_ids import (
     DEFAULT_EXTERNAL_SOURCE_PRIORITY,
     normalize_external_source_id,
 )
-from core.utils import resolve_skill_paths, safe_id
+from core.utils import get_codex_skill_roots, has_local_skill, safe_id
 
 
 def _split_csv(raw: str | None) -> list[str]:
@@ -32,6 +32,14 @@ def _normalize_urls(raw_urls) -> list[str]:
         return [str(item).strip() for item in raw_urls if str(item).strip()]
     if isinstance(raw_urls, str) and raw_urls.strip():
         return [raw_urls.strip()]
+    return []
+
+
+def _normalize_paths(raw_paths) -> list[str]:
+    if isinstance(raw_paths, list):
+        return [os.path.abspath(str(item).strip()) for item in raw_paths if str(item).strip()]
+    if isinstance(raw_paths, str) and raw_paths.strip():
+        return [os.path.abspath(raw_paths.strip())]
     return []
 
 
@@ -110,6 +118,15 @@ def _repo_source_configs(project_policies: dict) -> list[dict]:
     if external_urls:
         add_repo_source("external", external_urls)
     return configs
+
+
+def _official_codex_skill_roots(project_policies: dict) -> list[str]:
+    raw = (
+        project_policies.get("official_codex_skill_roots")
+        or project_policies.get("codex_skill_roots")
+        or []
+    )
+    return [root for root in get_codex_skill_roots(_normalize_paths(raw)) if os.path.isdir(root)]
 
 
 @dataclass
@@ -224,6 +241,40 @@ class RepoCacheSkillSource(ExternalSkillSource):
         return out
 
 
+class CodexOfficialSkillSource(ExternalSkillSource):
+    def __init__(self, root_dirs: list[str], source_id: str = "codex_official"):
+        super().__init__(source_id)
+        self.root_dirs = [os.path.abspath(str(root)) for root in (root_dirs or []) if str(root).strip()]
+
+    def iter_candidates(self) -> list[ExternalSkillCandidate]:
+        out: list[ExternalSkillCandidate] = []
+        seen: set[str] = set()
+        for root_dir in self.root_dirs:
+            if not os.path.isdir(root_dir):
+                continue
+            for entry in sorted(os.listdir(root_dir)):
+                skill_dir = os.path.join(root_dir, entry)
+                if not os.path.isdir(skill_dir):
+                    continue
+                if not any(os.path.exists(os.path.join(skill_dir, name)) for name in ("SKILL.md", "skill.md")):
+                    continue
+                skill_id = safe_id(entry)
+                if not skill_id or skill_id in seen:
+                    continue
+                seen.add(skill_id)
+                out.append(
+                    ExternalSkillCandidate(
+                        source_id=self.source_id,
+                        skill_id=skill_id,
+                        name=skill_id,
+                        path=skill_dir,
+                        capabilities=[skill_id],
+                        source_repo=os.path.basename(root_dir) or self.source_id,
+                    )
+                )
+        return out
+
+
 class CacheSweepSkillSource(ExternalSkillSource):
     def __init__(self, source_id: str = "external_cache"):
         super().__init__(source_id)
@@ -299,6 +350,10 @@ class ExternalSkillResolver:
             )
         for source_id, candidates in grouped_manifest.items():
             sources.append(ManifestSkillSource(source_id, candidates))
+
+        codex_roots = _official_codex_skill_roots(self.project_policies)
+        if codex_roots:
+            sources.append(CodexOfficialSkillSource(codex_roots))
 
         repo_configs = _repo_source_configs(self.project_policies)
         for cfg in repo_configs:
@@ -382,7 +437,7 @@ class ExternalSkillResolver:
             candidates_by_source[source.source_id].extend(candidates)
 
         for need_id in normalized_needs:
-            if resolve_skill_paths(need_id)[0]:
+            if has_local_skill(need_id):
                 installed[need_id] = need_id
                 results[need_id] = {
                     "need_id": need_id,

@@ -106,8 +106,7 @@ class AgentFactory:
             sid = safe_id(str(sid_raw))
             if not sid:
                 continue
-            skill_py, _meta = resolve_skill_paths(sid)
-            if not skill_py:
+            if not has_local_skill(sid):
                 missing.append(sid)
         return list(dict.fromkeys(missing))
 

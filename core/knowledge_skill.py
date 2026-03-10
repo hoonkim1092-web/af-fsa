@@ -4,6 +4,9 @@ import yaml
 from dataclasses import dataclass
 from typing import List, Optional
 
+
+SKILL_MARKDOWN_FILENAMES = ("skill.md", "SKILL.md")
+
 @dataclass
 class KnowledgeSkill:
     id: str
@@ -52,11 +55,14 @@ def scan_knowledge_skills(base_dir: str) -> List[KnowledgeSkill]:
         return skills
         
     for root, dirs, files in os.walk(base_dir):
-        if "skill.md" in files:
-            path = os.path.join(root, "skill.md")
+        for filename in SKILL_MARKDOWN_FILENAMES:
+            if filename not in files:
+                continue
+            path = os.path.join(root, filename)
             skill = parse_skill_md(path)
             if skill:
                 skills.append(skill)
+            break
     return skills
 
 def filter_relevant_knowledge(skills: List[KnowledgeSkill], task_text: str) -> List[KnowledgeSkill]:

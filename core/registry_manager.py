@@ -3,7 +3,7 @@ import shutil
 from core.utils import (
     safe_id, read_yaml, write_yaml, now_iso, resolve_skill_paths,
     resolve_existing_path, to_portable_path, is_portable_rel_path,
-    read_skill_lock, lock_skill_state, append_dashboard_run
+    read_skill_lock, lock_skill_state, append_dashboard_run, skill_markdown_filenames
 )
 from core.external_skill_source_ids import normalize_external_source_id
 from core.config_paths import (
@@ -23,8 +23,12 @@ def ensure_registry_files():
 class RegistryManager:
     """Manages the global skill registry and external skill installations."""
     def __init__(self):
-        ensure_registry_files()
-        self._normalize_registry_paths()
+        self._read_only = False
+        try:
+            ensure_registry_files()
+            self._normalize_registry_paths()
+        except PermissionError:
+            self._read_only = True
 
     def _read_registry(self) -> dict:
         reg = read_yaml(REGISTRY_PATH)
@@ -35,6 +39,8 @@ class RegistryManager:
         return reg
 
     def _write_registry(self, reg: dict):
+        if self._read_only:
+            raise PermissionError(REGISTRY_PATH)
         reg = reg if isinstance(reg, dict) else {}
         reg.setdefault("skills", {})
         reg.setdefault("install_candidates", {})
@@ -159,30 +165,54 @@ class RegistryManager:
         if not src: return False, "source_not_found"
 
         skill_py: str | None = None
+        skill_md: str | None = None
         if os.path.isdir(src):
             cand = os.path.join(src, "skill.py")
-            if os.path.exists(cand): skill_py = cand
+            if os.path.exists(cand):
+                skill_py = cand
+            else:
+                for filename in skill_markdown_filenames():
+                    md_cand = os.path.join(src, filename)
+                    if os.path.exists(md_cand):
+                        skill_md = md_cand
+                        break
         elif os.path.isfile(src) and src.endswith(".py"):
             skill_py = src
-        
-        if not skill_py: return False, "no_python_skill_file"
+        elif os.path.isfile(src) and src.lower().endswith(".md"):
+            skill_md = src
+
+        if not skill_py and not skill_md:
+            return False, "no_supported_skill_file"
 
         target_dir = os.path.join(SKILLS_DIR, sid)
         os.makedirs(target_dir, exist_ok=True)
         target_py = os.path.join(target_dir, "skill.py")
+        target_md = os.path.join(target_dir, "skill.md")
         target_meta = os.path.join(target_dir, "meta.yaml")
-        shutil.copy2(skill_py, target_py)
+        if os.path.isdir(src):
+            shutil.copytree(src, target_dir, dirs_exist_ok=True)
+        elif skill_py:
+            shutil.copy2(skill_py, target_py)
+        elif skill_md:
+            shutil.copy2(skill_md, target_md)
+
+        if skill_md and not os.path.exists(target_md):
+            shutil.copy2(skill_md, target_md)
+
+        skill_type = "action" if skill_py else "knowledge"
+        active_path = target_py if skill_py else target_md
 
         meta = {
             "id": sid, "name": sid, "version": "1.0.0", "capabilities": [sid],
-            "status": "active", "updated_at": now_iso(), "source": source_label, "source_path": skill_py,
+            "status": "active", "updated_at": now_iso(), "source": source_label, "source_path": src,
+            "type": skill_type,
         }
         write_yaml(target_meta, meta)
 
         reg = self._read_registry()
         reg["skills"][sid] = {
             "id": sid, "name": sid, "status": "active", "version": "1.0.0",
-            "capabilities": [sid], "path": to_portable_path(target_py),
+            "capabilities": [sid], "type": skill_type, "path": to_portable_path(active_path),
             "meta_path": to_portable_path(target_meta), "updated_at": now_iso(), "last_test_ok": True,
         }
         self._write_registry(reg)

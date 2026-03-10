@@ -1,4 +1,9 @@
-from core.external_skill_sources import ExternalSkillCandidate, ExternalSkillResolver, RepoCacheSkillSource
+from core.external_skill_sources import (
+    CodexOfficialSkillSource,
+    ExternalSkillCandidate,
+    ExternalSkillResolver,
+    RepoCacheSkillSource,
+)
 
 
 def test_external_resolver_prefers_claude_before_codex():
@@ -201,3 +206,53 @@ def test_external_resolver_surfaces_repo_sync_failure_as_source_error(monkeypatc
     assert attempts[0]["source_id"] == "claude_repo"
     assert attempts[0]["status"] == "source_error"
     assert "auth failed" in attempts[0]["reason"]
+
+
+def test_official_codex_source_reads_skill_directories(tmp_path):
+    skills_root = tmp_path / ".agents" / "skills"
+    skill_dir = skills_root / "review_guide"
+    skill_dir.mkdir(parents=True, exist_ok=True)
+    (skill_dir / "SKILL.md").write_text(
+        "---\nname: Review Guide\ndescription: Review workflow\n---\n\n# Steps\n",
+        encoding="utf-8",
+    )
+
+    source = CodexOfficialSkillSource([str(skills_root)])
+    candidates = source.iter_candidates()
+
+    assert len(candidates) == 1
+    assert candidates[0].source_id == "codex_official"
+    assert candidates[0].skill_id == "review_guide"
+    assert candidates[0].path == str(skill_dir)
+
+
+def test_external_resolver_prefers_official_codex_before_repo_cache(tmp_path):
+    skills_root = tmp_path / ".agents" / "skills"
+    skill_dir = skills_root / "review_guide"
+    skill_dir.mkdir(parents=True, exist_ok=True)
+    (skill_dir / "SKILL.md").write_text(
+        "---\nname: Review Guide\ndescription: Review workflow\n---\n\n# Steps\n",
+        encoding="utf-8",
+    )
+
+    installs = []
+
+    resolver = ExternalSkillResolver(
+        project_policies={
+            "official_codex_skill_roots": [str(skills_root)],
+            "external_skill_source_priority": ["codex_official", "codex_repo"],
+        },
+        install_candidates=[
+            {"id": "review_guide", "path": "codex_repo/review_guide", "source_id": "codex_repo"},
+        ],
+        install_fn=lambda need_id, path, source_label="external": (
+            installs.append((need_id, path, source_label)) or (True, need_id)
+        ),
+        path_resolver=lambda path: path,
+        match_fn=lambda need, text: 100 if need == text else 0,
+    )
+
+    result = resolver.resolve_and_install(["review_guide"])
+
+    assert installs == [("review_guide", str(skill_dir), "codex_official")]
+    assert result["results"]["review_guide"]["installed_from"] == "codex_official"

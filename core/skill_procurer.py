@@ -19,7 +19,7 @@ import inspect
 import subprocess
 
 from core.skill_registry import check_skill_exists, register_skill
-from core.utils import resolve_skill_paths, safe_id
+from core.utils import resolve_knowledge_skill_path, resolve_skill_paths, safe_id, skill_markdown_filenames
 
 
 def log(step, msg):
@@ -83,6 +83,13 @@ def normalize_skill_id(value):
     return base
 
 
+def _resolve_available_skill_path(skill_id: str) -> str | None:
+    skill_py, _skill_meta = resolve_skill_paths(skill_id)
+    if skill_py:
+        return skill_py
+    return resolve_knowledge_skill_path(skill_id)
+
+
 def get_installed_skill_ids(agent_name):
     tools_dir = os.path.join(AGENTS_DIR, agent_name, "tools")
     if not os.path.exists(tools_dir):
@@ -136,10 +143,11 @@ def procure_skill(skill_name, role, skill_type="action"):
     else:
         # Knowledge: 디렉토리 기반 탐색
         for base in [WAREHOUSE_DIR, FORGE_DIR]:
-            md_path = os.path.join(base, skill_name, "skill.md")
-            if os.path.exists(md_path):
-                register_skill(skill_name, purpose_desc, md_path, stype="knowledge")
-                return md_path
+            for filename in skill_markdown_filenames():
+                md_path = os.path.join(base, skill_name, filename)
+                if os.path.exists(md_path):
+                    register_skill(skill_name, purpose_desc, md_path, stype="knowledge")
+                    return md_path
 
     return forge_new_skill(skill_name, role, skill_type=skill_type)
 
@@ -407,7 +415,7 @@ class SkillOrchestrator:
         exact_matches: dict[str, str] = {}
         unresolved_targets: list[str] = []
         for name in targets:
-            exact_path, _exact_meta = resolve_skill_paths(name)
+            exact_path = _resolve_available_skill_path(name)
             if exact_path:
                 exact_matches[name] = exact_path
             else:
@@ -439,7 +447,7 @@ class SkillOrchestrator:
             evidence = evidence_targets.get(name, {}) if isinstance(evidence_targets, dict) else {}
             raw_candidate = evidence.get("top_candidate")
             candidate_id = normalize_skill_id(raw_candidate) if raw_candidate else ""
-            candidate_path = resolve_skill_paths(candidate_id)[0] if candidate_id else None
+            candidate_path = _resolve_available_skill_path(candidate_id) if candidate_id else None
             verified_candidate = bool(candidate_id and evidence.get("verified") and candidate_path)
 
             if verified_candidate:

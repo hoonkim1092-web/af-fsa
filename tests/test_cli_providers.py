@@ -57,18 +57,19 @@ def test_config_paths_ignores_engine_api_keys_when_disabled(monkeypatch, tmp_pat
 
 
 @pytest.mark.parametrize(
-    ("provider_id", "expected_prefix", "expected_items"),
+    ("provider_id", "expected_prefix", "expected_items", "prompt_in_command"),
     [
-        ("claude_cli", ["claude"], ["-p", "--append-system-prompt", "--output-format", "json", "--permission-mode", "bypassPermissions"]),
-        ("gemini_cli", ["gemini"], ["-p", "--output-format", "json", "--sandbox", "--approval-mode", "yolo"]),
+        ("claude_cli", ["claude"], ["-p", "--append-system-prompt", "--output-format", "json", "--permission-mode", "bypassPermissions"], True),
+        ("gemini_cli", ["gemini"], ["-p", "--output-format", "json", "--sandbox", "--approval-mode", "yolo"], True),
         (
             "codex_cli",
             ["codex", "--ask-for-approval", "never", "--sandbox", "workspace-write", "exec"],
-            ["-c", "model_reasoning_effort=\"low\""],
+            ["-c", "model_reasoning_effort=\"low\"", "-"],
+            False,
         ),
     ],
 )
-def test_build_cli_command_uses_provider_specific_defaults(provider_id, expected_prefix, expected_items):
+def test_build_cli_command_uses_provider_specific_defaults(provider_id, expected_prefix, expected_items, prompt_in_command):
     from core.providers.cli import CliChatRequest, build_cli_command
 
     cmd = build_cli_command(
@@ -92,7 +93,8 @@ def test_build_cli_command_uses_provider_specific_defaults(provider_id, expected
         assert cmd[1: len(expected_prefix)] == expected_prefix[1:]
     for item in expected_items:
         assert item in cmd
-    assert any("execute task" in part for part in cmd)
+    if prompt_in_command:
+        assert any("execute task" in part for part in cmd)
 
 
 def test_codex_cli_path_override_keeps_exec_subcommand(monkeypatch):
@@ -198,7 +200,27 @@ def test_gemini_cli_normalized_default_alias_omits_model_flag():
     assert "-m" not in cmd
 
 
-def test_codex_cli_combined_prompt_includes_destructive_guard():
+def test_codex_cli_combined_prompt_prioritizes_task_and_includes_destructive_guard():
+    from core.providers.cli import CliChatRequest, compose_cli_prompt
+
+    prompt = compose_cli_prompt(
+        CliChatRequest(
+            provider_id="codex_cli",
+            model="gpt-5",
+            system_prompt="system prompt",
+            task_input="execute task",
+            workspace="D:/workspace",
+        )
+    )
+
+    assert prompt.startswith("[Task]\nexecute task")
+    assert "Do not summarize the system prompt, workspace, or configuration" in prompt
+    assert "[System Prompt]" in prompt
+    assert "[Destructive Action Guard]" in prompt
+    assert "git clean" in prompt
+
+
+def test_build_cli_command_uses_stdin_prompt_for_codex_cli():
     from core.providers.cli import CliChatRequest, build_cli_command
 
     cmd = build_cli_command(
@@ -211,10 +233,7 @@ def test_codex_cli_combined_prompt_includes_destructive_guard():
         )
     )
 
-    prompt = cmd[-1]
-    assert "[System Prompt]" in prompt
-    assert "[Destructive Action Guard]" in prompt
-    assert "git clean" in prompt
+    assert cmd[-1] == "-"
 
 
 def test_claude_cli_append_system_prompt_includes_destructive_guard():
@@ -314,6 +333,109 @@ def test_agent_runner_uses_cli_provider_before_sdk_fallback(monkeypatch, tmp_pat
     assert result["reason"] == "codex_cli"
     assert calls
     assert calls[0].provider_id == "codex_cli"
+
+
+def test_agent_runner_cli_only_short_task_does_not_require_todo(monkeypatch, tmp_path):
+    project_root = tmp_path / "proj"
+    project_root.mkdir(parents=True, exist_ok=True)
+    monkeypatch.delenv("GOOGLE_API_KEY", raising=False)
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.setenv("AGENT_CHAT_PROVIDER", "codex_cli")
+    monkeypatch.setenv("AGENT_PROJECT_ROOT", str(project_root))
+    monkeypatch.setenv("AGENT_PROJECT_ID", "proj_cli_short_task")
+
+    import core.config_paths
+    import core.utils
+    import core.agent_runner as ar
+
+    importlib.reload(core.config_paths)
+    importlib.reload(core.utils)
+    ar = importlib.reload(ar)
+
+    calls = []
+
+    def fake_execute_cli_chat(request, run_command=None):
+        calls.append(request)
+        return {
+            "ok": True,
+            "provider_id": request.provider_id,
+            "text": "AGENT_FACTORY_OK",
+            "stdout": "AGENT_FACTORY_OK",
+            "stderr": "",
+            "returncode": 0,
+        }
+
+    monkeypatch.setattr(ar, "execute_cli_chat", fake_execute_cli_chat)
+
+    runner = ar.AgentRunner(ar.ModelRouter())
+    monkeypatch.setattr(runner, "load_skills", lambda agent: [])
+    monkeypatch.setattr(
+        runner,
+        "build_tool_registry",
+        lambda modules, ctx, policy: types.SimpleNamespace(get_active_tools=lambda: []),
+    )
+
+    result = runner.run(
+        {"name": "cli-agent", "role": "generalist", "skills": []},
+        "Return AGENT_FACTORY_OK",
+        workspace=str(project_root),
+    )
+
+    assert result["ok"] is True
+    assert result["reason"] == "codex_cli"
+    assert calls
+    assert calls[0].provider_id == "codex_cli"
+
+
+def test_agent_runner_cli_only_still_blocks_complex_task_without_todo(monkeypatch, tmp_path):
+    project_root = tmp_path / "proj"
+    project_root.mkdir(parents=True, exist_ok=True)
+    monkeypatch.delenv("GOOGLE_API_KEY", raising=False)
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.setenv("AGENT_CHAT_PROVIDER", "codex_cli")
+    monkeypatch.setenv("AGENT_PROJECT_ROOT", str(project_root))
+    monkeypatch.setenv("AGENT_PROJECT_ID", "proj_cli_complex_task")
+
+    import core.config_paths
+    import core.utils
+    import core.agent_runner as ar
+
+    importlib.reload(core.config_paths)
+    importlib.reload(core.utils)
+    ar = importlib.reload(ar)
+
+    calls = []
+
+    def fake_execute_cli_chat(request, run_command=None):
+        calls.append(request)
+        return {
+            "ok": True,
+            "provider_id": request.provider_id,
+            "text": "unexpected",
+            "stdout": "unexpected",
+            "stderr": "",
+            "returncode": 0,
+        }
+
+    monkeypatch.setattr(ar, "execute_cli_chat", fake_execute_cli_chat)
+
+    runner = ar.AgentRunner(ar.ModelRouter())
+    monkeypatch.setattr(runner, "load_skills", lambda agent: [])
+    monkeypatch.setattr(
+        runner,
+        "build_tool_registry",
+        lambda modules, ctx, policy: types.SimpleNamespace(get_active_tools=lambda: []),
+    )
+
+    result = runner.run(
+        {"name": "cli-agent", "role": "generalist", "skills": []},
+        "implement a small feature",
+        workspace=str(project_root),
+    )
+
+    assert result["ok"] is False
+    assert result["reason"] == "hook_event_bus_blocked_pre"
+    assert calls == []
 
 
 def test_execute_cli_chat_persists_failed_launch_state(tmp_path):
@@ -419,7 +541,7 @@ def test_execute_cli_chat_keeps_not_found_when_auto_install_disabled(monkeypatch
     ("provider_id", "seed_env", "blocked_env", "expected_env"),
     [
         ("claude_cli", {"ANTHROPIC_API_KEY": "anthropic-secret"}, ["ANTHROPIC_API_KEY"], {}),
-        ("codex_cli", {"OPENAI_API_KEY": "openai-secret"}, ["OPENAI_API_KEY"], {}),
+        ("codex_cli", {"OPENAI_API_KEY": "openai-secret"}, [], {"OPENAI_API_KEY": "openai-secret"}),
         (
             "gemini_cli",
             {
@@ -463,3 +585,32 @@ def test_execute_cli_chat_strips_provider_api_key_env(monkeypatch, tmp_path, pro
         assert key not in seen["env"]
     for key, value in expected_env.items():
         assert seen["env"][key] == value
+
+
+def test_execute_cli_chat_sends_codex_prompt_via_stdin(tmp_path):
+    from core.providers.cli import CliChatRequest, execute_cli_chat
+
+    workspace = tmp_path / "proj"
+    workspace.mkdir(parents=True, exist_ok=True)
+    seen = {}
+
+    def cli_runner(*args, **kwargs):
+        seen["cmd"] = list(args[0])
+        seen["input"] = kwargs.get("input")
+        return types.SimpleNamespace(returncode=0, stdout="AGENT_FACTORY_OK", stderr="")
+
+    result = execute_cli_chat(
+        CliChatRequest(
+            provider_id="codex_cli",
+            model="gpt-5",
+            system_prompt="system prompt",
+            task_input="Return AGENT_FACTORY_OK",
+            workspace=str(workspace),
+            run_id="run_codex_stdin",
+        ),
+        run_command=cli_runner,
+    )
+
+    assert result["ok"] is True
+    assert seen["cmd"][-1] == "-"
+    assert seen["input"].startswith("[Task]\nReturn AGENT_FACTORY_OK")

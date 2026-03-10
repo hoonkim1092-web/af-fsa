@@ -100,6 +100,13 @@ def test_prepare_cli_session_sets_codex_shell_guard_on_windows(tmp_path: Path):
     )
 
     state = _read_json(Path(prepared["state_path"]))
+    codex_home = Path(prepared["env"]["CODEX_HOME"])
+    sessions_root = Path(prepared["env"]["CODEX_SESSIONS_ROOT"])
+    temp_root = Path(prepared["env"]["TEMP"])
+    assert codex_home.exists()
+    assert sessions_root.exists()
+    assert temp_root.exists()
+    assert prepared["env"]["TMP"] == str(temp_root)
     if os.name != "nt":
         assert prepared["guard_dir"] == ""
         assert state["destructive_guard_mode"] == "system_prompt_contract"
@@ -113,7 +120,42 @@ def test_prepare_cli_session_sets_codex_shell_guard_on_windows(tmp_path: Path):
     assert prepared["env"]["COMSPEC"] == str((guard_dir / "cmd.cmd").resolve())
     assert prepared["env"]["PATH"].split(os.pathsep)[0] == str(guard_dir.resolve())
     assert state["guard_dir"] == str(guard_dir)
+    assert state["codex_home"] == str(codex_home)
+    assert state["sessions_root"] == str(sessions_root)
     assert state["destructive_guard_mode"] == "shell_proxy_and_system_prompt_contract"
+
+
+def test_prepare_cli_session_seeds_codex_auth_files(tmp_path: Path, monkeypatch):
+    workspace = tmp_path / "workspace"
+    workspace.mkdir(parents=True, exist_ok=True)
+    source_home = tmp_path / "source_home" / ".codex"
+    source_home.mkdir(parents=True, exist_ok=True)
+    (source_home / "auth.json").write_text('{"auth_mode":"chatgpt"}', encoding="utf-8")
+    (source_home / "config.toml").write_text('model = "gpt-5"\n', encoding="utf-8")
+    (source_home / "cap_sid").write_text("cap-session", encoding="utf-8")
+    monkeypatch.setenv("CODEX_HOME", str(source_home))
+
+    prepared = prepare_cli_session(
+        CliChatRequest(
+            provider_id="codex_cli",
+            model="gpt-5",
+            system_prompt="system prompt",
+            task_input="ship feature",
+            workspace=str(workspace),
+            run_id="run_codex_seed",
+        ),
+        ["codex", "exec", "ship feature"],
+    )
+
+    runtime_home = Path(prepared["env"]["CODEX_HOME"])
+    state = _read_json(Path(prepared["state_path"]))
+
+    assert runtime_home != source_home
+    assert (runtime_home / "auth.json").read_text(encoding="utf-8") == '{"auth_mode":"chatgpt"}'
+    assert (runtime_home / "config.toml").read_text(encoding="utf-8") == 'model = "gpt-5"\n'
+    assert (runtime_home / "cap_sid").read_text(encoding="utf-8") == "cap-session"
+    assert state["source_codex_home"] == str(source_home.resolve())
+    assert state["seeded_auth_files"] == ["auth.json", "config.toml", "cap_sid"]
 
 
 def test_codex_shell_guard_blocks_destructive_commands_on_windows(tmp_path: Path):

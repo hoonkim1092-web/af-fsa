@@ -6,8 +6,17 @@ import sys
 FACTORY_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(FACTORY_DIR)
 
-sys.stdin.reconfigure(encoding='utf-8')
-sys.stdout.reconfigure(encoding='utf-8')
+CLI_PROVIDER_CHOICES = ("claude_cli", "gemini_cli", "codex_cli")
+CLI_PROVIDER_COMMAND_ENVS = {
+    "claude_cli": "AGENT_CLAUDE_CLI_COMMAND",
+    "gemini_cli": "AGENT_GEMINI_CLI_COMMAND",
+    "codex_cli": "AGENT_CODEX_CLI_COMMAND",
+}
+
+if hasattr(sys.stdin, "reconfigure"):
+    sys.stdin.reconfigure(encoding="utf-8")
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
 
 
 def _safe_project_id(text: str) -> str:
@@ -17,12 +26,22 @@ def _safe_project_id(text: str) -> str:
     return t
 
 
-def main():
+def _resolve_projects_root(override: str | None = None) -> str:
+    raw = str(override or os.getenv("AGENT_PROJECTS_DIR", "") or "").strip()
+    if not raw:
+        raw = os.path.join(FACTORY_DIR, "projects")
+    return os.path.abspath(os.path.expanduser(raw))
+
+
+def main(argv: list[str] | None = None):
     parser = argparse.ArgumentParser(description="Agent Factory CLI")
     parser.add_argument("--project", "-p", type=str, required=True, help="프로젝트 ID (필수)")
     parser.add_argument("--role", "-r", type=str, help="에이전트 역할 (예: 'Saiba Midori', 'Backend Dev')")
     parser.add_argument("--task", "-t", type=str, help="에이전트에게 요청할 작업 내용")
     parser.add_argument("--model", "-m", type=str, default=None, help="사용할 AI 모델")
+    parser.add_argument("--provider", choices=CLI_PROVIDER_CHOICES, help="CLI provider 강제 지정")
+    parser.add_argument("--provider-command", type=str, help="선택한 CLI provider 실행 경로/명령")
+    parser.add_argument("--projects-root", type=str, help="프로젝트 루트 상위 디렉터리 override")
     parser.add_argument("--workflow", "-w", type=str, help="워크플로우 YAML 경로")
     parser.add_argument("--agents", "-a", type=str, help="워크플로우 실행 에이전트 목록(쉼표 구분)")
     parser.add_argument("--mode", choices=["approval", "fsa"], default="approval", help="실행 모드 (기본: approval, 자율: fsa)")
@@ -30,8 +49,11 @@ def main():
     parser.add_argument("--build", action="store_true", help="Build missing skills before run")
     parser.add_argument("--no-cli-auto-install", action="store_true", help="누락된 Claude/Gemini/Codex CLI 자동 설치 비활성화")
     parser.add_argument("--pipeline", choices=["auto", "single", "project"], default="auto", help="실행 파이프라인 선택")
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     execution_mode = "fsa" if (args.fsa or args.mode == "fsa") else "approval"
+
+    if args.provider_command and not args.provider:
+        parser.error("--provider-command requires --provider")
 
     project_id = _safe_project_id(args.project)
     if not project_id:
@@ -49,12 +71,18 @@ def main():
 
     role = (args.role or "").strip() or "General Assistant"
 
-    project_root = os.path.join(FACTORY_DIR, "projects", project_id)
+    projects_root = _resolve_projects_root(args.projects_root)
+    project_root = os.path.join(projects_root, project_id)
     os.makedirs(project_root, exist_ok=True)
+    os.environ["AGENT_PROJECTS_DIR"] = projects_root
     os.environ["AGENT_PROJECT_ID"] = project_id
     os.environ["AGENT_PROJECT_ROOT"] = project_root
     if args.model:
         os.environ["AGENT_CHAT_MODEL"] = args.model.strip()
+    if args.provider:
+        os.environ["AGENT_CHAT_PROVIDER"] = args.provider
+    if args.provider_command:
+        os.environ[CLI_PROVIDER_COMMAND_ENVS[args.provider]] = args.provider_command.strip()
     if args.no_cli_auto_install:
         os.environ["AGENT_AUTO_INSTALL_CLI"] = "0"
     else:
@@ -65,6 +93,7 @@ def main():
 
     print("\n[Logi-Mind Agent Factory] 시작")
     print(f"Project ID: {project_id}")
+    print(f"Projects Root: {projects_root}")
     print(f"Project Root: {project_root}")
     print(f"Role: {role}")
     print("-" * 50)

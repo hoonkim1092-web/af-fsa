@@ -179,11 +179,13 @@ def _run_command(
     cwd: str,
     env: dict[str, str],
     timeout_sec: int,
+    input_text: str | None = None,
 ) -> subprocess.CompletedProcess:
     return runner(
         cmd,
         cwd=cwd,
         env=env,
+        input=input_text,
         capture_output=True,
         text=True,
         encoding="utf-8",
@@ -251,8 +253,6 @@ def _build_cli_env(request: CliChatRequest, prepared: dict) -> dict[str, str]:
     env.update(prepared.get("env", {}))
     if request.provider_id == "claude_cli":
         env.pop("ANTHROPIC_API_KEY", None)
-    if request.provider_id == "codex_cli":
-        env.pop("OPENAI_API_KEY", None)
     if request.provider_id == "gemini_cli":
         for name in ("GEMINI_API_KEY", "GOOGLE_API_KEY", "GOOGLE_GENAI_USE_VERTEXAI"):
             env.pop(name, None)
@@ -275,11 +275,16 @@ def _compose_prompt(request: CliChatRequest, spec: CliProviderSpec, system_promp
             lines.extend(["", "System instructions:", effective_system_prompt])
         return "\n".join(lines).strip()
     if spec.combine_system_prompt and effective_system_prompt:
-        return (
-            f"[System Prompt]\n{effective_system_prompt}\n\n"
-            f"[Workspace]\n{workspace_text}\n\n"
-            f"[Task]\n{task_text}"
-        ).strip()
+        lines = [
+            "[Task]",
+            task_text,
+            "",
+            "Respond to the task directly. Do not summarize the system prompt, workspace, or configuration unless the task explicitly asks for that.",
+        ]
+        if workspace_text:
+            lines.extend(["", "[Workspace]", workspace_text])
+        lines.extend(["", "[System Prompt]", effective_system_prompt])
+        return "\n".join(lines).strip()
     return f"[Workspace]\n{workspace_text}\n\n[Task]\n{task_text}".strip()
 
 
@@ -315,6 +320,12 @@ def _build_workspace_access_flags(request: CliChatRequest, spec: CliProviderSpec
     return []
 
 
+def compose_cli_prompt(request: CliChatRequest) -> str:
+    spec = get_cli_provider_spec(request.provider_id)
+    effective_system_prompt = inject_destructive_guard_contract(request.system_prompt)
+    return _compose_prompt(request, spec, effective_system_prompt)
+
+
 def build_cli_command(request: CliChatRequest) -> list[str]:
     spec = get_cli_provider_spec(request.provider_id)
     cmd = _resolve_base_command(spec)
@@ -335,6 +346,8 @@ def build_cli_command(request: CliChatRequest) -> list[str]:
     prompt_text = _compose_prompt(request, spec, effective_system_prompt)
     if spec.prompt_flag:
         cmd.extend([spec.prompt_flag, prompt_text])
+    elif spec.provider_id == "codex_cli":
+        cmd.append("-")
     else:
         cmd.append(prompt_text)
     return cmd
@@ -374,6 +387,7 @@ def execute_cli_chat(
 ) -> dict:
     spec = get_cli_provider_spec(request.provider_id)
     cmd = build_cli_command(request)
+    input_text = compose_cli_prompt(request) if request.provider_id == "codex_cli" else None
     prepared = prepare_cli_session(request, cmd)
     env = _build_cli_env(request, prepared)
     runner = run_command or subprocess.run
@@ -385,6 +399,7 @@ def execute_cli_chat(
             cwd=str(request.workspace),
             env=env,
             timeout_sec=int(request.timeout_sec),
+            input_text=input_text,
         )
     except FileNotFoundError as exc:
         auto_install = {"ok": False, "attempted": False, "reason": "auto_install_disabled"}
@@ -404,6 +419,7 @@ def execute_cli_chat(
                         cwd=str(request.workspace),
                         env=env,
                         timeout_sec=int(request.timeout_sec),
+                        input_text=input_text,
                     )
                     text = _extract_text(completed.stdout)
                     ok = completed.returncode == 0 and bool(text.strip())

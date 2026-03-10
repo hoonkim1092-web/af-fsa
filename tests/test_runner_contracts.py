@@ -125,7 +125,7 @@ def test_load_skills_collects_knowledge_markdown(monkeypatch, tmp_path):
     al = _load_launcher(monkeypatch)
     runner = al.AgentRunner(al.ModelRouter())
 
-    skill_dir = tmp_path / "knowledge_skill"
+    skill_dir = tmp_path / "skills" / "knowledge_skill"
     skill_dir.mkdir(parents=True, exist_ok=True)
     (skill_dir / "skill.md").write_text(
         "---\nname: Knowledge Skill\ndescription: prompt injection\n---\n\n# Steps\n1. test\n",
@@ -133,12 +133,43 @@ def test_load_skills_collects_knowledge_markdown(monkeypatch, tmp_path):
     )
 
     import core.agent_runner as ar
+    import core.utils as cu
 
-    monkeypatch.setattr(ar, "PROJECT_SKILLS_DIR", str(tmp_path))
-    monkeypatch.setattr(ar, "SKILLS_DIR", str(tmp_path))
+    monkeypatch.setattr(cu, "PROJECT_SKILLS_DIR", str(tmp_path / "skills"))
+    monkeypatch.setattr(cu, "SKILLS_DIR", str(tmp_path / "skills"))
+    monkeypatch.setattr(cu, "PROJECT_ROOT", str(tmp_path))
+    monkeypatch.setattr(ar, "PROJECT_SKILLS_DIR", str(tmp_path / "skills"))
+    monkeypatch.setattr(ar, "SKILLS_DIR", str(tmp_path / "skills"))
 
     loaded = runner.load_skills({"skills": ["knowledge_skill"]})
 
     assert loaded == []
     assert len(runner._knowledge_skills) == 1
     assert runner._knowledge_skills[0].id == "knowledge_skill"
+
+
+def test_load_skills_collects_official_codex_markdown(monkeypatch, tmp_path):
+    al = _load_launcher(monkeypatch)
+    runner = al.AgentRunner(al.ModelRouter())
+
+    skill_dir = tmp_path / ".agents" / "skills" / "official_guide"
+    skill_dir.mkdir(parents=True, exist_ok=True)
+    (skill_dir / "SKILL.md").write_text(
+        "---\nname: Official Guide\ndescription: prompt injection\n---\n\n# Steps\n1. official\n",
+        encoding="utf-8",
+    )
+
+    import core.agent_runner as ar
+    import core.utils as cu
+
+    monkeypatch.setattr(cu, "PROJECT_ROOT", str(tmp_path))
+    monkeypatch.setattr(cu, "PROJECT_SKILLS_DIR", str(tmp_path / "skills"))
+    monkeypatch.setattr(cu, "SKILLS_DIR", str(tmp_path / "skills_global"))
+    monkeypatch.setattr(ar, "PROJECT_SKILLS_DIR", str(tmp_path / "skills"))
+    monkeypatch.setattr(ar, "SKILLS_DIR", str(tmp_path / "skills_global"))
+
+    loaded = runner.load_skills({"skills": ["official_guide"]})
+
+    assert loaded == []
+    assert len(runner._knowledge_skills) == 1
+    assert runner._knowledge_skills[0].id == "official_guide"

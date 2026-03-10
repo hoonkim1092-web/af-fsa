@@ -25,10 +25,19 @@ def test_finalize_cli_session_updates_resume_brief(monkeypatch, tmp_path: Path):
         encoding="utf-8",
     )
 
-    monkeypatch.setattr(
-        "core.providers.session_adapter.run_bridge",
-        lambda provider_id, repo_root, sessions_root=None, bootstrap_limit=120, max_write=240: {"ok": True, "written": 0},
-    )
+    bridge_calls = []
+
+    def fake_run_bridge(provider_id, repo_root, sessions_root=None, bootstrap_limit=120, max_write=240):
+        bridge_calls.append(
+            {
+                "provider_id": provider_id,
+                "repo_root": str(repo_root),
+                "sessions_root": str(sessions_root),
+            }
+        )
+        return {"ok": True, "written": 0}
+
+    monkeypatch.setattr("core.providers.session_adapter.run_bridge", fake_run_bridge)
 
     request = CliChatRequest(
         provider_id="codex_cli",
@@ -57,3 +66,6 @@ def test_finalize_cli_session_updates_resume_brief(monkeypatch, tmp_path: Path):
     assert "finalize session" in brief
     assert "codex_cli" in brief
     assert "Continue from the last successful codex run." in brief
+    assert bridge_calls
+    assert bridge_calls[0]["provider_id"] == "codex"
+    assert bridge_calls[0]["sessions_root"].endswith(str(Path(".af_runtime") / "codex_home" / "sessions"))

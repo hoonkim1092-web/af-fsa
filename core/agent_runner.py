@@ -27,7 +27,7 @@ from core.utils import (
     safe_id, now_iso, read_yaml, write_yaml, safe_json_load,
     read_core_memory, get_random_signature, print_agent_msg,
     is_codex_model, is_claude_model,
-    run_skill_safely, validate_context_with_schema, resolve_skill_paths,
+    run_skill_safely, validate_context_with_schema, resolve_knowledge_skill_path, resolve_skill_paths,
 )
 from core.utils import _safe_write_json
 from core.registry import ToolRegistry
@@ -347,12 +347,7 @@ class AgentRunner:
                 from core.skill_procurer import WAREHOUSE_DIR, FORGE_DIR
                 from core.knowledge_skill import parse_skill_md
                 
-                md_path = None
-                for base in [PROJECT_SKILLS_DIR, SKILLS_DIR, WAREHOUSE_DIR, FORGE_DIR]:
-                    candidate = os.path.join(base, sid, "skill.md")
-                    if os.path.exists(candidate):
-                        md_path = candidate
-                        break
+                md_path = resolve_knowledge_skill_path(sid, extra_roots=[WAREHOUSE_DIR, FORGE_DIR])
                         
                 if md_path:
                     try:
@@ -450,13 +445,19 @@ class AgentRunner:
         bus.register(ToolOutputTruncator())
         # AI Funnel & Smart Routing: 복잡도 판별
         task_text = str(task_input or "")
+        cli_providers = get_requested_cli_providers(os.getenv("AGENT_CHAT_PROVIDER"))
         
         # 1. 역할 기반 방어: 아키텍트, 리서처는 아무리 짧아도 항상 주력 고성능 모델 유지
         role_summary = agent.get("role", "") or (agent.get("identity", {}) or {}).get("role_summary", "")
         agent_name = agent.get("name", "")
         engine_id = _infer_engine_id(role_summary or agent_name)
+        role_hint = f"{role_summary} {agent_name}".lower()
+        force_complex_role = engine_id == "architect_claude" or (
+            engine_id == "researcher_gemini"
+            and any(token in role_hint for token in ("research", "researcher", "analyst", "study"))
+        )
         
-        if engine_id in ("architect_claude", "researcher_gemini"):
+        if force_complex_role:
             is_complex = True
             _safe_print(f"🔍 [Router] '{engine_id}' 핵심 역할 감지 -> 고성능 엔진 강제 유지")
         else:
@@ -489,6 +490,10 @@ class AgentRunner:
             except Exception as e:
                 _safe_print(f"⚠️ [Router] 분류기 예외 발생({e}), 안전망 가동 -> 고급 엔진 강제 유지")
                 is_complex = True
+
+        if cli_providers and not GOOGLE_API_KEY and not force_complex_role:
+            _safe_print("??[Router] CLI-only 紐⑤뱶濡??ㅽ뻾?⑸땲?? Google 遺꾨쪟湲??놁뼱??濡쒖뼵 媛?대뱶?덉씪 湲곕컲?쇰줈 吏꾪뻾?⑸땲??")
+            is_complex = False
 
         agent_state = {
             "task_input": task_input,
@@ -533,7 +538,6 @@ class AgentRunner:
             print(f"💬 [Agent] {greeting}")
             sys_prompt += f"\n\n[Signature]\n{greeting}"
 
-        cli_providers = get_requested_cli_providers(os.getenv("AGENT_CHAT_PROVIDER"))
         cli_failures = []
         if cli_providers:
             for provider_id in cli_providers:

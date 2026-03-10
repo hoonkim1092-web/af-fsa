@@ -109,6 +109,8 @@ SPECS: dict[str, CliSessionSpec] = {
     ),
 }
 
+_CODEX_RUNTIME_SEED_FILES: tuple[str, ...] = ("auth.json", "config.toml", "cap_sid")
+
 
 def get_cli_session_spec(provider_id: str) -> CliSessionSpec:
     key = str(provider_id or "").strip().lower()
@@ -328,6 +330,60 @@ def _write_codex_shell_guard(paths: dict[str, Path], repo_root: Path) -> tuple[P
     return guard_dir, env
 
 
+def _prepare_codex_runtime_env(paths: dict[str, Path]) -> dict[str, str]:
+    runtime_dir = Path(paths["runtime_dir"]).resolve()
+    codex_home = runtime_dir / "codex_home"
+    sessions_root = codex_home / "sessions"
+    temp_root = codex_home / "tmp"
+    for path in (codex_home, sessions_root, temp_root):
+        path.mkdir(parents=True, exist_ok=True)
+    return {
+        "CODEX_HOME": str(codex_home),
+        "CODEX_SESSIONS_ROOT": str(sessions_root),
+        "TEMP": str(temp_root),
+        "TMP": str(temp_root),
+        "TMPDIR": str(temp_root),
+    }
+
+
+def _seed_codex_runtime_home(runtime_home: Path) -> dict[str, Any]:
+    runtime_home = Path(runtime_home).resolve()
+    candidates: list[Path] = []
+    for raw in (str(os.getenv("CODEX_HOME", "") or "").strip(), str(Path.home() / ".codex")):
+        if not raw:
+            continue
+        candidate = Path(os.path.expanduser(raw)).resolve()
+        if candidate == runtime_home:
+            continue
+        if candidate not in candidates:
+            candidates.append(candidate)
+
+    seeded_files: list[str] = []
+    source_home = ""
+    for candidate in candidates:
+        if not candidate.is_dir():
+            continue
+        copied = False
+        for name in _CODEX_RUNTIME_SEED_FILES:
+            src = candidate / name
+            if not src.is_file():
+                continue
+            try:
+                shutil.copy2(src, runtime_home / name)
+            except OSError:
+                continue
+            seeded_files.append(name)
+            copied = True
+        if copied:
+            source_home = str(candidate)
+            break
+
+    return {
+        "source_codex_home": source_home,
+        "seeded_auth_files": seeded_files,
+    }
+
+
 def prepare_cli_session(request, command: list[str]) -> dict[str, Any]:
     spec = get_cli_session_spec(request.provider_id)
     workspace = str(Path(request.workspace).resolve())
@@ -369,16 +425,23 @@ def prepare_cli_session(request, command: list[str]) -> dict[str, Any]:
             paths["gemini_policy_path"],
         )
         env["GEMINI_CLI_SYSTEM_DEFAULTS_PATH"] = str(settings_path)
-    elif spec.provider_id == "codex_cli" and os.name == "nt":
-        guard_dir, guard_env = _write_codex_shell_guard(paths, repo_root)
-        env.update(guard_env)
-
+    elif spec.provider_id == "codex_cli":
+        env.update(_prepare_codex_runtime_env(paths))
+        codex_seed = _seed_codex_runtime_home(Path(env["CODEX_HOME"]))
+        if os.name == "nt":
+            guard_dir, guard_env = _write_codex_shell_guard(paths, repo_root)
+            env.update(guard_env)
+    
     if settings_path is not None:
         state["settings_path"] = str(settings_path)
     if guard_path is not None:
         state["guard_path"] = str(guard_path)
     if guard_dir is not None:
         state["guard_dir"] = str(guard_dir)
+    if spec.provider_id == "codex_cli":
+        state["codex_home"] = env.get("CODEX_HOME", "")
+        state["sessions_root"] = env.get("CODEX_SESSIONS_ROOT", "")
+        state.update(codex_seed)
     state["destructive_guard_mode"] = (
         "native_deny_rules"
         if spec.provider_id in {"claude_cli", "gemini_cli"}
@@ -419,7 +482,16 @@ def finalize_cli_session(request, prepared: dict[str, Any], result: dict[str, An
 
     bridge_result = None
     if spec.provider_id == "codex_cli":
-        bridge_result = run_bridge(spec.bridge_provider_id, repo_root=_repo_root())
+        sessions_root = (
+            str(prepared.get("env", {}).get("CODEX_SESSIONS_ROOT", "")).strip()
+            if isinstance(prepared.get("env"), dict)
+            else ""
+        )
+        bridge_result = run_bridge(
+            spec.bridge_provider_id,
+            repo_root=_repo_root(),
+            sessions_root=sessions_root or None,
+        )
         state["bridge_result"] = bridge_result
 
     _save_json(state_path, state)

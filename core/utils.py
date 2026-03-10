@@ -64,6 +64,10 @@ def safe_id(text: str) -> str:
     return (t[:60] if t else "skill")
 
 
+def _split_env_paths(raw: str | None) -> list[str]:
+    return [part.strip() for part in str(raw or "").split(",") if part.strip()]
+
+
 def strip_code_fences(s: str) -> str:
     s = (s or "").strip()
     s = re.sub(r"^```(?:json|python)?\s*", "", s)
@@ -228,6 +232,68 @@ def resolve_skill_paths(skill_id: str) -> tuple[str | None, str | None]:
     if os.path.exists(forge_py):
         return forge_py, None
     return None, None
+
+
+def skill_markdown_filenames() -> tuple[str, ...]:
+    return ("skill.md", "SKILL.md")
+
+
+def get_codex_skill_roots(extra_roots: list[str] | None = None) -> list[str]:
+    roots: list[str] = []
+    seen: set[str] = set()
+    home_dir = os.path.expanduser("~")
+    defaults = [
+        os.path.join(PROJECT_ROOT, ".agents", "skills"),
+        os.path.join(PROJECT_ROOT, ".codex", "skills"),
+        os.path.join(home_dir, ".agents", "skills"),
+        os.path.join(home_dir, ".codex", "skills"),
+    ]
+    if os.name == "nt":
+        program_data = str(os.getenv("ProgramData", "")).strip()
+        if program_data:
+            defaults.append(os.path.join(program_data, "codex", "skills"))
+    else:
+        defaults.append("/etc/codex/skills")
+
+    for raw_root in list(extra_roots or []) + _split_env_paths(os.getenv("AGENT_CODEX_SKILL_DIRS")) + defaults:
+        root = str(raw_root or "").strip()
+        if not root:
+            continue
+        normalized = os.path.normpath(os.path.abspath(root))
+        key = normalized.lower()
+        if key in seen:
+            continue
+        seen.add(key)
+        roots.append(normalized)
+    return roots
+
+
+def resolve_knowledge_skill_path(skill_id: str, extra_roots: list[str] | None = None) -> str | None:
+    sid = safe_id(skill_id)
+    if not sid:
+        return None
+    settings = read_project_settings()
+    pref = settings.get("skill_overrides", {}) if isinstance(settings.get("skill_overrides"), dict) else {}
+    prefer_project = bool(pref.get("prefer_project_skills", True))
+    ordered_roots = [PROJECT_SKILLS_DIR, SKILLS_DIR] if prefer_project else [SKILLS_DIR, PROJECT_SKILLS_DIR]
+    ordered_roots.extend(get_codex_skill_roots(extra_roots))
+    for root in ordered_roots:
+        for filename in skill_markdown_filenames():
+            candidate = os.path.join(root, sid, filename)
+            if os.path.exists(candidate):
+                return candidate
+    return None
+
+
+def resolve_any_skill_path(skill_id: str, extra_knowledge_roots: list[str] | None = None) -> str | None:
+    skill_py, _meta = resolve_skill_paths(skill_id)
+    if skill_py:
+        return skill_py
+    return resolve_knowledge_skill_path(skill_id, extra_roots=extra_knowledge_roots)
+
+
+def has_local_skill(skill_id: str, extra_knowledge_roots: list[str] | None = None) -> bool:
+    return bool(resolve_any_skill_path(skill_id, extra_knowledge_roots=extra_knowledge_roots))
 
 
 def _merge_dict(base: dict, override: dict) -> dict:

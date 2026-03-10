@@ -17,6 +17,10 @@ def safe_id(text: str) -> str:
 
 
 EXTERNAL_SOURCE_ID_ALIASES = {
+    "codex_official": "codex_official",
+    "official_codex": "codex_official",
+    "official_codex_skills": "codex_official",
+    "codex_skills": "codex_official",
     "claude": "claude_repo",
     "claude_repo": "claude_repo",
     "codex": "codex_repo",
@@ -29,6 +33,7 @@ EXTERNAL_SOURCE_ID_LEGACY_IDS = {
 }
 
 DEFAULT_EXTERNAL_SOURCE_PRIORITY = [
+    "codex_official",
     "claude_repo",
     "codex_repo",
     "registry",

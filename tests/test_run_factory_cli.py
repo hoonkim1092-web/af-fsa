@@ -1,0 +1,92 @@
+import importlib
+import os
+import sys
+import types
+
+import pytest
+
+
+def _install_fake_agent_launcher(monkeypatch, calls):
+    fake_module = types.ModuleType("agent_launcher")
+
+    class FakeFactory:
+        def run(self, **kwargs):
+            calls.append(("run", kwargs))
+            return {"ok": True}
+
+        def run_workflow(self, **kwargs):
+            calls.append(("run_workflow", kwargs))
+            return {"ok": True}
+
+    fake_module.AgentFactory = FakeFactory
+    monkeypatch.setitem(sys.modules, "agent_launcher", fake_module)
+
+
+def test_run_factory_cli_sets_provider_and_projects_root(monkeypatch, tmp_path):
+    calls = []
+    _install_fake_agent_launcher(monkeypatch, calls)
+    monkeypatch.delenv("AGENT_CHAT_PROVIDER", raising=False)
+    monkeypatch.delenv("AGENT_CODEX_CLI_COMMAND", raising=False)
+    monkeypatch.delenv("AGENT_PROJECTS_DIR", raising=False)
+
+    import run_factory_cli
+
+    cli = importlib.reload(run_factory_cli)
+    projects_root = tmp_path / "custom-projects"
+    provider_command = r"C:\Tools\codex.cmd"
+
+    cli.main(
+        [
+            "--project",
+            "demo",
+            "--task",
+            "return ok",
+            "--provider",
+            "codex_cli",
+            "--provider-command",
+            provider_command,
+            "--projects-root",
+            str(projects_root),
+        ]
+    )
+
+    expected_root = str((projects_root / "demo").resolve())
+    assert os.environ["AGENT_CHAT_PROVIDER"] == "codex_cli"
+    assert os.environ["AGENT_CODEX_CLI_COMMAND"] == provider_command
+    assert os.environ["AGENT_PROJECTS_DIR"] == str(projects_root.resolve())
+    assert os.environ["AGENT_PROJECT_ROOT"] == expected_root
+    assert calls == [
+        (
+            "run",
+            {
+                "task_input": "return ok",
+                "role_spec": "General Assistant",
+                "enable_build": False,
+                "execution_mode": "approval",
+                "pipeline_mode": "auto",
+            },
+        )
+    ]
+
+
+def test_run_factory_cli_rejects_provider_command_without_provider(monkeypatch):
+    calls = []
+    _install_fake_agent_launcher(monkeypatch, calls)
+
+    import run_factory_cli
+
+    cli = importlib.reload(run_factory_cli)
+
+    with pytest.raises(SystemExit):
+        cli.main(
+            [
+                "--project",
+                "demo",
+                "--task",
+                "return ok",
+                "--provider-command",
+                r"C:\Tools\codex.cmd",
+            ]
+        )
+
+    assert calls == []

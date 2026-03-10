@@ -59,6 +59,35 @@ def test_import_external_candidates_can_fallback_to_python_scan(tmp_path):
     assert "source_id: codex_repo" in content
 
 
+def test_import_external_candidates_can_fallback_to_codex_markdown_scan(tmp_path):
+    root = tmp_path
+    registry_path = root / "skills" / "registry.yaml"
+    registry_path.parent.mkdir(parents=True, exist_ok=True)
+    registry_path.write_text("skills: {}\ninstall_candidates: {}\n", encoding="utf-8")
+
+    repo_root = root / "skills" / "_external_cache" / "codex" / "repo_gamma"
+    skill_dir = repo_root / "review_guide"
+    skill_dir.mkdir(parents=True, exist_ok=True)
+    (skill_dir / "SKILL.md").write_text(
+        "---\nname: Review Guide\ndescription: Review workflow\n---\n\n# Steps\n",
+        encoding="utf-8",
+    )
+
+    result = import_external_candidates(
+        root_dir=str(root),
+        registry_path=str(registry_path),
+        cache_dir=str(root / "skills" / "_external_cache"),
+        source_ids=["codex_repo"],
+        scan_python=True,
+    )
+
+    assert result["candidate_count"] == 1
+    content = registry_path.read_text(encoding="utf-8")
+    assert "codex_repo_review_guide" in content
+    assert "source_id: codex_repo" in content
+    assert "skills/_external_cache/codex/repo_gamma/review_guide" in content
+
+
 def test_import_external_candidates_blocks_duplicate_skill_ids_within_same_source(tmp_path):
     root = tmp_path
     registry_path = root / "skills" / "registry.yaml"
