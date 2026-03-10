@@ -7,6 +7,7 @@ import types
 def _load_launcher(monkeypatch):
     monkeypatch.setenv("GOOGLE_API_KEY", "test-key")
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.setenv("AGENT_DOC_LANGUAGE_CODE", "ko-KR")
     import core.config_paths
     importlib.reload(core.config_paths)
     import core.utils
@@ -75,6 +76,14 @@ def test_system_prompt_and_signature_resolution(monkeypatch):
         "persona": {"signature_lines": ["sig-a", "sig-b"]},
     }
     assert runner._resolve_system_prompt(agent) == "nested-prompt"
+    runtime_prompt = runner._build_runtime_system_prompt(agent)
+    assert "nested-prompt" in runtime_prompt
+    assert "docs/architecture.md" in runtime_prompt
+    assert "docs/change_history.md" in runtime_prompt
+    assert "ko-KR" in runtime_prompt
+    assert "한국어" in runtime_prompt
+    assert "[Destructive Action Guard]" in runtime_prompt
+    assert "git reset --hard" in runtime_prompt
     sigs = runner._resolve_signature_lines(agent)
     assert sigs == ["sig-a", "sig-b"]
 

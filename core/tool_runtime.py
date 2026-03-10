@@ -3,12 +3,7 @@ import functools
 import re
 from typing import Callable, List, Dict
 from core.registry import ToolRegistry
-
-def safe_id(text: str) -> str:
-    t = (text or "").strip().lower()
-    t = re.sub(r"[^a-z0-9_]+", "_", t)
-    t = re.sub(r"_+", "_", t).strip("_")
-    return (t[:60] if t else "skill")
+from core.utils import safe_id
 
 class ToolRuntimeWrapper:
     """

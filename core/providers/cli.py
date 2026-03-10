@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable
 
+from core.destructive_guard import inject_destructive_guard_contract
 from core.providers.session_adapter import finalize_cli_session, prepare_cli_session
 
 
@@ -53,7 +54,7 @@ _CLI_SPECS = {
         system_prompt_flag="--append-system-prompt",
         output_format_flags=("--output-format", "json"),
         workspace_access_flag="--add-dir",
-        headless_edit_flags=("--permission-mode", "acceptEdits"),
+        headless_edit_flags=("--permission-mode", "bypassPermissions"),
     ),
     "gemini_cli": CliProviderSpec(
         provider_id="gemini_cli",
@@ -66,11 +67,11 @@ _CLI_SPECS = {
         output_format_flags=("--output-format", "json"),
         combine_system_prompt=True,
         workspace_access_flag="--include-directories",
-        headless_edit_flags=("--approval-mode", "auto_edit"),
+        headless_edit_flags=("--sandbox", "--approval-mode", "yolo"),
     ),
     "codex_cli": CliProviderSpec(
         provider_id="codex_cli",
-        default_command=("codex", "exec"),
+        default_command=("codex", "--ask-for-approval", "never", "--sandbox", "workspace-write", "exec"),
         command_env="AGENT_CODEX_CLI_COMMAND",
         install_command_env="AGENT_CODEX_CLI_INSTALL_COMMAND",
         install_package="@openai/codex",
@@ -78,7 +79,7 @@ _CLI_SPECS = {
         fixed_flags=("-c", 'model_reasoning_effort="low"'),
         combine_system_prompt=True,
         workspace_access_flag="--add-dir",
-        headless_edit_flags=("--full-auto",),
+        headless_edit_flags=(),
     ),
 }
 
@@ -259,9 +260,10 @@ def _build_cli_env(request: CliChatRequest, prepared: dict) -> dict[str, str]:
     return env
 
 
-def _compose_prompt(request: CliChatRequest, spec: CliProviderSpec) -> str:
+def _compose_prompt(request: CliChatRequest, spec: CliProviderSpec, system_prompt: str = "") -> str:
     task_text = str(request.task_input or "").strip()
     workspace_text = str(request.workspace or "").strip()
+    effective_system_prompt = str(system_prompt or "").strip()
     if spec.provider_id == "gemini_cli":
         lines = [
             f"Task: {task_text}",
@@ -269,12 +271,12 @@ def _compose_prompt(request: CliChatRequest, spec: CliProviderSpec) -> str:
         ]
         if workspace_text:
             lines.extend(["", f"Workspace: {workspace_text}"])
-        if request.system_prompt:
-            lines.extend(["", "System instructions:", request.system_prompt.strip()])
+        if effective_system_prompt:
+            lines.extend(["", "System instructions:", effective_system_prompt])
         return "\n".join(lines).strip()
-    if spec.combine_system_prompt and request.system_prompt:
+    if spec.combine_system_prompt and effective_system_prompt:
         return (
-            f"[System Prompt]\n{request.system_prompt.strip()}\n\n"
+            f"[System Prompt]\n{effective_system_prompt}\n\n"
             f"[Workspace]\n{workspace_text}\n\n"
             f"[Task]\n{task_text}"
         ).strip()
@@ -316,6 +318,7 @@ def _build_workspace_access_flags(request: CliChatRequest, spec: CliProviderSpec
 def build_cli_command(request: CliChatRequest) -> list[str]:
     spec = get_cli_provider_spec(request.provider_id)
     cmd = _resolve_base_command(spec)
+    effective_system_prompt = inject_destructive_guard_contract(request.system_prompt)
 
     if _should_include_model(request, spec):
         cmd.extend([spec.model_flag, str(request.model)])
@@ -326,10 +329,10 @@ def build_cli_command(request: CliChatRequest) -> list[str]:
         cmd.extend(spec.fixed_flags)
     if spec.output_format_flags:
         cmd.extend(spec.output_format_flags)
-    if request.system_prompt and spec.system_prompt_flag and not spec.combine_system_prompt:
-        cmd.extend([spec.system_prompt_flag, str(request.system_prompt)])
+    if effective_system_prompt and spec.system_prompt_flag and not spec.combine_system_prompt:
+        cmd.extend([spec.system_prompt_flag, effective_system_prompt])
 
-    prompt_text = _compose_prompt(request, spec)
+    prompt_text = _compose_prompt(request, spec, effective_system_prompt)
     if spec.prompt_flag:
         cmd.extend([spec.prompt_flag, prompt_text])
     else:

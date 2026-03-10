@@ -3,6 +3,7 @@ import os
 import time
 
 from core.bootstrap_roles import ProjectPlanningDirector, build_bootstrap_agent
+from core.documentation_policy import documentation_todo_items, ensure_documentation_files, project_todo_title
 from core.dynamic_orchestrator import DynamicOrchestrator
 from core.utils import (
     append_dashboard_run,
@@ -62,7 +63,8 @@ class ProjectPipeline:
         todo_items = [str(x).strip() for x in (role_plan.get("todo_items") or []) if str(x).strip()]
         if not todo_items:
             todo_items = [f"{item.get('name')}: {item.get('objective')}" for item in (role_plan.get("roles") or [])]
-        lines = ["# Project TODO", ""]
+        todo_items = list(dict.fromkeys(todo_items + documentation_todo_items()))
+        lines = [f"# {project_todo_title()}", ""]
         for item in todo_items:
             lines.append(f"- [ ] {item}")
         todo_path = os.path.join(workspace, ".todo.md")
@@ -142,6 +144,7 @@ class ProjectPipeline:
     ) -> dict:
         target_workspace = os.path.abspath(workspace)
         os.makedirs(target_workspace, exist_ok=True)
+        ensure_documentation_files(target_workspace)
         planning_dir = self._planning_dir(target_workspace)
         run_id = f"project_run_{int(time.time())}"
 

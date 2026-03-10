@@ -59,9 +59,13 @@ def test_config_paths_ignores_engine_api_keys_when_disabled(monkeypatch, tmp_pat
 @pytest.mark.parametrize(
     ("provider_id", "expected_prefix", "expected_items"),
     [
-        ("claude_cli", ["claude"], ["-p", "--append-system-prompt", "--output-format", "json", "--permission-mode", "acceptEdits"]),
-        ("gemini_cli", ["gemini"], ["-p", "--output-format", "json", "--approval-mode", "auto_edit"]),
-        ("codex_cli", ["codex", "exec"], ["-c", "model_reasoning_effort=\"low\"", "--full-auto"]),
+        ("claude_cli", ["claude"], ["-p", "--append-system-prompt", "--output-format", "json", "--permission-mode", "bypassPermissions"]),
+        ("gemini_cli", ["gemini"], ["-p", "--output-format", "json", "--sandbox", "--approval-mode", "yolo"]),
+        (
+            "codex_cli",
+            ["codex", "--ask-for-approval", "never", "--sandbox", "workspace-write", "exec"],
+            ["-c", "model_reasoning_effort=\"low\""],
+        ),
     ],
 )
 def test_build_cli_command_uses_provider_specific_defaults(provider_id, expected_prefix, expected_items):
@@ -106,7 +110,14 @@ def test_codex_cli_path_override_keeps_exec_subcommand(monkeypatch):
         )
     )
 
-    assert cmd[:2] == [r"C:\Tools\codex.cmd", "exec"]
+    assert cmd[:6] == [
+        r"C:\Tools\codex.cmd",
+        "--ask-for-approval",
+        "never",
+        "--sandbox",
+        "workspace-write",
+        "exec",
+    ]
 
 
 def test_build_cli_command_falls_back_to_windows_roaming_npm_shim(monkeypatch):
@@ -167,6 +178,8 @@ def test_gemini_cli_prompt_prioritizes_task_before_system_context():
     assert prompt.startswith("Task: reply exactly")
     assert "Do not inspect files or use tools" in prompt
     assert "System instructions:" in prompt
+    assert "[Destructive Action Guard]" in prompt
+    assert "git reset --hard" in prompt
 
 
 def test_gemini_cli_normalized_default_alias_omits_model_flag():
@@ -183,6 +196,43 @@ def test_gemini_cli_normalized_default_alias_omits_model_flag():
     )
 
     assert "-m" not in cmd
+
+
+def test_codex_cli_combined_prompt_includes_destructive_guard():
+    from core.providers.cli import CliChatRequest, build_cli_command
+
+    cmd = build_cli_command(
+        CliChatRequest(
+            provider_id="codex_cli",
+            model="gpt-5",
+            system_prompt="system prompt",
+            task_input="execute task",
+            workspace="D:/workspace",
+        )
+    )
+
+    prompt = cmd[-1]
+    assert "[System Prompt]" in prompt
+    assert "[Destructive Action Guard]" in prompt
+    assert "git clean" in prompt
+
+
+def test_claude_cli_append_system_prompt_includes_destructive_guard():
+    from core.providers.cli import CliChatRequest, build_cli_command
+
+    cmd = build_cli_command(
+        CliChatRequest(
+            provider_id="claude_cli",
+            model="claude",
+            system_prompt="system prompt",
+            task_input="execute task",
+            workspace="D:/workspace",
+        )
+    )
+
+    prompt = cmd[cmd.index("--append-system-prompt") + 1]
+    assert "[Destructive Action Guard]" in prompt
+    assert "Remove-Item" in prompt
 
 
 @pytest.mark.parametrize(

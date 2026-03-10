@@ -49,6 +49,7 @@ def test_write_resume_brief_summarizes_manifest_todo_and_latest_session(tmp_path
     content = path.read_text(encoding="utf-8")
 
     assert path == workspace / "resume_brief.md"
+    assert "# Resume Brief" in content or "# 작업 재개 요약" in content
     assert "ship CLI continuity" in content
     assert "wire resume automation" in content
     assert "rerun claude e2e" in content

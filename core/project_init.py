@@ -16,6 +16,7 @@ from core.config_paths import (
     SKILL_LOCK_PATH, DASHBOARD_PATH, PROJECT_WORKFLOW_PATH,
     PROJECT_SETTINGS_PATH,
 )
+from core.documentation_policy import ensure_documentation_files
 
 
 def ensure_project_files():
@@ -88,3 +89,5 @@ def ensure_project_files():
                 allow_unicode=True,
                 default_flow_style=False,
             )
+
+    ensure_documentation_files(PROJECT_ROOT)

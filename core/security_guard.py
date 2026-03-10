@@ -117,6 +117,12 @@ try:
         _audit(f"BLOCKED socket.connect address={{address}}")
         raise PermissionError(f"Network access blocked: {{address}}")
     _socket.socket.connect = _blocked_connect
+
+    _orig_create_connection = _socket.create_connection
+    def _blocked_create_connection(address, *args, **kwargs):
+        _audit(f"BLOCKED socket.create_connection address={{address}}")
+        raise PermissionError(f"Network access blocked: {{address}}")
+    _socket.create_connection = _blocked_create_connection
 except Exception: pass
 
 _real_open = builtins.open

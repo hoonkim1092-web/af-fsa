@@ -18,7 +18,7 @@ def _safe_project_id(text: str) -> str:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Logi-Mind Agent Factory CLI")
+    parser = argparse.ArgumentParser(description="Agent Factory CLI")
     parser.add_argument("--project", "-p", type=str, required=True, help="프로젝트 ID (필수)")
     parser.add_argument("--role", "-r", type=str, help="에이전트 역할 (예: 'Saiba Midori', 'Backend Dev')")
     parser.add_argument("--task", "-t", type=str, help="에이전트에게 요청할 작업 내용")

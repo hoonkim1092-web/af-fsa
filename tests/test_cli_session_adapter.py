@@ -1,4 +1,6 @@
 import json
+import os
+import subprocess
 from pathlib import Path
 
 from core.providers.cli import CliChatRequest
@@ -35,10 +37,14 @@ def test_prepare_cli_session_writes_claude_hook_settings(tmp_path: Path):
     assert settings["hooks"]["UserPromptSubmit"]
     assert settings["hooks"]["PreCompact"]
     assert settings["hooks"]["SessionEnd"]
+    assert "permissions" in settings
+    assert "Bash(rm:*)" in settings["permissions"]["deny"]
+    assert "Bash(git reset --hard:*)" in settings["permissions"]["deny"]
     assert "PYTHONPATH" in prepared["env"]
     assert prepared["env"]["PYTHONPATH"]
     assert state["provider_id"] == "claude_cli"
     assert state["run_id"] == "run_claude_1"
+    assert state["destructive_guard_mode"] == "native_deny_rules"
 
 
 def test_prepare_cli_session_routes_gemini_hooks_via_generated_defaults_file(tmp_path: Path):
@@ -59,6 +65,8 @@ def test_prepare_cli_session_routes_gemini_hooks_via_generated_defaults_file(tmp
 
     defaults_path = Path(prepared["env"]["GEMINI_CLI_SYSTEM_DEFAULTS_PATH"])
     settings = _read_json(defaults_path)
+    guard_path = Path(prepared["guard_path"])
+    guard_text = guard_path.read_text(encoding="utf-8")
 
     assert prepared["mode"] == "native_hooks"
     assert defaults_path.exists()
@@ -67,8 +75,116 @@ def test_prepare_cli_session_routes_gemini_hooks_via_generated_defaults_file(tmp
     assert settings["hooks"]["AfterAgent"]
     assert settings["hooks"]["PreCompress"]
     assert settings["hooks"]["SessionEnd"]
+    assert str(guard_path) in settings["policyPaths"]
+    assert guard_path.exists()
+    assert 'include_tools = ["run_shell_command"]' in guard_text
+    assert 'pattern = "git"' in guard_text
     assert "PYTHONPATH" in prepared["env"]
     assert prepared["env"]["PYTHONPATH"]
+
+
+def test_prepare_cli_session_sets_codex_shell_guard_on_windows(tmp_path: Path):
+    workspace = tmp_path / "workspace"
+    workspace.mkdir(parents=True, exist_ok=True)
+
+    prepared = prepare_cli_session(
+        CliChatRequest(
+            provider_id="codex_cli",
+            model="gpt-5",
+            system_prompt="system prompt",
+            task_input="ship feature",
+            workspace=str(workspace),
+            run_id="run_codex_guard",
+        ),
+        ["codex", "exec", "ship feature"],
+    )
+
+    state = _read_json(Path(prepared["state_path"]))
+    if os.name != "nt":
+        assert prepared["guard_dir"] == ""
+        assert state["destructive_guard_mode"] == "system_prompt_contract"
+        return
+
+    guard_dir = Path(prepared["guard_dir"])
+    assert guard_dir.exists()
+    assert (guard_dir / "cmd.cmd").exists()
+    assert (guard_dir / "git.cmd").exists()
+    assert (guard_dir / "powershell.cmd").exists()
+    assert prepared["env"]["COMSPEC"] == str((guard_dir / "cmd.cmd").resolve())
+    assert prepared["env"]["PATH"].split(os.pathsep)[0] == str(guard_dir.resolve())
+    assert state["guard_dir"] == str(guard_dir)
+    assert state["destructive_guard_mode"] == "shell_proxy_and_system_prompt_contract"
+
+
+def test_codex_shell_guard_blocks_destructive_commands_on_windows(tmp_path: Path):
+    if os.name != "nt":
+        return
+
+    workspace = tmp_path / "workspace"
+    workspace.mkdir(parents=True, exist_ok=True)
+    prepared = prepare_cli_session(
+        CliChatRequest(
+            provider_id="codex_cli",
+            model="gpt-5",
+            system_prompt="system prompt",
+            task_input="ship feature",
+            workspace=str(workspace),
+            run_id="run_codex_guard_exec",
+        ),
+        ["codex", "exec", "ship feature"],
+    )
+    env = os.environ.copy()
+    env.update(prepared["env"])
+
+    comspec = prepared["env"]["COMSPEC"]
+    guard_dir = Path(prepared["guard_dir"])
+    blocked_stdout = workspace / "blocked_stdout.txt"
+    blocked_stderr = workspace / "blocked_stderr.txt"
+    allowed_stdout = workspace / "allowed_stdout.txt"
+    allowed_stderr = workspace / "allowed_stderr.txt"
+    process_stdout = workspace / "process_stdout.txt"
+    process_stderr = workspace / "process_stderr.txt"
+
+    with blocked_stdout.open("w", encoding="utf-8") as blocked_out, blocked_stderr.open("w", encoding="utf-8") as blocked_err:
+        blocked_shell = subprocess.run(
+            [comspec, "/c", "git reset --hard"],
+            cwd=workspace,
+            env=env,
+            stdin=subprocess.DEVNULL,
+            stdout=blocked_out,
+            stderr=blocked_err,
+            text=True,
+            check=False,
+        )
+    with allowed_stdout.open("w", encoding="utf-8") as allowed_out, allowed_stderr.open("w", encoding="utf-8") as allowed_err:
+        allowed_shell = subprocess.run(
+            [comspec, "/c", "echo hello"],
+            cwd=workspace,
+            env=env,
+            stdin=subprocess.DEVNULL,
+            stdout=allowed_out,
+            stderr=allowed_err,
+            text=True,
+            check=False,
+        )
+    with process_stdout.open("w", encoding="utf-8") as process_out, process_stderr.open("w", encoding="utf-8") as process_err:
+        blocked_process = subprocess.run(
+            [str(guard_dir / "powershell.cmd"), "-Command", "Remove-Item foo -Force"],
+            cwd=workspace,
+            env=env,
+            stdin=subprocess.DEVNULL,
+            stdout=process_out,
+            stderr=process_err,
+            text=True,
+            check=False,
+        )
+
+    assert blocked_shell.returncode == 126
+    assert "destructive guard blocked command" in blocked_stderr.read_text(encoding="utf-8").lower()
+    assert allowed_shell.returncode == 0
+    assert "hello" in allowed_stdout.read_text(encoding="utf-8").lower()
+    assert blocked_process.returncode == 126
+    assert "remove-item" in process_stderr.read_text(encoding="utf-8").lower()
 
 
 def test_handle_hook_event_returns_context_and_runs_bridge(monkeypatch, tmp_path: Path):

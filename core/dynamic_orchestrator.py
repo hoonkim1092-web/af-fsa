@@ -2,10 +2,12 @@ import asyncio
 import json
 import os
 import time
+from pathlib import Path
 from typing import Any, Dict, List
 
 from core.agent_runner import AgentRunner
 from core.ast_memory_hub import AstMemoryHub
+from core.continuity import OrchestratorManifestStore, workspace_runtime_file
 from core.evaluator import StrategyEvaluator
 from core.llm_engine import LLMEngine
 from core.manager import AgentManager
@@ -28,14 +30,60 @@ class DynamicOrchestrator:
 
         self.task_queue: asyncio.Queue = asyncio.Queue()
         self.active_tasks: Dict[str, asyncio.Task] = {}
+        self.active_assignments: Dict[str, Dict[str, str]] = {}
         self.state_board: Dict[str, Any] = {
             "completed_subtasks": [],
             "failed_subtasks": [],
+            "interrupted_subtasks": [],
             "agents_status": {},
             "current_status": "",
         }
         self.memory_hub = AstMemoryHub()
         self.evaluator = StrategyEvaluator(model_name=engine_id)
+        self._workspace: str | None = None
+        self._manifest_store: OrchestratorManifestStore | None = None
+        self._manifest_roles: List[str] = []
+        self._manifest_project_desc = ""
+
+    def _runtime_file(self, filename: str, workspace: str | None = None) -> Path:
+        target_workspace = workspace or self._workspace
+        if target_workspace:
+            return workspace_runtime_file(target_workspace, filename)
+        return Path(filename)
+
+    def _sync_manifest(self, force: bool = False) -> None:
+        if self._manifest_store is None:
+            return
+        self._manifest_store.save_snapshot(
+            self.state_board,
+            active_assignments=self.active_assignments,
+            roles=self._manifest_roles,
+            project_desc=self._manifest_project_desc,
+            force=force,
+        )
+
+    def _prepare_resume_state(self, project_desc: str, roles: List[str], workspace: str | None) -> None:
+        self._workspace = workspace or None
+        self._manifest_roles = list(roles or [])
+        self._manifest_project_desc = str(project_desc or "")
+        self.active_assignments = {}
+
+        if not self._workspace:
+            return
+
+        self._manifest_store = OrchestratorManifestStore(self._workspace)
+        loaded = self._manifest_store.load_resume_state()
+        self.state_board = {
+            "completed_subtasks": list(loaded.get("completed_subtasks", [])),
+            "failed_subtasks": list(loaded.get("failed_subtasks", [])),
+            "interrupted_subtasks": list(loaded.get("interrupted_subtasks", [])),
+            "agents_status": dict(loaded.get("agents_status", {})),
+            "current_status": str(loaded.get("current_status", "")),
+        }
+        for role in roles:
+            self.state_board["agents_status"].setdefault(role, "idle")
+        self.state_board["current_status"] = "running"
+        self._sync_manifest(force=True)
 
     def _open_todo_items(self, workspace: str) -> List[str]:
         todo_path = os.path.join(workspace, ".todo.md")
@@ -48,7 +96,9 @@ class DynamicOrchestrator:
                 line = str(raw or "").strip()
                 if line.startswith("- [ ] "):
                     items.append(line[6:].strip())
-                elif line.startswith("- ") and not line.startswith("- [x] "):
+                elif line.startswith("- [/] "):
+                    pass  # 진행 중 항목은 건너뛰기
+                elif line.startswith("- ") and not line.startswith("- [x] ") and not line.startswith("- [/] "):
                     items.append(line[2:].strip())
         return [item for item in items if item]
 
@@ -212,7 +262,8 @@ class DynamicOrchestrator:
                 if task_key and task_key in completed:
                     continue
                 filtered_tasks.append(task)
-            with open("dynamic_log.txt", "a", encoding="utf-8") as handle:
+            log_path = self._runtime_file("dynamic_log.txt", target_workspace)
+            with log_path.open("a", encoding="utf-8") as handle:
                 handle.write(
                     f"\n[Lilith] Cycle: {getattr(self, '_current_cycle', '?')}\n"
                     f"Roles: {available_roles}\nTasks: {tasks}\nFilteredTasks: {filtered_tasks}\nRaw: {json.dumps(data, ensure_ascii=False)}\n"
@@ -224,7 +275,7 @@ class DynamicOrchestrator:
                     return fallback_tasks
                 if not data:
                     print_agent_msg("Lilith", "LLM response empty. Retrying next cycle...", "")
-                    return [{"assigned_role": "__placeholder__", "subtask_instruction": "retry"}]
+                    return []  # 빈 배열 → _orchestration_loop에서 idle 대기
                 return []
             return filtered_tasks
         except Exception as exc:
@@ -232,7 +283,7 @@ class DynamicOrchestrator:
             fallback_tasks = self._fallback_next_tasks(available_roles, target_workspace)
             if fallback_tasks:
                 return fallback_tasks
-            return [{"assigned_role": "__placeholder__", "subtask_instruction": "error_retry"}]
+            return []  # 빈 배열 → _orchestration_loop에서 idle 대기
 
     async def _execute_agent_task(self, role: str, subtask: str, run_id: str, workspace: str | None = None):
         print_agent_msg("System", f"Dispatching [{role}] -> {subtask[:50]}...", "")
@@ -240,6 +291,11 @@ class DynamicOrchestrator:
 
         try:
             target_workspace = workspace or os.getcwd()
+            self.active_assignments.setdefault(
+                run_id,
+                {"role": role, "subtask": subtask, "workspace": target_workspace},
+            )
+            self._sync_manifest()
             agent_data = self.agent_mgr.get_or_create(role, workspace=target_workspace)
             result = await asyncio.to_thread(
                 self.runner.run,
@@ -260,6 +316,7 @@ class DynamicOrchestrator:
                     changes_summary=f"Completed subtask: {subtask[:50]}",
                 )
                 print_agent_msg(role, "Task completed.", "")
+                self._sync_manifest()
             else:
                 reason = result.get("reason", "Unknown error") if result else "No result"
                 print_agent_msg(role, f"Task failed: {reason[:100]}", "")
@@ -278,14 +335,18 @@ class DynamicOrchestrator:
                         "evaluator_advice": eval_res.get("new_instruction"),
                     }
                 )
+                self._sync_manifest()
         except Exception as exc:
             self.state_board["failed_subtasks"].append(
                 {"role": role, "subtask": subtask, "reason": str(exc)}
             )
             print_agent_msg(role, f"Task crashed: {exc}", "")
+            self._sync_manifest()
         finally:
             self.state_board["agents_status"][role] = "idle"
             self.active_tasks.pop(run_id, None)
+            self.active_assignments.pop(run_id, None)
+            self._sync_manifest()
 
     async def _orchestration_loop(self, project_desc: str, roles: List[str], workspace: str | None = None):
         target_workspace = workspace or os.getcwd()
@@ -320,12 +381,19 @@ class DynamicOrchestrator:
                 if role and instruction and role in roles and self.state_board["agents_status"].get(role) == "idle":
                     task_id = f"run_{int(time.time())}_{role}"
                     self.state_board["agents_status"][role] = "working"
+                    self.active_assignments[task_id] = {
+                        "role": role,
+                        "subtask": instruction,
+                        "workspace": target_workspace,
+                    }
+                    self._sync_manifest()
                     task_obj = asyncio.create_task(self._execute_agent_task(role, instruction, task_id, target_workspace))
                     self.active_tasks[task_id] = task_obj
 
             await asyncio.sleep(2)
 
         self.state_board["current_status"] = "stopped_max_cycles" if cycle >= max_cycles else "completed"
+        self._sync_manifest(force=True)
 
         if self.active_tasks:
             print_agent_msg("Lilith", "Waiting for remaining tasks to complete before exit...", "")
@@ -333,12 +401,18 @@ class DynamicOrchestrator:
 
     def run_project(self, project_desc: str, roles: List[str], workspace: str | None = None) -> Dict[str, Any]:
         print_agent_msg("System", "Initializing Dynamic LLM-Driven Orchestrator (V3)", "")
+        self._prepare_resume_state(project_desc, roles, workspace)
         try:
             asyncio.run(self._orchestration_loop(project_desc, roles, workspace))
         except Exception as exc:
             import traceback
 
-            with open("crash.log", "w", encoding="utf-8") as handle:
+            self.state_board["current_status"] = "crashed"
+            crash_path = self._runtime_file("crash.log", workspace)
+            with crash_path.open("w", encoding="utf-8") as handle:
                 handle.write(traceback.format_exc())
+            self._sync_manifest(force=True)
             print_agent_msg("System", f"Orchestration loop crashed: {exc}", "")
+        else:
+            self._sync_manifest(force=True)
         return self.state_board

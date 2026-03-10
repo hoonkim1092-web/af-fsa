@@ -82,12 +82,9 @@ def get_best_model(fallback_list=None) -> str:
 
 
 def _flash_auto_upgrade_enabled() -> bool:
-    project_id = str(os.getenv("AGENT_PROJECT_ID", "") or "").strip().lower()
-    if project_id:
-        return project_id == "minesweeper"
-    project_root = str(os.getenv("AGENT_PROJECT_ROOT", "") or "").strip().replace("\\", "/").rstrip("/")
-    return project_root.endswith("/projects/minesweeper")
-
+    """환경변수 AGENT_FLASH_AUTO_UPGRADE=1로 제어."""
+    env_val = str(os.getenv("AGENT_FLASH_AUTO_UPGRADE", "") or "").strip().lower()
+    return env_val in ("1", "true", "yes", "on")
 
 # =============================================================================
 # [LLMEngine] Release 에이전트용 실행 엔진
@@ -189,10 +186,12 @@ class LLMEngine:
         try:
             if "```json" in text:
                 json_block = text.split("```json")[1].split("```")[0].strip()
-            elif "```" in text:
-                json_block = text.split("```")[1].split("```")[0].strip()
             else:
                 json_block = text.strip()
+                import re as _re
+                _m = _re.search(r'\{[\s\S]*\}', json_block)
+                if _m:
+                    json_block = _m.group(0)
             return json.loads(json_block)
         except json.JSONDecodeError as e:
             print(f"[LLMEngine Error] JSON parse failed: {e}")

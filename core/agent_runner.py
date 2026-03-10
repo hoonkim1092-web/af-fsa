@@ -16,12 +16,25 @@ try:
 except Exception:
     OpenAI = None
 
-from core.config_paths import *
-from core.utils import *
+from core.config_paths import (
+    BASE_DIR, PROJECT_ROOT, PROJECT_ID,
+    SKILLS_DIR, PROJECT_SKILLS_DIR, RUNS_DIR, DATA_DIR, ARTIFACTS_DIR,
+    GOOGLE_API_KEY, OPENAI_API_KEY,
+    AGENTS_DIR, EXTERNAL_CACHE_DIR,
+    GLOBAL_MEMORY_DIR, GLOBAL_AGENTS_DIR,
+)
+from core.utils import (
+    safe_id, now_iso, read_yaml, write_yaml, safe_json_load,
+    read_core_memory, get_random_signature, print_agent_msg,
+    is_codex_model, is_claude_model,
+    run_skill_safely, validate_context_with_schema, resolve_skill_paths,
+)
 from core.utils import _safe_write_json
 from core.registry import ToolRegistry
 from core.tool_runtime import ToolRuntimeWrapper
 from core.policy_runtime import PolicyRuntime
+from core.documentation_policy import inject_documentation_contract
+from core.destructive_guard import inject_destructive_guard_contract
 from core.hooks.event_bus import HookEventBus
 from core.hooks.guardrails import IntentGateHook, TodoContinuationEnforcer, ToolOutputTruncator
 from core.providers.cli import CliChatRequest, execute_cli_chat
@@ -30,9 +43,11 @@ from core.providers.registry import (
     get_requested_cli_providers,
     strip_engine_api_keys,
 )
+from core.model_router import ModelRouter
 from model_utils import (
     get_best_model,
     print_agent_model_summary,
+
     resolve_dynamic_model,
     _infer_engine_id,
     normalize_model_name,
@@ -57,256 +72,9 @@ def _safe_print(*args, **kwargs):
 class FallbackRejectedError(RuntimeError):
     pass
 
-class ModelRouter:
-    def pick(self, stage: str, agent_config: dict = None, is_complex: bool = True) -> str:
-        if stage == "chat":
-            # [우선순위 1] 환경변수로 강제 지정 시 무조건 우선
-            forced = (os.getenv("AGENT_CHAT_MODEL") or "").strip()
-            if forced:
-                return forced
+# [중복 제거 완료] quick_guard, BANNED_*, build_child_env, run_isolated ->
+# core/security_guard.py에 정의, core/utils.py를 통해 re-export됨.
 
-            # [우선순위 2] simple 작업 → 비용 최적화(Flash/Lightweight 계열)
-            cli_providers = get_requested_cli_providers(os.getenv("AGENT_CHAT_PROVIDER"))
-            if cli_providers:
-                return default_chat_model_for_provider(cli_providers[0])
-
-            if not is_complex:
-                sel = resolve_dynamic_model("lightweight")
-                return sel.model
-
-            # [우선순위 3] complex 작업 → 에이전트 역할 기반 동적 최적 모델
-            # (provider 환경변수로 Claude/Codex 강제 가능)
-            provider_raw = (os.getenv("AGENT_CHAT_PROVIDER") or "").strip().lower()
-            providers = [p.strip() for p in provider_raw.split(",") if p.strip()]
-            for provider in providers:
-                if provider == "codex" and OPENAI_API_KEY:
-                    return "codex-5.3"
-                if provider == "claude":
-                    from model_utils import _pick_anthropic_model
-                    return _pick_anthropic_model("sonnet") or "claude-4.6"
-
-            # [우선순위 4] 역할 기반 동적 모델 선택 (model_utils.resolve_dynamic_model)
-            role = ""
-            if agent_config:
-                role = (agent_config.get("role") or
-                        (agent_config.get("identity") or {}).get("role_summary") or
-                        agent_config.get("name") or "")
-            sel = resolve_dynamic_model(_infer_engine_id(role) if role else "researcher_gemini")
-            return sel.model
-
-        # 기획/추론 단계 → 실시간 가용 고성능 모델 반환 (하드코딩 배제)
-        if stage in ("requirement", "reasoning"):
-            return get_best_model(["gemini-2.5-pro", "gemini-2.5-flash", "gemini-2.0-pro"])
-
-        # 기본(정규화/Flash 단계) → API에서 최신 Flash 계열 동적 선택
-        from model_utils import get_dynamic_default_model
-        return get_dynamic_default_model("flash")
-
-# =============================================================================
-# 2) Quick Guard (AST) - 치명적인 보안 취약점 차단
-# =============================================================================
-BANNED_IMPORT_TOPS = {
-    "os", "sys", "subprocess", "shutil", "importlib",
-    "pathlib", "glob",
-    "ctypes",
-    "multiprocessing", "threading", "concurrent", "asyncio",
-}
-
-BANNED_CALLS = {"eval", "exec", "__import__", "compile", "input"}
-        # open 허용 (Runner 컨텍스트에서 안전하게 처리)
-
-def quick_guard(code: str) -> tuple[bool, list[str]]:
-    try:
-        tree = ast.parse(code)
-    except SyntaxError as e:
-        return False, [f"SyntaxError: {e}"]
-
-    vios: list[str] = []
-    for node in ast.walk(tree):
-        if isinstance(node, ast.Import):
-            for alias in node.names:
-                top = alias.name.split(".")[0]
-                if top in BANNED_IMPORT_TOPS:
-                    vios.append(f"Forbidden import: {alias.name}")
-
-        elif isinstance(node, ast.ImportFrom) and node.module:
-            top = node.module.split(".")[0]
-            if top in BANNED_IMPORT_TOPS:
-                vios.append(f"Forbidden import: {node.module}")
-
-        elif isinstance(node, ast.Call):
-            name = ""
-            if isinstance(node.func, ast.Name):
-                name = node.func.id
-            elif isinstance(node.func, ast.Attribute):
-                name = node.func.attr
-            if name in BANNED_CALLS:
-                vios.append(f"Forbidden call: {name}")
-
-    return (len(vios) == 0), vios
-
-def build_child_env() -> dict:
-    child = {}
-    for k in CHILD_ENV_PASSTHROUGH:
-        v = os.environ.get(k)
-        if v:
-            child[k] = v
-    return strip_engine_api_keys(child)
-
-# =============================================================================
-# 3) Isolated Run (Lite) - -I ?좎?, -S ?쒓굅(pandas ?덉슜)
-# =============================================================================
-def run_isolated(skill_py_path: str, timeout_sec: int = TEST_TIMEOUT_SEC) -> tuple[bool, dict, str]:
-    skill_abs = os.path.abspath(skill_py_path)
-    data_abs = os.path.abspath(DATA_DIR)
-    art_abs = os.path.abspath(ARTIFACTS_DIR)
-
-    # Windows 경로 안전 처리: repr 사용
-    SKILL_PATH = repr(skill_abs)
-    DATA_ROOT = repr(data_abs)
-    ART_ROOT = repr(art_abs)
-
-    runner = f"""
-import json, os, sys, builtins, importlib.util
-
-SKILL_PATH = {SKILL_PATH}
-DATA_ROOT  = {DATA_ROOT}
-ART_ROOT   = {ART_ROOT}
-
-            # 1) sys.path 에서 CWD 제거 (모듈 하이재킹 방지)
-try:
-    cwd = os.getcwd()
-    sys.path = [p for p in sys.path if p not in ("", ".", cwd)]
-except Exception:
-    pass
-
-try:
-    import socket as _socket
-    AUDIT_PATH = os.path.join(ART_ROOT, "network_audit.log")
-
-    def _audit(line: str):
-        try:
-            ts = __import__("datetime").datetime.utcnow().isoformat()
-            with builtins.open(AUDIT_PATH, "a", encoding="utf-8") as f:
-                f.write(f"[{ts}] {line}\\n")
-        except Exception:
-            pass
-
-    _orig_connect = _socket.socket.connect
-    def _blocked_connect(self, address):
-        _audit(f"BLOCKED socket.connect address={address}")
-        raise PermissionError(f"Network access is blocked in the sandbox. (address={address})")
-    _socket.socket.connect = _blocked_connect
-
-    _orig_create_connection = _socket.create_connection
-    def _blocked_create_connection(address, *args, **kwargs):
-        _audit(f"BLOCKED socket.create_connection address={address}")
-        raise PermissionError(f"Network access is blocked in the sandbox. (address={address})")
-    _socket.create_connection = _blocked_create_connection
-except Exception:
-    pass
-
-            # 3) 파일 경로 통제 (Chroot-ish): data/artifacts 밖의 접근 차단
-_real_open = builtins.open
-BLOCK_EXT = (".py", ".pth", ".so", ".dll", ".exe")
-
-def _norm(p: str) -> str:
-    return os.path.normcase(os.path.realpath(os.path.abspath(p)))
-
-DATA_N = _norm(DATA_ROOT)
-ART_N  = _norm(ART_ROOT)
-
-def _is_within(path: str, root_norm: str) -> bool:
-    p = _norm(path)
-    return p == root_norm or p.startswith(root_norm + os.sep)
-
-def _safe_open(file, mode="r", *args, **kwargs):
-    if isinstance(file, int):
-        raise PermissionError("fd open blocked")
-    path = _norm(str(file))
-
-    # read: data/artifacts만 접근 허용
-    if not (_is_within(path, DATA_N) or _is_within(path, ART_N)):
-        raise PermissionError(f"open blocked: {path}")
-
-    # write: artifacts만 허용, 실행파일 작성 차단
-    if any(x in mode for x in ("w","a","x","+")):
-        if not _is_within(path, ART_N):
-            raise PermissionError(f"write blocked: {path}")
-        if path.endswith(BLOCK_EXT):
-            raise PermissionError(f"write ext blocked: {path}")
-
-    return _real_open(path, mode, *args, **kwargs)
-
-builtins.open = _safe_open
-
-# 4) Load skill
-try:
-    spec = importlib.util.spec_from_file_location("skill", SKILL_PATH)
-    m = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(m)
-except Exception as e:
-    print(json.dumps({{"ok": False, "reason": "import_failed", "error": str(e)}}, ensure_ascii=False))
-    raise SystemExit(1)
-
-missing = [fn for fn in ("propose","apply","test") if not hasattr(m, fn)]
-if missing:
-    print(json.dumps({{"ok": False, "reason": "missing_interface", "missing": missing}}, ensure_ascii=False))
-    raise SystemExit(2)
-
-ctx = {{"dry_run": True, "data_dir": DATA_ROOT, "artifacts_dir": ART_ROOT}}
-
-try:
-    res = m.test(ctx)
-    if not isinstance(res, dict):
-        res = {{"ok": False, "reason": "return_not_dict"}}
-    print(json.dumps(res, ensure_ascii=False))
-except Exception as e:
-    print(json.dumps({{"ok": False, "reason": "runtime_error", "error": str(e)}}, ensure_ascii=False))
-"""
-
-    try:
-        # Save runner script to a temporary file
-        temp_runner_path = os.path.join(ARTIFACTS_DIR, f"temp_runner_{int(time.time())}.py")
-        with open(temp_runner_path, "w", encoding="utf-8") as f:
-            f.write(runner)
-
-        # Execute using Safe Action Executor
-        exec_result = run_skill_safely(
-            role="Skill_Test",
-            skill_path=temp_runner_path,
-            args=[],
-            timeout=timeout_sec,
-            workdir=ARTIFACTS_DIR,
-        )
-        
-        # Clean up temp file
-        if os.path.exists(temp_runner_path):
-            os.remove(temp_runner_path)
-
-        if exec_result["status"] == "failed" and "timeout" in exec_result["error"].lower():
-            return False, {"ok": False, "reason": "timeout"}, "timeout"
-        elif exec_result["status"] == "failed":
-            return False, {"ok": False, "reason": "runner_error", "error": exec_result["error"]}, exec_result["error"]
-            
-        p_stdout = exec_result["stdout"]
-        p_stderr = exec_result["stderr"]
-        
-    except Exception as e:
-        return False, {"ok": False, "reason": "runner_error", "error": str(e)}, str(e)
-
-    out = p_stdout.strip()
-    err = p_stderr.strip()
-    if not out:
-        return False, {"ok": False, "reason": "empty_output"}, err
-
-    try:
-        j = json.loads(out.splitlines()[-1])
-        return bool(j.get("ok")), j, err
-    except Exception:
-        return False, {"ok": False, "reason": "non_json_output", "stdout": out}, err
-
-# =============================================================================
 # 4) Agent / Requirements
 # =============================================================================
 class AgentRunner:
@@ -334,6 +102,10 @@ class AgentRunner:
         if isinstance(lines, list):
             return [str(x) for x in lines if str(x).strip()]
         return []
+
+    def _build_runtime_system_prompt(self, agent: dict) -> str:
+        prompt = inject_documentation_contract(self._resolve_system_prompt(agent))
+        return inject_destructive_guard_contract(prompt)
 
     def _build_policy(self, agent: dict, loaded_skill_ids: list[str]) -> dict:
         rr = agent.get("runtime_rules", {}) if isinstance(agent, dict) else {}
@@ -447,14 +219,6 @@ class AgentRunner:
         for sid, fname in needs:
             print(f"- 스킬 `{sid}` / 도구 `{fname}`")
         print("실행 시마다 yes/y로 승인해야 진행됩니다.")
-
-    def _make_tool_wrapper(self, func, ctx: dict):
-        # Deprecated: Extracted to core.tool_runtime.ToolRuntimeWrapper
-        return func
-
-    def _build_tool_functions(self, modules: list, ctx: dict, policy: dict) -> list:
-        # Deprecated: Extracted to core.tool_runtime.ToolRuntimeWrapper
-        return []
 
     def _agent_prefers_codex(self, agent: dict, model_name: str) -> bool:
         if is_codex_model(model_name):
@@ -742,7 +506,7 @@ class AgentRunner:
         model_name = normalize_model_name(agent.get("preferred_model") or self.mr.pick("chat", agent_config=agent, is_complex=is_complex) or get_dynamic_default_model("flash"))
         
         # System Prompt construction
-        sys_prompt = self._resolve_system_prompt(agent)
+        sys_prompt = self._build_runtime_system_prompt(agent)
 
         # Knowledge Skill Injection (Progressive Disclosure)
         if hasattr(self, '_knowledge_skills') and self._knowledge_skills:

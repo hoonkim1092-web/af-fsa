@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from core.documentation_policy import resume_brief_strings
 from core.continuity.runtime_paths import workspace_runtime_dir
 
 
@@ -89,6 +90,8 @@ def _format_task(item: Any, include_reason: bool = False) -> str:
 
 def build_resume_brief(workspace: str | Path, trigger: str = "manual") -> str:
     workspace_path = Path(workspace).resolve()
+    strings = resume_brief_strings()
+    labels = dict(strings["labels"])
     manifest = _load_manifest(workspace_path)
     state_board = manifest.get("state_board", {}) if isinstance(manifest, dict) else {}
     if not isinstance(state_board, dict):
@@ -102,50 +105,50 @@ def build_resume_brief(workspace: str | Path, trigger: str = "manual") -> str:
     session_path, session_state = _latest_session_state(workspace_path)
 
     lines = [
-        "# Resume Brief",
+        f"# {strings['title']}",
         "",
-        f"- Generated At: {_now_iso()}",
-        f"- Trigger: {str(trigger or 'manual').strip()}",
-        f"- Workspace: `{workspace_path}`",
+        f"- {labels['generated_at']}: {_now_iso()}",
+        f"- {labels['trigger']}: {str(trigger or 'manual').strip()}",
+        f"- {labels['workspace']}: `{workspace_path}`",
     ]
 
     project_desc = str(manifest.get("project_desc", "") or "").strip()
     current_status = str(state_board.get("current_status", "") or "").strip()
     if project_desc:
-        lines.append(f"- Project: {project_desc}")
+        lines.append(f"- {labels['project']}: {project_desc}")
     if roles:
-        lines.append(f"- Roles: {', '.join(roles)}")
+        lines.append(f"- {labels['roles']}: {', '.join(roles)}")
     if current_status:
-        lines.append(f"- Status: {current_status}")
+        lines.append(f"- {labels['status']}: {current_status}")
     lines.extend(
         [
-            f"- Completed Count: {len(completed)}",
-            f"- Failed Count: {len(failed)}",
-            f"- Interrupted Count: {len(interrupted)}",
+            f"- {labels['completed_count']}: {len(completed)}",
+            f"- {labels['failed_count']}: {len(failed)}",
+            f"- {labels['interrupted_count']}: {len(interrupted)}",
         ]
     )
 
     if interrupted:
-        lines.extend(["", "## Interrupted Subtasks"])
+        lines.extend(["", f"## {labels['interrupted_subtasks']}"])
         for item in interrupted[:5]:
             text = _format_task(item)
             if text:
                 lines.append(f"- {text}")
 
     if failed:
-        lines.extend(["", "## Recent Failures"])
+        lines.extend(["", f"## {labels['recent_failures']}"])
         for item in failed[:5]:
             text = _format_task(item, include_reason=True)
             if text:
                 lines.append(f"- {text}")
 
     if todos:
-        lines.extend(["", "## Open Todos"])
+        lines.extend(["", f"## {labels['open_todos']}"])
         for todo in todos:
             lines.append(f"- {todo}")
 
     if session_state:
-        lines.extend(["", "## Latest CLI Session"])
+        lines.extend(["", f"## {labels['latest_cli_session']}"])
         provider_id = str(session_state.get("provider_id", "") or "").strip()
         run_id = str(session_state.get("run_id", "") or "").strip()
         model = str(session_state.get("model", "") or "").strip()
@@ -153,19 +156,19 @@ def build_resume_brief(workspace: str | Path, trigger: str = "manual") -> str:
         transcript_path = str(session_state.get("transcript_path", "") or "").strip()
         last_response = str(session_state.get("last_response_excerpt", "") or "").strip()
         if provider_id:
-            lines.append(f"- Provider: `{provider_id}`")
+            lines.append(f"- {labels['provider']}: `{provider_id}`")
         if run_id:
-            lines.append(f"- Run ID: `{run_id}`")
+            lines.append(f"- {labels['run_id']}: `{run_id}`")
         if model:
-            lines.append(f"- Model: `{model}`")
+            lines.append(f"- {labels['model']}: `{model}`")
         if session_id:
-            lines.append(f"- Session ID: `{session_id}`")
+            lines.append(f"- {labels['session_id']}: `{session_id}`")
         if transcript_path:
-            lines.append(f"- Transcript: `{transcript_path}`")
+            lines.append(f"- {labels['transcript']}: `{transcript_path}`")
         if session_path is not None:
-            lines.append(f"- State File: `{session_path.name}`")
+            lines.append(f"- {labels['state_file']}: `{session_path.name}`")
         if last_response:
-            lines.extend(["", "### Last Response Excerpt", last_response])
+            lines.extend(["", f"### {labels['last_response_excerpt']}", last_response])
 
     return "\n".join(lines).strip() + "\n"
 

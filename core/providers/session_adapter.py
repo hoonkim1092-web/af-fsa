@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 import subprocess
 import sys
 from dataclasses import dataclass
@@ -11,6 +12,11 @@ from typing import Any
 
 from core.continuity.resume_brief import read_resume_brief_excerpt, write_resume_brief
 from core.continuity.runtime_paths import workspace_runtime_dir
+from core.destructive_guard import (
+    attach_gemini_policy_path,
+    merge_claude_destructive_guard,
+    write_gemini_destructive_policy,
+)
 from scripts.session_bridge import run_bridge
 
 
@@ -54,6 +60,20 @@ def _append_jsonl(path: Path, payload: dict[str, Any]) -> None:
 
 def _now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
+
+
+def _prepend_path(entry: str, existing: str) -> str:
+    parts = [str(entry or "").strip()]
+    if existing:
+        parts.extend(part for part in str(existing).split(os.pathsep) if part)
+    return os.pathsep.join(dict.fromkeys(part for part in parts if part))
+
+
+def _prepend_pathext(*extensions: str, existing: str) -> str:
+    wanted = [str(ext or "").strip().upper() for ext in extensions if str(ext or "").strip()]
+    current = [part.strip().upper() for part in str(existing or "").split(";") if part.strip()]
+    merged = list(dict.fromkeys([*wanted, *current]))
+    return ";".join(merged)
 
 
 @dataclass(frozen=True)
@@ -112,6 +132,8 @@ def _runtime_paths(provider_id: str, workspace: str, run_id: str) -> dict[str, P
         "state_path": base / f"{_safe_slug(provider_id)}_{slug}.json",
         "events_path": base / f"{_safe_slug(provider_id)}_{slug}_events.jsonl",
         "gemini_defaults_path": base / f"{_safe_slug(provider_id)}_{slug}_gemini_defaults.json",
+        "gemini_policy_path": base / f"{_safe_slug(provider_id)}_{slug}_destructive_guard.toml",
+        "codex_guard_dir": base / f"{_safe_slug(provider_id)}_{slug}_shell_guard",
     }
 
 
@@ -230,11 +252,12 @@ def _write_claude_settings(workspace: str, run_id: str) -> Path:
         hooks[event_name] = _merge_named_hook_group(hooks.get(event_name, []), hook_name, command)
 
     data["hooks"] = hooks
+    data = merge_claude_destructive_guard(data)
     _save_json(settings_path, data)
     return settings_path
 
 
-def _write_gemini_defaults(workspace: str, run_id: str, defaults_path: Path) -> Path:
+def _write_gemini_defaults(workspace: str, run_id: str, defaults_path: Path, policy_path: Path) -> tuple[Path, Path]:
     repo_root = _repo_root()
     data = _load_json(defaults_path)
     if not isinstance(data, dict):
@@ -249,8 +272,60 @@ def _write_gemini_defaults(workspace: str, run_id: str, defaults_path: Path) -> 
         hooks[event_name] = _merge_named_hook_group(hooks.get(event_name, []), hook_name, command)
 
     data["hooks"] = hooks
+    guard_path = write_gemini_destructive_policy(policy_path)
+    data = attach_gemini_policy_path(data, guard_path)
     _save_json(defaults_path, data)
-    return defaults_path
+    return defaults_path, guard_path
+
+
+def _resolve_delegate_path(command: str) -> str:
+    if os.name == "nt" and str(command).lower() == "cmd":
+        comspec = str(os.getenv("ComSpec", "") or os.getenv("COMSPEC", "")).strip()
+        if comspec:
+            return comspec
+    for candidate in (command, f"{command}.exe", f"{command}.cmd"):
+        found = shutil.which(candidate)
+        if found:
+            return found
+    return command
+
+
+def _write_codex_shell_guard(paths: dict[str, Path], repo_root: Path) -> tuple[Path, dict[str, str]]:
+    guard_dir = paths["codex_guard_dir"]
+    guard_dir.mkdir(parents=True, exist_ok=True)
+
+    python_exe = str(Path(sys.executable).resolve())
+    proxy_script = str((repo_root / "scripts" / "destructive_guard_proxy.py").resolve())
+    delegates = {
+        "cmd": _resolve_delegate_path("cmd"),
+        "git": _resolve_delegate_path("git"),
+        "powershell": _resolve_delegate_path("powershell"),
+        "pwsh": _resolve_delegate_path("pwsh"),
+    }
+
+    def _wrapper_text(target: str, delegate: str) -> str:
+        return (
+            "@echo off\r\n"
+            "setlocal\r\n"
+            f"\"{python_exe}\" \"{proxy_script}\" --target {target} --delegate \"{delegate}\" -- %*\r\n"
+            "exit /b %ERRORLEVEL%\r\n"
+        )
+
+    wrappers = {
+        "cmd.cmd": _wrapper_text("cmd", delegates["cmd"]),
+        "git.cmd": _wrapper_text("git", delegates["git"]),
+        "powershell.cmd": _wrapper_text("powershell", delegates["powershell"]),
+        "pwsh.cmd": _wrapper_text("pwsh", delegates["pwsh"]),
+    }
+    for filename, content in wrappers.items():
+        (guard_dir / filename).write_text(content, encoding="ascii")
+
+    env = {
+        "COMSPEC": str((guard_dir / "cmd.cmd").resolve()),
+        "PATH": _prepend_path(str(guard_dir.resolve()), str(os.getenv("PATH", "") or "")),
+        "PATHEXT": _prepend_pathext(".CMD", ".BAT", existing=str(os.getenv("PATHEXT", "") or "")),
+    }
+    return guard_dir, env
 
 
 def prepare_cli_session(request, command: list[str]) -> dict[str, Any]:
@@ -282,14 +357,33 @@ def prepare_cli_session(request, command: list[str]) -> dict[str, Any]:
     }
 
     settings_path = None
+    guard_path = None
+    guard_dir = None
     if spec.provider_id == "claude_cli":
         settings_path = _write_claude_settings(workspace, run_id)
     elif spec.provider_id == "gemini_cli":
-        settings_path = _write_gemini_defaults(workspace, run_id, paths["gemini_defaults_path"])
+        settings_path, guard_path = _write_gemini_defaults(
+            workspace,
+            run_id,
+            paths["gemini_defaults_path"],
+            paths["gemini_policy_path"],
+        )
         env["GEMINI_CLI_SYSTEM_DEFAULTS_PATH"] = str(settings_path)
+    elif spec.provider_id == "codex_cli" and os.name == "nt":
+        guard_dir, guard_env = _write_codex_shell_guard(paths, repo_root)
+        env.update(guard_env)
 
     if settings_path is not None:
         state["settings_path"] = str(settings_path)
+    if guard_path is not None:
+        state["guard_path"] = str(guard_path)
+    if guard_dir is not None:
+        state["guard_dir"] = str(guard_dir)
+    state["destructive_guard_mode"] = (
+        "native_deny_rules"
+        if spec.provider_id in {"claude_cli", "gemini_cli"}
+        else ("shell_proxy_and_system_prompt_contract" if guard_dir is not None else "system_prompt_contract")
+    )
 
     _save_json(paths["state_path"], state)
     resume_path = write_resume_brief(workspace, trigger="session_prepare")
@@ -301,6 +395,8 @@ def prepare_cli_session(request, command: list[str]) -> dict[str, Any]:
         "events_path": str(paths["events_path"]),
         "env": env,
         "settings_path": str(settings_path) if settings_path else "",
+        "guard_path": str(guard_path) if guard_path else "",
+        "guard_dir": str(guard_dir) if guard_dir else "",
         "resume_brief_path": str(resume_path),
     }
 
