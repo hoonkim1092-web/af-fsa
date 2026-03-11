@@ -1,0 +1,11 @@
+STDOUT:
+Running data processing...
+
+STDERR:
+Traceback (most recent call last):
+  File "D:\warkSpaces\agent-factory\test_fallback.py", line 8, in <module>
+    result = divide_numbers(10, 0)
+  File "D:\warkSpaces\agent-factory\test_fallback.py", line 3, in divide_numbers
+    return a / b
+           ~~^~~
+ZeroDivisionError: division by zero

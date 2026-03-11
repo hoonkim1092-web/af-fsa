@@ -69,11 +69,11 @@ def generate_eval_dataset(ctx, feedback_json_path: str, test_output_path: str) -
         
     os.makedirs(os.path.dirname(full_test_path), exist_ok=True)
     
-    test_code = f\"\"\"# Auto-generated eval test case
+    test_code = f"""# Auto-generated eval test case
 def test_regression_fix():
     # Load feedback from {feedback_json_path}
     assert True, "This is a placeholder for the generated assert based on failure feedback"
-\"\"\"
+"""
     
     with open(full_test_path, "w", encoding="utf-8") as f:
         f.write(test_code)
