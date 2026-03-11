@@ -1,0 +1,18 @@
+{
+  "key": "assistant 여기서 말한 루트 폴더는 문맥에 따라 다릅니다이 변경 기준으로는 주로 두 개입니다프로젝트 루트현재 작업 중인 워크스페이스 최상위입니다지금 세션에서는 DwarkSpacesagent-factoryDwa",
+  "value": "[assistant] 여기서 말한 “루트 폴더”는 문맥에 따라 다릅니다.  이 변경 기준으로는 주로 두 개입니다.  `프로젝트 루트` 현재 작업 중인 워크스페이스 최상위입니다. 지금 세션에서는 [D:\\warkSpaces\\agent-factory](/D:/warkSpaces/agent-factory) 입니다.  `공식 Codex skill root` Codex가 skill 디렉터리들을 찾는 `.../skills` 폴더 자체를 뜻합니다. 예를 들면: - `D:...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:38.084782+00:00",
+  "updated_at": "2026-03-10T17:40:38.084782+00:00",
+  "details": {
+    "text": "[assistant] 여기서 말한 “루트 폴더”는 문맥에 따라 다릅니다.\n\n이 변경 기준으로는 주로 두 개입니다.\n\n`프로젝트 루트`\n현재 작업 중인 워크스페이스 최상위입니다.\n지금 세션에서는 [D:\\warkSpaces\\agent-factory](/D:/warkSpaces/agent-factory) 입니다.\n\n`공식 Codex skill root`\nCodex가 skill 디렉터리들을 찾는 `.../skills` 폴더 자체를 뜻합니다.\n예를 들면:\n- `D:\\warkSpaces\\agent-factory\\.agents\\skills`\n- `D:\\warkSpaces\\agent-factory\\.codex\\skills`\n- `%USERPROFILE%\\.agents\\skills`\n- `%USERPROFILE%\\.codex\\skills`\n\n예를 들어 `review_guide` 스킬이면 실제 스킬 폴더는 이런 식입니다.\n\n```text\nD:\\warkSpaces\\agent-factory\\.agents\\skills\\review_guide\\SKILL.md\n```\n\n여기서 skill root는 `D:\\warkSpaces\\agent-factory\\.agents\\skills`이고,\n프로젝트 루트는 `D:\\warkSpaces\\agent-factory`입니다.\n\n원하시면 지금 코드에서 쓰는 “루트”를 전부 `프로젝트 루트`, `skill root`, `repo root`로 용어 통일해서 정리해드릴 수 있습니다.",
+    "event_timestamp": "2026-03-10T17:19:34.288Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/11/rollout-2026-03-11T01-30-46-019cd896-2cfb-7692-a889-53fc50ef1599.jsonl",
+    "session_line": 515,
+    "provider": "codex"
+  }
+}

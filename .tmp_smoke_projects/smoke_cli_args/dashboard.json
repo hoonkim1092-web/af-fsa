@@ -1,0 +1,33 @@
+{
+  "project_id": "smoke_cli_args",
+  "runs": [
+    {
+      "ts": "2026-03-11T03:03:32",
+      "type": "single_run",
+      "project_id": "smoke_cli_args",
+      "role": "General Assistant",
+      "task": "Return AGENT_FACTORY_OK",
+      "skills_loaded": [],
+      "ok": false,
+      "reason": "codex_cli_failed",
+      "latency_ms": 172,
+      "approval_rejects": 0,
+      "build_enabled": false,
+      "missing_skills_detected": []
+    },
+    {
+      "ts": "2026-03-11T03:15:09",
+      "type": "single_run",
+      "project_id": "smoke_cli_args",
+      "role": "General Assistant",
+      "task": "Return AGENT_FACTORY_OK",
+      "skills_loaded": [],
+      "ok": false,
+      "reason": "codex_cli_failed",
+      "latency_ms": 24777,
+      "approval_rejects": 0,
+      "build_enabled": false,
+      "missing_skills_detected": []
+    }
+  ]
+}

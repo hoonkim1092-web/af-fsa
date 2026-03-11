@@ -1,18 +1,18 @@
-{
-  "key": "assistant 텍스트가 거의 안 보여서 최소한 문서가 슬라이드 PDF인지와 섹션 개수는 파악됐습니다 제목 기준 구조를 뽑아보고 내용 추정이 불충분하면 그 한계를 명확히 둔 채 넣을 수 있는 기능군만 보수적으로 답",
-  "value": "[assistant] 텍스트가 거의 안 보여서, 최소한 문서가 슬라이드 PDF인지와 섹션 개수는 파악됐습니다. 제목 기준 구조를 뽑아보고, 내용 추정이 불충분하면 그 한계를 명확히 둔 채 “넣을 수 있는 기능군”만 보수적으로 답하겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T09:49:22.961763+00:00",
-  "updated_at": "2026-03-09T09:49:22.961763+00:00",
-  "details": {
-    "text": "[assistant] 텍스트가 거의 안 보여서, 최소한 문서가 슬라이드 PDF인지와 섹션 개수는 파악됐습니다. 제목 기준 구조를 뽑아보고, 내용 추정이 불충분하면 그 한계를 명확히 둔 채 “넣을 수 있는 기능군”만 보수적으로 답하겠습니다.",
-    "event_timestamp": "2026-03-09T07:42:47.102Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/09/rollout-2026-03-09T12-29-14-019cd0a4-4ded-7bd3-b7ae-a9832dc22d45.jsonl",
-    "session_line": 1011,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 텍스트가 거의 안 보여서 최소한 문서가 슬라이드 PDF인지와 섹션 개수는 파악됐습니다 제목 기준 구조를 뽑아보고 내용 추정이 불충분하면 그 한계를 명확히 둔 채 넣을 수 있는 기능군만 보수적으로 답",
+  "value": "[assistant] 텍스트가 거의 안 보여서, 최소한 문서가 슬라이드 PDF인지와 섹션 개수는 파악됐습니다. 제목 기준 구조를 뽑아보고, 내용 추정이 불충분하면 그 한계를 명확히 둔 채 “넣을 수 있는 기능군”만 보수적으로 답하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T09:49:22.961763+00:00",
+  "updated_at": "2026-03-09T09:49:22.961763+00:00",
+  "details": {
+    "text": "[assistant] 텍스트가 거의 안 보여서, 최소한 문서가 슬라이드 PDF인지와 섹션 개수는 파악됐습니다. 제목 기준 구조를 뽑아보고, 내용 추정이 불충분하면 그 한계를 명확히 둔 채 “넣을 수 있는 기능군”만 보수적으로 답하겠습니다.",
+    "event_timestamp": "2026-03-09T07:42:47.102Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/09/rollout-2026-03-09T12-29-14-019cd0a4-4ded-7bd3-b7ae-a9832dc22d45.jsonl",
+    "session_line": 1011,
+    "provider": "codex"
+  }
 }

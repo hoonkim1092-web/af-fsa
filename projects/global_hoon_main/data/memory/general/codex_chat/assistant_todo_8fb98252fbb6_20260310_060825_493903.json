@@ -1,0 +1,18 @@
+{
+  "key": "assistant 문서화 강제는 프롬프트 한 군데만 바꾸면 약합니다 중앙 프롬프트 주입과 프로젝트 계획 산출물 둘 다 손보는 쪽으로 갈지 확인하려고 실제 시스템 프롬프트 조립 경로와 todo 생성 경로를 읽고 있습니",
+  "value": "[assistant] 문서화 강제는 프롬프트 한 군데만 바꾸면 약합니다. 중앙 프롬프트 주입과 프로젝트 계획 산출물 둘 다 손보는 쪽으로 갈지 확인하려고, 실제 시스템 프롬프트 조립 경로와 `.todo` 생성 경로를 읽고 있습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T06:08:25.493950+00:00",
+  "updated_at": "2026-03-10T06:08:25.493950+00:00",
+  "details": {
+    "text": "[assistant] 문서화 강제는 프롬프트 한 군데만 바꾸면 약합니다. 중앙 프롬프트 주입과 프로젝트 계획 산출물 둘 다 손보는 쪽으로 갈지 확인하려고, 실제 시스템 프롬프트 조립 경로와 `.todo` 생성 경로를 읽고 있습니다.",
+    "event_timestamp": "2026-03-10T05:19:56.851Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 649,
+    "provider": "codex"
+  }
+}

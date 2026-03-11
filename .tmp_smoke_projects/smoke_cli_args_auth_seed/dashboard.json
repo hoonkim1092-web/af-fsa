@@ -1,0 +1,33 @@
+{
+  "project_id": "smoke_cli_args_auth_seed",
+  "runs": [
+    {
+      "ts": "2026-03-11T03:21:08",
+      "type": "single_run",
+      "project_id": "smoke_cli_args_auth_seed",
+      "role": "General Assistant",
+      "task": "Return AGENT_FACTORY_OK",
+      "skills_loaded": [],
+      "ok": true,
+      "reason": "codex_cli",
+      "latency_ms": 9266,
+      "approval_rejects": 0,
+      "build_enabled": false,
+      "missing_skills_detected": []
+    },
+    {
+      "ts": "2026-03-11T03:21:17",
+      "type": "single_run",
+      "project_id": "smoke_cli_args_auth_seed",
+      "role": "General Assistant",
+      "task": "Return AGENT_FACTORY_OK",
+      "skills_loaded": [],
+      "ok": true,
+      "reason": "codex_cli",
+      "latency_ms": 6906,
+      "approval_rejects": 0,
+      "build_enabled": false,
+      "missing_skills_detected": []
+    }
+  ]
+}

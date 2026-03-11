@@ -23,7 +23,7 @@ def test_project_scaffold_files_created(monkeypatch, tmp_path):
     assert os.path.exists(al.CONTEXT_SCHEMA_PATH)
     assert os.path.exists(al.SKILL_LOCK_PATH)
     assert os.path.exists(al.DASHBOARD_PATH)
-    assert os.path.basename(os.path.dirname(al.DASHBOARD_PATH)) == ".af_runtime"
+    assert al.DASHBOARD_PATH == os.path.join(al.PROJECT_ROOT, "dashboard.json")
 
 
 def test_register_built_updates_skill_lock(monkeypatch, tmp_path):
@@ -49,7 +49,6 @@ def test_register_built_updates_skill_lock(monkeypatch, tmp_path):
 
 def test_context_schema_validation_blocks_run(monkeypatch, tmp_path):
     al = _load_launcher(monkeypatch, tmp_path / "proj3")
-    # Force schema mismatch
     al.write_yaml(al.CONTEXT_SCHEMA_PATH, {"required_keys": ["agent", "data_dir", "artifacts_dir", "missing_key"]})
     runner = al.AgentRunner(al.ModelRouter())
     res = runner.run({"name": "a", "role": "r", "skills": []}, "do task")

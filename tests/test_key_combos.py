@@ -24,19 +24,19 @@ FAKE_OPENAI = ["gpt-4.1", "o3-2026-01", "codex-5.3"]
     ("env", "expected_tiers"),
     [
         (
-            {"GOOGLE_API_KEY": "", "OPENAI_API_KEY": "", "ANTHROPIC_API_KEY": ""},
+            {"GOOGLE_API_KEY": "", "GEMINI_API_KEY": "", "OPENAI_API_KEY": "", "ANTHROPIC_API_KEY": ""},
             {engine_id: "uncallable" for engine_id in ENGINE_IDS},
         ),
         (
-            {"GOOGLE_API_KEY": "", "OPENAI_API_KEY": "", "ANTHROPIC_API_KEY": "sk-ant"},
+            {"GOOGLE_API_KEY": "", "GEMINI_API_KEY": "", "OPENAI_API_KEY": "", "ANTHROPIC_API_KEY": "sk-ant"},
             {"architect_claude": "primary", "coder_claude": "primary", "researcher_gemini": "uncallable"},
         ),
         (
-            {"GOOGLE_API_KEY": "", "OPENAI_API_KEY": "sk-oai", "ANTHROPIC_API_KEY": ""},
+            {"GOOGLE_API_KEY": "", "GEMINI_API_KEY": "", "OPENAI_API_KEY": "sk-oai", "ANTHROPIC_API_KEY": ""},
             {"codex": "primary", "manager_gpt": "primary", "reasoner_o": "primary"},
         ),
         (
-            {"GOOGLE_API_KEY": "AIza", "OPENAI_API_KEY": "", "ANTHROPIC_API_KEY": ""},
+            {"GOOGLE_API_KEY": "AIza", "GEMINI_API_KEY": "", "OPENAI_API_KEY": "", "ANTHROPIC_API_KEY": ""},
             {"researcher_gemini": "primary", "gemini_flash": "primary", "codex": "uncallable"},
         ),
     ],
@@ -45,6 +45,8 @@ def test_engine_selection_per_key_combination(monkeypatch, env, expected_tiers):
     for key, value in env.items():
         monkeypatch.setenv(key, value)
     monkeypatch.delenv("AGENT_FORCE_MODEL", raising=False)
+    monkeypatch.delenv("AGENT_CHAT_PROVIDER", raising=False)
+    monkeypatch.delenv("AGENT_DISABLE_ENGINE_API_KEYS", raising=False)
 
     import model_utils
 

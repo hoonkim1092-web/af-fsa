@@ -1,4 +1,4 @@
-import os
+﻿import os
 import re
 import json
 import glob
@@ -8,6 +8,7 @@ from typing import Dict, List, Optional
 import yaml
 
 from core.external_skill_source_ids import normalize_external_source_id
+from core.install_candidate_utils import normalize_install_candidate_collection
 
 REGISTRY_FILE = os.path.join(os.getcwd(), "skills", "registry.yaml")
 DOCS_FILE = os.path.join(os.getcwd(), "skills", "skill_docs.md")
@@ -68,29 +69,15 @@ def _normalize_registry_data(data: dict) -> dict:
 
     raw_candidates = base.get("install_candidates", {})
     install_candidates: dict = {}
-    if isinstance(raw_candidates, dict):
-        for k, v in raw_candidates.items():
-            cid = _safe_id(str(k))
-            if isinstance(v, dict):
-                item = dict(v)
-                item["id"] = _safe_id(str(item.get("id") or cid))
-                raw_source_id = str(item.get("source_id") or item.get("source") or "").strip()
-                item["source_id"] = normalize_external_source_id(raw_source_id, default="registry")
-                item.pop("source", None)
-                install_candidates[cid] = item
-            elif isinstance(v, str) and v.strip():
-                install_candidates[cid] = {"id": cid, "path": v.strip(), "source_id": "registry"}
-    elif isinstance(raw_candidates, list):
-        for i, item in enumerate(raw_candidates):
-            if not isinstance(item, dict):
-                continue
-            cid = _safe_id(str(item.get("id") or f"cand_{i}"))
-            n = dict(item)
-            n["id"] = cid
-            raw_source_id = str(n.get("source_id") or n.get("source") or "").strip()
-            n["source_id"] = normalize_external_source_id(raw_source_id, default="registry")
-            n.pop("source", None)
-            install_candidates[cid] = n
+    for cid, item in normalize_install_candidate_collection(raw_candidates, default_source="registry").items():
+        if not isinstance(item, dict):
+            continue
+        n = dict(item)
+        n["id"] = _safe_id(str(n.get("id") or cid))
+        raw_source_id = str(n.get("source_id") or n.get("source") or "").strip()
+        n["source_id"] = normalize_external_source_id(raw_source_id, default="registry")
+        n.pop("source", None)
+        install_candidates[cid] = n
 
     return {"skills": skills, "install_candidates": install_candidates}
 
@@ -149,7 +136,7 @@ def check_skill_exists(skill_name: str, purpose_description: str) -> Optional[st
     if not skills:
         return None
 
-    llm = LLMEngine()  # 모델 자동 선택 (하드코딩 배제)
+    llm = LLMEngine()  # 紐⑤뜽 ?먮룞 ?좏깮 (?섎뱶肄붾뵫 諛곗젣)
     prompt = f"""
 You are a skill registry reviewer.
 Requested skill: '{skill_name}'
@@ -225,3 +212,5 @@ def rebuild_registry_from_disk(forge_dir: str, warehouse_dir: str):
                 continue
             name = os.path.basename(filepath).replace(".py", "")
             register_skill(name, "Legacy auto-registered skill.", filepath, capabilities=[name])
+
+

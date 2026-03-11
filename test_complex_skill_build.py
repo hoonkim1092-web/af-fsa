@@ -1,15 +1,27 @@
-import sys, os, shutil, tempfile
-sys.path.insert(0, os.getcwd())
-from unittest.mock import patch, MagicMock
-from core.utils import quick_guard, run_isolated
-from core.builder import SandboxedBuilder
+import os
+import shutil
+import sys
+import tempfile
+from unittest.mock import MagicMock, patch
+
 import core.config_paths as cp
+from core.builder import SandboxedBuilder
+from core.utils import quick_guard, run_isolated
+
+sys.path.insert(0, os.getcwd())
 
 P, F = 0, 0
+
+
 def ck(label, cond, detail=''):
     global P, F
-    if cond: P+=1; print(f'  [PASS] {label}')
-    else: F+=1; print(f'  [FAIL] {label}' + (f' | {detail}' if detail else ''))
+    if cond:
+        P += 1
+        print(f'  [PASS] {label}')
+    else:
+        F += 1
+        print(f'  [FAIL] {label}' + (f' | {detail}' if detail else ''))
+
 
 COMPLEX = r"""
 import json, hashlib
@@ -50,8 +62,8 @@ def test(ctx):
     assert res['ok'] is True
     assert res['aggregation']['count']==3
     assert abs(res['aggregation']['mean']-20.0)<0.001
-    norm_B = next(r for r in res['records'] if r['id']=='B')
-    assert abs(norm_B['norm']-0.5)<0.001
+    norm_b = next(r for r in res['records'] if r['id']=='B')
+    assert abs(norm_b['norm']-0.5)<0.001
     return {'ok':True,'tests_passed':6}
 """
 
@@ -68,93 +80,85 @@ def apply(ctx): return {}
 def test(ctx): raise ValueError('intentional fail')
 """
 
+
 tmp = tempfile.mkdtemp(prefix='af_skilltest_')
-mr = MagicMock(); mr.pick.return_value = 'MOCK_MODEL'
+mr = MagicMock()
+mr.pick.return_value = 'MOCK_MODEL'
+sdk_meta = {'backend': 'sdk', 'reason': 'sdk', 'detail': ''}
 
 try:
-    # ── 1. Planning-First Gate ──
     print('\n[1] Planning-First Gate')
     b = SandboxedBuilder(mr)
-    ok,_,meta = b.build_skill({'role':'DA'},'dp',{'goal':'g','constraints':[]},'r1',{})
+    ok, _, meta = b.build_skill({'role': 'DA'}, 'dp', {'goal': 'g', 'constraints': []}, 'r1', {})
     ck('empty evidence_pack blocked', not ok)
-    ck('reason=planning_first_violated', meta.get('reason')=='planning_first_violated')
-    ok2,_,_ = b.build_skill({'role':'DA'},'dp',{'goal':'g','constraints':[]},'r1',None)
+    ck('reason=planning_first_violated', meta.get('reason') == 'planning_first_violated')
+    ok2, _, _ = b.build_skill({'role': 'DA'}, 'dp', {'goal': 'g', 'constraints': []}, 'r1', None)
     ck('None evidence_pack blocked', not ok2)
 
-    # ── 2. quick_guard ──
     print('\n[2] quick_guard Security Check')
-    ok,vios = quick_guard(COMPLEX)
+    ok, vios = quick_guard(COMPLEX)
     ck('complex code passes guard', ok, str(vios))
-    ok2,vios2 = quick_guard(BAD)
+    ok2, vios2 = quick_guard(BAD)
     ck('subprocess blocked', not ok2)
-    ck('violations list returned', len(vios2)>0)
+    ck('violations list returned', len(vios2) > 0)
 
-    # ── 3. run_isolated ──
     print('\n[3] run_isolated Sandbox')
-    cpath = os.path.join(tmp,'skill.py')
-    with open(cpath,'w',encoding='utf-8') as f: f.write(COMPLEX)
+    cpath = os.path.join(tmp, 'skill.py')
+    with open(cpath, 'w', encoding='utf-8') as handle:
+        handle.write(COMPLEX)
     t_ok, t_json, t_err = run_isolated(cpath, timeout_sec=30)
     ck('sandbox execute success', t_ok, t_err or '')
     if t_ok and t_json:
         ck('test() ok=True', t_json.get('ok') is True)
-        ck('tests_passed=6', t_json.get('tests_passed')==6)
+        ck('tests_passed=6', t_json.get('tests_passed') == 6)
 
-    # ── 4. Full Build Pipeline (Mocked LLM) ──
-    print('\n[4] Full Build Pipeline (Mocked LLM)')
-    mock_resp = MagicMock(); mock_resp.text = COMPLEX
-    evp = {'targets':{'dp':{'summary':'data pipeline','ref_code':''}}}
+    print('\n[4] Full Build Pipeline (Mocked Generation)')
+    evp = {'targets': {'dp': {'summary': 'data pipeline', 'ref_code': ''}}}
 
     orig_s, orig_r = cp.SKILLS_DIR, cp.RUNS_DIR
-    cp.SKILLS_DIR = os.path.join(tmp,'skills')
-    cp.RUNS_DIR   = os.path.join(tmp,'runs')
+    cp.SKILLS_DIR = os.path.join(tmp, 'skills')
+    cp.RUNS_DIR = os.path.join(tmp, 'runs')
     os.makedirs(cp.SKILLS_DIR, exist_ok=True)
     os.makedirs(cp.RUNS_DIR, exist_ok=True)
     try:
         b2 = SandboxedBuilder(mr)
-        with patch.dict(os.environ, {'GOOGLE_API_KEY':'MOCKKEY'}):
-            with patch('core.builder.genai') as mg:
-                mc = MagicMock(); mc.models.generate_content.return_value = mock_resp
-                mg.Client.return_value = mc
-                ok3,cp3,meta3 = b2.build_skill(
-                    {'role':'DA','name':'T'}, 'dp',
-                    {'goal':'g','constraints':[]}, 'r2', evp
-                )
-        ck('build success', ok3, str(meta3.get('last_test_detail',{})))
+        with patch.object(b2, '_generate_code', return_value=(COMPLEX, dict(sdk_meta))):
+            ok3, cp3, meta3 = b2.build_skill(
+                {'role': 'DA', 'name': 'T'}, 'dp',
+                {'goal': 'g', 'constraints': []}, 'r2', evp
+            )
+        ck('build success', ok3, str(meta3.get('last_test_detail', {})))
         ck('code_path exists', bool(cp3 and os.path.exists(cp3)))
-        ck('status=active', meta3.get('status')=='active')
+        ck('status=active', meta3.get('status') == 'active')
         ck('code_hash present', bool(meta3.get('code_hash')))
     finally:
         cp.SKILLS_DIR = orig_s
         cp.RUNS_DIR = orig_r
 
-    # ── 5. Feedback Loop (fail -> fix -> pass) ──
     print('\n[5] Feedback Loop (Fail -> Fix -> Pass)')
-    evp2 = {'targets':{'dp':{'summary':'pipeline','ref_code':''}}}
+    evp2 = {'targets': {'dp': {'summary': 'pipeline', 'ref_code': ''}}}
     calls = [0]
-    mock_br = MagicMock(); mock_br.text = BROKEN
-    mock_fx = MagicMock(); mock_fx.text = COMPLEX
 
-    def side(model, contents):
-        calls[0]+=1
-        return mock_br if calls[0]==1 else mock_fx
+    def side_effect(*args, **kwargs):
+        calls[0] += 1
+        if calls[0] == 1:
+            return BROKEN, dict(sdk_meta)
+        return COMPLEX, dict(sdk_meta)
 
     orig_s2, orig_r2 = cp.SKILLS_DIR, cp.RUNS_DIR
-    cp.SKILLS_DIR = os.path.join(tmp,'skills2')
-    cp.RUNS_DIR   = os.path.join(tmp,'runs2')
+    cp.SKILLS_DIR = os.path.join(tmp, 'skills2')
+    cp.RUNS_DIR = os.path.join(tmp, 'runs2')
     os.makedirs(cp.SKILLS_DIR, exist_ok=True)
     os.makedirs(cp.RUNS_DIR, exist_ok=True)
     try:
         b3 = SandboxedBuilder(mr)
-        with patch.dict(os.environ, {'GOOGLE_API_KEY':'MOCKKEY'}):
-            with patch('core.builder.genai') as mg2:
-                mc2 = MagicMock(); mc2.models.generate_content.side_effect = side
-                mg2.Client.return_value = mc2
-                ok4,_,meta4 = b3.build_skill(
-                    {'role':'DA','name':'T'}, 'dp',
-                    {'goal':'g','constraints':[]}, 'r3', evp2
-                )
-        ck('feedback loop final success', ok4, str(meta4.get('last_test_detail',{})))
-        ck('LLM called >=2 times (retry)', calls[0]>=2, f'called={calls[0]}')
+        with patch.object(b3, '_generate_code', side_effect=side_effect):
+            ok4, _, meta4 = b3.build_skill(
+                {'role': 'DA', 'name': 'T'}, 'dp',
+                {'goal': 'g', 'constraints': []}, 'r3', evp2
+            )
+        ck('feedback loop final success', ok4, str(meta4.get('last_test_detail', {})))
+        ck('generation called >=2 times (retry)', calls[0] >= 2, f'called={calls[0]}')
     finally:
         cp.SKILLS_DIR = orig_s2
         cp.RUNS_DIR = orig_r2
@@ -163,5 +167,7 @@ finally:
     shutil.rmtree(tmp, ignore_errors=True)
 
 print(f'\nResults: [PASS] {P} / [FAIL] {F}')
-if F==0: print('ALL COMPLEX SKILL TESTS PASSED!')
-else: sys.exit(1)
+if F == 0:
+    print('ALL COMPLEX SKILL TESTS PASSED!')
+else:
+    sys.exit(1)

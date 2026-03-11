@@ -1,41 +1,41 @@
-import json, hashlib
-from datetime import datetime
-
-def _validate(r):
-    return all(k in r for k in ['id','value','timestamp']) and isinstance(r.get('value'),(int,float))
-
-def _norm(v,mn,mx):
-    return 0.0 if mx==mn else (v-mn)/(mx-mn)
-
-def propose(ctx):
-    recs = ctx.get('records',[])
-    valid = [r for r in recs if _validate(r)]
-    return {'plan':'collect->validate->normalize->aggregate','valid_count':len(valid),'invalid_count':len(recs)-len(valid)}
-
-def apply(ctx):
-    recs = ctx.get('records',[])
-    valid = [r for r in recs if _validate(r)]
-    if not valid: return {'ok':False,'reason':'no_valid_records'}
-    vals = [r['value'] for r in valid]
-    mn,mx = min(vals),max(vals)
-    norm = [{'id':r['id'],'raw':r['value'],'norm':round(_norm(r['value'],mn,mx),4)} for r in valid]
-    agg = {'count':len(norm),'mean':round(sum(r['raw'] for r in norm)/len(norm),4),'min':mn,'max':mx}
-    return {'ok':True,'records':norm,'aggregation':agg}
-
-def test(ctx):
-    tc = {'records':[
-        {'id':'A','value':10.0,'timestamp':'2026-01-01'},
-        {'id':'B','value':20.0,'timestamp':'2026-01-02'},
-        {'id':'C','value':30.0,'timestamp':'2026-01-03'},
-        {'id':'BAD','timestamp':'2026-01-04'},
-    ]}
-    plan = propose(tc)
-    assert plan['valid_count']==3
-    assert plan['invalid_count']==1
-    res = apply(tc)
-    assert res['ok'] is True
-    assert res['aggregation']['count']==3
-    assert abs(res['aggregation']['mean']-20.0)<0.001
-    norm_B = next(r for r in res['records'] if r['id']=='B')
-    assert abs(norm_B['norm']-0.5)<0.001
+import json, hashlib
+from datetime import datetime
+
+def _validate(r):
+    return all(k in r for k in ['id','value','timestamp']) and isinstance(r.get('value'),(int,float))
+
+def _norm(v,mn,mx):
+    return 0.0 if mx==mn else (v-mn)/(mx-mn)
+
+def propose(ctx):
+    recs = ctx.get('records',[])
+    valid = [r for r in recs if _validate(r)]
+    return {'plan':'collect->validate->normalize->aggregate','valid_count':len(valid),'invalid_count':len(recs)-len(valid)}
+
+def apply(ctx):
+    recs = ctx.get('records',[])
+    valid = [r for r in recs if _validate(r)]
+    if not valid: return {'ok':False,'reason':'no_valid_records'}
+    vals = [r['value'] for r in valid]
+    mn,mx = min(vals),max(vals)
+    norm = [{'id':r['id'],'raw':r['value'],'norm':round(_norm(r['value'],mn,mx),4)} for r in valid]
+    agg = {'count':len(norm),'mean':round(sum(r['raw'] for r in norm)/len(norm),4),'min':mn,'max':mx}
+    return {'ok':True,'records':norm,'aggregation':agg}
+
+def test(ctx):
+    tc = {'records':[
+        {'id':'A','value':10.0,'timestamp':'2026-01-01'},
+        {'id':'B','value':20.0,'timestamp':'2026-01-02'},
+        {'id':'C','value':30.0,'timestamp':'2026-01-03'},
+        {'id':'BAD','timestamp':'2026-01-04'},
+    ]}
+    plan = propose(tc)
+    assert plan['valid_count']==3
+    assert plan['invalid_count']==1
+    res = apply(tc)
+    assert res['ok'] is True
+    assert res['aggregation']['count']==3
+    assert abs(res['aggregation']['mean']-20.0)<0.001
+    norm_B = next(r for r in res['records'] if r['id']=='B')
+    assert abs(norm_B['norm']-0.5)<0.001
     return {'ok':True,'tests_passed':6}

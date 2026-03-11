@@ -73,6 +73,17 @@ def test_factory_builds_unresolved_skill_and_registers(monkeypatch):
             }
         }
     }
+    factory.registry.resolve_and_install_external_detailed = lambda *_args, **_kwargs: {
+        "installed": {},
+        "results": {
+            "new_skill": {
+                "need_id": "new_skill",
+                "installed_skill_id": "",
+                "installed_from": "",
+                "attempts": [{"source_id": "external", "status": "miss", "reason": "not_installed"}],
+            }
+        },
+    }
 
     install_calls = []
     register_calls = []

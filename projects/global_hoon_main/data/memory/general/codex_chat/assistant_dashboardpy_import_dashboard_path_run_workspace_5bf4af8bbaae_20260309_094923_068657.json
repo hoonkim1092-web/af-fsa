@@ -1,18 +1,18 @@
-{
-  "key": "assistant 실패 원인이 단순 디렉터리 생성 누락만은 아닙니다 dashboardpy가 예전 테스트에서 import된 DASHBOARD_PATH를 붙잡고 있어서 현재 run과 다른 workspace 경로로 쓰려다",
-  "value": "[assistant] 실패 원인이 단순 디렉터리 생성 누락만은 아닙니다. `dashboard.py`가 예전 테스트에서 import된 `DASHBOARD_PATH`를 붙잡고 있어서, 현재 run과 다른 workspace 경로로 쓰려다 터지고 있습니다. 이 경로 결합을 동적으로 바꾸는 쪽으로 수정하겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T09:49:23.068767+00:00",
-  "updated_at": "2026-03-09T09:49:23.068767+00:00",
-  "details": {
-    "text": "[assistant] 실패 원인이 단순 디렉터리 생성 누락만은 아닙니다. `dashboard.py`가 예전 테스트에서 import된 `DASHBOARD_PATH`를 붙잡고 있어서, 현재 run과 다른 workspace 경로로 쓰려다 터지고 있습니다. 이 경로 결합을 동적으로 바꾸는 쪽으로 수정하겠습니다.",
-    "event_timestamp": "2026-03-09T09:17:59.967Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/09/rollout-2026-03-09T12-29-14-019cd0a4-4ded-7bd3-b7ae-a9832dc22d45.jsonl",
-    "session_line": 1823,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 실패 원인이 단순 디렉터리 생성 누락만은 아닙니다 dashboardpy가 예전 테스트에서 import된 DASHBOARD_PATH를 붙잡고 있어서 현재 run과 다른 workspace 경로로 쓰려다",
+  "value": "[assistant] 실패 원인이 단순 디렉터리 생성 누락만은 아닙니다. `dashboard.py`가 예전 테스트에서 import된 `DASHBOARD_PATH`를 붙잡고 있어서, 현재 run과 다른 workspace 경로로 쓰려다 터지고 있습니다. 이 경로 결합을 동적으로 바꾸는 쪽으로 수정하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T09:49:23.068767+00:00",
+  "updated_at": "2026-03-09T09:49:23.068767+00:00",
+  "details": {
+    "text": "[assistant] 실패 원인이 단순 디렉터리 생성 누락만은 아닙니다. `dashboard.py`가 예전 테스트에서 import된 `DASHBOARD_PATH`를 붙잡고 있어서, 현재 run과 다른 workspace 경로로 쓰려다 터지고 있습니다. 이 경로 결합을 동적으로 바꾸는 쪽으로 수정하겠습니다.",
+    "event_timestamp": "2026-03-09T09:17:59.967Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/09/rollout-2026-03-09T12-29-14-019cd0a4-4ded-7bd3-b7ae-a9832dc22d45.jsonl",
+    "session_line": 1823,
+    "provider": "codex"
+  }
 }

@@ -1,0 +1,18 @@
+{
+  "key": "assistant 이제 builder도 CLI-only 경로에서는 Gemini SDK 관련 import를 하지 않습니다 경고를 에러로 승격한 상태로 builder 테스트까지 다시 돌리겠습니다",
+  "value": "[assistant] 이제 builder도 CLI-only 경로에서는 Gemini SDK 관련 import를 하지 않습니다. 경고를 에러로 승격한 상태로 builder 테스트까지 다시 돌리겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:37.973016+00:00",
+  "updated_at": "2026-03-10T17:40:37.973016+00:00",
+  "details": {
+    "text": "[assistant] 이제 builder도 CLI-only 경로에서는 Gemini SDK 관련 import를 하지 않습니다. 경고를 에러로 승격한 상태로 builder 테스트까지 다시 돌리겠습니다.",
+    "event_timestamp": "2026-03-10T15:34:47.496Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
+    "session_line": 1430,
+    "provider": "codex"
+  }
+}

@@ -1,4 +1,4 @@
-from core.external_skill_sources import (
+﻿from core.external_skill_sources import (
     CodexOfficialSkillSource,
     ExternalSkillCandidate,
     ExternalSkillResolver,
@@ -144,6 +144,31 @@ def test_repo_cache_source_reads_imported_candidates(monkeypatch):
     assert candidates[0].source_repo == "repo"
     assert calls[0]["source_ids"] == ["claude_repo"]
     assert calls[0]["scan_python"] is False
+
+
+def test_repo_cache_source_uses_same_cache_segment_as_importer(monkeypatch, tmp_path):
+    cache_dir = tmp_path / "skills" / "_external_cache"
+    monkeypatch.setattr("core.external_skill_sources.EXTERNAL_CACHE_DIR", str(cache_dir))
+
+    source = RepoCacheSkillSource("claude_repo", [])
+    assert source.root_dir == str(cache_dir / "claude")
+
+    repo_root = cache_dir / "claude" / "repo_alpha"
+    skill_dir = repo_root / "skills" / "issue_tracker"
+    skill_dir.mkdir(parents=True, exist_ok=True)
+    (skill_dir / "skill.py").write_text("def apply(ctx):\n    return {'ok': True}\n", encoding="utf-8")
+    (repo_root / "skill_candidates.yaml").write_text(
+        "install_candidates:\n"
+        "  issue_tracker:\n"
+        "    path: skills/issue_tracker/skill.py\n",
+        encoding="utf-8",
+    )
+
+    candidates = source.iter_candidates()
+
+    assert len(candidates) == 1
+    assert candidates[0].skill_id == "issue_tracker"
+    assert candidates[0].source_repo == "repo_alpha"
 
 
 def test_repo_cache_source_falls_back_to_python_scan_when_manifest_missing(monkeypatch):

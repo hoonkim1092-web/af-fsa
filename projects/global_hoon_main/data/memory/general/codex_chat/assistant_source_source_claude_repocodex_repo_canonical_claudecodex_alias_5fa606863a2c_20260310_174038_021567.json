@@ -1,0 +1,18 @@
+{
+  "key": "assistant 외부 스킬 source 라벨 정리를 마무리했습니다 이제 외부 조달 source는 claude_repocodex_repo가 canonical이고 예전 claudecodex 값은 호환용 alias로만 ",
+  "value": "[assistant] 외부 스킬 source 라벨 정리를 마무리했습니다. 이제 외부 조달 source는 `claude_repo`/`codex_repo`가 canonical이고, 예전 `claude`/`codex` 값은 호환용 alias로만 남습니다.  핵심 변경은 [external_skill_source_ids.py](/D:/warkSpaces/agent-factory/core/external_skill_source_ids.py), [external_ski...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:38.021854+00:00",
+  "updated_at": "2026-03-10T17:40:38.021854+00:00",
+  "details": {
+    "text": "[assistant] 외부 스킬 source 라벨 정리를 마무리했습니다. 이제 외부 조달 source는 `claude_repo`/`codex_repo`가 canonical이고, 예전 `claude`/`codex` 값은 호환용 alias로만 남습니다.\n\n핵심 변경은 [external_skill_source_ids.py](/D:/warkSpaces/agent-factory/core/external_skill_source_ids.py), [external_skill_sources.py](/D:/warkSpaces/agent-factory/core/external_skill_sources.py), [external_skill_candidate_importer.py](/D:/warkSpaces/agent-factory/core/external_skill_candidate_importer.py) 에 들어갔습니다. 특히 importer는 기존 registry에 `claude_issue_tracker` 같은 legacy candidate key가 있어도, 새 candidate를 넣을 때 자동으로 제거하고 `claude_repo_issue_tracker`로 정리합니다. 관련 검증도 [test_external_skill_candidate_importer.py](/D:/warkSpaces/agent-factory/tests/test_external_skill_candidate_importer.py), [test_external_skill_sources.py](/D:/warkSpaces/agent-factory/tests/test_external_skill_sources.py), [test_skill_procurer_external_fallback.py](/D:/warkSpaces/agent-factory/tests/test_skill_procurer_external_fallback.py), [test_registry.py](/D:/warkSpaces/agent-factory/tests/test_registry.py) 에 추가/수정했습니다. 정책 기본값도 [project_init.py](/D:/warkSpaces/agent-factory/core/project_init.py) 와 [policies.yaml](/D:/warkSpaces/agent-factory/projects/agent_factory/policies.yaml) 에서 `claude_repo -> codex_repo -> registry -> external_cache` 순서로 맞췄고, 문서 예시도 [registry_schema.md](/D:/warkSpaces/agent-factory/docs/registry_schema.md) 에 반영했습니다.\n\n검증은 끝났습니다. `pytest` 대상 5개 묶음은 `16 passed`, `py_compile`도 통과했습니다.",
+    "event_timestamp": "2026-03-10T16:12:13.174Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
+    "session_line": 2025,
+    "provider": "codex"
+  }
+}

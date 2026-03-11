@@ -1,0 +1,54 @@
+[2026-03-11 03:23:44.233 codex.exe] START: powershell.exe -Command [Console]::OutputEncoding=[System.Text.Encoding]::UTF8;
+Set-Content -Path 'task_result.txt' -Value 'AGENT_FACTORY_OK'
+[2026-03-11 03:23:44.238 codex.exe] sandbox setup required: sandbox setup marker missing or incompatible
+[2026-03-10T18:23:44.274129900+00:00] ensuring sandbox users offline=CodexSandboxOffline online=CodexSandboxOnline
+[2026-03-10T18:23:44.585574800+00:00] firewall rule configured name=codex_sandbox_offline_block_outbound protocol=256 LocalUserAuthorizedList=O:LSD:(A;;CC;;;S-1-5-21-1847838546-905950632-3413774791-1003)
+[2026-03-10T18:23:44.594860300+00:00] granting write ACE to D:\warkSpaces\agent-factory\.tmp_smoke_projects\smoke_cli_args_stdin for sandbox group and capability SID
+[2026-03-10T18:23:44.595953500+00:00] granting write ACE to D:\warkSpaces\agent-factory\.tmp_smoke_projects\smoke_cli_args_stdin\.af_runtime\codex_home\memories for sandbox group and capability SID
+[2026-03-10T18:23:44.596144900+00:00] granting write ACE to D:\warkSpaces\agent-factory\.tmp_smoke_projects\smoke_cli_args_stdin\.af_runtime\codex_home\tmp for sandbox group and capability SID
+[2026-03-10T18:23:44.596305900+00:00] granting write ACE to D:\warkSpaces\agent-factory for sandbox group and capability SID
+[2026-03-10T18:23:44.618774400+00:00] read-acl-only mode: applying read ACLs
+[2026-03-10T18:23:44.622759500+00:00] read ACL run completed
+[2026-03-11 03:23:44.800 codex-windows-sandbox-setup.exe] setup binary completed
+[2026-03-11 03:23:44.810 codex.exe] setup refresh: spawning C:\Users\HOME\AppData\Roaming\npm\node_modules\@openai\codex\node_modules\@openai\codex-win32-x64\vendor\x86_64-pc-windows-msvc\codex\codex-windows-sandbox-setup.exe (cwd=D:\warkSpaces\agent-factory\.tmp_smoke_projects\smoke_cli_args_stdin, payload_len=3832)
+[2026-03-10T18:23:44.845971400+00:00] setup refresh: processed 4 write roots (read roots delegated); errors=[]
+[2026-03-11 03:23:44.846 codex-windows-sandbox-setup.exe] setup binary completed
+[2026-03-11 03:23:44.852 codex.exe] helper copy: validating command-runner source=C:\Users\HOME\AppData\Roaming\npm\node_modules\@openai\codex\node_modules\@openai\codex-win32-x64\vendor\x86_64-pc-windows-msvc\codex\codex-command-runner.exe destination=\\?\D:\warkSpaces\agent-factory\.tmp_smoke_projects\smoke_cli_args_stdin\.af_runtime\codex_home\.sandbox-bin\codex-command-runner.exe
+[2026-03-11 03:23:44.855 codex.exe] helper copy: recopied command-runner source=C:\Users\HOME\AppData\Roaming\npm\node_modules\@openai\codex\node_modules\@openai\codex-win32-x64\vendor\x86_64-pc-windows-msvc\codex\codex-command-runner.exe destination=\\?\D:\warkSpaces\agent-factory\.tmp_smoke_projects\smoke_cli_args_stdin\.af_runtime\codex_home\.sandbox-bin\codex-command-runner.exe
+[2026-03-11 03:23:44.855 codex.exe] helper launch resolution: using copied command-runner path \\?\D:\warkSpaces\agent-factory\.tmp_smoke_projects\smoke_cli_args_stdin\.af_runtime\codex_home\.sandbox-bin\codex-command-runner.exe
+[2026-03-11 03:23:44.856 codex.exe] runner launch: exe=\\?\D:\warkSpaces\agent-factory\.tmp_smoke_projects\smoke_cli_args_stdin\.af_runtime\codex_home\.sandbox-bin\codex-command-runner.exe cmdline=\\?\D:\warkSpaces\agent-factory\.tmp_smoke_projects\smoke_cli_args_stdin\.af_runtime\codex_home\.sandbox-bin\codex-command-runner.exe --request-file=\\?\D:\warkSpaces\agent-factory\.tmp_smoke_projects\smoke_cli_args_stdin\.af_runtime\codex_home\.sandbox\requests\request-6a929d040f203a80e4872adbde1baae4.json cwd=D:\warkSpaces\agent-factory\.tmp_smoke_projects\smoke_cli_args_stdin
+[2026-03-10T18:23:44.870284800+00:00] read-acl-only mode: applying read ACLs
+[2026-03-10T18:23:44.874867700+00:00] read ACL run completed
+[2026-03-11 03:23:45.025 codex-command-runner.exe] runner start cwd=D:\warkSpaces\agent-factory\.tmp_smoke_projects\smoke_cli_args_stdin cmd=["powershell.exe", "-Command", "[Console]::OutputEncoding=[System.Text.Encoding]::UTF8;\nSet-Content -Path 'task_result.txt' -Value 'AGENT_FACTORY_OK'"] real_codex_home=\\?\D:\warkSpaces\agent-factory\.tmp_smoke_projects\smoke_cli_args_stdin\.af_runtime\codex_home
+[2026-03-11 03:23:45.028 codex-command-runner.exe] runner: effective cwd=D:\warkSpaces\agent-factory\.tmp_smoke_projects\smoke_cli_args_stdin (requested D:\warkSpaces\agent-factory\.tmp_smoke_projects\smoke_cli_args_stdin)
+[2026-03-11 03:23:45.040 codex-command-runner.exe] runner: spawn failed: CreateProcessAsUserW failed: 740
+[2026-03-11 03:23:45.044 codex.exe] FAILURE: powershell.exe -Command [Console]::OutputEncoding=[System.Text.Encoding]::UTF8;
+Set-Content -Path 'task_result.txt' -Value 'AGENT_FACTORY_OK' (exit code 1)
+[2026-03-11 03:23:50.390 codex.exe] START: powershell.exe -Command [Console]::OutputEncoding=[System.Text.Encoding]::UTF8;
+"AGENT_FACTORY_OK" | Out-File -FilePath task_result.txt -Encoding utf8 -NoNewline
+[2026-03-11 03:23:50.406 codex.exe] setup refresh: spawning C:\Users\HOME\AppData\Roaming\npm\node_modules\@openai\codex\node_modules\@openai\codex-win32-x64\vendor\x86_64-pc-windows-msvc\codex\codex-windows-sandbox-setup.exe (cwd=D:\warkSpaces\agent-factory\.tmp_smoke_projects\smoke_cli_args_stdin, payload_len=3832)
+[2026-03-10T18:23:50.433864400+00:00] setup refresh: processed 4 write roots (read roots delegated); errors=[]
+[2026-03-11 03:23:50.433 codex-windows-sandbox-setup.exe] setup binary completed
+[2026-03-11 03:23:50.437 codex.exe] helper copy: using in-memory cache for command-runner -> \\?\D:\warkSpaces\agent-factory\.tmp_smoke_projects\smoke_cli_args_stdin\.af_runtime\codex_home\.sandbox-bin\codex-command-runner.exe
+[2026-03-11 03:23:50.438 codex.exe] helper launch resolution: using copied command-runner path \\?\D:\warkSpaces\agent-factory\.tmp_smoke_projects\smoke_cli_args_stdin\.af_runtime\codex_home\.sandbox-bin\codex-command-runner.exe
+[2026-03-11 03:23:50.438 codex.exe] runner launch: exe=\\?\D:\warkSpaces\agent-factory\.tmp_smoke_projects\smoke_cli_args_stdin\.af_runtime\codex_home\.sandbox-bin\codex-command-runner.exe cmdline=\\?\D:\warkSpaces\agent-factory\.tmp_smoke_projects\smoke_cli_args_stdin\.af_runtime\codex_home\.sandbox-bin\codex-command-runner.exe --request-file=\\?\D:\warkSpaces\agent-factory\.tmp_smoke_projects\smoke_cli_args_stdin\.af_runtime\codex_home\.sandbox\requests\request-f50ecf1e5727d02cae90fde105713d88.json cwd=D:\warkSpaces\agent-factory\.tmp_smoke_projects\smoke_cli_args_stdin
+[2026-03-10T18:23:50.453868200+00:00] read-acl-only mode: applying read ACLs
+[2026-03-10T18:23:50.457787600+00:00] read ACL run completed
+[2026-03-11 03:23:50.492 codex-command-runner.exe] runner start cwd=D:\warkSpaces\agent-factory\.tmp_smoke_projects\smoke_cli_args_stdin cmd=["powershell.exe", "-Command", "[Console]::OutputEncoding=[System.Text.Encoding]::UTF8;\n\"AGENT_FACTORY_OK\" | Out-File -FilePath task_result.txt -Encoding utf8 -NoNewline"] real_codex_home=\\?\D:\warkSpaces\agent-factory\.tmp_smoke_projects\smoke_cli_args_stdin\.af_runtime\codex_home
+[2026-03-11 03:23:50.495 codex-command-runner.exe] runner: effective cwd=D:\warkSpaces\agent-factory\.tmp_smoke_projects\smoke_cli_args_stdin (requested D:\warkSpaces\agent-factory\.tmp_smoke_projects\smoke_cli_args_stdin)
+[2026-03-11 03:23:50.507 codex-command-runner.exe] runner: spawn failed: CreateProcessAsUserW failed: 740
+[2026-03-11 03:23:50.510 codex.exe] FAILURE: powershell.exe -Command [Console]::OutputEncoding=[System.Text.Encoding]::UTF8;
+"AGENT_FACTORY_OK" | Out-File -FilePath task_result.txt -Encoding utf8 -NoNewline (exit code 1)
+[2026-03-11 03:23:55.710 codex.exe] START: cmd.exe /c > task_result.txt (echo AGENT_FACTORY_OK)
+[2026-03-11 03:23:55.720 codex.exe] setup refresh: spawning C:\Users\HOME\AppData\Roaming\npm\node_modules\@openai\codex\node_modules\@openai\codex-win32-x64\vendor\x86_64-pc-windows-msvc\codex\codex-windows-sandbox-setup.exe (cwd=D:\warkSpaces\agent-factory\.tmp_smoke_projects\smoke_cli_args_stdin, payload_len=3832)
+[2026-03-10T18:23:55.746350700+00:00] setup refresh: processed 4 write roots (read roots delegated); errors=[]
+[2026-03-11 03:23:55.746 codex-windows-sandbox-setup.exe] setup binary completed
+[2026-03-11 03:23:55.750 codex.exe] helper copy: using in-memory cache for command-runner -> \\?\D:\warkSpaces\agent-factory\.tmp_smoke_projects\smoke_cli_args_stdin\.af_runtime\codex_home\.sandbox-bin\codex-command-runner.exe
+[2026-03-11 03:23:55.750 codex.exe] helper launch resolution: using copied command-runner path \\?\D:\warkSpaces\agent-factory\.tmp_smoke_projects\smoke_cli_args_stdin\.af_runtime\codex_home\.sandbox-bin\codex-command-runner.exe
+[2026-03-11 03:23:55.751 codex.exe] runner launch: exe=\\?\D:\warkSpaces\agent-factory\.tmp_smoke_projects\smoke_cli_args_stdin\.af_runtime\codex_home\.sandbox-bin\codex-command-runner.exe cmdline=\\?\D:\warkSpaces\agent-factory\.tmp_smoke_projects\smoke_cli_args_stdin\.af_runtime\codex_home\.sandbox-bin\codex-command-runner.exe --request-file=\\?\D:\warkSpaces\agent-factory\.tmp_smoke_projects\smoke_cli_args_stdin\.af_runtime\codex_home\.sandbox\requests\request-5f87e287fae0f9b59b85661aefe2ebde.json cwd=D:\warkSpaces\agent-factory\.tmp_smoke_projects\smoke_cli_args_stdin
+[2026-03-10T18:23:55.767139100+00:00] read-acl-only mode: applying read ACLs
+[2026-03-10T18:23:55.771185+00:00] read ACL run completed
+[2026-03-11 03:23:55.807 codex-command-runner.exe] runner start cwd=D:\warkSpaces\agent-factory\.tmp_smoke_projects\smoke_cli_args_stdin cmd=["cmd.exe", "/c", "> task_result.txt (echo AGENT_FACTORY_OK)"] real_codex_home=\\?\D:\warkSpaces\agent-factory\.tmp_smoke_projects\smoke_cli_args_stdin\.af_runtime\codex_home
+[2026-03-11 03:23:55.810 codex-command-runner.exe] runner: effective cwd=D:\warkSpaces\agent-factory\.tmp_smoke_projects\smoke_cli_args_stdin (requested D:\warkSpaces\agent-factory\.tmp_smoke_projects\smoke_cli_args_stdin)
+[2026-03-11 03:23:55.820 codex-command-runner.exe] runner: spawn failed: CreateProcessAsUserW failed: 740
+[2026-03-11 03:23:55.823 codex.exe] FAILURE: cmd.exe /c > task_result.txt (echo AGENT_FACTORY_OK) (exit code 1)

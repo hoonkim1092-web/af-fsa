@@ -1,0 +1,18 @@
+{
+  "key": "assistant 라우팅 기준은 model_utilsresolve_dynamic_model 쪽이 더 중요합니다 역할별 엔진 ID가 실제 어느 벤더모델로 매핑되는지 그 부분만 추가로 보겠습니다",
+  "value": "[assistant] 라우팅 기준은 `model_utils.resolve_dynamic_model()` 쪽이 더 중요합니다. 역할별 엔진 ID가 실제 어느 벤더/모델로 매핑되는지 그 부분만 추가로 보겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T14:45:45.404327+00:00",
+  "updated_at": "2026-03-10T14:45:45.404327+00:00",
+  "details": {
+    "text": "[assistant] 라우팅 기준은 `model_utils.resolve_dynamic_model()` 쪽이 더 중요합니다. 역할별 엔진 ID가 실제 어느 벤더/모델로 매핑되는지 그 부분만 추가로 보겠습니다.",
+    "event_timestamp": "2026-03-10T14:17:25.761Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
+    "session_line": 407,
+    "provider": "codex"
+  }
+}

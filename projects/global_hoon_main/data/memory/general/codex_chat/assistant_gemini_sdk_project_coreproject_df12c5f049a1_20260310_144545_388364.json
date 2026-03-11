@@ -1,0 +1,18 @@
+{
+  "key": "assistant 그러면 더더욱 그 경로를 매번 탈 이유는 없습니다지금 느린 건 Gemini SDK 하나 때문만이 아니라 테스트가 상위 파이프라인까지 같이 타기 때문입니다 project로 가면 coreproject_",
+  "value": "[assistant] 그러면 더더욱 그 경로를 매번 탈 이유는 없습니다.  지금 느린 건 `Gemini SDK` 하나 때문만이 아니라, 테스트가 상위 파이프라인까지 같이 타기 때문입니다. `project`로 가면 [`core/project_pipeline.py`](D:/warkSpaces/agent-factory/core/project_pipeline.py)에서 `research -> plan -> todo 생성 -> role materialize -> o...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T14:45:45.388727+00:00",
+  "updated_at": "2026-03-10T14:45:45.388727+00:00",
+  "details": {
+    "text": "[assistant] 그러면 더더욱 그 경로를 매번 탈 이유는 없습니다.\n\n지금 느린 건 `Gemini SDK` 하나 때문만이 아니라, 테스트가 상위 파이프라인까지 같이 타기 때문입니다. `project`로 가면 [`core/project_pipeline.py`](D:/warkSpaces/agent-factory/core/project_pipeline.py)에서 `research -> plan -> todo 생성 -> role materialize -> orchestrator`까지 전부 돕니다. 코드 수정 확인만 하고 싶은 테스트에 이걸 같이 묶으면 당연히 오래 걸립니다.\n\n실무적으로는 이렇게 분리하는 게 맞습니다.\n- 프로젝트 생성 테스트\n  정말 `project pipeline`만 검증할 때만 돌립니다.\n- 코드 수정 스모크 테스트\n  `AgentRunner`의 내부 `Gemini SDK + Tool Registry`까지 가지 말고, [`core/providers/cli.py`](D:/warkSpaces/agent-factory/core/providers/cli.py)의 `execute_cli_chat()` 같은 provider 직통 경로로 작은 workspace 하나만 수정하게 합니다.\n- 내부 SDK 테스트\n  [`core/agent_runner.py`](D:/warkSpaces/agent-factory/core/agent_runner.py) + [`core/tool_runtime.py`](D:/warkSpaces/agent-factory/core/tool_runtime.py) 경로는 `write_file/hash_edit`, policy, hook bus가 제대로 동작하는지 보는 별도 통합 테스트로만 남깁니다.\n\n한 줄 결론:\n- “파일 하나 수정되나?”를 보고 싶은 테스트라면 `Gemini SDK + 내부 Tool Registry` 경로는 과합니다.\n- 그 경로는 “우리 로컬 툴 실행 제어가 맞나?”를 검증할 때만 필요합니다.\n\n원하면 다음 턴에 바로\n1. 코드 수정 테스트를 `provider 직통 fast path`로 분리하는 방법\n2. `run_factory_cli.py`에서 느린 경로를 우회하는 최소 변경\n둘 중 하나로 바로 정리해드리겠습니다.",
+    "event_timestamp": "2026-03-10T13:54:30.097Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
+    "session_line": 244,
+    "provider": "codex"
+  }
+}

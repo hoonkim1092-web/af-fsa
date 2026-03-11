@@ -1,18 +1,18 @@
-{
-  "key": "assistant 이번엔 범위를 넓혀서 클로드제미나이코덱스 관련 API key 사용 지점을 전부 찾고 CLI 세션CLI provider 경로로 바꿀 수 있는 곳부터 바로 수정하겠습니다 먼저 env 참조와 SDK 클라",
-  "value": "[assistant] 이번엔 범위를 넓혀서 `클로드/제미나이/코덱스` 관련 API key 사용 지점을 전부 찾고, CLI 세션/CLI provider 경로로 바꿀 수 있는 곳부터 바로 수정하겠습니다. 먼저 env 참조와 SDK 클라이언트 생성 지점을 전부 스캔하겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T16:45:45.267039+00:00",
-  "updated_at": "2026-03-09T16:45:45.267039+00:00",
-  "details": {
-    "text": "[assistant] 이번엔 범위를 넓혀서 `클로드/제미나이/코덱스` 관련 API key 사용 지점을 전부 찾고, CLI 세션/CLI provider 경로로 바꿀 수 있는 곳부터 바로 수정하겠습니다. 먼저 env 참조와 SDK 클라이언트 생성 지점을 전부 스캔하겠습니다.",
-    "event_timestamp": "2026-03-09T16:37:12.656Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
-    "session_line": 1507,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 이번엔 범위를 넓혀서 클로드제미나이코덱스 관련 API key 사용 지점을 전부 찾고 CLI 세션CLI provider 경로로 바꿀 수 있는 곳부터 바로 수정하겠습니다 먼저 env 참조와 SDK 클라",
+  "value": "[assistant] 이번엔 범위를 넓혀서 `클로드/제미나이/코덱스` 관련 API key 사용 지점을 전부 찾고, CLI 세션/CLI provider 경로로 바꿀 수 있는 곳부터 바로 수정하겠습니다. 먼저 env 참조와 SDK 클라이언트 생성 지점을 전부 스캔하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T16:45:45.267039+00:00",
+  "updated_at": "2026-03-09T16:45:45.267039+00:00",
+  "details": {
+    "text": "[assistant] 이번엔 범위를 넓혀서 `클로드/제미나이/코덱스` 관련 API key 사용 지점을 전부 찾고, CLI 세션/CLI provider 경로로 바꿀 수 있는 곳부터 바로 수정하겠습니다. 먼저 env 참조와 SDK 클라이언트 생성 지점을 전부 스캔하겠습니다.",
+    "event_timestamp": "2026-03-09T16:37:12.656Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 1507,
+    "provider": "codex"
+  }
 }

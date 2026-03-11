@@ -1,0 +1,18 @@
+{
+  "key": "assistant Codex 쪽 가드를 한 단계 더 올렸습니다 이제 공용 금지 규칙은 coredestructive_guardpyDhoonProJectworktreesagent-factorycoredestructive",
+  "value": "[assistant] Codex 쪽 가드를 한 단계 더 올렸습니다. 이제 공용 금지 규칙은 [core/destructive_guard.py](/D:/hoonProJect/worktrees/agent-factory/core/destructive_guard.py#L51)에 있고, Codex 세션 준비 시 [core/providers/session_adapter.py](/D:/hoonProJect/worktrees/agent-factory/core/provide...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T10:23:07.585441+00:00",
+  "updated_at": "2026-03-10T10:23:07.585441+00:00",
+  "details": {
+    "text": "[assistant] Codex 쪽 가드를 한 단계 더 올렸습니다. 이제 공용 금지 규칙은 [core/destructive_guard.py](/D:/hoonProJect/worktrees/agent-factory/core/destructive_guard.py#L51)에 있고, Codex 세션 준비 시 [core/providers/session_adapter.py](/D:/hoonProJect/worktrees/agent-factory/core/providers/session_adapter.py#L293)에서 Windows 전용 shell guard wrapper를 생성합니다. 이때 `COMSPEC`을 guard `cmd.cmd`로 바꾸고 `PATH`, `PATHEXT`도 조정해서, shell 문자열 경로에서는 `git reset --hard`, `git clean`, `Remove-Item` 같은 명령이 실행 전에 차단됩니다. 실제 차단 프록시는 [scripts/destructive_guard_proxy.py](/D:/hoonProJect/worktrees/agent-factory/scripts/destructive_guard_proxy.py#L18)입니다.\n\n보장 범위는 이렇게 보면 됩니다. Claude/Gemini는 네이티브 deny가 유지되고, Codex는 이제 `shell proxy + system prompt contract` 조합입니다. Codex에서 `cmd` 기반 shell 실행은 강하게 막히고, `git/powershell/pwsh` wrapper는 PATH 해석 경로에서 추가 방어로 동작합니다. 이 구조는 [docs/architecture.md](/D:/hoonProJect/worktrees/agent-factory/docs/architecture.md#L494)와 [docs/change_history.md](/D:/hoonProJect/worktrees/agent-factory/docs/change_history.md#L13)에 반영했습니다.\n\n검증은 `python -m pytest tests/test_destructive_guard.py tests/test_cli_session_adapter.py tests/test_runner_contracts.py tests/test_cli_providers.py tests/test_resume_brief_session_adapter.py -q`로 다시 돌렸고 `40 passed, 1 warning`이었습니다. 관련 테스트는 [tests/test_cli_session_adapter.py](/D:/hoonProJect/worktrees/agent-factory/tests/test_cli_session_adapter.py#L86), [tests/test_cli_session_adapter.py](/D:/hoonProJect/worktrees/agent-factory/tests/test_cli_session_adapter.py#L119), [tests/test_destructive_guard.py](/D:/hoonProJect/worktrees/agent-factory/tests/test_destructive_guard.py#L41)에 추가했습니다.\n\n원하면 다음으로 이 변경만 골라서 커밋까지 하겠습니다.",
+    "event_timestamp": "2026-03-10T07:29:10.072Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 1493,
+    "provider": "codex"
+  }
+}

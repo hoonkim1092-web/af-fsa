@@ -1,18 +1,18 @@
-{
-  "key": "assistant 이제 gemini_cli subprocess env에서 GEMINI_API_KEY와 GOOGLE_API_KEY를 제거하는 수정과 테스트를 넣겠습니다 이 단계가 끝나면 실제 실행이 로그인 세션만으로 ",
-  "value": "[assistant] 이제 `gemini_cli` subprocess env에서 `GEMINI_API_KEY`와 `GOOGLE_API_KEY`를 제거하는 수정과 테스트를 넣겠습니다. 이 단계가 끝나면, 실제 실행이 로그인 세션만으로 움직이는지 바로 확인하겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T16:31:42.497325+00:00",
-  "updated_at": "2026-03-09T16:31:42.497325+00:00",
-  "details": {
-    "text": "[assistant] 이제 `gemini_cli` subprocess env에서 `GEMINI_API_KEY`와 `GOOGLE_API_KEY`를 제거하는 수정과 테스트를 넣겠습니다. 이 단계가 끝나면, 실제 실행이 로그인 세션만으로 움직이는지 바로 확인하겠습니다.",
-    "event_timestamp": "2026-03-09T16:14:54.735Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
-    "session_line": 994,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 이제 gemini_cli subprocess env에서 GEMINI_API_KEY와 GOOGLE_API_KEY를 제거하는 수정과 테스트를 넣겠습니다 이 단계가 끝나면 실제 실행이 로그인 세션만으로 ",
+  "value": "[assistant] 이제 `gemini_cli` subprocess env에서 `GEMINI_API_KEY`와 `GOOGLE_API_KEY`를 제거하는 수정과 테스트를 넣겠습니다. 이 단계가 끝나면, 실제 실행이 로그인 세션만으로 움직이는지 바로 확인하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T16:31:42.497325+00:00",
+  "updated_at": "2026-03-09T16:31:42.497325+00:00",
+  "details": {
+    "text": "[assistant] 이제 `gemini_cli` subprocess env에서 `GEMINI_API_KEY`와 `GOOGLE_API_KEY`를 제거하는 수정과 테스트를 넣겠습니다. 이 단계가 끝나면, 실제 실행이 로그인 세션만으로 움직이는지 바로 확인하겠습니다.",
+    "event_timestamp": "2026-03-09T16:14:54.735Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 994,
+    "provider": "codex"
+  }
 }

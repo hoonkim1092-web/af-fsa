@@ -1,0 +1,18 @@
+{
+  "key": "assistant 프로젝트 부트스트랩 때 실제로 어떤 입력이 agent yaml에 들어가는지 코드 기준으로 확인하겠습니다 project_brief role_plan 기존 템플릿 baseline skill이 어디서 합",
+  "value": "[assistant] 프로젝트 부트스트랩 때 실제로 어떤 입력이 agent yaml에 들어가는지 코드 기준으로 확인하겠습니다. `project_brief`, `role_plan`, 기존 템플릿, baseline skill이 어디서 합쳐지는지 보겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T14:45:45.392691+00:00",
+  "updated_at": "2026-03-10T14:45:45.392691+00:00",
+  "details": {
+    "text": "[assistant] 프로젝트 부트스트랩 때 실제로 어떤 입력이 agent yaml에 들어가는지 코드 기준으로 확인하겠습니다. `project_brief`, `role_plan`, 기존 템플릿, baseline skill이 어디서 합쳐지는지 보겠습니다.",
+    "event_timestamp": "2026-03-10T13:56:33.130Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
+    "session_line": 270,
+    "provider": "codex"
+  }
+}

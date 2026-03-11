@@ -1,18 +1,18 @@
-{
-  "key": "assistant 마지막 확인은 정상입니다자동 회귀는 teststest_cli_providerspy teststest_cli_session_adapterpy teststest_managerpy 기준으로 다시 통과했습",
-  "value": "[assistant] 마지막 확인은 정상입니다.  자동 회귀는 `tests/test_cli_providers.py`, `tests/test_cli_session_adapter.py`, `tests/test_manager.py` 기준으로 다시 통과했습니다. 추가로 Gemini CLI를 API key 없이 직접 OAuth 세션으로 호출했고, stderr에 `Loaded cached credentials.`가 찍힌 상태에서 응답이 정확히 `TEST_FINAL_O...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T17:22:13.107077+00:00",
-  "updated_at": "2026-03-09T17:22:13.107077+00:00",
-  "details": {
-    "text": "[assistant] 마지막 확인은 정상입니다.\n\n자동 회귀는 `tests/test_cli_providers.py`, `tests/test_cli_session_adapter.py`, `tests/test_manager.py` 기준으로 다시 통과했습니다. 추가로 Gemini CLI를 API key 없이 직접 OAuth 세션으로 호출했고, stderr에 `Loaded cached credentials.`가 찍힌 상태에서 응답이 정확히 `TEST_FINAL_OK`로 돌아왔습니다. 결과는 [direct_gemini_smoke.json](D:/warkSpaces/agent-factory/projects/gemini_e2e/.af_runtime/direct_gemini_smoke.json)에 남겨뒀습니다.\n\n즉 지금 기준으로는:\n- 엔진 API key 차단 경로 정상\n- Gemini 로그인 세션 인증 정상\n- 관련 회귀 테스트 정상\n\n남은 건 `.gitignore` 변경을 커밋할지 여부뿐입니다.",
-    "event_timestamp": "2026-03-09T16:59:58.062Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
-    "session_line": 1995,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 마지막 확인은 정상입니다자동 회귀는 teststest_cli_providerspy teststest_cli_session_adapterpy teststest_managerpy 기준으로 다시 통과했습",
+  "value": "[assistant] 마지막 확인은 정상입니다.  자동 회귀는 `tests/test_cli_providers.py`, `tests/test_cli_session_adapter.py`, `tests/test_manager.py` 기준으로 다시 통과했습니다. 추가로 Gemini CLI를 API key 없이 직접 OAuth 세션으로 호출했고, stderr에 `Loaded cached credentials.`가 찍힌 상태에서 응답이 정확히 `TEST_FINAL_O...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T17:22:13.107077+00:00",
+  "updated_at": "2026-03-09T17:22:13.107077+00:00",
+  "details": {
+    "text": "[assistant] 마지막 확인은 정상입니다.\n\n자동 회귀는 `tests/test_cli_providers.py`, `tests/test_cli_session_adapter.py`, `tests/test_manager.py` 기준으로 다시 통과했습니다. 추가로 Gemini CLI를 API key 없이 직접 OAuth 세션으로 호출했고, stderr에 `Loaded cached credentials.`가 찍힌 상태에서 응답이 정확히 `TEST_FINAL_OK`로 돌아왔습니다. 결과는 [direct_gemini_smoke.json](D:/warkSpaces/agent-factory/projects/gemini_e2e/.af_runtime/direct_gemini_smoke.json)에 남겨뒀습니다.\n\n즉 지금 기준으로는:\n- 엔진 API key 차단 경로 정상\n- Gemini 로그인 세션 인증 정상\n- 관련 회귀 테스트 정상\n\n남은 건 `.gitignore` 변경을 커밋할지 여부뿐입니다.",
+    "event_timestamp": "2026-03-09T16:59:58.062Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 1995,
+    "provider": "codex"
+  }
 }

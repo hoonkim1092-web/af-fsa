@@ -1,18 +1,18 @@
-{
-  "key": "assistant 첫 시도에서 provider openai까지 잡혔고 실제 httpsapiopenaicomv1responses 호출까지 나갔습니다 다만 현재 샌드박스 네트워크 제한으로 끊겨서 같은 테스트를 권한 상승",
-  "value": "[assistant] 첫 시도에서 `provider: openai`까지 잡혔고 실제 `https://api.openai.com/v1/responses` 호출까지 나갔습니다. 다만 현재 샌드박스 네트워크 제한으로 끊겨서, 같은 테스트를 권한 상승으로 한 번 더 돌리겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T14:39:12.853954+00:00",
-  "updated_at": "2026-03-09T14:39:12.853954+00:00",
-  "details": {
-    "text": "[assistant] 첫 시도에서 `provider: openai`까지 잡혔고 실제 `https://api.openai.com/v1/responses` 호출까지 나갔습니다. 다만 현재 샌드박스 네트워크 제한으로 끊겨서, 같은 테스트를 권한 상승으로 한 번 더 돌리겠습니다.",
-    "event_timestamp": "2026-03-07T17:39:59.604Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/07/rollout-2026-03-07T23-57-50-019cc8ce-02f3-7c92-a357-f51576977b23.jsonl",
-    "session_line": 1840,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 첫 시도에서 provider openai까지 잡혔고 실제 httpsapiopenaicomv1responses 호출까지 나갔습니다 다만 현재 샌드박스 네트워크 제한으로 끊겨서 같은 테스트를 권한 상승",
+  "value": "[assistant] 첫 시도에서 `provider: openai`까지 잡혔고 실제 `https://api.openai.com/v1/responses` 호출까지 나갔습니다. 다만 현재 샌드박스 네트워크 제한으로 끊겨서, 같은 테스트를 권한 상승으로 한 번 더 돌리겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T14:39:12.853954+00:00",
+  "updated_at": "2026-03-09T14:39:12.853954+00:00",
+  "details": {
+    "text": "[assistant] 첫 시도에서 `provider: openai`까지 잡혔고 실제 `https://api.openai.com/v1/responses` 호출까지 나갔습니다. 다만 현재 샌드박스 네트워크 제한으로 끊겨서, 같은 테스트를 권한 상승으로 한 번 더 돌리겠습니다.",
+    "event_timestamp": "2026-03-07T17:39:59.604Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/07/rollout-2026-03-07T23-57-50-019cc8ce-02f3-7c92-a357-f51576977b23.jsonl",
+    "session_line": 1840,
+    "provider": "codex"
+  }
 }

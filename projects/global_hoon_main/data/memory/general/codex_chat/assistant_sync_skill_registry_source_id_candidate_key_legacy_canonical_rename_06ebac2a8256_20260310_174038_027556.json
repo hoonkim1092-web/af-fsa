@@ -1,0 +1,18 @@
+{
+  "key": "assistant sync_skill_registry 쪽이 생각보다 더 큽니다 source_id만이 아니라 candidate key 자체도 legacy 값을 그대로 유지하고 있어 canonical rename을 되돌",
+  "value": "[assistant] `sync_skill_registry` 쪽이 생각보다 더 큽니다. source_id만이 아니라 candidate key 자체도 legacy 값을 그대로 유지하고 있어 canonical rename을 되돌릴 수 있습니다. 관련 테스트가 있는지도 확인하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:38.027641+00:00",
+  "updated_at": "2026-03-10T17:40:38.027641+00:00",
+  "details": {
+    "text": "[assistant] `sync_skill_registry` 쪽이 생각보다 더 큽니다. source_id만이 아니라 candidate key 자체도 legacy 값을 그대로 유지하고 있어 canonical rename을 되돌릴 수 있습니다. 관련 테스트가 있는지도 확인하겠습니다.",
+    "event_timestamp": "2026-03-10T16:14:20.873Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
+    "session_line": 2101,
+    "provider": "codex"
+  }
+}

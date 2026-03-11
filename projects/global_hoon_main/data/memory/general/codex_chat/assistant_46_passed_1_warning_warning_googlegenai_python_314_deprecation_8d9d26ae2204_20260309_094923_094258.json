@@ -1,18 +1,18 @@
-{
-  "key": "assistant 현재 기준으로 테스트는 46 passed 1 warning입니다 남은 warning은 우리 코드가 아니라 googlegenai 패키지가 Python 314에서 내는 deprecation 하나뿐입니다",
-  "value": "[assistant] 현재 기준으로 테스트는 `46 passed, 1 warning`입니다. 남은 warning은 우리 코드가 아니라 `google.genai` 패키지가 Python 3.14에서 내는 deprecation 하나뿐입니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T09:49:23.094304+00:00",
-  "updated_at": "2026-03-09T09:49:23.094304+00:00",
-  "details": {
-    "text": "[assistant] 현재 기준으로 테스트는 `46 passed, 1 warning`입니다. 남은 warning은 우리 코드가 아니라 `google.genai` 패키지가 Python 3.14에서 내는 deprecation 하나뿐입니다.",
-    "event_timestamp": "2026-03-09T09:46:22.870Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/09/rollout-2026-03-09T12-29-14-019cd0a4-4ded-7bd3-b7ae-a9832dc22d45.jsonl",
-    "session_line": 2089,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 현재 기준으로 테스트는 46 passed 1 warning입니다 남은 warning은 우리 코드가 아니라 googlegenai 패키지가 Python 314에서 내는 deprecation 하나뿐입니다",
+  "value": "[assistant] 현재 기준으로 테스트는 `46 passed, 1 warning`입니다. 남은 warning은 우리 코드가 아니라 `google.genai` 패키지가 Python 3.14에서 내는 deprecation 하나뿐입니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T09:49:23.094304+00:00",
+  "updated_at": "2026-03-09T09:49:23.094304+00:00",
+  "details": {
+    "text": "[assistant] 현재 기준으로 테스트는 `46 passed, 1 warning`입니다. 남은 warning은 우리 코드가 아니라 `google.genai` 패키지가 Python 3.14에서 내는 deprecation 하나뿐입니다.",
+    "event_timestamp": "2026-03-09T09:46:22.870Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/09/rollout-2026-03-09T12-29-14-019cd0a4-4ded-7bd3-b7ae-a9832dc22d45.jsonl",
+    "session_line": 2089,
+    "provider": "codex"
+  }
 }

@@ -1,67 +1,84 @@
 import os
+from types import SimpleNamespace
 from unittest.mock import patch
 
-# Set API keys for testing
-os.environ["OPENAI_API_KEY"] = "fake-key"
-os.environ["GOOGLE_API_KEY"] = "fake-key"
-os.environ["ANTHROPIC_API_KEY"] = "fake-key"
+os.environ.setdefault("GOOGLE_API_KEY", "test-key")
 
 from core.agent_runner import AgentRunner
+from core.model_router import ModelRouter
+from model_utils import ModelSelection, TIER_PRIMARY
 
-class DummyModelInfo:
-    def __init__(self, model):
-        self.model = model
 
-def test_ai_funnel_routing():
-    runner = AgentRunner()
-    
-    with patch("core.agent_runner.resolve_dynamic_model") as mock_resolve:
-        # Mock the lightweight resolution
-        mock_resolve.return_value = DummyModelInfo(model="gemini-2.0-flash-lite")
-        
-        # Test 1: Simple Task -> Should route to lightweight
-        print("\n[Test 1] Simple Task (Typo check)")
-        agent = {"name": "test_agent", "role": "assistant"}
-        with patch.object(runner, "_resolve_system_prompt", return_value="sys"):
-            with patch.object(runner.mr, "pick", wraps=runner.mr.pick) as mock_pick:
-                runner.run(agent, "오타 수정해줘")
-                
-                # Check if is_complex was False
-                mock_pick.assert_called_with("chat", agent_config=agent, is_complex=False)
-                # Check if resolve_dynamic_model("lightweight") was called
-                mock_resolve.assert_called_with("lightweight")
-                print("✅ Pass: Routed to lightweight model for simple task.")
+class _DummyRegistry:
+    def get_active_tools(self):
+        return []
 
-        # Reset mocks
-        mock_resolve.reset_mock()
 
-        # Test 2: Complex Task -> Should route to standard model (not lightweight)
-        print("\n[Test 2] Complex Task (Feature implementation)")
-        with patch.object(runner, "_resolve_system_prompt", return_value="sys"):
-            with patch.object(runner.mr, "pick", wraps=runner.mr.pick) as mock_pick:
-                runner.run(agent, "결제 연동 모듈을 처음부터 끝까지 새로 구현해줘.")
-                
-                # Check if is_complex was True
-                mock_pick.assert_called_with("chat", agent_config=agent, is_complex=True)
-                # Ensure lightweight was NOT called
-                mock_resolve.assert_not_called()
-                print("✅ Pass: Maintained complex routing for feature implementation.")
+class _DummyChat:
+    def send_message(self, _msg):
+        return SimpleNamespace(parts=[], candidates=[])
 
-        # Reset mocks
-        mock_resolve.reset_mock()
 
-        # Test 3: Role-based Override (Researcher) -> Should force complex even if task is simple
-        print("\n[Test 3] Role Override (Researcher with simple task)")
-        research_agent = {"name": "researcher", "role": "research"}
-        with patch.object(runner, "_resolve_system_prompt", return_value="sys"):
-            with patch.object(runner.mr, "pick", wraps=runner.mr.pick) as mock_pick:
-                runner.run(research_agent, "요약해") # Short task
-                
-                # Check if is_complex was forced to True despite the short text
-                mock_pick.assert_called_with("chat", agent_config=research_agent, is_complex=True)
-                mock_resolve.assert_not_called()
-                print("✅ Pass: Maintained complex routing for researcher role despite simple task.")
+def _selection(model_name: str = "models/gemini-2.0-flash"):
+    return ModelSelection(model_name, TIER_PRIMARY, "")
 
-if __name__ == "__main__":
-    test_ai_funnel_routing()
-    print("\n🎉 All AI Funnel Routing tests passed!")
+
+def _run_with_classifier(agent: dict, task_input: str, classifier_text: str):
+    runner = AgentRunner(ModelRouter())
+    with (
+        patch("core.model_router.resolve_dynamic_model", return_value=_selection()) as mock_resolve,
+        patch.object(runner, "_resolve_system_prompt", return_value="sys"),
+        patch.object(runner, "load_skills", return_value=[]),
+        patch.object(runner, "build_tool_registry", return_value=_DummyRegistry()),
+        patch("core.agent_runner.validate_context_with_schema", return_value=(True, "ok")),
+        patch("core.agent_runner.HookEventBus.run_pre_execute", return_value=True),
+        patch("core.agent_runner.generate_content_with_self_heal", return_value=SimpleNamespace(text=classifier_text)) as mock_classify,
+        patch("core.agent_runner.create_chat_with_self_heal", return_value=_DummyChat()),
+    ):
+        result = runner.run(agent, task_input)
+    return result, mock_resolve, mock_classify
+
+
+def test_simple_task_routes_to_lightweight():
+    agent = {"name": "test_agent", "role": "assistant", "skills": []}
+
+    result, mock_resolve, mock_classify = _run_with_classifier(agent, "Fix a typo", "simple")
+
+    assert result["ok"] is True
+    mock_classify.assert_called_once()
+    mock_resolve.assert_called_with("lightweight")
+
+
+def test_complex_task_uses_role_based_engine():
+    agent = {"name": "test_agent", "role": "assistant", "skills": []}
+
+    result, mock_resolve, mock_classify = _run_with_classifier(
+        agent,
+        "Implement the billing integration module end to end.",
+        "complex",
+    )
+
+    assert result["ok"] is True
+    mock_classify.assert_called_once()
+    mock_resolve.assert_called_with("researcher_gemini")
+
+
+def test_research_role_skips_classifier_and_stays_complex():
+    runner = AgentRunner(ModelRouter())
+    agent = {"name": "researcher", "role": "research", "skills": []}
+
+    with (
+        patch("core.model_router.resolve_dynamic_model", return_value=_selection()) as mock_resolve,
+        patch.object(runner, "_resolve_system_prompt", return_value="sys"),
+        patch.object(runner, "load_skills", return_value=[]),
+        patch.object(runner, "build_tool_registry", return_value=_DummyRegistry()),
+        patch("core.agent_runner.validate_context_with_schema", return_value=(True, "ok")),
+        patch("core.agent_runner.HookEventBus.run_pre_execute", return_value=True),
+        patch("core.agent_runner.generate_content_with_self_heal") as mock_classify,
+        patch("core.agent_runner.create_chat_with_self_heal", return_value=_DummyChat()),
+    ):
+        result = runner.run(agent, "Summarize the latest notes.")
+
+    assert result["ok"] is True
+    mock_classify.assert_not_called()
+    mock_resolve.assert_called_with("researcher_gemini")

@@ -1,0 +1,5 @@
+skills: {}
+install_candidates:
+- id: Issue Tracker
+  path: skills/_external_cache/claude/repo/skill.py
+  source: Claude

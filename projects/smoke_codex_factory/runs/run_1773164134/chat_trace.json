@@ -1,0 +1,13 @@
+{
+  "run_id": "run_1773164134",
+  "project_id": "smoke_codex_factory",
+  "agent_name": "agent_general_assistant",
+  "agent_role": "General Assistant",
+  "task": "Reply with EXACTLY AGENT_FACTORY_SMOKE_OK and nothing else.",
+  "transcript": [],
+  "result": {
+    "ok": false,
+    "reason": "hook_event_bus_blocked_pre"
+  },
+  "updated_at": "2026-03-11T02:35:34"
+}

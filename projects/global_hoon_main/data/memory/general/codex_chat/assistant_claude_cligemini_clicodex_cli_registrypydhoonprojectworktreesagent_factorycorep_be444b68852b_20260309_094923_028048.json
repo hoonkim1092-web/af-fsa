@@ -1,18 +1,18 @@
-{
-  "key": "assistant claude_cligemini_clicodex_cli 분리의 첫 구현을 넣었습니다핵심 변경은 세 군데입니다  registrypyDhoonProJectworktreesagent-factorycorep",
-  "value": "[assistant] `claude_cli/gemini_cli/codex_cli` 분리의 첫 구현을 넣었습니다.  핵심 변경은 세 군데입니다.   [registry.py](/D:/hoonProJect/worktrees/agent-factory/core/providers/registry.py#L6) 에서 CLI provider 식별과 기본 모델 선택을 분리했고, [cli.py](/D:/hoonProJect/worktrees/agent-factory/core/...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T09:49:23.028290+00:00",
-  "updated_at": "2026-03-09T09:49:23.028290+00:00",
-  "details": {
-    "text": "[assistant] `claude_cli/gemini_cli/codex_cli` 분리의 첫 구현을 넣었습니다.\n\n핵심 변경은 세 군데입니다.  \n[registry.py](/D:/hoonProJect/worktrees/agent-factory/core/providers/registry.py#L6) 에서 CLI provider 식별과 기본 모델 선택을 분리했고, [cli.py](/D:/hoonProJect/worktrees/agent-factory/core/providers/cli.py#L12) 에서 provider별 non-interactive 명령 생성과 subprocess 실행을 모듈화했습니다. 부트 단계는 [config_paths.py](/D:/hoonProJect/worktrees/agent-factory/core/config_paths.py#L27) 에서 explicit CLI provider가 잡혀 있으면 API key 없이도 통과하게 바꿨고, 러너는 [agent_runner.py](/D:/hoonProJect/worktrees/agent-factory/core/agent_runner.py#L65), [agent_runner.py](/D:/hoonProJect/worktrees/agent-factory/core/agent_runner.py#L521), [agent_runner.py](/D:/hoonProJect/worktrees/agent-factory/core/agent_runner.py#L765) 에서 explicit CLI provider를 SDK fallback보다 먼저 시도하도록 연결했습니다.\n\n테스트도 추가했습니다. [test_cli_providers.py](/D:/hoonProJect/worktrees/agent-factory/tests/test_cli_providers.py#L7) 에서 keyless bootstrap, command builder, runner dispatch를 고정했고, 전체 검증은 `29 passed, 2 warnings`입니다. 이번 슬라이스는 `basic dispatch`까지만 넣었고, 아직 `approval mode`, `session hook pack`, `tool mirroring`, `provider별 고급 resume`는 안 넣었습니다. 그리고 기존에 이미 더러워져 있던 `dynamic_log.txt`, `projects/default/dashboard.json`, 예전 `tests/_tmp` tracked 삭제분은 그대로 남겨뒀습니다.\n\nCLI 기본 명령은 env override 가능하게 해뒀고, 현재 벤더 문서를 기준으로 잡았습니다: Claude CLI는 `-p`/`--append-system-prompt`/`--output-format`([Anthropic CLI reference](https://docs.anthropic.com/en/docs/claude-code/cli-reference)), Gemini CLI는 `-p`/`--model`/`--output-format`([Gemini CLI reference](https://geminicli.com/docs/cli/cli-reference/), [headless mode](https://geminicli.com/docs/cli/headless/)), Codex는 `codex exec` 기반([OpenAI Codex CLI reference in repo](https://github.com/Get2Give/openai.codex)). 다음 단계는 이 위에 `provider별 hook/session adapter`를 붙이는 일입니다.",
-    "event_timestamp": "2026-03-09T08:44:50.774Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/09/rollout-2026-03-09T12-29-14-019cd0a4-4ded-7bd3-b7ae-a9832dc22d45.jsonl",
-    "session_line": 1656,
-    "provider": "codex"
-  }
+{
+  "key": "assistant claude_cligemini_clicodex_cli 분리의 첫 구현을 넣었습니다핵심 변경은 세 군데입니다  registrypyDhoonProJectworktreesagent-factorycorep",
+  "value": "[assistant] `claude_cli/gemini_cli/codex_cli` 분리의 첫 구현을 넣었습니다.  핵심 변경은 세 군데입니다.   [registry.py](/D:/hoonProJect/worktrees/agent-factory/core/providers/registry.py#L6) 에서 CLI provider 식별과 기본 모델 선택을 분리했고, [cli.py](/D:/hoonProJect/worktrees/agent-factory/core/...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T09:49:23.028290+00:00",
+  "updated_at": "2026-03-09T09:49:23.028290+00:00",
+  "details": {
+    "text": "[assistant] `claude_cli/gemini_cli/codex_cli` 분리의 첫 구현을 넣었습니다.\n\n핵심 변경은 세 군데입니다.  \n[registry.py](/D:/hoonProJect/worktrees/agent-factory/core/providers/registry.py#L6) 에서 CLI provider 식별과 기본 모델 선택을 분리했고, [cli.py](/D:/hoonProJect/worktrees/agent-factory/core/providers/cli.py#L12) 에서 provider별 non-interactive 명령 생성과 subprocess 실행을 모듈화했습니다. 부트 단계는 [config_paths.py](/D:/hoonProJect/worktrees/agent-factory/core/config_paths.py#L27) 에서 explicit CLI provider가 잡혀 있으면 API key 없이도 통과하게 바꿨고, 러너는 [agent_runner.py](/D:/hoonProJect/worktrees/agent-factory/core/agent_runner.py#L65), [agent_runner.py](/D:/hoonProJect/worktrees/agent-factory/core/agent_runner.py#L521), [agent_runner.py](/D:/hoonProJect/worktrees/agent-factory/core/agent_runner.py#L765) 에서 explicit CLI provider를 SDK fallback보다 먼저 시도하도록 연결했습니다.\n\n테스트도 추가했습니다. [test_cli_providers.py](/D:/hoonProJect/worktrees/agent-factory/tests/test_cli_providers.py#L7) 에서 keyless bootstrap, command builder, runner dispatch를 고정했고, 전체 검증은 `29 passed, 2 warnings`입니다. 이번 슬라이스는 `basic dispatch`까지만 넣었고, 아직 `approval mode`, `session hook pack`, `tool mirroring`, `provider별 고급 resume`는 안 넣었습니다. 그리고 기존에 이미 더러워져 있던 `dynamic_log.txt`, `projects/default/dashboard.json`, 예전 `tests/_tmp` tracked 삭제분은 그대로 남겨뒀습니다.\n\nCLI 기본 명령은 env override 가능하게 해뒀고, 현재 벤더 문서를 기준으로 잡았습니다: Claude CLI는 `-p`/`--append-system-prompt`/`--output-format`([Anthropic CLI reference](https://docs.anthropic.com/en/docs/claude-code/cli-reference)), Gemini CLI는 `-p`/`--model`/`--output-format`([Gemini CLI reference](https://geminicli.com/docs/cli/cli-reference/), [headless mode](https://geminicli.com/docs/cli/headless/)), Codex는 `codex exec` 기반([OpenAI Codex CLI reference in repo](https://github.com/Get2Give/openai.codex)). 다음 단계는 이 위에 `provider별 hook/session adapter`를 붙이는 일입니다.",
+    "event_timestamp": "2026-03-09T08:44:50.774Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/09/rollout-2026-03-09T12-29-14-019cd0a4-4ded-7bd3-b7ae-a9832dc22d45.jsonl",
+    "session_line": 1656,
+    "provider": "codex"
+  }
 }

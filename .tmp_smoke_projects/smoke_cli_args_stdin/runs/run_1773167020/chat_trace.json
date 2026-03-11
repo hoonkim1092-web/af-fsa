@@ -1,0 +1,39 @@
+{
+  "run_id": "run_1773167020",
+  "project_id": "smoke_cli_args_stdin",
+  "agent_name": "agent_general_assistant",
+  "agent_role": "General Assistant",
+  "task": "Return AGENT_FACTORY_OK",
+  "transcript": [
+    {
+      "ts": "2026-03-11T03:23:45",
+      "kind": "assistant",
+      "payload": {
+        "channel": "codex_cli",
+        "text": "AGENT_FACTORY_OK",
+        "command": [
+          "C:\\Users\\HOME\\AppData\\Roaming\\npm\\codex.cmd",
+          "--ask-for-approval",
+          "never",
+          "--sandbox",
+          "workspace-write",
+          "exec",
+          "-m",
+          "gpt-5",
+          "--add-dir",
+          "D:\\warkSpaces\\agent-factory",
+          "-c",
+          "model_reasoning_effort=\"low\"",
+          "-"
+        ]
+      }
+    }
+  ],
+  "result": {
+    "ok": true,
+    "reason": "codex_cli",
+    "latency_ms": 4348,
+    "approval_rejects": 0
+  },
+  "updated_at": "2026-03-11T03:23:45"
+}

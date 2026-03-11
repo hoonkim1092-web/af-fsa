@@ -9,6 +9,8 @@ import functools
 import shutil
 import builtins
 import sys
+import urllib.error
+import urllib.request
 from datetime import datetime
 
 try:
@@ -40,6 +42,7 @@ from core.hooks.guardrails import IntentGateHook, TodoContinuationEnforcer, Tool
 from core.providers.cli import CliChatRequest, execute_cli_chat
 from core.providers.registry import (
     default_chat_model_for_provider,
+    get_configured_engine_api_key,
     get_requested_cli_providers,
     strip_engine_api_keys,
 )
@@ -50,6 +53,9 @@ from model_utils import (
 
     resolve_dynamic_model,
     _infer_engine_id,
+    _pick_anthropic_model,
+    _pick_openai_model,
+    get_dynamic_default_model,
     normalize_model_name,
     generate_content_with_self_heal,
     create_chat_with_self_heal,
@@ -70,14 +76,14 @@ def _safe_print(*args, **kwargs):
 class FallbackRejectedError(RuntimeError):
     pass
 
-# [중복 제거 완료] quick_guard, BANNED_*, build_child_env, run_isolated ->
-# core/security_guard.py에 정의, core/utils.py를 통해 re-export됨.
+# [繞벿살탮????蹂ㅽ깴 ?熬곣뫁?? quick_guard, BANNED_*, build_child_env, run_isolated ->
+# core/security_guard.py???筌먦끉踰? core/utils.py???????re-export??
 
 # 4) Agent / Requirements
 # =============================================================================
 class AgentRunner:
-    def __init__(self, model_router: ModelRouter):
-        self.mr = model_router
+    def __init__(self, model_router: ModelRouter | None = None):
+        self.mr = model_router or ModelRouter()
         self._knowledge_skills = []
 
     def _resolve_system_prompt(self, agent: dict) -> str:
@@ -91,7 +97,7 @@ class AgentRunner:
         legacy = str(agent.get("system_prompt", "")).strip()
         if legacy:
             return legacy
-        return "당신은 유용한 AI 어시스턴트입니다."
+        return "?獄???? ??ル‘???AI ??怨룸뻣???꾩돇?筌뤾쑴肉???덈펲."
 
     def _resolve_signature_lines(self, agent: dict) -> list[str]:
         lines = agent.get("signature_lines")
@@ -196,10 +202,10 @@ class AgentRunner:
 
     def _ask_tool_approval(self, fname: str, skill_id: str) -> bool:
         try:
-            print("\n[승인 요청]")
-            print(f"- 도구: {fname}")
-            print(f"- 스킬: {skill_id if skill_id else 'unknown'}")
-            ans = input("위 도구 실행을 허용할까요? (yes/no): ").strip().lower()
+            print("\n[?獄?????븐슙??")
+            print(f"- ?熬곥룗?? {fname}")
+            print(f"- ???꾪뀬: {skill_id if skill_id else 'unknown'}")
+            ans = input("???熬곥룗?????덈뺄?????깅뮔??ル맪??? (yes/no): ").strip().lower()
             return ans in ("y", "yes")
         except Exception:
             return False
@@ -213,16 +219,254 @@ class AgentRunner:
                 needs.append((sid or "unknown", fname))
         if not needs:
             return
-        print("\n[정책 안내] 사용자 승인이 필요한 도구 목록")
+        print("[Approval Required] The following tools require approval before execution:")
         for sid, fname in needs:
-            print(f"- 스킬 `{sid}` / 도구 `{fname}`")
-        print("실행 시마다 yes/y로 승인해야 진행됩니다.")
+            print(f"- skill  / tool ")
+        print("Respond with yes/y to allow execution.")
+
+    def _model_family(self, model_name: str) -> str:
+        normalized = str(model_name or "").strip().lower()
+        if not normalized:
+            return ""
+        if normalized.startswith("models/"):
+            normalized = normalized[7:]
+        if normalized.startswith("claude"):
+            return "anthropic"
+        if normalized.startswith("codex") or normalized.startswith("gpt"):
+            return "openai"
+        if len(normalized) > 1 and normalized[0] == "o" and normalized[1].isdigit():
+            return "openai"
+        if normalized.startswith("gemini"):
+            return "google"
+        return ""
+
+    def _resolve_cli_model(self, provider_id: str, requested_model: str) -> str:
+        family = self._model_family(requested_model)
+        provider_key = str(provider_id or "").strip().lower()
+        if provider_key == "claude_cli" and family == "anthropic":
+            return str(requested_model).strip()
+        if provider_key == "codex_cli" and family == "openai":
+            return str(requested_model).strip()
+        if provider_key == "gemini_cli" and family == "google":
+            return normalize_model_name(requested_model)
+        return default_chat_model_for_provider(provider_key)
+
+    def _preferred_native_model(self, backend: str, requested_model: str, agent: dict, is_complex: bool) -> str:
+        family = self._model_family(requested_model)
+        role_summary = agent.get("role", "") or (agent.get("identity", {}) or {}).get("role_summary", "") or agent.get("name", "")
+        engine_id = _infer_engine_id(role_summary)
+        if backend == "openai":
+            if family == "openai" and str(requested_model).strip():
+                return str(requested_model).strip()
+            if engine_id == "reasoner_o":
+                return _pick_openai_model(prefer_reasoning=True) or "gpt-5"
+            return _pick_openai_model(prefer_reasoning=False, prefer_mini=not is_complex) or ("gpt-5-mini" if not is_complex else "gpt-5")
+        if backend == "anthropic":
+            if family == "anthropic" and str(requested_model).strip():
+                return str(requested_model).strip()
+            tier = "sonnet"
+            if engine_id == "architect_claude":
+                tier = "opus"
+            elif not is_complex:
+                tier = "haiku"
+            return _pick_anthropic_model(tier) or "claude"
+        if family == "google" and str(requested_model).strip():
+            return normalize_model_name(requested_model)
+        return normalize_model_name(get_dynamic_default_model("pro" if is_complex else "flash"))
+
+    def _native_backend_order(self, requested_model: str, agent: dict) -> list[str]:
+        requested_family = self._model_family(requested_model)
+        role_summary = agent.get("role", "") or (agent.get("identity", {}) or {}).get("role_summary", "") or agent.get("name", "")
+        engine_id = _infer_engine_id(role_summary)
+        if engine_id in {"architect_claude", "coder_claude"}:
+            preferred = ["anthropic", "openai", "google"]
+        elif engine_id in {"manager_gpt", "reasoner_o", "codex"}:
+            preferred = ["openai", "anthropic", "google"]
+        else:
+            preferred = ["google", "anthropic", "openai"]
+        ordered = []
+        for backend in [requested_family, *preferred, "anthropic", "openai", "google"]:
+            if backend and backend not in ordered:
+                ordered.append(backend)
+        return ordered
+
+    def _build_native_api_plan(self, agent: dict, requested_model: str, is_complex: bool, native_keys: dict[str, str]) -> list[dict]:
+        plan = []
+        seen = set()
+        for backend in self._native_backend_order(requested_model, agent):
+            if not native_keys.get(backend):
+                continue
+            candidate_model = self._preferred_native_model(backend, requested_model, agent, is_complex)
+            key = (backend, str(candidate_model).strip())
+            if key in seen or not key[1]:
+                continue
+            seen.add(key)
+            plan.append({"backend": backend, "model": candidate_model})
+        return plan
+
+    def _extract_openai_text(self, response) -> str:
+        text = str(getattr(response, "output_text", "") or "").strip()
+        if text:
+            return text
+        parts = []
+        for item in getattr(response, "output", []) or []:
+            if getattr(item, "type", "") != "message":
+                continue
+            for content in getattr(item, "content", []) or []:
+                if getattr(content, "type", "") in {"output_text", "text"}:
+                    value = str(getattr(content, "text", "") or "").strip()
+                    if value:
+                        parts.append(value)
+        return "\n".join(parts).strip()
+
+    def _is_model_access_error(self, message: str) -> bool:
+        text = str(message or "").lower()
+        markers = (
+            "not found",
+            "does not exist",
+            "unknown model",
+            "unsupported model",
+            "invalid model",
+            "access to model",
+            "do not have access",
+            "not available for your account",
+        )
+        return any(marker in text for marker in markers)
+
+    def _run_with_openai_responses(
+        self,
+        model_name: str,
+        sys_prompt: str,
+        task_input: str,
+        tool_functions: list,
+        *,
+        api_key: str,
+        fallback_models: list[str] | None = None,
+    ) -> str:
+        if not api_key or OpenAI is None:
+            return ""
+
+        tools = ", ".join(sorted({t.__name__ for t in tool_functions})) if tool_functions else "none"
+        prompt = (
+            f"{sys_prompt}\n\n"
+            f"[Task]\n{task_input}\n\n"
+            f"[Available Tools]\n{tools}\n"
+            "Tools are disabled on the OpenAI fallback path. Provide executable steps and results in text."
+        )
+        client = OpenAI(api_key=api_key)
+        candidates = []
+        for raw_model in [model_name, *(fallback_models or [])]:
+            candidate = str(raw_model or "").strip()
+            if candidate and candidate not in candidates:
+                candidates.append(candidate)
+
+        for candidate in candidates:
+            for attempt in range(3):
+                try:
+                    response = client.responses.create(model=candidate, input=prompt)
+                    text = self._extract_openai_text(response)
+                    if text.strip():
+                        _safe_print(text.strip())
+                        return text.strip()
+                    break
+                except Exception as exc:
+                    msg = str(exc).lower()
+                    if "429" in msg or "rate" in msg or "quota" in msg:
+                        time.sleep(5 * (attempt + 1))
+                        continue
+                    if self._is_model_access_error(msg):
+                        break
+                    _safe_print(f"[Runner] OpenAI execution error: {exc}")
+                    return ""
+        return ""
+
+    def _extract_anthropic_text(self, payload: dict) -> str:
+        parts = []
+        for item in payload.get("content", []) or []:
+            if str(item.get("type", "")).strip() != "text":
+                continue
+            value = str(item.get("text", "") or "").strip()
+            if value:
+                parts.append(value)
+        return "\n".join(parts).strip()
+
+    def _run_with_anthropic_api(
+        self,
+        model_name: str,
+        sys_prompt: str,
+        task_input: str,
+        tool_functions: list,
+        *,
+        api_key: str,
+        fallback_models: list[str] | None = None,
+    ) -> str:
+        if not api_key:
+            return ""
+
+        tools = ", ".join(sorted({t.__name__ for t in tool_functions})) if tool_functions else "none"
+        prompt = (
+            f"{sys_prompt}\n\n"
+            f"[Task]\n{task_input}\n\n"
+            f"[Available Tools]\n{tools}\n"
+            "Tools are disabled on the Anthropic fallback path. Provide executable steps and results in text."
+        )
+        candidates = []
+        for raw_model in [model_name, *(fallback_models or [])]:
+            candidate = str(raw_model or "").strip()
+            if candidate and candidate not in candidates:
+                candidates.append(candidate)
+
+        for candidate in candidates:
+            for attempt in range(3):
+                payload = json.dumps(
+                    {
+                        "model": candidate,
+                        "max_tokens": 4096,
+                        "system": sys_prompt,
+                        "messages": [{"role": "user", "content": task_input}],
+                    }
+                ).encode("utf-8")
+                request = urllib.request.Request(
+                    "https://api.anthropic.com/v1/messages",
+                    data=payload,
+                    headers={
+                        "content-type": "application/json",
+                        "x-api-key": api_key,
+                        "anthropic-version": "2023-06-01",
+                    },
+                    method="POST",
+                )
+                try:
+                    with urllib.request.urlopen(request, timeout=60) as response:
+                        data = json.loads(response.read().decode("utf-8"))
+                    text = self._extract_anthropic_text(data)
+                    if text.strip():
+                        _safe_print(text.strip())
+                        return text.strip()
+                    break
+                except urllib.error.HTTPError as exc:
+                    body = str(exc.read().decode("utf-8", errors="replace") or "")
+                    msg = f"{exc} {body}".lower()
+                    if exc.code == 429:
+                        time.sleep(5 * (attempt + 1))
+                        continue
+                    if self._is_model_access_error(msg):
+                        break
+                    _safe_print(f"[Runner] Anthropic execution error: {exc}")
+                    return ""
+                except Exception as exc:
+                    msg = str(exc).lower()
+                    if self._is_model_access_error(msg):
+                        break
+                    _safe_print(f"[Runner] Anthropic execution error: {exc}")
+                    return ""
+        return ""
 
     def _agent_prefers_codex(self, agent: dict, model_name: str) -> bool:
         if is_codex_model(model_name):
             return True
         if is_claude_model(model_name):
-            # Claude 설정 시에도 실행 가능한 Codex 경로를 우선 시도한다.
+            # Claude ???깆젧 ??戮?뱺?????덈뺄 ?띠럾??繞③뇡?Codex ?롪퍔?δ빳?꾨ご???⑥ろ맖 ??類ｌ┣??類ｋ펲.
             return True
         engine = str(agent.get("engine", "")).strip().lower()
         if "codex" in engine:
@@ -235,10 +479,10 @@ class AgentRunner:
 
     def _run_with_codex(self, model_name: str, sys_prompt: str, task_input: str, tool_functions: list) -> bool:
         if not OPENAI_API_KEY:
-            print("⚠️ [Runner] OPENAI_API_KEY가 없어 Codex 경로를 사용할 수 없습니다.")
+            print("??ル쵑??[Runner] OPENAI_API_KEY?띠럾? ??怨룹꽑 Codex ?롪퍔?δ빳?꾨ご??????????怨룸????덈펲.")
             return False
         if OpenAI is None:
-            print("⚠️ [Runner] openai 패키지가 없어 Codex 경로를 사용할 수 없습니다.")
+            print("??ル쵑??[Runner] openai ????뺟춯?뼿?띠럾? ??怨룹꽑 Codex ?롪퍔?δ빳?꾨ご??????????怨룸????덈펲.")
             return False
 
         codex_model = model_name if is_codex_model(model_name) else "codex-5.3"
@@ -247,7 +491,7 @@ class AgentRunner:
             f"{sys_prompt}\n\n"
             f"[Task]\n{task_input}\n\n"
             f"[Available Tools]\n{tools}\n"
-            "도구 호출은 현재 Codex 경로에서 비활성화되어 있으니, 실행 가능한 지시와 설계안을 우선 제시하세요."
+            "?熬곥룗???筌뤾쑵??? ?熬곣뫗??Codex ?롪퍔?δ빳??????????繹먮봿???琉우꽑 ???깅さ?? ???덈뺄 ?띠럾??繞③뇡?嶺뚯솘???? ??釉붋???깅굵 ??⑥ろ맖 ??戮?뻣??琉얠돪??"
         )
 
         client = OpenAI(api_key=OPENAI_API_KEY)
@@ -270,17 +514,17 @@ class AgentRunner:
                         text = ""
 
                 if text.strip():
-                    print(f"🤖 {text.strip()}")
+                    print(f"?鸚?{text.strip()}")
                     return True
                 return False
             except Exception as e:
                 msg = str(e).lower()
                 if "429" in msg or "rate" in msg or "quota" in msg:
                     wait = 5 * (i + 1)
-                    print(f"⏳ [Quota] Codex API 사용량 제한. {wait}초 대기 중... ({i+1}/3)")
+                    print(f"??[Quota] Codex API ????????ル┰. {wait}??????繞?.. ({i+1}/3)")
                     time.sleep(wait)
                     continue
-                print(f"⚠️ [Runner] Codex 실행 오류: {e}")
+                print(f"??ル쵑??[Runner] Codex ???덈뺄 ???댁쾼: {e}")
                 return False
         return False
 
@@ -318,7 +562,7 @@ class AgentRunner:
             sid = safe_id(str(sid))
             skill_py, skill_meta = resolve_skill_paths(sid)
             
-            # Action (Python) 처리
+            # Action (Python) 嶺뚳퐣瑗??
             if skill_py and os.path.exists(skill_py):
                 try:
                     cur_mtime = os.path.getmtime(skill_py)
@@ -337,13 +581,13 @@ class AgentRunner:
                         
                         self._skill_module_cache[sid] = (skill_py, cur_mtime, module)
                         loaded_skills.append(module)
-                        _safe_print(f"✅ [Runner] Action 스킬 로드 성공: {sid}")
+                        _safe_print(f"??[Runner] Action ???꾪뀬 ?β돦裕녻キ??繹먭퍓沅? {sid}")
                 except Exception as e:
-                    _safe_print(f"⚠️ [Runner] Action 스킬 로드 실패 ({sid}): {e}")
+                    _safe_print(f"??ル쵑??[Runner] Action ???꾪뀬 ?β돦裕녻キ????덉넮 ({sid}): {e}")
                     
-            # Knowledge (Markdown) 처리
+            # Knowledge (Markdown) 嶺뚳퐣瑗??
             else:
-                # WAREHOUSE_DIR / FORGE_DIR 순으로 .md 스캔 (보통 WAREHOUSE/sid/skill.md)
+                # WAREHOUSE_DIR / FORGE_DIR ??戮곕さ??.md ???노뼌 (?곌랜???WAREHOUSE/sid/skill.md)
                 from core.skill_procurer import WAREHOUSE_DIR, FORGE_DIR
                 from core.knowledge_skill import parse_skill_md
                 
@@ -352,21 +596,21 @@ class AgentRunner:
                 if md_path:
                     try:
                         cur_mtime = os.path.getmtime(md_path)
-                        # 캐시 갱신 확인
+                        # 嶺?흮???띠룄????筌먦끉逾?
                         existing_k = next((k for k in self._knowledge_skills if k.id == sid), None)
                         if existing_k and existing_k.updated_at == cur_mtime:
-                            pass # 캐시 유지
+                            pass # 嶺?흮?????
                         else:
                             k_skill = parse_skill_md(md_path)
                             if k_skill:
                                 if existing_k:
                                     self._knowledge_skills.remove(existing_k)
                                 self._knowledge_skills.append(k_skill)
-                                _safe_print(f"✅ [Runner] Knowledge 스킬 로드 성공: {sid}")
+                                _safe_print(f"??[Runner] Knowledge ???꾪뀬 ?β돦裕녻キ??繹먭퍓沅? {sid}")
                     except Exception as e:
-                        _safe_print(f"⚠️ [Runner] Knowledge 스킬 로드 실패 ({sid}): {e}")
+                        _safe_print(f"??ル쵑??[Runner] Knowledge ???꾪뀬 ?β돦裕녻キ????덉넮 ({sid}): {e}")
                 else:
-                    _safe_print(f"⚠️ [Runner] 스킬 소스(.py/.md)를 찾을 수 없음: {sid}")
+                    _safe_print(f"??ル쵑??[Runner] ???꾪뀬 ???裕?.py/.md)??嶺뚢돦堉??????怨몃쾳: {sid}")
 
         return loaded_skills
 
@@ -376,7 +620,7 @@ class AgentRunner:
         return wrapper.build_registry(module_list, ctx, policy, is_allowed_fn=self._is_tool_allowed)
 
     def run(self, agent: dict, task_input: str, run_id: str | None = None, auto_approve: bool = False, workspace: str | None = None):
-        print(f"\n🚀 [Runner] 에이전트 실행 시작: {agent.get('name')}")
+        print(f"\n?? [Runner] ???逾?熬곥굥諭????덈뺄 ??戮곗굚: {agent.get('name')}")
         started = time.time()
         run_id = run_id or f"run_{int(started)}"
         target_workspace = os.path.abspath(workspace) if workspace else PROJECT_ROOT
@@ -421,8 +665,8 @@ class AgentRunner:
         }
         ok_ctx, msg_ctx = validate_context_with_schema(ctx)
         if not ok_ctx:
-            _safe_print(f"⚠️ [ContextSchema] 컨텍스트 검증 실패: {msg_ctx}")
-            print("에이전트 실행을 중단합니다.")
+            _safe_print(f"??ル쵑??[ContextSchema] ???쳜????덈콦 ?롪틵?嶺????덉넮: {msg_ctx}")
+            print("???逾?熬곥굥諭????덈뺄??繞벿살탮???紐껊퉵??")
             result = {"ok": False, "reason": f"context_schema:{msg_ctx}", "latency_ms": int((time.time() - started) * 1000), "approval_rejects": approval_rejects}
             _append_trace("error", {"stage": "context_schema", "message": str(msg_ctx)})
             _flush_trace(result)
@@ -443,57 +687,24 @@ class AgentRunner:
         bus.register(IntentGateHook())
         bus.register(TodoContinuationEnforcer())
         bus.register(ToolOutputTruncator())
-        # AI Funnel & Smart Routing: 복잡도 판별
-        task_text = str(task_input or "")
+
+        # 시작 시 라우팅 상태 노티 (세션 당 1회)
+        from core.model_router import print_startup_routing_notice
+        print_startup_routing_notice()
+
+        # 역할 기반 복잡도 판별 (API 호출 없이 정적으로 결정)
         cli_providers = get_requested_cli_providers(os.getenv("AGENT_CHAT_PROVIDER"))
-        
-        # 1. 역할 기반 방어: 아키텍트, 리서처는 아무리 짧아도 항상 주력 고성능 모델 유지
         role_summary = agent.get("role", "") or (agent.get("identity", {}) or {}).get("role_summary", "")
         agent_name = agent.get("name", "")
         engine_id = _infer_engine_id(role_summary or agent_name)
-        role_hint = f"{role_summary} {agent_name}".lower()
-        force_complex_role = engine_id == "architect_claude" or (
-            engine_id == "researcher_gemini"
-            and any(token in role_hint for token in ("research", "researcher", "analyst", "study"))
-        )
-        
-        if force_complex_role:
-            is_complex = True
-            _safe_print(f"🔍 [Router] '{engine_id}' 핵심 역할 감지 -> 고성능 엔진 강제 유지")
-        else:
-            # 2. 지능형 분류기 (Stage 1 AI Funnel) - 하드코딩 배제
-            # 단순 길이/단어 배열 매칭이 아닌 Flash 모델을 통한 진짜 "의도" 판별
-            try:
-                if not GOOGLE_API_KEY:
-                    raise RuntimeError("google_api_key_disabled_or_missing")
-                from google import genai
-                client = genai.Client(api_key=GOOGLE_API_KEY)
-                prompt = (
-                    f"에이전트 역할: {role_summary or agent_name}\n"
-                    f"사용자 요청: {task_text}\n\n"
-                    "위 요청과 역할을 보고, 애니메이션 구현, UI/UX 설계, 새로운 비즈니스 로직 적용 등 고성능 지능이 필요한 'complex' 작업인지, "
-                    "단순 오타 수정, 터미널 에러 해결, 패키지 설치 등 빠른 처리가 필요한 'simple' 작업인지 판별하시오.\n"
-                    "참고: 프론트엔드 관련 작업은 품질이 중요하므로 대부분 'complex'를 요구합니다.\n"
-                    "대답은 부연 설명 없이 오직 'complex' 또는 'simple' 단어 하나만 하시오."
-                )
-                resp = generate_content_with_self_heal(
-                    client,
-                    normalize_model_name("gemini-1.5-flash"),
-                    prompt,
-                )
-                ans = resp.text.strip().lower()
-                is_complex = "complex" in ans
-                if is_complex:
-                    _safe_print(f"🔍 [Router] 🧠 AI분류: 고품질/프론트엔드 작업 감지 -> 고급 엔진(Pro/Sonnet) 배정")
-                else:
-                    _safe_print(f"⚡ [Router] 🧠 AI분류: 단순 반복 작업 감지 -> 경량(Lightweight) 문지기 배치")
-            except Exception as e:
-                _safe_print(f"⚠️ [Router] 분류기 예외 발생({e}), 안전망 가동 -> 고급 엔진 강제 유지")
-                is_complex = True
 
-        if cli_providers and not GOOGLE_API_KEY and not force_complex_role:
-            _safe_print("??[Router] CLI-only 紐⑤뱶濡??ㅽ뻾?⑸땲?? Google 遺꾨쪟湲??놁뼱??濡쒖뼵 媛?대뱶?덉씪 湲곕컲?쇰줈 吏꾪뻾?⑸땲??")
-            is_complex = False
+        # 아키텍처/리서치/코더/추론 역할은 항상 complex로 판정
+        is_complex = engine_id in ("architect_claude", "researcher_gemini", "coder_claude", "reasoner_o")
+        if is_complex:
+            _safe_print(f"[Router] '{engine_id}' -> complex task (role-based)")
+        else:
+            _safe_print(f"[Router] '{engine_id}' -> standard task")
+
 
         agent_state = {
             "task_input": task_input,
@@ -518,32 +729,38 @@ class AgentRunner:
             rel_knowledge = filter_relevant_knowledge(self._knowledge_skills, task_input)
             if rel_knowledge:
                 sys_prompt += build_knowledge_prompt(rel_knowledge)
-                _safe_print(f"✅ [Runner] 관련 Knowledge 스킬 주입 완료 ({len(rel_knowledge)}건)")
+                _safe_print(f"??[Runner] ??㉱??Knowledge ???꾪뀬 ?낅슣????熬곣뫁??({len(rel_knowledge)}濾?")
 
         # Proactive Memory Instruction
         skill_ids = [safe_id(str(s)) for s in agent.get("skills", [])]
         if "core_memory" in skill_ids:
             sys_prompt += (
                 "\n\n[Memory Instruction]\n"
-                "당신은 `core_memory` 스킬을 장착하고 있습니다.\n"
-                "대화 중 **중요한 정보**(프로젝트 명세, 사용자 선호, 일정, 결정 사항 등)가 등장하면, "
-                "사용자가 명시적으로 '기억해'라고 말하지 않아도 `core_memory.store` 도구를 사용하여 **스스로 저장**하세요.\n"
-                "저장할 때는 맥락에 맞는 적절한 키(key)와 카테고리(category)를 판단하여 저장합니다."
+                "?獄???? `core_memory` ???꾪뀬????쒎첎???겶????곕????덈펲.\n"
+                "????繞?**繞벿살탳????筌먲퐢沅?*(?熬곣뫁夷??釉띾콦 嶺뚮ㅏ援욆땻? ???????ル쪇源? ??源놁젧, ?롪퍒??????????띠럾? ?繹먮냱???濡?듆, "
+                "?????? 嶺뚮ㅏ援???⑤챷紐드슖?'?リ옇?ｅ젆?????┑?嶺뚮씭???彛? ???욱닡??`core_memory.store` ?熬곥룗????????琉우뿰 **???곕츩??????*??琉얠돪??\n"
+                "???繞③뇡????裕?嶺뚮쓽?대뎅??嶺뚮씮?????⑤챷?????key)?? ?곸궠??誘ㅒ?μ쪚??category)?????堉??琉우뿰 ???繞③뜮????덈펲."
             )
 
         sigs = self._resolve_signature_lines(agent)
         if sigs:
             import random
             greeting = random.choice(sigs)
-            print(f"💬 [Agent] {greeting}")
+            print(f"?獒?[Agent] {greeting}")
             sys_prompt += f"\n\n[Signature]\n{greeting}"
 
         cli_failures = []
+        native_keys = {
+            "google": get_configured_engine_api_key("google"),
+            "openai": get_configured_engine_api_key("openai"),
+            "anthropic": get_configured_engine_api_key("anthropic"),
+        }
         if cli_providers:
             for provider_id in cli_providers:
+                cli_model = self._resolve_cli_model(provider_id, model_name)
                 cli_result = self._run_with_cli_provider(
                     provider_id,
-                    model_name,
+                    cli_model,
                     sys_prompt,
                     task_input,
                     target_workspace,
@@ -553,7 +770,7 @@ class AgentRunner:
                 if cli_result.get("ok"):
                     cli_text = str(cli_result.get("text", "") or "").strip()
                     if cli_text:
-                        print(f"?ì¨¼ {cli_text}")
+                        print(f"{cli_text}")
                     result = {
                         "ok": True,
                         "reason": provider_id,
@@ -565,6 +782,7 @@ class AgentRunner:
                         {
                             "channel": provider_id,
                             "text": cli_text,
+                            "model": cli_model,
                             "command": cli_result.get("command", []),
                         },
                     )
@@ -580,7 +798,7 @@ class AgentRunner:
                     },
                 )
 
-            if cli_failures and not GOOGLE_API_KEY and not OPENAI_API_KEY:
+            if cli_failures and not any(native_keys.values()):
                 last_failure = cli_failures[-1]
                 result = {
                     "ok": False,
@@ -591,27 +809,89 @@ class AgentRunner:
                 _flush_trace(result)
                 return result
 
-        if self._agent_prefers_codex(agent, model_name):
-            codex_ok = self._run_with_codex(model_name, sys_prompt, task_input, tool_functions)
-            if codex_ok:
-                print("✅ Agent Execution Finished.")
-                result = {"ok": True, "reason": "codex", "latency_ms": int((time.time() - started) * 1000), "approval_rejects": approval_rejects}
-                _append_trace("assistant", {"channel": "codex", "note": "codex path completed"})
-                _flush_trace(result)
-                return result
-            print("⚠️ [Runner] Codex 경로 실패, Gemini 경로로 폴백합니다.")
+        gemini_model = ""
+        for api_candidate in self._build_native_api_plan(agent, model_name, is_complex, native_keys):
+            backend = str(api_candidate.get("backend") or "")
+            candidate_model = str(api_candidate.get("model") or "")
+            if backend == "openai":
+                openai_text = self._run_with_openai_responses(
+                    candidate_model,
+                    sys_prompt,
+                    task_input,
+                    tool_functions,
+                    api_key=native_keys["openai"],
+                    fallback_models=[self._preferred_native_model("openai", "", agent, is_complex), "gpt-5"],
+                )
+                if openai_text:
+                    print("Agent Execution Finished.")
+                    result = {
+                        "ok": True,
+                        "reason": "openai",
+                        "latency_ms": int((time.time() - started) * 1000),
+                        "approval_rejects": approval_rejects,
+                    }
+                    _append_trace(
+                        "assistant",
+                        {
+                            "channel": "openai",
+                            "text": openai_text,
+                            "model": candidate_model,
+                        },
+                    )
+                    _flush_trace(result)
+                    return result
+                _append_trace("error", {"stage": "openai", "message": f"openai_failed:{candidate_model}"})
+                continue
 
-        if not GOOGLE_API_KEY:
-            print("⚠️ [Runner] GOOGLE_API_KEY가 없어 Gemini 경로를 사용할 수 없습니다.")
-            print("에이전트가 응답을 생성하지 못했습니다.")
-            result = {"ok": False, "reason": "missing_google_api_key", "latency_ms": int((time.time() - started) * 1000), "approval_rejects": approval_rejects}
-            _append_trace("error", {"stage": "bootstrap", "message": "missing_google_api_key"})
+            if backend == "anthropic":
+                anthropic_text = self._run_with_anthropic_api(
+                    candidate_model,
+                    sys_prompt,
+                    task_input,
+                    tool_functions,
+                    api_key=native_keys["anthropic"],
+                    fallback_models=[self._preferred_native_model("anthropic", "", agent, is_complex), "claude"],
+                )
+                if anthropic_text:
+                    print("Agent Execution Finished.")
+                    result = {
+                        "ok": True,
+                        "reason": "anthropic",
+                        "latency_ms": int((time.time() - started) * 1000),
+                        "approval_rejects": approval_rejects,
+                    }
+                    _append_trace(
+                        "assistant",
+                        {
+                            "channel": "anthropic",
+                            "text": anthropic_text,
+                            "model": candidate_model,
+                        },
+                    )
+                    _flush_trace(result)
+                    return result
+                _append_trace("error", {"stage": "anthropic", "message": f"anthropic_failed:{candidate_model}"})
+                continue
+
+            if backend == "google":
+                gemini_model = normalize_model_name(candidate_model)
+                break
+
+        if not gemini_model:
+            failure_reason = "no_callable_backend"
+            if cli_failures:
+                failure_reason = str(cli_failures[-1].get("reason") or "cli_provider_failed")
+            result = {
+                "ok": False,
+                "reason": failure_reason,
+                "latency_ms": int((time.time() - started) * 1000),
+                "approval_rejects": approval_rejects,
+            }
+            _append_trace("error", {"stage": "bootstrap", "message": failure_reason})
             _flush_trace(result)
             return result
-
-        gemini_model = normalize_model_name(model_name if not (is_codex_model(model_name) or is_claude_model(model_name)) else get_best_model(["gemini-2.5-flash", "gemini-2.5-pro"]))
         try:
-            # [신규 SDK] genai.Client 기반 채팅 세션 생성
+            # [??ル맪??SDK] genai.Client ?リ옇?↑?嶺?????筌뤾쑬????諛댁뎽
             from google import genai
             from google.genai import types as genai_types
             gemini_client = genai.Client(api_key=GOOGLE_API_KEY)
@@ -625,7 +905,7 @@ class AgentRunner:
             )
         except Exception as e:
             import traceback
-            print(f"❌ [Runner] SDK Chat Session Create 실패: {str(e)}")
+            print(f"??[Runner] SDK Chat Session Create ???덉넮: {str(e)}")
             traceback.print_exc()
             result = {"ok": False, "reason": "sdk_init_failed", "latency_ms": int((time.time() - started) * 1000), "approval_rejects": approval_rejects}
             _append_trace("error", {"stage": "sdk_init", "message": str(e)})
@@ -635,7 +915,7 @@ class AgentRunner:
         _append_trace("user", {"text": f"Task: {task_input}"})
         _append_trace("system", {"model": str(gemini_model), "skills": [str(s) for s in skill_ids]})
         
-        # 안전한 메시지 전송 헬퍼 (429 Quota 자동 재시도)
+        # ???깆쓧??嶺뚮∥???낆?? ?熬곣뫖苑?????(429 Quota ???吏??????
         def safe_send(msg):
             max_retries = 3
             for i in range(max_retries):
@@ -644,14 +924,14 @@ class AgentRunner:
                 except Exception as e:
                     if "429" in str(e) or "quota" in str(e).lower() or "resource exhausted" in str(e).lower():
                         wait = 5 * (i + 1)
-                        print(f"⏳ [Quota] API 사용량 초과 (429). {wait}초 대기 중... ({i+1}/{max_retries})")
+                        print(f"??[Quota] API ??????貫???(429). {wait}??????繞?.. ({i+1}/{max_retries})")
                         time.sleep(wait)
                         continue
                     raise e
-            raise Exception("API 호출 실패 (Quota Exceeded)")
+            raise Exception("API ?筌뤾쑵?????덉넮 (Quota Exceeded)")
 
         try:
-            # [신규 SDK] 첫 메시지 전송
+            # [??ル맪??SDK] 嶺?嶺뚮∥???낆?? ?熬곣뫖苑?
             response = safe_send(f"Task: {task_input}")
             
             # Basic ReAct Loop
@@ -665,7 +945,7 @@ class AgentRunner:
                 for part in response.parts:
                     # 1. Output Text
                     if hasattr(part, "text") and part.text:
-                        print(f"🤖 {part.text}", flush=True)
+                        print(f"?鸚?{part.text}", flush=True)
                         _append_trace("assistant", {"text": str(part.text)})
                     
                     # 2. Function Call
@@ -674,7 +954,7 @@ class AgentRunner:
                         fc = part.function_call
                         fname = fc.name
                         fargs = dict(fc.args)
-                        print(f"🛠️ [Tool] {fname}({fargs})", flush=True)
+                        print(f"??湲몃떬?[Tool] {fname}({fargs})", flush=True)
                         _append_trace("tool_call", {"name": str(fname), "args": fargs})
                     
                         # Find tool wrapper
@@ -684,10 +964,10 @@ class AgentRunner:
                                 skill_id = safe_id(str(getattr(tool_func, "_skill_id", "")))
                                 if self._requires_tool_approval(policy, skill_id, fname):
                                     if not self._ask_tool_approval(fname, skill_id):
-                                        print(f"⏭️ [Policy] 사용자 미승인으로 도구 실행을 건너뜁니다: {fname}", flush=True)
+                                        print(f"????[Policy] ?????亦껋꼶梨??筌뤾쑴紐드슖??熬곥룗?????덈뺄??濾곌쑬????⑤８鍮?? {fname}", flush=True)
                                         approval_rejects += 1
                                         _append_trace("tool_reject", {"name": str(fname), "skill_id": str(skill_id)})
-                                        response = safe_send("해당 도구는 승인되지 않았습니다. 다른 방법으로 진행하세요.")
+                                        response = safe_send("??????熬곥룗????獄????? ???용┃???鍮?? ???섎??꾩렮維뽬떋??怨쀬Ŧ 嶺뚯쉳?듸쭛??琉얠돪??")
                                         continue
                                 tool_decision = bus.run_pre_tool_call(agent_state, fname, fargs)
                                 if not tool_decision.allowed:
@@ -716,7 +996,7 @@ class AgentRunner:
                                 _append_trace("tool_result", {"name": str(fname), "result": str(res_obj)[:800]})
                                 
                                 # Send result back
-                                # [신규 SDK] 도구 실행 결과를 모델에 반환
+                                # [??ル맪??SDK] ?熬곥룗?????덈뺄 ?롪퍒???좊ご?嶺뚮ㅄ維????꾩룇瑗??
                                 response = safe_send(
                                     genai_types.Part.from_function_response(
                                         name=fname,
@@ -724,28 +1004,28 @@ class AgentRunner:
                                     )
                                 )
                             except Exception as e:
-                                print(f"❌ [Tool Error] {fname}: {e}", flush=True)
+                                print(f"??[Tool Error] {fname}: {e}", flush=True)
                                 _append_trace("tool_error", {"name": str(fname), "message": str(e)})
-                                response = safe_send(f"도구 실행 중 오류가 발생했습니다: {e}")
+                                response = safe_send(f"?熬곥룗?????덈뺄 繞????댁쾼?띠럾? ?꾩룇裕뉑틦???곕????덈펲: {e}")
                         else:
-                            print(f"⚠️ [Runner] 알 수 없는 도구 호출: {fname}", flush=True)
-                            response = safe_send(f"알 수 없는 도구입니다: {fname}")
+                            print(f"??ル쵑??[Runner] ???????⑸츎 ?熬곥룗???筌뤾쑵?? {fname}", flush=True)
+                            response = safe_send(f"???????⑸츎 ?熬곥룗????낅퉵?? {fname}")
 
                 if not has_action:
-                    # 만약 텍스트만 있고 액션이 없으면 루프 종료 (질문을 한 상태일 수 있음)
+                    # 嶺뚮씭?ｉ뜮????⑸츩?筌뤾퍔異????쇑????떷????怨몃さ嶺??猷먮쳜????リ턁筌?(嶺뚯쉶?꾣룇??????⑤객臾???????깅쾳)
                     break
             
-            print("✅ Agent Execution Finished.")
+            print("??Agent Execution Finished.")
             result = {"ok": True, "reason": "gemini", "latency_ms": int((time.time() - started) * 1000), "approval_rejects": approval_rejects}
             _flush_trace(result)
             return result
 
         except Exception as e:
             import traceback
-            print(f"⚠️ [Runner] 실행 중 오류: {e}")
+            print(f"??ル쵑??[Runner] ???덈뺄 繞????댁쾼: {e}")
             traceback.print_exc()
             # Fallback output
-            print("에이전트가 응답을 생성하지 못했습니다.")
+            print("???逾?熬곥굥諭쒏뤆?쎛 ??얜Ŧ堉????諛댁뎽??? 嶺뚮쪇沅?쭛???鍮??")
             result = {"ok": False, "reason": f"runner_error:{type(e).__name__}", "latency_ms": int((time.time() - started) * 1000), "approval_rejects": approval_rejects}
             _append_trace("error", {"stage": "runner", "message": str(e)})
             _flush_trace(result)

@@ -13,6 +13,7 @@ except Exception:
 from core.providers.cli import CliChatRequest, execute_cli_chat
 from core.providers.registry import (
     default_chat_model_for_provider,
+    get_configured_engine_api_key,
     get_engine_api_key,
     get_requested_cli_providers,
 )
@@ -64,7 +65,7 @@ def _extract_openai_text(response) -> str:
 
 
 def _call_google_api(model: str, prompt: str) -> str:
-    api_key = get_engine_api_key("google")
+    api_key = get_engine_api_key("google") or get_configured_engine_api_key("google")
     if not api_key:
         raise RuntimeError("missing_google_api_key")
     from google import genai
@@ -75,7 +76,7 @@ def _call_google_api(model: str, prompt: str) -> str:
 
 
 def _call_openai_api(model: str, prompt: str) -> str:
-    api_key = get_engine_api_key("openai")
+    api_key = get_engine_api_key("openai") or get_configured_engine_api_key("openai")
     if not api_key:
         raise RuntimeError("missing_openai_api_key")
     if OpenAI is None:
@@ -86,7 +87,7 @@ def _call_openai_api(model: str, prompt: str) -> str:
 
 
 def _call_anthropic_api(model: str, prompt: str) -> str:
-    api_key = get_engine_api_key("anthropic")
+    api_key = get_engine_api_key("anthropic") or get_configured_engine_api_key("anthropic")
     if not api_key:
         raise RuntimeError("missing_anthropic_api_key")
     payload = json.dumps(
@@ -148,11 +149,11 @@ def list_requirement_candidates() -> list[RequirementCandidate]:
     for provider_id in cli_providers:
         add(provider_id, _cli_model_for_provider(provider_id, cli_providers), "cli")
 
-    if get_engine_api_key("anthropic"):
+    if get_engine_api_key("anthropic") or get_configured_engine_api_key("anthropic"):
         add("anthropic_api", _pick_anthropic_model("sonnet") or "claude", "api")
-    if get_engine_api_key("openai"):
+    if get_engine_api_key("openai") or get_configured_engine_api_key("openai"):
         add("openai_api", _pick_openai_model(prefer_reasoning=False) or "gpt-5", "api")
-    if get_engine_api_key("google"):
+    if get_engine_api_key("google") or get_configured_engine_api_key("google"):
         add("google_api", get_best_model(["gemini-2.5-pro", "gemini-2.5-flash", "gemini-2.0-pro"]), "api")
 
     return candidates

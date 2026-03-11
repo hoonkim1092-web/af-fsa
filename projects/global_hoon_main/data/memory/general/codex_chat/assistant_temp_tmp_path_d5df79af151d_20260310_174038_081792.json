@@ -1,0 +1,18 @@
+{
+  "key": "assistant 파일 자체가 인코딩도 많이 깨져 있어서 temp 권한 수정만 찔끔 하는 것보다 테스트를 깨끗하게 다시 쓰는 편이 낫습니다 목적은 그대로 유지하고 tmp_path 기반으로 재작성하겠습니다",
+  "value": "[assistant] 파일 자체가 인코딩도 많이 깨져 있어서, temp 권한 수정만 찔끔 하는 것보다 테스트를 깨끗하게 다시 쓰는 편이 낫습니다. 목적은 그대로 유지하고 `tmp_path` 기반으로 재작성하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:38.081876+00:00",
+  "updated_at": "2026-03-10T17:40:38.081876+00:00",
+  "details": {
+    "text": "[assistant] 파일 자체가 인코딩도 많이 깨져 있어서, temp 권한 수정만 찔끔 하는 것보다 테스트를 깨끗하게 다시 쓰는 편이 낫습니다. 목적은 그대로 유지하고 `tmp_path` 기반으로 재작성하겠습니다.",
+    "event_timestamp": "2026-03-10T17:05:14.806Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/11/rollout-2026-03-11T01-30-46-019cd896-2cfb-7692-a889-53fc50ef1599.jsonl",
+    "session_line": 489,
+    "provider": "codex"
+  }
+}

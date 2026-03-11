@@ -1,0 +1,24 @@
+{
+  "run_id": "run_1773164368",
+  "project_id": "smoke_codex_factory",
+  "agent_name": "agent_generalassistant",
+  "agent_role": "GeneralAssistant",
+  "task": "Return_AGENТ_FACTORY_OK",
+  "transcript": [
+    {
+      "ts": "2026-03-11T02:39:28",
+      "kind": "error",
+      "payload": {
+        "stage": "bootstrap",
+        "message": "missing_google_api_key"
+      }
+    }
+  ],
+  "result": {
+    "ok": false,
+    "reason": "missing_google_api_key",
+    "latency_ms": 2,
+    "approval_rejects": 0
+  },
+  "updated_at": "2026-03-11T02:39:28"
+}

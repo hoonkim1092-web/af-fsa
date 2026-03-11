@@ -1,0 +1,18 @@
+{
+  "key": "assistant 세 provider를 전부 무프롬프트 자동 실행으로 맞추는 건 실행 정책 변경이라 지원 플래그를 공식 문서와 현재 코드 둘 다 기준으로 확인한 뒤 바로 반영하겠습니다 이어서 테스트까지 맞춰서 승인 ",
+  "value": "[assistant] 세 provider를 전부 무프롬프트 자동 실행으로 맞추는 건 실행 정책 변경이라, 지원 플래그를 공식 문서와 현재 코드 둘 다 기준으로 확인한 뒤 바로 반영하겠습니다. 이어서 테스트까지 맞춰서 승인 프롬프트가 다시 안 뜨는 기본값으로 고정하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T06:58:54.454369+00:00",
+  "updated_at": "2026-03-10T06:58:54.454369+00:00",
+  "details": {
+    "text": "[assistant] 세 provider를 전부 무프롬프트 자동 실행으로 맞추는 건 실행 정책 변경이라, 지원 플래그를 공식 문서와 현재 코드 둘 다 기준으로 확인한 뒤 바로 반영하겠습니다. 이어서 테스트까지 맞춰서 승인 프롬프트가 다시 안 뜨는 기본값으로 고정하겠습니다.",
+    "event_timestamp": "2026-03-10T06:57:58.928Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 1117,
+    "provider": "codex"
+  }
+}

@@ -1,4 +1,4 @@
-import os
+﻿import os
 import shutil
 from core.utils import (
     safe_id, read_yaml, write_yaml, now_iso, resolve_skill_paths,
@@ -6,6 +6,7 @@ from core.utils import (
     read_skill_lock, lock_skill_state, append_dashboard_run, skill_markdown_filenames
 )
 from core.external_skill_source_ids import normalize_external_source_id
+from core.install_candidate_utils import normalize_install_candidate_collection
 from core.config_paths import (
     REGISTRY_PATH, SKILLS_DIR, WORKFLOW_PATH
 )
@@ -65,6 +66,47 @@ class RegistryManager:
     def _resolve_path(self, path_text: str) -> str | None:
         return resolve_existing_path(path_text)
 
+    def _normalize_install_candidates(self, raw_candidates) -> dict:
+        normalized: dict = {}
+        for cid, item in normalize_install_candidate_collection(raw_candidates, default_source="registry").items():
+            if not isinstance(item, dict):
+                continue
+            n_item = dict(item)
+            path = str(n_item.get("path") or "").strip()
+            if path:
+                portable_path = to_portable_path(path)
+                if not is_portable_rel_path(portable_path):
+                    continue
+                n_item["path"] = portable_path
+            else:
+                n_item.pop("path", None)
+            n_item["id"] = safe_id(str(n_item.get("id") or cid))
+            n_item["source_id"] = normalize_external_source_id(
+                str(n_item.get("source_id") or "registry"),
+                default="registry",
+            )
+            source_repo = str(n_item.get("source_repo") or "").strip()
+            if source_repo:
+                n_item["source_repo"] = source_repo
+            else:
+                n_item.pop("source_repo", None)
+            source_url = str(n_item.get("source_url") or "").strip()
+            if source_url:
+                n_item["source_url"] = source_url
+            else:
+                n_item.pop("source_url", None)
+            capabilities: list[str] = []
+            for raw_value in (n_item.get("capabilities") or []):
+                capability = safe_id(str(raw_value))
+                if capability and capability not in capabilities:
+                    capabilities.append(capability)
+            if capabilities:
+                n_item["capabilities"] = capabilities
+            else:
+                n_item.pop("capabilities", None)
+            normalized[cid] = n_item
+        return normalized
+
     def _normalize_registry_paths(self):
         reg = self._read_registry()
         skills = reg.get("skills", {}) if isinstance(reg, dict) else {}
@@ -95,34 +137,7 @@ class RegistryManager:
             self._write_registry(reg)
 
         raw_cands = reg.get("install_candidates", {})
-        normalized: dict = {}
-        if isinstance(raw_cands, dict):
-            for cid, item in raw_cands.items():
-                sid = safe_id(str(cid))
-                if isinstance(item, str):
-                    rp = to_portable_path(item)
-                    if is_portable_rel_path(rp):
-                        normalized[sid] = rp
-                        changed = True
-                    continue
-                if not isinstance(item, dict):
-                    continue
-                n_item = dict(item)
-                p = str(item.get("path") or "").strip()
-                if p:
-                    rp = to_portable_path(p)
-                    if not is_portable_rel_path(rp):
-                        changed = True
-                        continue
-                    n_item["path"] = rp
-                n_item["id"] = safe_id(str(item.get("id") or sid))
-                n_item["source_id"] = normalize_external_source_id(
-                    str(item.get("source_id") or item.get("source") or "registry"),
-                    default="registry",
-                )
-                normalized[sid] = n_item
-                if str(item) != str(n_item):
-                    changed = True
+        normalized = self._normalize_install_candidates(raw_cands)
         if raw_cands != normalized:
             reg["install_candidates"] = normalized
             changed = True
@@ -131,32 +146,24 @@ class RegistryManager:
 
     def _iter_install_candidates(self) -> list[dict]:
         reg = self._read_registry()
-        raw = reg.get("install_candidates", {})
+        raw = self._normalize_install_candidates(reg.get("install_candidates", {}))
         out: list[dict] = []
-        if isinstance(raw, dict):
-            for cid, item in raw.items():
-                sid = safe_id(str(cid))
-                if isinstance(item, str):
-                    path = str(item).strip()
-                    if not is_portable_rel_path(path):
-                        continue
-                    out.append({"id": sid, "path": path, "capabilities": [sid], "source_id": "registry"})
-                    continue
-                if isinstance(item, dict):
-                    path = str(item.get("path") or "").strip()
-                    if path and not is_portable_rel_path(path):
-                        continue
-                    out.append({
-                        "id": safe_id(str(item.get("id") or sid)),
-                        "name": str(item.get("name") or sid),
-                        "path": path,
-                        "source_url": str(item.get("source_url") or ""),
-                        "source_id": normalize_external_source_id(
-                            str(item.get("source_id") or item.get("source") or "registry"),
-                            default="registry",
-                        ),
-                        "capabilities": [safe_id(str(x)) for x in (item.get("capabilities") or []) if str(x).strip()],
-                    })
+        for cid, item in raw.items():
+            if not isinstance(item, dict):
+                continue
+            sid = safe_id(str(item.get("id") or cid))
+            out.append({
+                "id": sid,
+                "name": str(item.get("name") or sid),
+                "path": str(item.get("path") or "").strip(),
+                "source_url": str(item.get("source_url") or ""),
+                "source_repo": str(item.get("source_repo") or ""),
+                "source_id": normalize_external_source_id(
+                    str(item.get("source_id") or "registry"),
+                    default="registry",
+                ),
+                "capabilities": [safe_id(str(x)) for x in (item.get("capabilities") or []) if str(x).strip()],
+            })
         return out
 
     def _install_skill_file(self, need_id: str, source_path: str, source_label: str = "external") -> tuple[bool, str]:
@@ -301,3 +308,7 @@ class RegistryManager:
                 if sid not in mapping[k]: mapping[k].append(sid)
         wf["updated_at"] = now_iso()
         write_yaml(WORKFLOW_PATH, wf)
+
+
+
+

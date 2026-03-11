@@ -1,0 +1,52 @@
+{
+  "provider_id": "codex_cli",
+  "bridge_provider_id": "codex",
+  "mode": "wrapper_bridge",
+  "run_id": "run_1773166870",
+  "workspace": "D:\\warkSpaces\\agent-factory\\.tmp_smoke_projects\\smoke_cli_args_auth_seed",
+  "model": "gpt-5",
+  "command": [
+    "C:\\Users\\HOME\\AppData\\Roaming\\npm\\codex.cmd",
+    "--ask-for-approval",
+    "never",
+    "--sandbox",
+    "workspace-write",
+    "exec",
+    "-m",
+    "gpt-5",
+    "--add-dir",
+    "D:\\warkSpaces\\agent-factory",
+    "-c",
+    "model_reasoning_effort=\"low\"",
+    "[Task]\nReturn AGENT_FACTORY_OK\n\nRespond to the task directly. Do not summarize the system prompt, workspace, or configuration unless the task explicitly asks for that.\n\n[Workspace]\nD:\\warkSpaces\\agent-factory\\.tmp_smoke_projects\\smoke_cli_args_auth_seed\n\n[System Prompt]\n당신은 General Assistant 역할의 실행 에이전트다. 현재 워크스페이스 안에서 필요한 파일을 직접 만들거나 수정해 작업 결과를 남겨라.\n\n[Documentation Contract]\nIf this task changes architecture, design, workflow, requirements, interfaces, data flow, or implementation strategy, you MUST update `docs/architecture.md` and append `docs/change_history.md` in the same task.\nCreate those files if they do not exist.\nAll documentation files created or updated in this task MUST be written in the language that matches OS language code `korean-KOREA`.\nKeep code, file paths, commands, and API identifiers in their original form when needed, but write headings, body text, summaries, and change-log entries in that language.\nIf no design-level change happened, leave those files untouched.\n\n[Destructive Action Guard]\nNever execute destructive delete/reset shell actions unless the human explicitly asks for that exact action in the current message and the runtime policy is changed to allow it.\nForbidden operations include `rm`, `del`, `erase`, `Remove-Item`, `git clean`, `git reset --hard`, `git checkout --`, `git restore --worktree`, `git restore --staged`, and equivalent delete/reset commands.\nIf cleanup seems necessary, stop and explain the safer non-destructive alternative instead of running the command.\n\n[Signature]\n[General Assistant] 바로 실행합니다."
+  ],
+  "task_preview": "Return AGENT_FACTORY_OK",
+  "prepared_at": "2026-03-10T18:21:10.420730+00:00",
+  "guard_dir": "D:\\warkSpaces\\agent-factory\\.tmp_smoke_projects\\smoke_cli_args_auth_seed\\.af_runtime\\cli_sessions\\codex_cli_run_1773166870_shell_guard",
+  "codex_home": "D:\\warkSpaces\\agent-factory\\.tmp_smoke_projects\\smoke_cli_args_auth_seed\\.af_runtime\\codex_home",
+  "sessions_root": "D:\\warkSpaces\\agent-factory\\.tmp_smoke_projects\\smoke_cli_args_auth_seed\\.af_runtime\\codex_home\\sessions",
+  "source_codex_home": "C:\\Users\\HOME\\.codex",
+  "seeded_auth_files": [
+    "auth.json",
+    "config.toml",
+    "cap_sid"
+  ],
+  "destructive_guard_mode": "shell_proxy_and_system_prompt_contract",
+  "completed_at": "2026-03-10T18:21:17.315565+00:00",
+  "ok": true,
+  "reason": "codex_cli",
+  "returncode": 0,
+  "stdout_excerpt": "Got it. What would you like me to do? \n- Describe the goal or bug you want fixed.\n- If you want to use a skill, name it (e.g., “skill-installer” or “skill-creator”).\n- Or say “scan repo” and I’ll outline what’s here and suggest next steps.\n",
+  "stderr_excerpt": "OpenAI Codex v0.113.0 (research preview)\n--------\nworkdir: D:\\warkSpaces\\agent-factory\\.tmp_smoke_projects\\smoke_cli_args_auth_seed\nmodel: gpt-5\nprovider: openai\napproval: never\nsandbox: workspace-write [workdir, /tmp, $TMPDIR, D:\\warkSpaces\\agent-factory, \\\\?\\D:\\warkSpaces\\agent-factory\\.tmp_smoke_projects\\smoke_cli_args_auth_seed\\.af_runtime\\codex_home\\memories]\nreasoning effort: low\nreasoning summaries: none\nsession id: 019cd8fb-4040-7072-b03f-7141482ae8ad\n--------\nuser\n[Task]\nmcp startup: no servers\n\n\nthinking\n**Clarifying user goals**\n\nI need to respond to a task prompt that only says \"[Task]\" from the user. It's important to ask for clarification so I can propose to list tasks. As a coding agent, I might need to read relevant instructions to understand what the user wants. I should also consider asking a concise clarifying question and offer examples of possible options like listing or installing skills. However, I should avoid using web.run and keep my reply simple and clear.\nth",
+  "last_response_excerpt": "Got it. What would you like me to do? \n- Describe the goal or bug you want fixed.\n- If you want to use a skill, name it (e.g., “skill-installer” or “skill-creator”).\n- Or say “scan repo” and I’ll outline what’s here and suggest next steps.",
+  "bridge_result": {
+    "ok": true,
+    "provider": "codex",
+    "written": 3,
+    "events_seen": 3,
+    "global_root": "D:\\warkSpaces\\agent-factory\\projects\\global_hoon_main",
+    "memory_dir": "D:\\warkSpaces\\agent-factory\\projects\\global_hoon_main\\data\\memory\\general\\codex_chat",
+    "state_path": "D:\\warkSpaces\\agent-factory\\projects\\global_hoon_main\\data\\memory\\codex\\_bridge_state\\session_cursor.json",
+    "sessions_root": "D:\\warkSpaces\\agent-factory\\.tmp_smoke_projects\\smoke_cli_args_auth_seed\\.af_runtime\\codex_home\\sessions"
+  }
+}

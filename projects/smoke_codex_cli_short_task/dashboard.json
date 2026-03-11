@@ -1,0 +1,19 @@
+{
+  "project_id": "smoke_codex_cli_short_task",
+  "runs": [
+    {
+      "ts": "2026-03-11T02:49:10",
+      "type": "single_run",
+      "project_id": "smoke_codex_cli_short_task",
+      "role": "General Assistant",
+      "task": "Return AGENT_FACTORY_OK",
+      "skills_loaded": [],
+      "ok": true,
+      "reason": "codex_cli",
+      "latency_ms": 7076,
+      "approval_rejects": 0,
+      "build_enabled": false,
+      "missing_skills_detected": []
+    }
+  ]
+}

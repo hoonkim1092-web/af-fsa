@@ -1,0 +1,22 @@
+approval_policy:
+  default_require_approval: false
+  require_skill_change_approval: false
+autonomy:
+  max_stage_retries: 2
+  stop_on_stage_failure: true
+  strict_quality_gate: true
+external_skill_source_priority:
+- claude_repo
+- codex_repo
+- registry
+- external_cache
+external_skill_sources: []
+project_id: smoke_cli_args_escalated
+quality_gate:
+  auto_promote_sequence:
+  - canary
+  - active
+  default_stage_on_build: candidate
+workflow:
+  default_template: workflows/two_week_webapp_delivery.yaml
+  role_map: {}

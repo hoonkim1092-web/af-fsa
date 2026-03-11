@@ -36,6 +36,6 @@ def test(ctx):
     assert res['ok'] is True
     assert res['aggregation']['count']==3
     assert abs(res['aggregation']['mean']-20.0)<0.001
-    norm_B = next(r for r in res['records'] if r['id']=='B')
-    assert abs(norm_B['norm']-0.5)<0.001
+    norm_b = next(r for r in res['records'] if r['id']=='B')
+    assert abs(norm_b['norm']-0.5)<0.001
     return {'ok':True,'tests_passed':6}

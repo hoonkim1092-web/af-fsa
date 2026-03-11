@@ -1,0 +1,18 @@
+{
+  "key": "assistant importer와 sync_skill_registry를 각각 작은 임시 registry로 재현해 보겠습니다 둘 다 실제로 legacy 후보를 날리면 그때 공통 normalization으로 묶겠습니다",
+  "value": "[assistant] importer와 `sync_skill_registry`를 각각 작은 임시 registry로 재현해 보겠습니다. 둘 다 실제로 legacy 후보를 날리면 그때 공통 normalization으로 묶겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:38.031952+00:00",
+  "updated_at": "2026-03-10T17:40:38.031952+00:00",
+  "details": {
+    "text": "[assistant] importer와 `sync_skill_registry`를 각각 작은 임시 registry로 재현해 보겠습니다. 둘 다 실제로 legacy 후보를 날리면 그때 공통 normalization으로 묶겠습니다.",
+    "event_timestamp": "2026-03-10T16:16:50.405Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
+    "session_line": 2135,
+    "provider": "codex"
+  }
+}

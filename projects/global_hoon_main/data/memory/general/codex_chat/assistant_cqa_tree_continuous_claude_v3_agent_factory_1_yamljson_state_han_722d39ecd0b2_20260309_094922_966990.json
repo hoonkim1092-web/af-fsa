@@ -1,18 +1,18 @@
-{
-  "key": "assistant 기억합니다당시 제가 제시한 핵심은 CQA-Tree 없이 Continuous-Claude-v3의 장점 중 아래만 agent-factory에 이식하자는 방향이었습니다1 YAMLJSON state han",
-  "value": "[assistant] 기억합니다.  당시 제가 제시한 핵심은 `CQA-Tree 없이`, `Continuous-Claude-v3`의 장점 중 아래만 `agent-factory`에 이식하자는 방향이었습니다.  1. `YAML/JSON state handoff` - `DynamicOrchestrator`의 `state_board`와 진행 상태를 디스크에 주기적으로 저장 - 세션 종료, 터미널 종료, compaction 이후에도 재개 가능하게 만들기 - 핵심은 `...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T09:49:22.967192+00:00",
-  "updated_at": "2026-03-09T09:49:22.967192+00:00",
-  "details": {
-    "text": "[assistant] 기억합니다.\n\n당시 제가 제시한 핵심은 `CQA-Tree 없이`, `Continuous-Claude-v3`의 장점 중 아래만 `agent-factory`에 이식하자는 방향이었습니다.\n\n1. `YAML/JSON state handoff`\n- `DynamicOrchestrator`의 `state_board`와 진행 상태를 디스크에 주기적으로 저장\n- 세션 종료, 터미널 종료, compaction 이후에도 재개 가능하게 만들기\n- 핵심은 `handoff 파일` 자체보다 `continuity state model`을 만드는 것\n\n2. `Micro-lifecycle hooks`\n- 현재 [event_bus.py](/D:/hoonProJect/worktrees/agent-factory/core/hooks/event_bus.py#L5) 의 `pre_execute/post_execute`를 넘어서\n- `pre_tool_call`\n- `post_tool_call`\n- `pre_compact`\n- `stop`\n- `session_end`\n같은 더 세밀한 이벤트를 추가하자는 것\n- 목적은 툴 실행 직전 차단, 잘못된 경로/파라미터 교정, 종료 전 상태 저장\n\n3. `Background memory extraction`\n- 상시 daemon이라기보다, 처음에는 `event-driven extractor`로 시작\n- 성공/실패 로그에서 반복 패턴, 제약, 교훈만 추출해서 global memory로 적재\n- 즉 “암묵지 축적” 계층 추가\n\n4. `병렬 오케스트레이션은 유지`\n- [dynamic_orchestrator.py](/D:/hoonProJect/worktrees/agent-factory/core/dynamic_orchestrator.py#L14) 는 그대로 두고\n- 그 바깥에 continuity, hook, memory 계층을 `sidecar`처럼 붙이자는 것\n- 스케줄링 권한은 계속 `DynamicOrchestrator`만 가져야 한다는 점도 같이 말했습니다\n\n5. `CLI 구독 기반 전환`\n- API key 대신 `Claude/Gemini/Codex CLI` 로그인 세션을 backend처럼 쓰는 방향\n- Claude/Gemini는 native hooks 활용\n- Codex는 wrapper/session bridge 기반 pseudo-hook 활용\n- 이를 위해 `config_paths.py`의 API key 강제 조건을 완화하고, `*_cli provider`를 추가하자는 제안이었습니다\n\n그리고 우선순위는 이렇게 제시했습니다.\n\n1. `state handoff / continuity`\n2. `micro-lifecycle hooks`\n3. `memory extraction`\n4. `CLI-only provider migration`\n\n원하면 지금 이 기준으로 바로\n- 구현 순서\n- 바꿔야 할 파일\n- 각 단계별 리스크\n까지 다시 정리해드릴게요.",
-    "event_timestamp": "2026-03-09T07:46:01.371Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/09/rollout-2026-03-09T12-29-14-019cd0a4-4ded-7bd3-b7ae-a9832dc22d45.jsonl",
-    "session_line": 1043,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 기억합니다당시 제가 제시한 핵심은 CQA-Tree 없이 Continuous-Claude-v3의 장점 중 아래만 agent-factory에 이식하자는 방향이었습니다1 YAMLJSON state han",
+  "value": "[assistant] 기억합니다.  당시 제가 제시한 핵심은 `CQA-Tree 없이`, `Continuous-Claude-v3`의 장점 중 아래만 `agent-factory`에 이식하자는 방향이었습니다.  1. `YAML/JSON state handoff` - `DynamicOrchestrator`의 `state_board`와 진행 상태를 디스크에 주기적으로 저장 - 세션 종료, 터미널 종료, compaction 이후에도 재개 가능하게 만들기 - 핵심은 `...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T09:49:22.967192+00:00",
+  "updated_at": "2026-03-09T09:49:22.967192+00:00",
+  "details": {
+    "text": "[assistant] 기억합니다.\n\n당시 제가 제시한 핵심은 `CQA-Tree 없이`, `Continuous-Claude-v3`의 장점 중 아래만 `agent-factory`에 이식하자는 방향이었습니다.\n\n1. `YAML/JSON state handoff`\n- `DynamicOrchestrator`의 `state_board`와 진행 상태를 디스크에 주기적으로 저장\n- 세션 종료, 터미널 종료, compaction 이후에도 재개 가능하게 만들기\n- 핵심은 `handoff 파일` 자체보다 `continuity state model`을 만드는 것\n\n2. `Micro-lifecycle hooks`\n- 현재 [event_bus.py](/D:/hoonProJect/worktrees/agent-factory/core/hooks/event_bus.py#L5) 의 `pre_execute/post_execute`를 넘어서\n- `pre_tool_call`\n- `post_tool_call`\n- `pre_compact`\n- `stop`\n- `session_end`\n같은 더 세밀한 이벤트를 추가하자는 것\n- 목적은 툴 실행 직전 차단, 잘못된 경로/파라미터 교정, 종료 전 상태 저장\n\n3. `Background memory extraction`\n- 상시 daemon이라기보다, 처음에는 `event-driven extractor`로 시작\n- 성공/실패 로그에서 반복 패턴, 제약, 교훈만 추출해서 global memory로 적재\n- 즉 “암묵지 축적” 계층 추가\n\n4. `병렬 오케스트레이션은 유지`\n- [dynamic_orchestrator.py](/D:/hoonProJect/worktrees/agent-factory/core/dynamic_orchestrator.py#L14) 는 그대로 두고\n- 그 바깥에 continuity, hook, memory 계층을 `sidecar`처럼 붙이자는 것\n- 스케줄링 권한은 계속 `DynamicOrchestrator`만 가져야 한다는 점도 같이 말했습니다\n\n5. `CLI 구독 기반 전환`\n- API key 대신 `Claude/Gemini/Codex CLI` 로그인 세션을 backend처럼 쓰는 방향\n- Claude/Gemini는 native hooks 활용\n- Codex는 wrapper/session bridge 기반 pseudo-hook 활용\n- 이를 위해 `config_paths.py`의 API key 강제 조건을 완화하고, `*_cli provider`를 추가하자는 제안이었습니다\n\n그리고 우선순위는 이렇게 제시했습니다.\n\n1. `state handoff / continuity`\n2. `micro-lifecycle hooks`\n3. `memory extraction`\n4. `CLI-only provider migration`\n\n원하면 지금 이 기준으로 바로\n- 구현 순서\n- 바꿔야 할 파일\n- 각 단계별 리스크\n까지 다시 정리해드릴게요.",
+    "event_timestamp": "2026-03-09T07:46:01.371Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/09/rollout-2026-03-09T12-29-14-019cd0a4-4ded-7bd3-b7ae-a9832dc22d45.jsonl",
+    "session_line": 1043,
+    "provider": "codex"
+  }
 }

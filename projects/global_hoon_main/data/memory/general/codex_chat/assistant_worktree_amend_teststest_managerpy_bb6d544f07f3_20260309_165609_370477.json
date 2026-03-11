@@ -1,18 +1,18 @@
-{
-  "key": "assistant 원본 worktree에도 같은 파일이 있었고 이번 변경을 검증하는 테스트가 맞습니다 amend는 하지 않고 후속 커밋으로 teststest_managerpy만 추가하겠습니다",
-  "value": "[assistant] 원본 worktree에도 같은 파일이 있었고, 이번 변경을 검증하는 테스트가 맞습니다. amend는 하지 않고 후속 커밋으로 `tests/test_manager.py`만 추가하겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T16:56:09.370536+00:00",
-  "updated_at": "2026-03-09T16:56:09.370536+00:00",
-  "details": {
-    "text": "[assistant] 원본 worktree에도 같은 파일이 있었고, 이번 변경을 검증하는 테스트가 맞습니다. amend는 하지 않고 후속 커밋으로 `tests/test_manager.py`만 추가하겠습니다.",
-    "event_timestamp": "2026-03-09T16:50:42.517Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
-    "session_line": 1817,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 원본 worktree에도 같은 파일이 있었고 이번 변경을 검증하는 테스트가 맞습니다 amend는 하지 않고 후속 커밋으로 teststest_managerpy만 추가하겠습니다",
+  "value": "[assistant] 원본 worktree에도 같은 파일이 있었고, 이번 변경을 검증하는 테스트가 맞습니다. amend는 하지 않고 후속 커밋으로 `tests/test_manager.py`만 추가하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T16:56:09.370536+00:00",
+  "updated_at": "2026-03-09T16:56:09.370536+00:00",
+  "details": {
+    "text": "[assistant] 원본 worktree에도 같은 파일이 있었고, 이번 변경을 검증하는 테스트가 맞습니다. amend는 하지 않고 후속 커밋으로 `tests/test_manager.py`만 추가하겠습니다.",
+    "event_timestamp": "2026-03-09T16:50:42.517Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 1817,
+    "provider": "codex"
+  }
 }

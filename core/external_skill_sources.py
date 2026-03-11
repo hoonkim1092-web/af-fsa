@@ -1,8 +1,8 @@
-import os
+﻿import os
 import subprocess
 from dataclasses import dataclass, field
 
-from core.external_skill_candidate_importer import discover_external_candidates
+from core.external_skill_candidate_importer import cache_root_for_source, discover_external_candidates
 from core.config_paths import EXTERNAL_CACHE_DIR
 from core.external_skill_source_ids import (
     DEFAULT_EXTERNAL_SOURCE_PRIORITY,
@@ -164,7 +164,7 @@ class RepoCacheSkillSource(ExternalSkillSource):
     def __init__(self, source_id: str, repo_urls: list[str]):
         super().__init__(source_id)
         self.repo_urls = [str(url).strip() for url in (repo_urls or []) if str(url).strip()]
-        self.root_dir = os.path.join(EXTERNAL_CACHE_DIR, self.source_id)
+        self.root_dir = cache_root_for_source(EXTERNAL_CACHE_DIR, self.source_id)
         self._prepare_errors: list[str] = []
 
     def prepare(self):
@@ -503,3 +503,4 @@ class ExternalSkillResolver:
             "results": results,
             "source_order": source_order,
         }
+

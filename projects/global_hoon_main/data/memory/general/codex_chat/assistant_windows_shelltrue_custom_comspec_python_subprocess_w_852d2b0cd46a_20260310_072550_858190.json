@@ -1,0 +1,18 @@
+{
+  "key": "assistant 테스트 한 건이 Windows shellTrue  custom COMSPEC 조합에서 핸들 에러로 깨졌습니다 런타임 자체 문제라기보다 Python subprocess의 호출 방식 문제라서 검증은 w",
+  "value": "[assistant] 테스트 한 건이 Windows `shell=True + custom COMSPEC` 조합에서 핸들 에러로 깨졌습니다. 런타임 자체 문제라기보다 Python subprocess의 호출 방식 문제라서, 검증은 wrapper를 직접 호출하는 쪽으로 바꾸겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T07:25:50.858305+00:00",
+  "updated_at": "2026-03-10T07:25:50.858305+00:00",
+  "details": {
+    "text": "[assistant] 테스트 한 건이 Windows `shell=True + custom COMSPEC` 조합에서 핸들 에러로 깨졌습니다. 런타임 자체 문제라기보다 Python subprocess의 호출 방식 문제라서, 검증은 wrapper를 직접 호출하는 쪽으로 바꾸겠습니다.",
+    "event_timestamp": "2026-03-10T07:25:29.261Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 1415,
+    "provider": "codex"
+  }
+}

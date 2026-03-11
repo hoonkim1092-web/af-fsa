@@ -377,7 +377,7 @@ def test_agent_runner_cli_only_short_task_does_not_require_todo(monkeypatch, tmp
     )
 
     result = runner.run(
-        {"name": "cli-agent", "role": "generalist", "skills": []},
+        {"name": "cli-agent", "role": "project manager", "skills": []},
         "Return AGENT_FACTORY_OK",
         workspace=str(project_root),
     )

@@ -38,7 +38,7 @@ def test_read_yaml_cache_returns_copy_and_refreshes(monkeypatch, tmp_path):
 
 def test_append_dashboard_run_keeps_recent_300(monkeypatch, tmp_path):
     u = _load_utils(monkeypatch, tmp_path / "proj2")
-    assert os.path.basename(os.path.dirname(u.DASHBOARD_PATH)) == ".af_runtime"
+    assert u.DASHBOARD_PATH == os.path.join(u.PROJECT_ROOT, "dashboard.json")
     for i in range(305):
         u.append_dashboard_run({"idx": i})
 
@@ -78,7 +78,7 @@ def test_append_dashboard_run_normalizes_path_fields(monkeypatch, tmp_path):
 def test_append_dashboard_run_uses_current_config_after_config_reload(monkeypatch, tmp_path):
     first_root = tmp_path / "proj_a"
     second_root = tmp_path / "proj_b"
-    u = _load_utils(monkeypatch, first_root)
+    _load_utils(monkeypatch, first_root)
     dashboard_module = importlib.import_module("core.dashboard")
 
     monkeypatch.setenv("AGENT_PROJECT_ROOT", str(second_root))
@@ -89,9 +89,9 @@ def test_append_dashboard_run_uses_current_config_after_config_reload(monkeypatc
 
     dashboard_module.append_dashboard_run({"idx": 1})
 
-    expected_path = second_root / ".af_runtime" / "dashboard.json"
+    expected_path = second_root / "dashboard.json"
     assert expected_path.exists()
-    assert not (first_root / ".af_runtime" / "dashboard.json").exists()
+    assert not (first_root / "dashboard.json").exists()
 
 
 def test_read_yaml_cache_hash_verify_detects_same_stat_change(monkeypatch, tmp_path):
@@ -105,7 +105,6 @@ def test_read_yaml_cache_hash_verify_detects_same_stat_change(monkeypatch, tmp_p
     st = path.stat()
     original_ns = int(st.st_mtime_ns)
 
-    # Keep file size and mtime the same while changing content.
     path.write_text("a: 9\n", encoding="utf-8")
     os.utime(path, ns=(original_ns, original_ns))
 

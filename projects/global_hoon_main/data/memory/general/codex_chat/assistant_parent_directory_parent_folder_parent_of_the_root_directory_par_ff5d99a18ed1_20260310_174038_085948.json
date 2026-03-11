@@ -1,0 +1,18 @@
+{
+  "key": "assistant 보통은 parent directory 또는 parent folder라고 합니다상황별로는 이렇게 쓰면 됩니다루트의 상위parent of the root directory프로젝트 루트의 상위 폴더par",
+  "value": "[assistant] 보통은 `parent directory` 또는 `parent folder`라고 합니다.  상황별로는 이렇게 쓰면 됩니다.  `루트의 상위` `parent of the root directory`  `프로젝트 루트의 상위 폴더` `parent directory of the project root`  `repo 루트 바로 위 폴더` `parent directory above the repo root`  경로 예시로 보면: `D:\\warkS...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:38.086145+00:00",
+  "updated_at": "2026-03-10T17:40:38.086145+00:00",
+  "details": {
+    "text": "[assistant] 보통은 `parent directory` 또는 `parent folder`라고 합니다.\n\n상황별로는 이렇게 쓰면 됩니다.\n\n`루트의 상위`\n`parent of the root directory`\n\n`프로젝트 루트의 상위 폴더`\n`parent directory of the project root`\n\n`repo 루트 바로 위 폴더`\n`parent directory above the repo root`\n\n경로 예시로 보면:\n`D:\\warkSpaces\\agent-factory` 가 루트면\n그 상위는 `D:\\warkSpaces` 이고, 이걸 `parent directory`라고 부르면 됩니다.\n\n코드/문서에선 `root parent`보다 `parent directory of <something>`이 더 자연스럽습니다.",
+    "event_timestamp": "2026-03-10T17:19:46.664Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/11/rollout-2026-03-11T01-30-46-019cd896-2cfb-7692-a889-53fc50ef1599.jsonl",
+    "session_line": 523,
+    "provider": "codex"
+  }
+}

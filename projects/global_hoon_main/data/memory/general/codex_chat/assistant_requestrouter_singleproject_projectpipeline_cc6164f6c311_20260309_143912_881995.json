@@ -1,18 +1,18 @@
-{
-  "key": "assistant 리팩토링 진행해서 새 브랜치에 커밋하고 푸시해뒀습니다핵심 변경- 메인 진입점에 RequestRouter를 붙여 singleproject 파이프라인 자동 분기- ProjectPipeline 추가  앞",
-  "value": "[assistant] 리팩토링 진행해서 새 브랜치에 커밋하고 푸시해뒀습니다.  핵심 변경: - 메인 진입점에 `RequestRouter`를 붙여 `single/project` 파이프라인 자동 분기 - `ProjectPipeline` 추가   앞단 `Himari` 리서치로 프로젝트 브리프 생성   `PD` 역할로 역할 계획 생성   역할별 에이전트 준비 후 동적 오케스트레이션 실행 - 스킬 조달을 `exact reuse -> Himari 후보 재사용 -> e...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T14:39:12.882261+00:00",
-  "updated_at": "2026-03-09T14:39:12.882261+00:00",
-  "details": {
-    "text": "[assistant] 리팩토링 진행해서 새 브랜치에 커밋하고 푸시해뒀습니다.\n\n핵심 변경:\n- 메인 진입점에 `RequestRouter`를 붙여 `single/project` 파이프라인 자동 분기\n- `ProjectPipeline` 추가\n  앞단 `Himari` 리서치로 프로젝트 브리프 생성\n  `PD` 역할로 역할 계획 생성\n  역할별 에이전트 준비 후 동적 오케스트레이션 실행\n- 스킬 조달을 `exact reuse -> Himari 후보 재사용 -> evidence 기반 build` 순서로 보강\n- CLI에 `--pipeline auto|single|project` 추가\n- 관련 회귀 테스트 추가\n\n브랜치와 커밋:\n- 브랜치: `feat/unified-project-pipeline`\n- 커밋: `4ac59c4`\n- 푸시: 완료\n\n검증:\n- `py_compile` 통과\n- 핵심 테스트 `10 passed`\n\n참고:\n- 로컬 워크트리에는 `projects/agent_factory/dashboard.json`, `projects/agent_factory/skill-lock.yaml` 두 파일만 테스트 부산물/줄바꿈 차이로 남아 있고, 이번 커밋에는 포함하지 않았습니다.",
-    "event_timestamp": "2026-03-08T02:26:36.085Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/07/rollout-2026-03-07T23-57-50-019cc8ce-02f3-7c92-a357-f51576977b23.jsonl",
-    "session_line": 2164,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 리팩토링 진행해서 새 브랜치에 커밋하고 푸시해뒀습니다핵심 변경- 메인 진입점에 RequestRouter를 붙여 singleproject 파이프라인 자동 분기- ProjectPipeline 추가  앞",
+  "value": "[assistant] 리팩토링 진행해서 새 브랜치에 커밋하고 푸시해뒀습니다.  핵심 변경: - 메인 진입점에 `RequestRouter`를 붙여 `single/project` 파이프라인 자동 분기 - `ProjectPipeline` 추가   앞단 `Himari` 리서치로 프로젝트 브리프 생성   `PD` 역할로 역할 계획 생성   역할별 에이전트 준비 후 동적 오케스트레이션 실행 - 스킬 조달을 `exact reuse -> Himari 후보 재사용 -> e...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T14:39:12.882261+00:00",
+  "updated_at": "2026-03-09T14:39:12.882261+00:00",
+  "details": {
+    "text": "[assistant] 리팩토링 진행해서 새 브랜치에 커밋하고 푸시해뒀습니다.\n\n핵심 변경:\n- 메인 진입점에 `RequestRouter`를 붙여 `single/project` 파이프라인 자동 분기\n- `ProjectPipeline` 추가\n  앞단 `Himari` 리서치로 프로젝트 브리프 생성\n  `PD` 역할로 역할 계획 생성\n  역할별 에이전트 준비 후 동적 오케스트레이션 실행\n- 스킬 조달을 `exact reuse -> Himari 후보 재사용 -> evidence 기반 build` 순서로 보강\n- CLI에 `--pipeline auto|single|project` 추가\n- 관련 회귀 테스트 추가\n\n브랜치와 커밋:\n- 브랜치: `feat/unified-project-pipeline`\n- 커밋: `4ac59c4`\n- 푸시: 완료\n\n검증:\n- `py_compile` 통과\n- 핵심 테스트 `10 passed`\n\n참고:\n- 로컬 워크트리에는 `projects/agent_factory/dashboard.json`, `projects/agent_factory/skill-lock.yaml` 두 파일만 테스트 부산물/줄바꿈 차이로 남아 있고, 이번 커밋에는 포함하지 않았습니다.",
+    "event_timestamp": "2026-03-08T02:26:36.085Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/07/rollout-2026-03-07T23-57-50-019cc8ce-02f3-7c92-a357-f51576977b23.jsonl",
+    "session_line": 2164,
+    "provider": "codex"
+  }
 }

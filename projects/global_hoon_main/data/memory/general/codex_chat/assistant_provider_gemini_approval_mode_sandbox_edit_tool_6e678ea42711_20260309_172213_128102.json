@@ -1,18 +1,18 @@
-{
-  "key": "assistant 먼저 provider별 권한 플래그로 실제 수정이 살아나는지 실험하겠습니다 Gemini에서 approval-mode와 sandbox 조합만으로 edit tool이 열리면 공통 설계도 그 축으로 가는",
-  "value": "[assistant] 먼저 provider별 권한 플래그로 실제 수정이 살아나는지 실험하겠습니다. Gemini에서 `approval-mode`와 `sandbox` 조합만으로 edit tool이 열리면, 공통 설계도 그 축으로 가는 게 가장 안전합니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T17:22:13.128146+00:00",
-  "updated_at": "2026-03-09T17:22:13.128146+00:00",
-  "details": {
-    "text": "[assistant] 먼저 provider별 권한 플래그로 실제 수정이 살아나는지 실험하겠습니다. Gemini에서 `approval-mode`와 `sandbox` 조합만으로 edit tool이 열리면, 공통 설계도 그 축으로 가는 게 가장 안전합니다.",
-    "event_timestamp": "2026-03-09T17:15:53.884Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
-    "session_line": 2298,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 먼저 provider별 권한 플래그로 실제 수정이 살아나는지 실험하겠습니다 Gemini에서 approval-mode와 sandbox 조합만으로 edit tool이 열리면 공통 설계도 그 축으로 가는",
+  "value": "[assistant] 먼저 provider별 권한 플래그로 실제 수정이 살아나는지 실험하겠습니다. Gemini에서 `approval-mode`와 `sandbox` 조합만으로 edit tool이 열리면, 공통 설계도 그 축으로 가는 게 가장 안전합니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T17:22:13.128146+00:00",
+  "updated_at": "2026-03-09T17:22:13.128146+00:00",
+  "details": {
+    "text": "[assistant] 먼저 provider별 권한 플래그로 실제 수정이 살아나는지 실험하겠습니다. Gemini에서 `approval-mode`와 `sandbox` 조합만으로 edit tool이 열리면, 공통 설계도 그 축으로 가는 게 가장 안전합니다.",
+    "event_timestamp": "2026-03-09T17:15:53.884Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 2298,
+    "provider": "codex"
+  }
 }

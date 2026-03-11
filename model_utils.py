@@ -588,6 +588,156 @@ _ROLE_ENGINE_MAP: list[tuple[list[str], str]] = [
 
 _DEFAULT_ENGINE = "researcher_gemini"   # 키워드 매칭 실패 시 기본값
 
+# =============================================================================
+# [CLI 프로바이더 우선순위] — engine_id별 선호 CLI 프로바이더 순서
+#   복수 구독 시 역할에 맞는 CLI를 자동 선택한다.
+#   단일 구독이면 이 테이블을 무시하고 유일한 프로바이더를 사용한다.
+# =============================================================================
+_ROLE_CLI_PREFERENCE: dict[str, list[str]] = {
+    "architect_claude":  ["claude_cli", "gemini_cli", "codex_cli"],
+    "coder_claude":      ["claude_cli", "codex_cli", "gemini_cli"],
+    "researcher_gemini": ["gemini_cli", "claude_cli", "codex_cli"],
+    "manager_gpt":       ["codex_cli", "claude_cli", "gemini_cli"],
+    "reasoner_o":        ["codex_cli", "gemini_cli", "claude_cli"],
+    "codex":             ["codex_cli", "claude_cli", "gemini_cli"],
+    "gemini_flash":      ["gemini_cli", "claude_cli", "codex_cli"],
+    "lightweight":       ["gemini_cli", "claude_cli", "codex_cli"],
+}
+
+# LLM이 학습한 역할→프로바이더 캐시 (role_provider_cache.json에서 로드/저장)
+_learned_role_provider_cache: dict[str, str] | None = None
+
+_ROLE_PROVIDER_CACHE_FILE = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "role_provider_cache.json"
+)
+
+
+def _load_role_provider_cache() -> dict[str, str]:
+    """디스크에서 LLM 학습 캐시를 로드한다."""
+    global _learned_role_provider_cache
+    if _learned_role_provider_cache is not None:
+        return _learned_role_provider_cache
+    _learned_role_provider_cache = {}
+    try:
+        if os.path.exists(_ROLE_PROVIDER_CACHE_FILE):
+            with open(_ROLE_PROVIDER_CACHE_FILE, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            if isinstance(data, dict):
+                _learned_role_provider_cache = data
+    except Exception:
+        pass
+    return _learned_role_provider_cache
+
+
+def _save_role_provider_cache(cache: dict[str, str]) -> None:
+    """LLM 학습 결과를 디스크에 저장한다."""
+    global _learned_role_provider_cache
+    _learned_role_provider_cache = cache
+    try:
+        with open(_ROLE_PROVIDER_CACHE_FILE, "w", encoding="utf-8") as f:
+            json.dump(cache, f, ensure_ascii=False, indent=2)
+    except Exception:
+        pass
+
+
+def pick_cli_provider_for_role(
+    engine_id: str,
+    available_providers: list[str],
+    role_description: str = "",
+) -> str:
+    """
+    하이브리드 CLI 프로바이더 선택 (3-Layer):
+      Layer 1: 정적 매핑 테이블 (_ROLE_CLI_PREFERENCE)
+      Layer 2: LLM 학습 캐시 (role_provider_cache.json)
+      Layer 3: LLM 판단 (매칭 실패 시 1회 호출 → 캐시에 저장)
+
+    단일 프로바이더만 가용하면 즉시 반환한다.
+    """
+    if not available_providers:
+        return ""
+    if len(available_providers) == 1:
+        return available_providers[0]
+
+    available_set = set(available_providers)
+
+    # Layer 1: 정적 매핑 테이블에서 가용한 첫 번째 프로바이더
+    preference = _ROLE_CLI_PREFERENCE.get(engine_id, [])
+    for prov in preference:
+        if prov in available_set:
+            return prov
+
+    # Layer 2: LLM 학습 캐시 확인
+    cache = _load_role_provider_cache()
+    cache_key = engine_id
+    if role_description:
+        cache_key = f"{engine_id}:{role_description.strip().lower()[:80]}"
+    cached = cache.get(cache_key, "")
+    if cached and cached in available_set:
+        return cached
+
+    # Layer 3: LLM 판단 (새로운 역할) → 결과를 캐시에 저장
+    learned = _llm_decide_provider(engine_id, role_description, available_providers)
+    if learned and learned in available_set:
+        cache[cache_key] = learned
+        _save_role_provider_cache(cache)
+        log(f"[ProviderLearn] LLM decided: {engine_id} -> {learned} (cached)")
+        return learned
+
+    # 최종 폴백: 가용 목록의 첫 번째
+    return available_providers[0]
+
+
+def _llm_decide_provider(
+    engine_id: str,
+    role_description: str,
+    available_providers: list[str],
+) -> str:
+    """
+    LLM에게 역할에 가장 적합한 CLI 프로바이더를 질문한다.
+    실패 시 빈 문자열 반환 (Layer 1 폴백으로 안전하게 처리).
+    """
+    provider_descriptions = {
+        "claude_cli": "Claude Code - 코드 아키텍처 설계, 복잡한 코딩, 리팩토링에 강점",
+        "gemini_cli": "Gemini CLI - 긴 컨텍스트 분석, 리서치, 문서 처리에 강점",
+        "codex_cli": "Codex CLI - 자동화, 파이프라인 실행, 코드 생성에 강점",
+    }
+    options = "\n".join(
+        f"- {pid}: {provider_descriptions.get(pid, pid)}"
+        for pid in available_providers
+    )
+    prompt = (
+        f"에이전트 역할: {role_description or engine_id}\n"
+        f"엔진 ID: {engine_id}\n\n"
+        f"가용 CLI 프로바이더:\n{options}\n\n"
+        f"이 역할에 가장 적합한 프로바이더 ID 하나만 답하세요.\n"
+        f"반드시 {available_providers} 중 하나를 선택하세요.\n"
+        f"프로바이더 ID만 출력하세요. 설명 없이."
+    )
+    try:
+        # 가용한 CLI 중 첫 번째로 판단 요청
+        from core.providers.cli import CliChatRequest, execute_cli_chat
+        result = execute_cli_chat(
+            CliChatRequest(
+                provider_id=available_providers[0],
+                model="",
+                system_prompt="You are a routing assistant. Answer with only the provider ID.",
+                task_input=prompt,
+                workspace=os.getcwd(),
+                timeout_sec=30,
+            )
+        )
+        if not result.get("ok"):
+            return ""
+        answer = str(result.get("text", "")).strip().lower()
+        # 응답에서 유효한 프로바이더 ID 추출
+        for pid in available_providers:
+            if pid in answer:
+                return pid
+        return ""
+    except Exception:
+        return ""
+
+
 def _infer_engine_id(role: str) -> str:
     """역할 문자열에서 엔진 ID를 자동 추론한다."""
     role_lower = (role or "").lower()

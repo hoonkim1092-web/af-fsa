@@ -1,0 +1,18 @@
+{
+  "key": "assistant PC를 바꿔 이어서 작업하는 실제 절차를 정확히 정리하려고 이 저장소의 동기화 스크립트와 관련 문서만 짧게 확인하겠습니다 start_db와 end_db를 언제 써야 하는지 기준을 맞추겠습니다",
+  "value": "[assistant] PC를 바꿔 이어서 작업하는 실제 절차를 정확히 정리하려고, 이 저장소의 동기화 스크립트와 관련 문서만 짧게 확인하겠습니다. `start_db`와 `end_db`를 언제 써야 하는지 기준을 맞추겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T06:08:25.403140+00:00",
+  "updated_at": "2026-03-10T06:08:25.403140+00:00",
+  "details": {
+    "text": "[assistant] PC를 바꿔 이어서 작업하는 실제 절차를 정확히 정리하려고, 이 저장소의 동기화 스크립트와 관련 문서만 짧게 확인하겠습니다. `start_db`와 `end_db`를 언제 써야 하는지 기준을 맞추겠습니다.",
+    "event_timestamp": "2026-03-10T01:47:58.128Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 191,
+    "provider": "codex"
+  }
+}

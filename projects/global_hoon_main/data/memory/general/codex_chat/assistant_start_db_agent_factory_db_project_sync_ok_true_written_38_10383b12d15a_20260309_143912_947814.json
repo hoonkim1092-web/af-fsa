@@ -1,18 +1,18 @@
-{
-  "key": "assistant start_db agent-factory 실행됐습니다프로젝트 DB 동기화와 글로벌 프로필 동기화가 모두 성공했고 출력상 오류는 없습니다- project sync ok true written 38- ",
-  "value": "[assistant] `start_db agent-factory` 실행됐습니다.  프로젝트 DB 동기화와 글로벌 프로필 동기화가 모두 성공했고, 출력상 오류는 없습니다. - project sync: `ok: true`, `written: 38` - global sync: `ok: true`, `written: 284`  원하면 이어서 `end_db agent-factory`까지도 처리할 수 있습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T14:39:12.948136+00:00",
-  "updated_at": "2026-03-09T14:39:12.948136+00:00",
-  "details": {
-    "text": "[assistant] `start_db agent-factory` 실행됐습니다.\n\n프로젝트 DB 동기화와 글로벌 프로필 동기화가 모두 성공했고, 출력상 오류는 없습니다.\n- project sync: `ok: true`, `written: 38`\n- global sync: `ok: true`, `written: 284`\n\n원하면 이어서 `end_db agent-factory`까지도 처리할 수 있습니다.",
-    "event_timestamp": "2026-03-09T14:32:06.053Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
-    "session_line": 101,
-    "provider": "codex"
-  }
+{
+  "key": "assistant start_db agent-factory 실행됐습니다프로젝트 DB 동기화와 글로벌 프로필 동기화가 모두 성공했고 출력상 오류는 없습니다- project sync ok true written 38- ",
+  "value": "[assistant] `start_db agent-factory` 실행됐습니다.  프로젝트 DB 동기화와 글로벌 프로필 동기화가 모두 성공했고, 출력상 오류는 없습니다. - project sync: `ok: true`, `written: 38` - global sync: `ok: true`, `written: 284`  원하면 이어서 `end_db agent-factory`까지도 처리할 수 있습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T14:39:12.948136+00:00",
+  "updated_at": "2026-03-09T14:39:12.948136+00:00",
+  "details": {
+    "text": "[assistant] `start_db agent-factory` 실행됐습니다.\n\n프로젝트 DB 동기화와 글로벌 프로필 동기화가 모두 성공했고, 출력상 오류는 없습니다.\n- project sync: `ok: true`, `written: 38`\n- global sync: `ok: true`, `written: 284`\n\n원하면 이어서 `end_db agent-factory`까지도 처리할 수 있습니다.",
+    "event_timestamp": "2026-03-09T14:32:06.053Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 101,
+    "provider": "codex"
+  }
 }

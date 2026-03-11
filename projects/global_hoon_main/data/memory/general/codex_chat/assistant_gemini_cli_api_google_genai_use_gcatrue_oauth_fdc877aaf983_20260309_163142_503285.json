@@ -1,18 +1,18 @@
-{
-  "key": "assistant 필요한 실제 수정은 한 단계 더 있습니다 gemini_cli는 API 키를 지우는 것만으로는 부족하고 비대화식 실행에서 GOOGLE_GENAI_USE_GCAtrue를 함께 넣어 OAuth 경로를 강",
-  "value": "[assistant] 필요한 실제 수정은 한 단계 더 있습니다. `gemini_cli`는 API 키를 지우는 것만으로는 부족하고, 비대화식 실행에서 `GOOGLE_GENAI_USE_GCA=true`를 함께 넣어 OAuth 경로를 강제로 선택해야 합니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T16:31:42.503331+00:00",
-  "updated_at": "2026-03-09T16:31:42.503331+00:00",
-  "details": {
-    "text": "[assistant] 필요한 실제 수정은 한 단계 더 있습니다. `gemini_cli`는 API 키를 지우는 것만으로는 부족하고, 비대화식 실행에서 `GOOGLE_GENAI_USE_GCA=true`를 함께 넣어 OAuth 경로를 강제로 선택해야 합니다.",
-    "event_timestamp": "2026-03-09T16:19:12.482Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
-    "session_line": 1101,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 필요한 실제 수정은 한 단계 더 있습니다 gemini_cli는 API 키를 지우는 것만으로는 부족하고 비대화식 실행에서 GOOGLE_GENAI_USE_GCAtrue를 함께 넣어 OAuth 경로를 강",
+  "value": "[assistant] 필요한 실제 수정은 한 단계 더 있습니다. `gemini_cli`는 API 키를 지우는 것만으로는 부족하고, 비대화식 실행에서 `GOOGLE_GENAI_USE_GCA=true`를 함께 넣어 OAuth 경로를 강제로 선택해야 합니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T16:31:42.503331+00:00",
+  "updated_at": "2026-03-09T16:31:42.503331+00:00",
+  "details": {
+    "text": "[assistant] 필요한 실제 수정은 한 단계 더 있습니다. `gemini_cli`는 API 키를 지우는 것만으로는 부족하고, 비대화식 실행에서 `GOOGLE_GENAI_USE_GCA=true`를 함께 넣어 OAuth 경로를 강제로 선택해야 합니다.",
+    "event_timestamp": "2026-03-09T16:19:12.482Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 1101,
+    "provider": "codex"
+  }
 }

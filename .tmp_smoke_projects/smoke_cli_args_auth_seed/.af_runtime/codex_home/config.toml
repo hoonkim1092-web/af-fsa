@@ -1,0 +1,16 @@
+model = "gpt-5.4"
+model_reasoning_effort = "xhigh"
+[projects.'\\?\D:\agent-factory']
+trust_level = "trusted"
+
+[projects.'\\?\D:\logi-mind-v22']
+trust_level = "trusted"
+
+[projects.'\\?\D:\warkSpaces\agent-factory']
+trust_level = "trusted"
+
+[notice.model_migrations]
+"gpt-5.2-codex" = "gpt-5.3-codex"
+
+[windows]
+sandbox = "elevated"

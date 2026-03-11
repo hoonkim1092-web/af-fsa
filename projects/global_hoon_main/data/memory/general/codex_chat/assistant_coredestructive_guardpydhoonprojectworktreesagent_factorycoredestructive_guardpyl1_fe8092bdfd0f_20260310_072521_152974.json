@@ -1,0 +1,18 @@
+{
+  "key": "assistant 삭제리셋 금지 가드를 넣었습니다 공용 가드 모듈은 coredestructive_guardpyDhoonProJectworktreesagent-factorycoredestructive_guardpyL1",
+  "value": "[assistant] 삭제/리셋 금지 가드를 넣었습니다. 공용 가드 모듈은 [core/destructive_guard.py](/D:/hoonProJect/worktrees/agent-factory/core/destructive_guard.py#L1)에 추가했고, 런타임 시스템 프롬프트 주입은 [core/agent_runner.py](/D:/hoonProJect/worktrees/agent-factory/core/agent_runner.py#L340), CL...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T07:25:21.153406+00:00",
+  "updated_at": "2026-03-10T07:25:21.153406+00:00",
+  "details": {
+    "text": "[assistant] 삭제/리셋 금지 가드를 넣었습니다. 공용 가드 모듈은 [core/destructive_guard.py](/D:/hoonProJect/worktrees/agent-factory/core/destructive_guard.py#L1)에 추가했고, 런타임 시스템 프롬프트 주입은 [core/agent_runner.py](/D:/hoonProJect/worktrees/agent-factory/core/agent_runner.py#L340), CLI 프롬프트 주입은 [core/providers/cli.py](/D:/hoonProJect/worktrees/agent-factory/core/providers/cli.py#L321)에 연결했습니다. Claude/Gemini의 hard deny는 [core/providers/session_adapter.py](/D:/hoonProJect/worktrees/agent-factory/core/providers/session_adapter.py#L239)에서 세션 준비 시 강제되고, Gemini는 정책 파일 생성과 `policyPaths` 연결까지 [core/providers/session_adapter.py](/D:/hoonProJect/worktrees/agent-factory/core/providers/session_adapter.py#L259)에서 처리합니다.\n\n현재 동작은 이렇게 정리됩니다. Claude는 `.claude/settings.local.json`의 `permissions.deny`로 막고, Gemini는 생성된 TOML policy로 `run_shell_command`의 delete/reset 계열을 막습니다. Codex는 현재 설치된 CLI 기준으로 같은 수준의 per-command deny 설정이 확인되지 않아, `workspace-write` 샌드박스와 공용 시스템 프롬프트 계약으로만 막습니다. 이 제한과 구조는 [docs/architecture.md](/D:/hoonProJect/worktrees/agent-factory/docs/architecture.md#L494), [docs/change_history.md](/D:/hoonProJect/worktrees/agent-factory/docs/change_history.md#L13)에 남겼습니다.\n\n검증은 `python -m pytest tests/test_destructive_guard.py tests/test_runner_contracts.py tests/test_cli_providers.py tests/test_cli_session_adapter.py -q`로 했고 `36 passed`였습니다. 관련 테스트는 [tests/test_destructive_guard.py](/D:/hoonProJect/worktrees/agent-factory/tests/test_destructive_guard.py), [tests/test_cli_session_adapter.py](/D:/hoonProJect/worktrees/agent-factory/tests/test_cli_session_adapter.py#L12), [tests/test_cli_providers.py](/D:/hoonProJect/worktrees/agent-factory/tests/test_cli_providers.py#L171), [tests/test_runner_contracts.py](/D:/hoonProJect/worktrees/agent-factory/tests/test_runner_contracts.py#L78)에 있습니다.\n\n참고 소스:\n- Claude Code settings `permissions.deny`: https://docs.anthropic.com/en/docs/claude-code/settings\n- Gemini CLI policy engine / `policyPaths`: https://geminicli.com/docs/tools/policy-engine/ , https://geminicli.com/docs/get-started/configuration/\n- Codex는 공식 웹 문서보다 현재 설치본 로컬 `codex exec --help`를 기준으로 확인했고, per-command deny 옵션은 보이지 않았습니다.\n\n원하면 다음으로 Codex 쪽도 더 강하게 막기 위해 shell wrapper/PATH 가드까지 한 단계 더 올리겠습니다.",
+    "event_timestamp": "2026-03-10T07:19:33.850Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 1372,
+    "provider": "codex"
+  }
+}

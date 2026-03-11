@@ -1,18 +1,18 @@
-{
-  "key": "assistant Gemini 쪽 로그인 흔적은 이미 있습니다 CUsersHOMEgeminioauth_credsjson가 있어서 이제 필요한 건 네트워크 제한 밖에서 API 키 없이도 실제 응답하는지 한 번 확인하는",
-  "value": "[assistant] Gemini 쪽 로그인 흔적은 이미 있습니다. `C:\\Users\\HOME\\.gemini\\oauth_creds.json`가 있어서, 이제 필요한 건 네트워크 제한 밖에서 “API 키 없이도 실제 응답하는지” 한 번 확인하는 것뿐입니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T16:31:42.502101+00:00",
-  "updated_at": "2026-03-09T16:31:42.502101+00:00",
-  "details": {
-    "text": "[assistant] Gemini 쪽 로그인 흔적은 이미 있습니다. `C:\\Users\\HOME\\.gemini\\oauth_creds.json`가 있어서, 이제 필요한 건 네트워크 제한 밖에서 “API 키 없이도 실제 응답하는지” 한 번 확인하는 것뿐입니다.",
-    "event_timestamp": "2026-03-09T16:18:23.095Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
-    "session_line": 1077,
-    "provider": "codex"
-  }
+{
+  "key": "assistant Gemini 쪽 로그인 흔적은 이미 있습니다 CUsersHOMEgeminioauth_credsjson가 있어서 이제 필요한 건 네트워크 제한 밖에서 API 키 없이도 실제 응답하는지 한 번 확인하는",
+  "value": "[assistant] Gemini 쪽 로그인 흔적은 이미 있습니다. `C:\\Users\\HOME\\.gemini\\oauth_creds.json`가 있어서, 이제 필요한 건 네트워크 제한 밖에서 “API 키 없이도 실제 응답하는지” 한 번 확인하는 것뿐입니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T16:31:42.502101+00:00",
+  "updated_at": "2026-03-09T16:31:42.502101+00:00",
+  "details": {
+    "text": "[assistant] Gemini 쪽 로그인 흔적은 이미 있습니다. `C:\\Users\\HOME\\.gemini\\oauth_creds.json`가 있어서, 이제 필요한 건 네트워크 제한 밖에서 “API 키 없이도 실제 응답하는지” 한 번 확인하는 것뿐입니다.",
+    "event_timestamp": "2026-03-09T16:18:23.095Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 1077,
+    "provider": "codex"
+  }
 }

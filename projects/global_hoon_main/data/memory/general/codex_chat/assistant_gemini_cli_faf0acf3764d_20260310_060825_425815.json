@@ -1,0 +1,18 @@
+{
+  "key": "assistant 현재 머신에는 gemini CLI가 없습니다 이 저장소는 자동 설치 경로가 있으니 어떤 명령으로 설치하는지 확인한 뒤 테스트 실행으로 이어가겠습니다",
+  "value": "[assistant] 현재 머신에는 `gemini` CLI가 없습니다. 이 저장소는 자동 설치 경로가 있으니, 어떤 명령으로 설치하는지 확인한 뒤 테스트 실행으로 이어가겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T06:08:25.425864+00:00",
+  "updated_at": "2026-03-10T06:08:25.425864+00:00",
+  "details": {
+    "text": "[assistant] 현재 머신에는 `gemini` CLI가 없습니다. 이 저장소는 자동 설치 경로가 있으니, 어떤 명령으로 설치하는지 확인한 뒤 테스트 실행으로 이어가겠습니다.",
+    "event_timestamp": "2026-03-10T03:32:58.822Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 317,
+    "provider": "codex"
+  }
+}

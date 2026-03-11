@@ -238,6 +238,12 @@ class AgentFactory:
             return self.agent_mgr.get_or_create(role_spec, workspace=workspace)
         return self.agent_mgr.get_or_create(role_spec)
 
+    def _analyze_requirements(self, agent: dict, task_input: str, workspace: str | None = None) -> dict:
+        params = inspect.signature(self.req.analyze).parameters
+        if "workspace" in params:
+            return self.req.analyze(agent, task_input, workspace=workspace)
+        return self.req.analyze(agent, task_input)
+
     def run(
         self,
         task_input: str,
@@ -267,7 +273,7 @@ class AgentFactory:
             )
 
         agent = self._get_agent(role_spec, workspace=workspace)
-        reqs = self.req.analyze(agent, task_input, workspace=workspace or PROJECT_ROOT)
+        reqs = self._analyze_requirements(agent, task_input, workspace=workspace or PROJECT_ROOT)
         self._ensure_single_run_todo(
             task_input=task_input,
             role_spec=role_spec,

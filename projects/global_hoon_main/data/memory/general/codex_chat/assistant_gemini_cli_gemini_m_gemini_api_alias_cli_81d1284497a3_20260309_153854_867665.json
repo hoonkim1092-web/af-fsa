@@ -1,18 +1,18 @@
-{
-  "key": "assistant 지금 실패 원인은 설치가 아니라 모델 인자입니다 gemini_cli에서 기본값 gemini를 그대로 -m gemini로 넘기면 실제 API가 거부합니다 이 alias는 CLI 기본 모델 사용으로 취",
-  "value": "[assistant] 지금 실패 원인은 설치가 아니라 모델 인자입니다. `gemini_cli`에서 기본값 `\"gemini\"`를 그대로 `-m gemini`로 넘기면 실제 API가 거부합니다. 이 alias는 “CLI 기본 모델 사용”으로 취급하도록 바꾸겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T15:38:54.867844+00:00",
-  "updated_at": "2026-03-09T15:38:54.867844+00:00",
-  "details": {
-    "text": "[assistant] 지금 실패 원인은 설치가 아니라 모델 인자입니다. `gemini_cli`에서 기본값 `\"gemini\"`를 그대로 `-m gemini`로 넘기면 실제 API가 거부합니다. 이 alias는 “CLI 기본 모델 사용”으로 취급하도록 바꾸겠습니다.",
-    "event_timestamp": "2026-03-09T15:38:15.202Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
-    "session_line": 665,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 지금 실패 원인은 설치가 아니라 모델 인자입니다 gemini_cli에서 기본값 gemini를 그대로 -m gemini로 넘기면 실제 API가 거부합니다 이 alias는 CLI 기본 모델 사용으로 취",
+  "value": "[assistant] 지금 실패 원인은 설치가 아니라 모델 인자입니다. `gemini_cli`에서 기본값 `\"gemini\"`를 그대로 `-m gemini`로 넘기면 실제 API가 거부합니다. 이 alias는 “CLI 기본 모델 사용”으로 취급하도록 바꾸겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T15:38:54.867844+00:00",
+  "updated_at": "2026-03-09T15:38:54.867844+00:00",
+  "details": {
+    "text": "[assistant] 지금 실패 원인은 설치가 아니라 모델 인자입니다. `gemini_cli`에서 기본값 `\"gemini\"`를 그대로 `-m gemini`로 넘기면 실제 API가 거부합니다. 이 alias는 “CLI 기본 모델 사용”으로 취급하도록 바꾸겠습니다.",
+    "event_timestamp": "2026-03-09T15:38:15.202Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 665,
+    "provider": "codex"
+  }
 }

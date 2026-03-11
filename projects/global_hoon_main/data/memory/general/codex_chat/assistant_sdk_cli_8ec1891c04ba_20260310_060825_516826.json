@@ -1,0 +1,18 @@
+{
+  "key": "assistant 문서에는 단순 개요가 아니라 실제 추적 순서를 넣겠습니다 프로젝트 생성 내부 SDK 실행 외부 CLI 세션 실행 훅 이벤트 프롬프트 입출력 파일 수정 적용 경로를 각각 단계 번호로 풀어 적겠습니다",
+  "value": "[assistant] 문서에는 단순 개요가 아니라 실제 추적 순서를 넣겠습니다. 프로젝트 생성, 내부 SDK 실행, 외부 CLI 세션 실행, 훅 이벤트, 프롬프트 입출력, 파일 수정 적용 경로를 각각 단계 번호로 풀어 적겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T06:08:25.516877+00:00",
+  "updated_at": "2026-03-10T06:08:25.516877+00:00",
+  "details": {
+    "text": "[assistant] 문서에는 단순 개요가 아니라 실제 추적 순서를 넣겠습니다. 프로젝트 생성, 내부 SDK 실행, 외부 CLI 세션 실행, 훅 이벤트, 프롬프트 입출력, 파일 수정 적용 경로를 각각 단계 번호로 풀어 적겠습니다.",
+    "event_timestamp": "2026-03-10T05:44:36.762Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 919,
+    "provider": "codex"
+  }
+}

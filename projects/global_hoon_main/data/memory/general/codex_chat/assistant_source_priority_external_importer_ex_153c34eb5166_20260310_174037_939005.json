@@ -1,0 +1,18 @@
+{
+  "key": "assistant 외부 스킬 조달을 더 확장 가능하게 정리했습니다 이제 source priority는 정책으로 노출되고 external 후보 수집은 별도 importer로 분리됐습니다- 새 프로젝트 기본 정책에 ex",
+  "value": "[assistant] 외부 스킬 조달을 더 확장 가능하게 정리했습니다. 이제 source priority는 정책으로 노출되고, external 후보 수집은 별도 importer로 분리됐습니다.  - 새 프로젝트 기본 정책에 `external_skill_source_priority`와 `external_skill_sources`를 추가했습니다: [project_init.py](/D:/warkSpaces/agent-factory/core/project_init...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:37.939606+00:00",
+  "updated_at": "2026-03-10T17:40:37.939606+00:00",
+  "details": {
+    "text": "[assistant] 외부 스킬 조달을 더 확장 가능하게 정리했습니다. 이제 source priority는 정책으로 노출되고, external 후보 수집은 별도 importer로 분리됐습니다.\n\n- 새 프로젝트 기본 정책에 `external_skill_source_priority`와 `external_skill_sources`를 추가했습니다: [project_init.py](/D:/warkSpaces/agent-factory/core/project_init.py#L34)\n- 현재 프로젝트에도 같은 기본값을 반영했습니다: [policies.yaml](/D:/warkSpaces/agent-factory/projects/agent_factory/policies.yaml#L8)\n- external source adapter/resolver는 계속 [external_skill_sources.py](/D:/warkSpaces/agent-factory/core/external_skill_sources.py#L215)에 있고, registry 쪽 상세 해석은 [registry_manager.py](/D:/warkSpaces/agent-factory/core/registry_manager.py#L185)로 연결됩니다.\n- external cache/manifest에서 `install_candidates`를 채우는 importer를 추가했습니다: [external_skill_candidate_importer.py](/D:/warkSpaces/agent-factory/core/external_skill_candidate_importer.py#L266), [import_external_skill_candidates.py](/D:/warkSpaces/agent-factory/scripts/import_external_skill_candidates.py#L1)\n- `install_candidates.source_id` 정규화도 loader/sync 경로에 반영했습니다: [skill_registry.py](/D:/warkSpaces/agent-factory/core/skill_registry.py#L77), [sync_skill_registry.py](/D:/warkSpaces/agent-factory/scripts/sync_skill_registry.py#L142)\n- 스키마 문서도 업데이트했습니다: [registry_schema.md](/D:/warkSpaces/agent-factory/docs/registry_schema.md#L9)\n\n검증은 끝났습니다.\n- `python -m pytest -q tests\\test_project_policy_defaults.py tests\\test_external_skill_candidate_importer.py tests\\test_external_skill_sources.py tests\\test_skill_procurer_external_fallback.py tests\\test_skill_procurer_logging.py tests\\test_builder_cli_fallback.py`\n- 결과: `10 passed`\n- `python -m py_compile ...`\n- 결과: 성공\n\n현재 워크스페이스에서 importer는 아직 가져올 후보를 못 찾았습니다.\n- `python scripts\\import_external_skill_candidates.py --check`\n- 결과: `external_candidates=0 install_candidates=0`\n\n다음 단계는 하나입니다. `skills/_external_cache/claude/...` 또는 `skills/_external_cache/codex/...` 아래에 `skill_candidates.yaml`이나 `registry.yaml`이 들어오면, 바로 importer를 실행해서 `install_candidates`를 채울 수 있습니다.",
+    "event_timestamp": "2026-03-10T15:15:46.042Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
+    "session_line": 1120,
+    "provider": "codex"
+  }
+}

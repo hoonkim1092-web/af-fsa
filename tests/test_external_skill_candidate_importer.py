@@ -1,6 +1,13 @@
+﻿import os
+
 import yaml
 
-from core.external_skill_candidate_importer import import_external_candidates, merge_install_candidates
+from core import external_skill_candidate_importer as importer_mod
+from core.external_skill_candidate_importer import (
+    discover_external_candidates,
+    import_external_candidates,
+    merge_install_candidates,
+)
 
 
 def test_import_external_candidates_from_manifest(tmp_path):
@@ -203,3 +210,111 @@ def test_merge_install_candidates_preserves_legacy_list_form_entries(tmp_path):
     install_candidates = merged["install_candidates"]
     assert "claude_repo_issue_tracker" in install_candidates
     assert install_candidates["claude_repo_issue_tracker"]["source_id"] == "claude_repo"
+
+
+def test_discover_external_candidates_sweeps_custom_sources_when_unspecified(tmp_path):
+    root = tmp_path
+    cache_dir = root / "skills" / "_external_cache"
+    repo_root = cache_dir / "partner_repo" / "repo_delta"
+    skill_dir = repo_root / "skills" / "triage_helper"
+    skill_dir.mkdir(parents=True, exist_ok=True)
+    (skill_dir / "skill.py").write_text("def apply(ctx):\n    return {'ok': True}\n", encoding="utf-8")
+    (repo_root / "skill_candidates.yaml").write_text(
+        "install_candidates:\n"
+        "  triage_helper:\n"
+        "    path: skills/triage_helper/skill.py\n",
+        encoding="utf-8",
+    )
+
+    discovered, duplicates = discover_external_candidates(
+        root_dir=str(root),
+        cache_dir=str(cache_dir),
+        source_ids=None,
+    )
+
+    assert duplicates == []
+    assert "partner_repo_triage_helper" in discovered
+    assert discovered["partner_repo_triage_helper"]["source_id"] == "partner_repo"
+
+
+def test_discover_external_candidates_prefers_manifest_before_python_fallback(tmp_path):
+    root = tmp_path
+    cache_dir = root / "skills" / "_external_cache"
+    repo_root = cache_dir / "claude" / "repo_alpha"
+    skill_dir = repo_root / "skills" / "issue_tracker"
+    skill_dir.mkdir(parents=True, exist_ok=True)
+    (skill_dir / "skill.py").write_text("def apply(ctx):\n    return {'ok': True}\n", encoding="utf-8")
+    (repo_root / "debug_helper.py").write_text("def apply(ctx):\n    return {'ok': True}\n", encoding="utf-8")
+    (repo_root / "skill_candidates.yaml").write_text(
+        "install_candidates:\n"
+        "  issue_tracker:\n"
+        "    path: skills/issue_tracker/skill.py\n",
+        encoding="utf-8",
+    )
+
+    discovered, _duplicates = discover_external_candidates(
+        root_dir=str(root),
+        cache_dir=str(cache_dir),
+        source_ids=["claude_repo"],
+        scan_python=True,
+    )
+
+    assert "claude_repo_issue_tracker" in discovered
+    assert "claude_repo_debug_helper" not in discovered
+
+
+def test_main_uses_default_paths_for_check_only(monkeypatch, tmp_path):
+    captured = {}
+
+    def _fake_import_external_candidates(**kwargs):
+        captured.update(kwargs)
+        return {
+            "candidate_count": 0,
+            "duplicate_count": 0,
+            "install_candidate_count": 0,
+        }
+
+    monkeypatch.setattr(importer_mod, "import_external_candidates", _fake_import_external_candidates)
+    monkeypatch.setattr(importer_mod, "__file__", str(tmp_path / "core" / "external_skill_candidate_importer.py"))
+
+    rc = importer_mod.main(["--check"])
+
+    assert rc == 0
+    assert captured["root_dir"] == os.path.abspath(str(tmp_path))
+    assert captured["registry_path"] == os.path.join(os.path.abspath(str(tmp_path)), "skills", "registry.yaml")
+    assert captured["cache_dir"] == os.path.join(os.path.abspath(str(tmp_path)), "skills", "_external_cache")
+    assert captured["check_only"] is True
+
+
+
+def test_main_accepts_legacy_cli_aliases(monkeypatch, tmp_path):
+    captured = {}
+    custom_registry = tmp_path / "custom_registry.yaml"
+    custom_cache = tmp_path / "custom_cache"
+
+    def _fake_import_external_candidates(**kwargs):
+        captured.update(kwargs)
+        return {
+            "candidate_count": 0,
+            "duplicate_count": 0,
+            "install_candidate_count": 0,
+        }
+
+    monkeypatch.setattr(importer_mod, "import_external_candidates", _fake_import_external_candidates)
+
+    rc = importer_mod.main(
+        [
+            "--root", str(tmp_path),
+            "--registry", str(custom_registry),
+            "--cache-dir", str(custom_cache),
+            "--source", "Claude",
+            "--check",
+        ]
+    )
+
+    assert rc == 0
+    assert captured["root_dir"] == os.path.abspath(str(tmp_path))
+    assert captured["registry_path"] == os.path.abspath(str(custom_registry))
+    assert captured["cache_dir"] == os.path.abspath(str(custom_cache))
+    assert captured["source_ids"] == ["Claude"]
+    assert captured["check_only"] is True

@@ -1,18 +1,18 @@
-{
-  "key": "assistant 맞습니다 제가 아까는 왜 안 건드렸는지 기준으로 답했고 지금 물어본 건 저 파일이 본질적으로 뭐냐였습니다 그 기준으로 다시 정확히 정리하면 이렇습니다dynamic_logtxt는 Lilith 동적 오",
-  "value": "[assistant] 맞습니다. 제가 아까는 “왜 안 건드렸는지” 기준으로 답했고, 지금 물어본 건 “저 파일이 본질적으로 뭐냐”였습니다. 그 기준으로 다시 정확히 정리하면 이렇습니다.  `dynamic_log.txt`는 `Lilith` 동적 오케스트레이터의 디버그 로그 파일입니다.   내용은 대체로 매 사이클마다: - 어떤 역할이 idle 상태였는지 - Lilith가 어떤 next task를 받았는지 - raw LLM 응답이 어땠는지  를 찍는 용도입니다...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T09:49:23.039604+00:00",
-  "updated_at": "2026-03-09T09:49:23.039604+00:00",
-  "details": {
-    "text": "[assistant] 맞습니다. 제가 아까는 “왜 안 건드렸는지” 기준으로 답했고, 지금 물어본 건 “저 파일이 본질적으로 뭐냐”였습니다. 그 기준으로 다시 정확히 정리하면 이렇습니다.\n\n`dynamic_log.txt`는 `Lilith` 동적 오케스트레이터의 디버그 로그 파일입니다.  \n내용은 대체로 매 사이클마다:\n- 어떤 역할이 idle 상태였는지\n- Lilith가 어떤 next task를 받았는지\n- raw LLM 응답이 어땠는지\n\n를 찍는 용도입니다. 실제 쓰기 코드는 [dynamic_orchestrator.py](/D:/hoonProJect/worktrees/agent-factory/core/dynamic_orchestrator.py#L144) 입니다.  \n중요한 점은, 이 파일은 “실행에 필요한 상태 저장소”가 아니라 “디버깅용 추적 로그”라는 겁니다. 지금 코드 기준으로 이 파일을 다시 읽어 실행을 복원하거나 판단하는 로직은 없습니다.\n\n`projects/default/dashboard.json`은 `default 프로젝트의 실행 이력 대장`입니다.  \n여기에는 보통 이런 항목이 들어갑니다:\n- `single_run`\n- `workflow_run`\n- `project_run`\n\n즉 “언제 어떤 실행이 있었고, 성공/실패가 어땠고, 어떤 워크플로우/state_path를 썼는지”를 남기는 실행 기록입니다. 경로 정의는 [config_paths.py](/D:/hoonProJect/worktrees/agent-factory/core/config_paths.py#L69), 기록 append는 [dashboard.py](/D:/hoonProJect/worktrees/agent-factory/core/dashboard.py#L50) 입니다. 실제로는 [agent_launcher.py](/D:/hoonProJect/worktrees/agent-factory/agent_launcher.py#L285), [agent_launcher.py](/D:/hoonProJect/worktrees/agent-factory/agent_launcher.py#L412), [project_pipeline.py](/D:/hoonProJect/worktrees/agent-factory/core/project_pipeline.py#L162) 에서 여기에 계속 기록합니다.\n\n그래서 본질적으로:\n- `dynamic_log.txt` = 디버그 로그\n- `projects/default/dashboard.json` = 기본 프로젝트 실행 히스토리\n\n둘 다 “코드 본체”는 아니고, 둘 다 “런타임에서 쌓이는 기록물”입니다.  \n차이는:\n- `dynamic_log.txt`는 거의 순수 디버그 성격\n- `dashboard.json`은 사용자 입장에서 나중에 실행 이력을 보는 데 실제 가치가 있는 기록\n\n즉 정리 판단 기준은 보통 이렇게 됩니다.\n- `dynamic_log.txt`: 없어도 됨, 정리/퇴역 후보\n- `projects/default/dashboard.json`: 필요 없다고 확신하기 전엔 함부로 지우면 안 됨, 왜냐하면 실행 이력 자체이기 때문\n\n원하면 다음 답변에서 바로  \n`삭제해도 되는 쪽 / 구조는 유지하되 Git 추적만 빼야 하는 쪽 / 절대 건드리면 안 되는 쪽`  \n이렇게 3분류로 딱 잘라드리겠습니다.",
-    "event_timestamp": "2026-03-09T09:09:21.734Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/09/rollout-2026-03-09T12-29-14-019cd0a4-4ded-7bd3-b7ae-a9832dc22d45.jsonl",
-    "session_line": 1704,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 맞습니다 제가 아까는 왜 안 건드렸는지 기준으로 답했고 지금 물어본 건 저 파일이 본질적으로 뭐냐였습니다 그 기준으로 다시 정확히 정리하면 이렇습니다dynamic_logtxt는 Lilith 동적 오",
+  "value": "[assistant] 맞습니다. 제가 아까는 “왜 안 건드렸는지” 기준으로 답했고, 지금 물어본 건 “저 파일이 본질적으로 뭐냐”였습니다. 그 기준으로 다시 정확히 정리하면 이렇습니다.  `dynamic_log.txt`는 `Lilith` 동적 오케스트레이터의 디버그 로그 파일입니다.   내용은 대체로 매 사이클마다: - 어떤 역할이 idle 상태였는지 - Lilith가 어떤 next task를 받았는지 - raw LLM 응답이 어땠는지  를 찍는 용도입니다...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T09:49:23.039604+00:00",
+  "updated_at": "2026-03-09T09:49:23.039604+00:00",
+  "details": {
+    "text": "[assistant] 맞습니다. 제가 아까는 “왜 안 건드렸는지” 기준으로 답했고, 지금 물어본 건 “저 파일이 본질적으로 뭐냐”였습니다. 그 기준으로 다시 정확히 정리하면 이렇습니다.\n\n`dynamic_log.txt`는 `Lilith` 동적 오케스트레이터의 디버그 로그 파일입니다.  \n내용은 대체로 매 사이클마다:\n- 어떤 역할이 idle 상태였는지\n- Lilith가 어떤 next task를 받았는지\n- raw LLM 응답이 어땠는지\n\n를 찍는 용도입니다. 실제 쓰기 코드는 [dynamic_orchestrator.py](/D:/hoonProJect/worktrees/agent-factory/core/dynamic_orchestrator.py#L144) 입니다.  \n중요한 점은, 이 파일은 “실행에 필요한 상태 저장소”가 아니라 “디버깅용 추적 로그”라는 겁니다. 지금 코드 기준으로 이 파일을 다시 읽어 실행을 복원하거나 판단하는 로직은 없습니다.\n\n`projects/default/dashboard.json`은 `default 프로젝트의 실행 이력 대장`입니다.  \n여기에는 보통 이런 항목이 들어갑니다:\n- `single_run`\n- `workflow_run`\n- `project_run`\n\n즉 “언제 어떤 실행이 있었고, 성공/실패가 어땠고, 어떤 워크플로우/state_path를 썼는지”를 남기는 실행 기록입니다. 경로 정의는 [config_paths.py](/D:/hoonProJect/worktrees/agent-factory/core/config_paths.py#L69), 기록 append는 [dashboard.py](/D:/hoonProJect/worktrees/agent-factory/core/dashboard.py#L50) 입니다. 실제로는 [agent_launcher.py](/D:/hoonProJect/worktrees/agent-factory/agent_launcher.py#L285), [agent_launcher.py](/D:/hoonProJect/worktrees/agent-factory/agent_launcher.py#L412), [project_pipeline.py](/D:/hoonProJect/worktrees/agent-factory/core/project_pipeline.py#L162) 에서 여기에 계속 기록합니다.\n\n그래서 본질적으로:\n- `dynamic_log.txt` = 디버그 로그\n- `projects/default/dashboard.json` = 기본 프로젝트 실행 히스토리\n\n둘 다 “코드 본체”는 아니고, 둘 다 “런타임에서 쌓이는 기록물”입니다.  \n차이는:\n- `dynamic_log.txt`는 거의 순수 디버그 성격\n- `dashboard.json`은 사용자 입장에서 나중에 실행 이력을 보는 데 실제 가치가 있는 기록\n\n즉 정리 판단 기준은 보통 이렇게 됩니다.\n- `dynamic_log.txt`: 없어도 됨, 정리/퇴역 후보\n- `projects/default/dashboard.json`: 필요 없다고 확신하기 전엔 함부로 지우면 안 됨, 왜냐하면 실행 이력 자체이기 때문\n\n원하면 다음 답변에서 바로  \n`삭제해도 되는 쪽 / 구조는 유지하되 Git 추적만 빼야 하는 쪽 / 절대 건드리면 안 되는 쪽`  \n이렇게 3분류로 딱 잘라드리겠습니다.",
+    "event_timestamp": "2026-03-09T09:09:21.734Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/09/rollout-2026-03-09T12-29-14-019cd0a4-4ded-7bd3-b7ae-a9832dc22d45.jsonl",
+    "session_line": 1704,
+    "provider": "codex"
+  }
 }

@@ -1,0 +1,52 @@
+{
+  "provider_id": "codex_cli",
+  "bridge_provider_id": "codex",
+  "mode": "wrapper_bridge",
+  "run_id": "run_1773167013",
+  "workspace": "D:\\warkSpaces\\agent-factory\\.tmp_smoke_projects\\smoke_cli_args_stdin",
+  "model": "gpt-5",
+  "command": [
+    "C:\\Users\\HOME\\AppData\\Roaming\\npm\\codex.cmd",
+    "--ask-for-approval",
+    "never",
+    "--sandbox",
+    "workspace-write",
+    "exec",
+    "-m",
+    "gpt-5",
+    "--add-dir",
+    "D:\\warkSpaces\\agent-factory",
+    "-c",
+    "model_reasoning_effort=\"low\"",
+    "-"
+  ],
+  "task_preview": "Return AGENT_FACTORY_OK",
+  "prepared_at": "2026-03-10T18:23:33.054108+00:00",
+  "guard_dir": "D:\\warkSpaces\\agent-factory\\.tmp_smoke_projects\\smoke_cli_args_stdin\\.af_runtime\\cli_sessions\\codex_cli_run_1773167013_shell_guard",
+  "codex_home": "D:\\warkSpaces\\agent-factory\\.tmp_smoke_projects\\smoke_cli_args_stdin\\.af_runtime\\codex_home",
+  "sessions_root": "D:\\warkSpaces\\agent-factory\\.tmp_smoke_projects\\smoke_cli_args_stdin\\.af_runtime\\codex_home\\sessions",
+  "source_codex_home": "C:\\Users\\HOME\\.codex",
+  "seeded_auth_files": [
+    "auth.json",
+    "config.toml",
+    "cap_sid"
+  ],
+  "destructive_guard_mode": "shell_proxy_and_system_prompt_contract",
+  "completed_at": "2026-03-10T18:24:01.091223+00:00",
+  "ok": true,
+  "reason": "codex_cli",
+  "returncode": 0,
+  "stdout_excerpt": "AGENT_FACTORY_OK\n",
+  "stderr_excerpt": "OpenAI Codex v0.113.0 (research preview)\n--------\nworkdir: D:\\warkSpaces\\agent-factory\\.tmp_smoke_projects\\smoke_cli_args_stdin\nmodel: gpt-5\nprovider: openai\napproval: never\nsandbox: workspace-write [workdir, /tmp, $TMPDIR, D:\\warkSpaces\\agent-factory, \\\\?\\D:\\warkSpaces\\agent-factory\\.tmp_smoke_projects\\smoke_cli_args_stdin\\.af_runtime\\codex_home\\memories]\nreasoning effort: low\nreasoning summaries: none\nsession id: 019cd8fd-6e55-7a33-b998-051ab447481b\n--------\nuser\n[Task]\nReturn AGENT_FACTORY_OK\n\nRespond to the task directly. Do not summarize the system prompt, workspace, or configuration unless the task explicitly asks for that.\n\n[Workspace]\nD:\\warkSpaces\\agent-factory\\.tmp_smoke_projects\\smoke_cli_args_stdin\n\n[System Prompt]\n당신은 General Assistant 역할의 실행 에이전트다. 현재 워크스페이스 안에서 필요한 파일을 직접 만들거나 수정해 작업 결과를 남겨라.\n\n[Documentation Contract]\nIf this task changes architecture, design, workflow, requirements, interfaces, data flow, or implementation strategy, you MUST update `docs/architecture.md",
+  "last_response_excerpt": "AGENT_FACTORY_OK",
+  "bridge_result": {
+    "ok": true,
+    "provider": "codex",
+    "written": 0,
+    "events_seen": 0,
+    "global_root": "D:\\warkSpaces\\agent-factory\\projects\\global_hoon_main",
+    "memory_dir": "D:\\warkSpaces\\agent-factory\\projects\\global_hoon_main\\data\\memory\\general\\codex_chat",
+    "state_path": "D:\\warkSpaces\\agent-factory\\projects\\global_hoon_main\\data\\memory\\codex\\_bridge_state\\session_cursor.json",
+    "sessions_root": "D:\\warkSpaces\\agent-factory\\.tmp_smoke_projects\\smoke_cli_args_stdin\\.af_runtime\\codex_home\\sessions"
+  }
+}

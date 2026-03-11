@@ -1,18 +1,18 @@
-{
-  "key": "assistant 현재 Dagent-factory에는 coreprovidersclipy가 아니라 다른 구조가 섞여 있습니다 파일 위치를 먼저 정확히 찾은 뒤 gemini_cli auth env 차단만 최소 수정으로 ",
-  "value": "[assistant] 현재 `D:\\agent-factory`에는 `core/providers/cli.py`가 아니라 다른 구조가 섞여 있습니다. 파일 위치를 먼저 정확히 찾은 뒤, `gemini_cli` auth env 차단만 최소 수정으로 넣겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T16:31:42.495764+00:00",
-  "updated_at": "2026-03-09T16:31:42.495764+00:00",
-  "details": {
-    "text": "[assistant] 현재 `D:\\agent-factory`에는 `core/providers/cli.py`가 아니라 다른 구조가 섞여 있습니다. 파일 위치를 먼저 정확히 찾은 뒤, `gemini_cli` auth env 차단만 최소 수정으로 넣겠습니다.",
-    "event_timestamp": "2026-03-09T16:14:11.604Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
-    "session_line": 959,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 현재 Dagent-factory에는 coreprovidersclipy가 아니라 다른 구조가 섞여 있습니다 파일 위치를 먼저 정확히 찾은 뒤 gemini_cli auth env 차단만 최소 수정으로 ",
+  "value": "[assistant] 현재 `D:\\agent-factory`에는 `core/providers/cli.py`가 아니라 다른 구조가 섞여 있습니다. 파일 위치를 먼저 정확히 찾은 뒤, `gemini_cli` auth env 차단만 최소 수정으로 넣겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T16:31:42.495764+00:00",
+  "updated_at": "2026-03-09T16:31:42.495764+00:00",
+  "details": {
+    "text": "[assistant] 현재 `D:\\agent-factory`에는 `core/providers/cli.py`가 아니라 다른 구조가 섞여 있습니다. 파일 위치를 먼저 정확히 찾은 뒤, `gemini_cli` auth env 차단만 최소 수정으로 넣겠습니다.",
+    "event_timestamp": "2026-03-09T16:14:11.604Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 959,
+    "provider": "codex"
+  }
 }

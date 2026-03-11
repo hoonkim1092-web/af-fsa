@@ -1,0 +1,24 @@
+{
+  "run_id": "run_1773166586",
+  "project_id": "smoke_cli_args_escalated",
+  "agent_name": "agent_general_assistant",
+  "agent_role": "General Assistant",
+  "task": "Return AGENT_FACTORY_OK",
+  "transcript": [
+    {
+      "ts": "2026-03-11T03:16:34",
+      "kind": "error",
+      "payload": {
+        "stage": "codex_cli",
+        "message": "codex_cli_failed"
+      }
+    }
+  ],
+  "result": {
+    "ok": false,
+    "reason": "codex_cli_failed",
+    "latency_ms": 7907,
+    "approval_rejects": 0
+  },
+  "updated_at": "2026-03-11T03:16:34"
+}

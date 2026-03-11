@@ -1,18 +1,18 @@
-{
-  "key": "assistant 실제 OpenAI 호출이 되는지 짧은 비파괴 검증을 하겠습니다 codex exec로 한 줄 응답만 받는 테스트를 먼저 돌려보겠습니다",
-  "value": "[assistant] 실제 OpenAI 호출이 되는지 짧은 비파괴 검증을 하겠습니다. `codex exec`로 한 줄 응답만 받는 테스트를 먼저 돌려보겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T14:39:12.853406+00:00",
-  "updated_at": "2026-03-09T14:39:12.853406+00:00",
-  "details": {
-    "text": "[assistant] 실제 OpenAI 호출이 되는지 짧은 비파괴 검증을 하겠습니다. `codex exec`로 한 줄 응답만 받는 테스트를 먼저 돌려보겠습니다.",
-    "event_timestamp": "2026-03-07T17:39:33.135Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/07/rollout-2026-03-07T23-57-50-019cc8ce-02f3-7c92-a357-f51576977b23.jsonl",
-    "session_line": 1834,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 실제 OpenAI 호출이 되는지 짧은 비파괴 검증을 하겠습니다 codex exec로 한 줄 응답만 받는 테스트를 먼저 돌려보겠습니다",
+  "value": "[assistant] 실제 OpenAI 호출이 되는지 짧은 비파괴 검증을 하겠습니다. `codex exec`로 한 줄 응답만 받는 테스트를 먼저 돌려보겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T14:39:12.853406+00:00",
+  "updated_at": "2026-03-09T14:39:12.853406+00:00",
+  "details": {
+    "text": "[assistant] 실제 OpenAI 호출이 되는지 짧은 비파괴 검증을 하겠습니다. `codex exec`로 한 줄 응답만 받는 테스트를 먼저 돌려보겠습니다.",
+    "event_timestamp": "2026-03-07T17:39:33.135Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/07/rollout-2026-03-07T23-57-50-019cc8ce-02f3-7c92-a357-f51576977b23.jsonl",
+    "session_line": 1834,
+    "provider": "codex"
+  }
 }

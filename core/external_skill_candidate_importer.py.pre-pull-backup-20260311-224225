@@ -1,0 +1,426 @@
+import argparse
+import os
+from typing import Iterable
+
+import yaml
+
+from core.external_skill_source_ids import (
+    normalize_external_source_id,
+)
+from core.install_candidate_utils import (
+    canonical_install_candidate_key,
+    legacy_install_candidate_keys,
+    normalize_install_candidate_collection,
+)
+
+
+MANIFEST_PATHS = (
+    "skill_candidates.yaml",
+    "skill_candidates.yml",
+    "registry.yaml",
+    os.path.join("skills", "registry.yaml"),
+)
+SKILL_MARKDOWN_FILENAMES = ("SKILL.md", "skill.md")
+
+
+def safe_id(text: str) -> str:
+    value = (text or "").strip().lower()
+    chars = []
+    for ch in value:
+        if ("a" <= ch <= "z") or ("0" <= ch <= "9") or ch == "_":
+            chars.append(ch)
+        else:
+            chars.append("_")
+    normalized = "".join(chars)
+    while "__" in normalized:
+        normalized = normalized.replace("__", "_")
+    normalized = normalized.strip("_")
+    return normalized or "skill"
+
+
+def read_yaml(path: str) -> dict:
+    if not os.path.exists(path):
+        return {}
+    with open(path, "r", encoding="utf-8") as f:
+        data = yaml.safe_load(f) or {}
+    return data if isinstance(data, dict) else {}
+
+
+def write_yaml(path: str, data: dict) -> None:
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
+        yaml.safe_dump(data, f, allow_unicode=True, default_flow_style=False, sort_keys=True)
+
+
+def to_portable(path_abs: str, root_dir: str) -> str:
+    rel = os.path.relpath(path_abs, root_dir)
+    return rel.replace("\\", "/")
+
+
+def _resolve_repo_path(repo_root: str, raw_path: str) -> str:
+    path_text = str(raw_path or "").strip()
+    if not path_text:
+        return ""
+    if os.path.isabs(path_text):
+        return path_text if os.path.exists(path_text) else ""
+    candidate = os.path.abspath(os.path.join(repo_root, path_text))
+    return candidate if os.path.exists(candidate) else ""
+
+
+def _normalize_capabilities(value) -> list[str]:
+    if not isinstance(value, list):
+        return []
+    out = []
+    for item in value:
+        sid = safe_id(str(item))
+        if sid and sid not in out:
+            out.append(sid)
+    return out
+
+
+def _candidate_key(source_id: str, skill_id: str) -> str:
+    return canonical_install_candidate_key(source_id, skill_id)
+
+
+def _legacy_candidate_keys(candidate: dict) -> list[str]:
+    if not isinstance(candidate, dict):
+        return []
+    skill_id = safe_id(str(candidate.get("id") or candidate.get("skill_id") or ""))
+    if not skill_id:
+        return []
+    return legacy_install_candidate_keys(candidate.get("source_id"), skill_id)
+
+
+def _normalize_candidate(
+    *,
+    raw_key: str,
+    raw_value: dict,
+    source_id: str,
+    source_repo: str,
+    repo_root: str,
+    root_dir: str,
+    source_url: str = "",
+) -> tuple[str, dict] | None:
+    item = raw_value if isinstance(raw_value, dict) else {}
+    skill_id = safe_id(str(item.get("id") or item.get("skill_id") or item.get("name") or raw_key))
+    if not skill_id:
+        return None
+
+    resolved_path = _resolve_repo_path(repo_root, str(item.get("path") or ""))
+    if not resolved_path:
+        return None
+
+    entry = {
+        "id": skill_id,
+        "name": str(item.get("name") or skill_id),
+        "path": to_portable(resolved_path, root_dir),
+        "source_id": normalize_external_source_id(source_id),
+        "source_repo": safe_id(source_repo) or os.path.basename(repo_root),
+        "source_url": str(item.get("source_url") or source_url or ""),
+        "capabilities": _normalize_capabilities(item.get("capabilities")),
+    }
+    return _candidate_key(entry["source_id"], skill_id), entry
+
+
+def _extract_from_mapping(
+    *,
+    mapping: dict,
+    source_id: str,
+    source_repo: str,
+    repo_root: str,
+    root_dir: str,
+    source_url: str,
+) -> dict:
+    out: dict = {}
+    for raw_key, raw_value in mapping.items():
+        normalized = _normalize_candidate(
+            raw_key=str(raw_key),
+            raw_value=raw_value if isinstance(raw_value, dict) else {},
+            source_id=source_id,
+            source_repo=source_repo,
+            repo_root=repo_root,
+            root_dir=root_dir,
+            source_url=source_url,
+        )
+        if normalized:
+            out[normalized[0]] = normalized[1]
+    return out
+
+
+def _extract_manifest_candidates(
+    *,
+    manifest_path: str,
+    source_id: str,
+    source_repo: str,
+    repo_root: str,
+    root_dir: str,
+) -> dict:
+    payload = read_yaml(manifest_path)
+    if not payload:
+        return {}
+
+    source_url = str(payload.get("source_url") or "")
+    if isinstance(payload.get("install_candidates"), dict):
+        return _extract_from_mapping(
+            mapping=payload.get("install_candidates") or {},
+            source_id=source_id,
+            source_repo=source_repo,
+            repo_root=repo_root,
+            root_dir=root_dir,
+            source_url=source_url,
+        )
+
+    if isinstance(payload.get("skills"), dict):
+        return _extract_from_mapping(
+            mapping=payload.get("skills") or {},
+            source_id=source_id,
+            source_repo=source_repo,
+            repo_root=repo_root,
+            root_dir=root_dir,
+            source_url=source_url,
+        )
+
+    if isinstance(payload, dict):
+        return _extract_from_mapping(
+            mapping=payload,
+            source_id=source_id,
+            source_repo=source_repo,
+            repo_root=repo_root,
+            root_dir=root_dir,
+            source_url=source_url,
+        )
+    return {}
+
+
+def _discover_repo_roots(cache_dir: str, requested_sources: Iterable[str] | None = None) -> list[tuple[str, str, str]]:
+    requested = {
+        normalize_external_source_id(src, default="")
+        for src in (requested_sources or [])
+        if normalize_external_source_id(src, default="")
+    }
+    out: list[tuple[str, str, str]] = []
+    if not os.path.isdir(cache_dir):
+        return out
+
+    for source_name in sorted(os.listdir(cache_dir)):
+        source_id = normalize_external_source_id(source_name, default="")
+        if requested and source_id not in requested:
+            continue
+        source_dir = os.path.join(cache_dir, source_name)
+        if not os.path.isdir(source_dir):
+            continue
+        for repo_name in sorted(os.listdir(source_dir)):
+            repo_root = os.path.join(source_dir, repo_name)
+            if os.path.isdir(repo_root):
+                out.append((source_id, safe_id(repo_name) or repo_name, repo_root))
+    return out
+
+
+def _scan_python_candidates(source_id: str, source_repo: str, repo_root: str, root_dir: str) -> dict:
+    out: dict = {}
+    for current_root, _dirs, files in os.walk(repo_root):
+        for fn in files:
+            if not fn.endswith(".py") or fn.startswith("_") or fn.startswith("test_"):
+                continue
+            if fn == "skill.py":
+                skill_id = safe_id(os.path.basename(current_root))
+            elif os.path.normcase(current_root) == os.path.normcase(repo_root):
+                skill_id = safe_id(os.path.splitext(fn)[0])
+            else:
+                continue
+            if not skill_id:
+                continue
+            full_path = os.path.join(current_root, fn)
+            key = _candidate_key(source_id, skill_id)
+            out[key] = {
+                "id": skill_id,
+                "name": skill_id,
+                "path": to_portable(full_path, root_dir),
+                "source_id": source_id,
+                "source_repo": safe_id(source_repo) or os.path.basename(repo_root),
+                "source_url": "",
+                "capabilities": [skill_id],
+            }
+    return out
+
+
+def _scan_markdown_skill_candidates(source_id: str, source_repo: str, repo_root: str, root_dir: str) -> dict:
+    out: dict = {}
+    for current_root, _dirs, files in os.walk(repo_root):
+        matched = next((name for name in SKILL_MARKDOWN_FILENAMES if name in files), "")
+        if not matched:
+            continue
+        skill_id = safe_id(os.path.basename(current_root))
+        if not skill_id:
+            continue
+        key = _candidate_key(source_id, skill_id)
+        out[key] = {
+            "id": skill_id,
+            "name": skill_id,
+            "path": to_portable(current_root, root_dir),
+            "source_id": source_id,
+            "source_repo": safe_id(source_repo) or os.path.basename(repo_root),
+            "source_url": "",
+            "capabilities": [skill_id],
+        }
+    return out
+
+
+def _record_duplicate(duplicates: list[dict], kept: dict, skipped: dict, candidate_key: str) -> None:
+    duplicates.append(
+        {
+            "candidate_key": candidate_key,
+            "source_id": str(kept.get("source_id") or skipped.get("source_id") or ""),
+            "skill_id": str(kept.get("id") or skipped.get("id") or ""),
+            "kept_path": str(kept.get("path") or ""),
+            "kept_repo": str(kept.get("source_repo") or ""),
+            "skipped_path": str(skipped.get("path") or ""),
+            "skipped_repo": str(skipped.get("source_repo") or ""),
+        }
+    )
+
+
+def _merge_candidate_map(target: dict, incoming: dict, duplicates: list[dict]) -> None:
+    for candidate_key, item in incoming.items():
+        if candidate_key not in target:
+            target[candidate_key] = item
+            continue
+        kept = target[candidate_key]
+        kept_path = str(kept.get("path") or "")
+        new_path = str(item.get("path") or "")
+        if kept_path == new_path:
+            continue
+        _record_duplicate(duplicates, kept, item, candidate_key)
+
+
+def discover_external_candidates(
+    *,
+    root_dir: str,
+    cache_dir: str,
+    source_ids: list[str] | None = None,
+    scan_python: bool = False,
+) -> tuple[dict, list[dict]]:
+    root_dir = os.path.abspath(root_dir)
+    cache_dir = os.path.abspath(cache_dir)
+    discovered: dict = {}
+    duplicates: list[dict] = []
+
+    for source_id, source_repo, repo_root in _discover_repo_roots(cache_dir, source_ids):
+        repo_candidates: dict = {}
+        for rel_manifest in MANIFEST_PATHS:
+            manifest_path = os.path.join(repo_root, rel_manifest)
+            if not os.path.exists(manifest_path):
+                continue
+            _merge_candidate_map(
+                repo_candidates,
+                _extract_manifest_candidates(
+                    manifest_path=manifest_path,
+                    source_id=source_id,
+                    source_repo=source_repo,
+                    repo_root=repo_root,
+                    root_dir=root_dir,
+                ),
+                duplicates,
+            )
+        if not repo_candidates and scan_python:
+            _merge_candidate_map(
+                repo_candidates,
+                _scan_python_candidates(source_id, source_repo, repo_root, root_dir),
+                duplicates,
+            )
+            _merge_candidate_map(
+                repo_candidates,
+                _scan_markdown_skill_candidates(source_id, source_repo, repo_root, root_dir),
+                duplicates,
+            )
+        _merge_candidate_map(discovered, repo_candidates, duplicates)
+    return discovered, duplicates
+
+
+def merge_install_candidates(
+    *,
+    registry_path: str,
+    candidates: dict,
+    check_only: bool = False,
+) -> dict:
+    registry = read_yaml(registry_path)
+    if not isinstance(registry, dict):
+        registry = {}
+    registry.setdefault("skills", {})
+    registry.setdefault("install_candidates", {})
+
+    current = registry.get("install_candidates", {})
+    merged = normalize_install_candidate_collection(current)
+    incoming = normalize_install_candidate_collection(candidates if isinstance(candidates, dict) else {})
+    for item in incoming.values():
+        for legacy_key in _legacy_candidate_keys(item):
+            merged.pop(legacy_key, None)
+    merged.update(incoming)
+    registry["install_candidates"] = dict(sorted(merged.items(), key=lambda item: item[0]))
+
+    if not check_only:
+        write_yaml(registry_path, registry)
+    return registry
+
+
+def import_external_candidates(
+    *,
+    root_dir: str,
+    registry_path: str,
+    cache_dir: str,
+    source_ids: list[str] | None = None,
+    scan_python: bool = False,
+    check_only: bool = False,
+) -> dict:
+    candidates, duplicates = discover_external_candidates(
+        root_dir=root_dir,
+        cache_dir=cache_dir,
+        source_ids=source_ids,
+        scan_python=scan_python,
+    )
+    registry = merge_install_candidates(
+        registry_path=registry_path,
+        candidates=candidates,
+        check_only=check_only,
+    )
+    return {
+        "candidate_count": len(candidates),
+        "duplicate_count": len(duplicates),
+        "duplicates": duplicates,
+        "install_candidate_count": len(registry.get("install_candidates", {})),
+        "registry_path": registry_path,
+    }
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Import external skill candidates into skills/registry.yaml.")
+    parser.add_argument("--root", default=os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+    parser.add_argument("--registry", default="")
+    parser.add_argument("--cache-dir", default="")
+    parser.add_argument("--source", action="append", default=[])
+    parser.add_argument("--scan-python", action="store_true")
+    parser.add_argument("--check", action="store_true")
+    args = parser.parse_args()
+
+    root_dir = os.path.abspath(args.root)
+    registry_path = args.registry or os.path.join(root_dir, "skills", "registry.yaml")
+    cache_dir = args.cache_dir or os.path.join(root_dir, "skills", "_external_cache")
+    result = import_external_candidates(
+        root_dir=root_dir,
+        registry_path=registry_path,
+        cache_dir=cache_dir,
+        source_ids=args.source or None,
+        scan_python=args.scan_python,
+        check_only=args.check,
+    )
+    mode = "CHECK" if args.check else "IMPORT"
+    print(
+        f"[{mode}] external_candidates={result['candidate_count']} "
+        f"duplicates_skipped={result['duplicate_count']} "
+        f"install_candidates={result['install_candidate_count']}"
+    )
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

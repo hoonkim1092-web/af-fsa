@@ -1,18 +1,18 @@
-{
-  "key": "assistant 구분이 명확해졌습니다 gemini_e2e는 코드에서 참조되지 않는 실험용 프로젝트이고 global_hoon_maindatamemory는 런타임에서 실제로 읽고 쓰는 메모리 데이터입니다",
-  "value": "[assistant] 구분이 명확해졌습니다. `gemini_e2e`는 코드에서 참조되지 않는 실험용 프로젝트이고, `global_hoon_main/data/memory/...`는 런타임에서 실제로 읽고 쓰는 메모리 데이터입니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T16:56:09.374523+00:00",
-  "updated_at": "2026-03-09T16:56:09.374523+00:00",
-  "details": {
-    "text": "[assistant] 구분이 명확해졌습니다. `gemini_e2e`는 코드에서 참조되지 않는 실험용 프로젝트이고, `global_hoon_main/data/memory/...`는 런타임에서 실제로 읽고 쓰는 메모리 데이터입니다.",
-    "event_timestamp": "2026-03-09T16:53:23.954Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
-    "session_line": 1876,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 구분이 명확해졌습니다 gemini_e2e는 코드에서 참조되지 않는 실험용 프로젝트이고 global_hoon_maindatamemory는 런타임에서 실제로 읽고 쓰는 메모리 데이터입니다",
+  "value": "[assistant] 구분이 명확해졌습니다. `gemini_e2e`는 코드에서 참조되지 않는 실험용 프로젝트이고, `global_hoon_main/data/memory/...`는 런타임에서 실제로 읽고 쓰는 메모리 데이터입니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T16:56:09.374523+00:00",
+  "updated_at": "2026-03-09T16:56:09.374523+00:00",
+  "details": {
+    "text": "[assistant] 구분이 명확해졌습니다. `gemini_e2e`는 코드에서 참조되지 않는 실험용 프로젝트이고, `global_hoon_main/data/memory/...`는 런타임에서 실제로 읽고 쓰는 메모리 데이터입니다.",
+    "event_timestamp": "2026-03-09T16:53:23.954Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 1876,
+    "provider": "codex"
+  }
 }

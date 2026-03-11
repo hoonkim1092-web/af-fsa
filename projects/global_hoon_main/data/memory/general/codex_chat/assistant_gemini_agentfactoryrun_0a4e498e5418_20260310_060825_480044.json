@@ -1,0 +1,18 @@
+{
+  "key": "assistant 런 자체는 Gemini까지 가지 않았고 호출 시그니처가 예상과 달랐습니다 AgentFactoryrun 실제 인자를 다시 확인해서 같은 워크스페이스로 바로 재실행하겠습니다",
+  "value": "[assistant] 런 자체는 Gemini까지 가지 않았고, 호출 시그니처가 예상과 달랐습니다. `AgentFactory.run(...)` 실제 인자를 다시 확인해서 같은 워크스페이스로 바로 재실행하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T06:08:25.480092+00:00",
+  "updated_at": "2026-03-10T06:08:25.480092+00:00",
+  "details": {
+    "text": "[assistant] 런 자체는 Gemini까지 가지 않았고, 호출 시그니처가 예상과 달랐습니다. `AgentFactory.run(...)` 실제 인자를 다시 확인해서 같은 워크스페이스로 바로 재실행하겠습니다.",
+    "event_timestamp": "2026-03-10T04:58:19.440Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 555,
+    "provider": "codex"
+  }
+}
