@@ -2,7 +2,7 @@ import os
 import json
 import subprocess
 import sys
-from core.providers.registry import get_engine_api_key
+from core.requirement_llm import execute_requirement_prompt
 from core.utils import (
     safe_id, read_yaml, write_yaml, now_iso, get_random_signature,
     print_agent_msg, safe_json_load, resolve_skill_paths, resolve_existing_path
@@ -149,15 +149,6 @@ class HimariResearchAgent:
         if os.path.exists(todo_path):
             workspace_notes.append(f"existing_todo={todo_path}")
 
-        _api_key = get_engine_api_key("google")
-        if _api_key:
-            from google import genai
-            from model_utils import normalize_model_name, generate_content_with_self_heal
-            _client = genai.Client(api_key=_api_key)
-            _model_name = normalize_model_name(self.mr.pick("requirement"))
-        else:
-            _client = None
-            _model_name = ""
         prompt = f"""
 You are Himari, a project research director.
 Task: {task_input}
@@ -176,13 +167,15 @@ Return JSON only:
 }}
 
 Rules:
-- required_skills: 3 to 8 concrete skills in English snake_case.
-- role_hints: 2 to 5 practical implementation roles.
-- deliverables and risks should be short Korean phrases.
-""".strip()
+        - required_skills: 3 to 8 concrete skills in English snake_case.
+        - role_hints: 2 to 5 practical implementation roles.
+        - deliverables and risks should be short Korean phrases.
+        """.strip()
         try:
-            res = generate_content_with_self_heal(_client, _model_name, prompt) if _client else None
-            data = safe_json_load(res.text if res else "{}")
+            result = execute_requirement_prompt(prompt, workspace=target_workspace)
+            if not result.get("ok"):
+                raise RuntimeError("project_brief_llm_unavailable")
+            data = safe_json_load(result.get("text") or "{}")
             if not isinstance(data, dict):
                 raise ValueError("project_brief_not_dict")
             data.setdefault("goal", task_input)
@@ -240,17 +233,6 @@ Rules:
                 print("⏭️ [Himari] NotebookLM 근거 반영이 보류되었습니다.")
 
         # [New SDK] Client 기반 리서치 (Triad: requirement = Gemini Pro)
-        _api_key = get_engine_api_key("google")
-        if not _api_key:
-            print("⚠️ [Himari] GOOGLE_API_KEY 없음 — LLM 리서치를 건너뛰고 fallback 매칭만 수행합니다.")
-        if _api_key:
-            from google import genai
-            from model_utils import normalize_model_name, generate_content_with_self_heal
-            _client = genai.Client(api_key=_api_key)
-            _model_name = normalize_model_name(self.mr.pick("requirement"))
-        else:
-            _client = None
-            _model_name = ""
         prompt = f"""
 너는 리서치 에이전트 Himari다.
 목표: missing_skills에 대해 설치 가능한 로컬 스킬 후보를 추천한다.
@@ -272,11 +254,13 @@ LocalSkillCatalog(JSON): {json.dumps(skill_catalog, ensure_ascii=False)}
   }}
 }}
 """
-        from core.utils import safe_generate
         suggestions: dict[str, list[str]] = {}
         try:
-            res = generate_content_with_self_heal(_client, _model_name, prompt) if _client else None
-            payload = safe_json_load(res.text if res else "{}")
+            result = execute_requirement_prompt(prompt)
+            if not result.get("ok"):
+                print("⚠️ [Himari] requirement-stage LLM unavailable — fallback 매칭만 수행합니다.")
+                raise RuntimeError("research_llm_unavailable")
+            payload = safe_json_load(result.get("text") or "{}")
             raw = payload.get("suggestions", {}) if isinstance(payload, dict) else {}
             if isinstance(raw, dict):
                 for need, cands in raw.items():

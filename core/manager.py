@@ -1,6 +1,7 @@
 import inspect
 import os
 from core.engine_auth import get_engine_api_key, supports_cli_bootstrap
+from core.requirement_llm import execute_requirement_prompt
 from core.utils import (
     safe_id, read_yaml, write_yaml, now_iso, get_random_signature,
     print_agent_msg, safe_json_load, apply_agent_overrides, safe_generate
@@ -119,7 +120,7 @@ class RequirementAnalyzer:
                 picks.append(sid)
         return list(dict.fromkeys([safe_id(s) for s in picks]))[:5]
 
-    def analyze(self, agent: dict, task_input: str) -> dict:
+    def analyze(self, agent: dict, task_input: str, workspace: str | None = None) -> dict:
         sig = get_random_signature(agent)
         print_agent_msg(agent.get("name", "Agent"), f"태스크 분석을 시작합니다... \"{task_input}\"", sig)
         
@@ -142,18 +143,12 @@ JSON 출력:
 - data 분석이면 needs_pandas 추가
 """
         try:
-            # [New SDK] Client 기반 요구사항 분석 (Triad: requirement = Gemini Pro)
-            _api_key = get_engine_api_key("google")
-            if _api_key:
-                from google import genai
-                from model_utils import normalize_model_name, generate_content_with_self_heal
-                _client = genai.Client(api_key=_api_key)
-                _model_name = normalize_model_name(self.mr.pick("requirement"))
-            else:
-                _client = None
-                _model_name = ""
-            res = generate_content_with_self_heal(_client, _model_name, prompt) if _client else None
-            data = safe_json_load(res.text if res else "{}")
+            result = execute_requirement_prompt(prompt, workspace=workspace)
+            if not result.get("ok"):
+                raise RuntimeError("requirement_llm_unavailable")
+            data = safe_json_load(result.get("text") or "{}")
+            if not isinstance(data, dict):
+                raise ValueError("requirement_response_not_dict")
         except Exception as e:
             data = {
                 "goal": task_input,

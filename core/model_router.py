@@ -7,6 +7,7 @@ agent_runner.py에서 분리.
 
 import os
 from core.config_paths import GOOGLE_API_KEY, OPENAI_API_KEY
+from core.requirement_llm import pick_requirement_candidate
 from core.providers.registry import (
     default_chat_model_for_provider,
     get_requested_cli_providers,
@@ -55,7 +56,13 @@ class ModelRouter:
             return sel.model
 
         # 기획/추론 단계 → 실시간 가용 고성능 모델 반환 (하드코딩 배제)
-        if stage in ("requirement", "reasoning"):
+        if stage == "requirement":
+            selected = pick_requirement_candidate()
+            if selected:
+                return selected.model
+            return get_best_model(["gemini-2.5-pro", "gemini-2.5-flash", "gemini-2.0-pro"])
+
+        if stage == "reasoning":
             return get_best_model(["gemini-2.5-pro", "gemini-2.5-flash", "gemini-2.0-pro"])
 
         # 기본(정규화/Flash 단계) → API에서 최신 Flash 계열 동적 선택
