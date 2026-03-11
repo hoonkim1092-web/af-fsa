@@ -265,6 +265,30 @@ def documentation_todo_items() -> list[str]:
     return list(documentation_language_profile()["todo_items"])
 
 
+def normalize_project_todo_items(todo_items: list[str] | None) -> list[str]:
+    normalized = [str(item).strip() for item in (todo_items or []) if str(item).strip()]
+    return list(dict.fromkeys(normalized + documentation_todo_items()))
+
+
+def write_project_todo(workspace: str, todo_items: list[str] | None) -> str:
+    lines = [f"# {project_todo_title()}", ""]
+    for item in normalize_project_todo_items(todo_items):
+        lines.append(f"- [ ] {item}")
+    todo_path = os.path.join(os.path.abspath(workspace), ".todo.md")
+    write_text(todo_path, "\n".join(lines).strip() + "\n")
+    return todo_path
+
+
+def single_task_todo_items(task_input: str, role_spec: str = "") -> list[str]:
+    task_text = str(task_input or "").strip()
+    role_text = str(role_spec or "").strip()
+    if not task_text:
+        return []
+    if role_text:
+        return [f"{role_text}: {task_text}"]
+    return [task_text]
+
+
 def inject_documentation_contract(system_prompt: str) -> str:
     base = str(system_prompt or "").strip()
     marker = "[Documentation Contract]"

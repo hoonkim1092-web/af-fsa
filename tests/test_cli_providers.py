@@ -63,7 +63,7 @@ def test_config_paths_ignores_engine_api_keys_when_disabled(monkeypatch, tmp_pat
         ("gemini_cli", ["gemini"], ["-p", "--output-format", "json", "--sandbox", "--approval-mode", "yolo"], True),
         (
             "codex_cli",
-            ["codex", "--ask-for-approval", "never", "--sandbox", "workspace-write", "exec"],
+            ["codex", "--ask-for-approval", "never", "--sandbox", "workspace-write", "exec", "--skip-git-repo-check"],
             ["-c", "model_reasoning_effort=\"low\"", "-"],
             False,
         ),
@@ -112,13 +112,14 @@ def test_codex_cli_path_override_keeps_exec_subcommand(monkeypatch):
         )
     )
 
-    assert cmd[:6] == [
+    assert cmd[:7] == [
         r"C:\Tools\codex.cmd",
         "--ask-for-approval",
         "never",
         "--sandbox",
         "workspace-write",
         "exec",
+        "--skip-git-repo-check",
     ]
 
 
@@ -505,7 +506,9 @@ def test_execute_cli_chat_auto_installs_missing_provider_and_retries(monkeypatch
     assert result["ok"] is True
     assert result["reason"] == "claude_cli"
     assert result["text"] == "installed ok"
-    assert len(run_calls) == 2
+    assert len(run_calls) == 3
+    assert run_calls[0][1:] == ["auth", "status"]
+    assert run_calls[1][1:] == ["auth", "status"]
     assert install_calls == [["npm.cmd" if os.name == "nt" else "npm", "install", "-g", "@anthropic-ai/claude-code"]]
     assert result["auto_install"]["ok"] is True
 
@@ -541,7 +544,7 @@ def test_execute_cli_chat_keeps_not_found_when_auto_install_disabled(monkeypatch
     ("provider_id", "seed_env", "blocked_env", "expected_env"),
     [
         ("claude_cli", {"ANTHROPIC_API_KEY": "anthropic-secret"}, ["ANTHROPIC_API_KEY"], {}),
-        ("codex_cli", {"OPENAI_API_KEY": "openai-secret"}, [], {"OPENAI_API_KEY": "openai-secret"}),
+        ("codex_cli", {"OPENAI_API_KEY": "openai-secret"}, ["OPENAI_API_KEY"], {}),
         (
             "gemini_cli",
             {
@@ -614,3 +617,130 @@ def test_execute_cli_chat_sends_codex_prompt_via_stdin(tmp_path):
     assert result["ok"] is True
     assert seen["cmd"][-1] == "-"
     assert seen["input"].startswith("[Task]\nReturn AGENT_FACTORY_OK")
+
+
+def test_execute_cli_chat_runs_codex_auth_preflight_and_auto_login(monkeypatch, tmp_path):
+    from core.providers.cli import CliChatRequest, execute_cli_chat
+
+    workspace = tmp_path / "proj"
+    workspace.mkdir(parents=True, exist_ok=True)
+    monkeypatch.setenv("AGENT_AUTO_LOGIN_CLI", "1")
+
+    calls = []
+
+    def cli_runner(*args, **kwargs):
+        cmd = list(args[0])
+        calls.append(cmd)
+        if cmd[1:] == ["login", "status"]:
+            return types.SimpleNamespace(returncode=1, stdout="", stderr="Not logged in. Run `codex login`.")
+        if cmd[1:] == ["login"]:
+            return types.SimpleNamespace(returncode=0, stdout="Login complete", stderr="")
+        return types.SimpleNamespace(returncode=0, stdout='{"text":"oauth ok"}', stderr="")
+
+    result = execute_cli_chat(
+        CliChatRequest(
+            provider_id="codex_cli",
+            model="gpt-5",
+            system_prompt="system prompt",
+            task_input="ship feature",
+            workspace=str(workspace),
+            run_id="run_codex_auth_repair",
+        ),
+        run_command=cli_runner,
+    )
+
+    state_path = workspace / ".af_runtime" / "cli_sessions" / "codex_cli_run_codex_auth_repair.json"
+    state = json.loads(state_path.read_text(encoding="utf-8"))
+
+    assert result["ok"] is True
+    assert result["reason"] == "codex_cli"
+    assert result["text"] == "oauth ok"
+    assert result["preflight"]["status"] == "authenticated"
+    assert result["preflight"]["login_attempted"] is True
+    assert calls[0][1:] == ["login", "status"]
+    assert calls[1][1:] == ["login"]
+    assert calls[2][-1] == "-"
+    assert state["preflight"]["login_attempted"] is True
+    assert state["preflight"]["status"] == "authenticated"
+
+
+def test_execute_cli_chat_codex_preflight_stops_on_permission_denied(monkeypatch, tmp_path):
+    from core.providers.cli import CliChatRequest, execute_cli_chat
+
+    workspace = tmp_path / "proj"
+    workspace.mkdir(parents=True, exist_ok=True)
+    monkeypatch.setenv("AGENT_AUTO_LOGIN_CLI", "1")
+
+    calls = []
+
+    def cli_runner(*args, **kwargs):
+        cmd = list(args[0])
+        calls.append(cmd)
+        if cmd[1:] == ["login", "status"]:
+            return types.SimpleNamespace(returncode=1, stdout="", stderr="Access is denied. (os error 5)")
+        raise AssertionError("main codex exec should not run after preflight permission failure")
+
+    result = execute_cli_chat(
+        CliChatRequest(
+            provider_id="codex_cli",
+            model="gpt-5",
+            system_prompt="system prompt",
+            task_input="ship feature",
+            workspace=str(workspace),
+            run_id="run_codex_permission_denied",
+        ),
+        run_command=cli_runner,
+    )
+
+    state_path = workspace / ".af_runtime" / "cli_sessions" / "codex_cli_run_codex_permission_denied.json"
+    state = json.loads(state_path.read_text(encoding="utf-8"))
+
+    assert result["ok"] is False
+    assert result["reason"] == "cli_permission_denied"
+    assert result["preflight"]["status"] == "permission_denied"
+    assert result["preflight"]["login_attempted"] is False
+    assert len(calls) == 1
+    assert calls[0][1:] == ["login", "status"]
+    assert state["preflight"]["status"] == "permission_denied"
+
+
+def test_execute_cli_chat_runs_claude_auth_preflight_and_auto_login(monkeypatch, tmp_path):
+    from core.providers.cli import CliChatRequest, execute_cli_chat
+
+    workspace = tmp_path / "proj"
+    workspace.mkdir(parents=True, exist_ok=True)
+    monkeypatch.setenv("AGENT_AUTO_LOGIN_CLI", "1")
+
+    calls = []
+
+    def cli_runner(*args, **kwargs):
+        cmd = list(args[0])
+        calls.append(cmd)
+        if cmd[1:] == ["auth", "status"]:
+            return types.SimpleNamespace(returncode=1, stdout="", stderr="Not logged in")
+        if cmd[1:] == ["auth", "login"]:
+            return types.SimpleNamespace(returncode=0, stdout="Login complete", stderr="")
+        return types.SimpleNamespace(returncode=0, stdout='{"text":"claude ok"}', stderr="")
+
+    result = execute_cli_chat(
+        CliChatRequest(
+            provider_id="claude_cli",
+            model="claude",
+            system_prompt="system prompt",
+            task_input="ship feature",
+            workspace=str(workspace),
+            run_id="run_claude_auth_repair",
+        ),
+        run_command=cli_runner,
+    )
+
+    assert result["ok"] is True
+    assert result["reason"] == "claude_cli"
+    assert result["text"] == "claude ok"
+    assert result["preflight"]["status"] == "authenticated"
+    assert result["preflight"]["login_attempted"] is True
+    assert calls[0][1:] == ["auth", "status"]
+    assert calls[1][1:] == ["auth", "login"]
+    assert "-p" in calls[2]
+
+

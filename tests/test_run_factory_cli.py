@@ -28,6 +28,10 @@ def test_run_factory_cli_sets_provider_and_projects_root(monkeypatch, tmp_path):
     monkeypatch.delenv("AGENT_CHAT_PROVIDER", raising=False)
     monkeypatch.delenv("AGENT_CODEX_CLI_COMMAND", raising=False)
     monkeypatch.delenv("AGENT_PROJECTS_DIR", raising=False)
+    monkeypatch.delenv("AGENT_PROJECT_ROOT", raising=False)
+    monkeypatch.delenv("AGENT_PROJECT_ID", raising=False)
+    monkeypatch.delenv("AGENT_AUTO_INSTALL_CLI", raising=False)
+    monkeypatch.delenv("AGENT_DISABLE_ENGINE_API_KEYS", raising=False)
 
     import run_factory_cli
 
@@ -55,6 +59,7 @@ def test_run_factory_cli_sets_provider_and_projects_root(monkeypatch, tmp_path):
     assert os.environ["AGENT_CODEX_CLI_COMMAND"] == provider_command
     assert os.environ["AGENT_PROJECTS_DIR"] == str(projects_root.resolve())
     assert os.environ["AGENT_PROJECT_ROOT"] == expected_root
+    assert "AGENT_DISABLE_ENGINE_API_KEYS" not in os.environ
     assert calls == [
         (
             "run",
@@ -67,6 +72,16 @@ def test_run_factory_cli_sets_provider_and_projects_root(monkeypatch, tmp_path):
             },
         )
     ]
+    for name in (
+        "AGENT_CHAT_PROVIDER",
+        "AGENT_CODEX_CLI_COMMAND",
+        "AGENT_PROJECTS_DIR",
+        "AGENT_PROJECT_ROOT",
+        "AGENT_PROJECT_ID",
+        "AGENT_AUTO_INSTALL_CLI",
+        "AGENT_DISABLE_ENGINE_API_KEYS",
+    ):
+        os.environ.pop(name, None)
 
 
 def test_run_factory_cli_rejects_provider_command_without_provider(monkeypatch):

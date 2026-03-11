@@ -87,7 +87,6 @@ def main(argv: list[str] | None = None):
         os.environ["AGENT_AUTO_INSTALL_CLI"] = "0"
     else:
         os.environ.setdefault("AGENT_AUTO_INSTALL_CLI", "1")
-    os.environ.setdefault("AGENT_DISABLE_ENGINE_API_KEYS", "1")
 
     from agent_launcher import AgentFactory
 

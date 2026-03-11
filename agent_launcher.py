@@ -58,6 +58,7 @@ from core.fsa_loop import FSALoop
 from core.dynamic_orchestrator import DynamicOrchestrator
 from core.request_router import RequestRouter
 from core.project_pipeline import ProjectPipeline
+from core.documentation_policy import ensure_documentation_files, single_task_todo_items, write_project_todo
 # Redundant AST and Sandbox logic removed (handled by core.utils and core.executor)
 
 # =============================================================================
@@ -209,6 +210,28 @@ class AgentFactory:
             kwargs["workspace"] = workspace
         return self.runner.run(agent, task_input, **kwargs) or {}
 
+    def _ensure_single_run_todo(
+        self,
+        task_input: str,
+        role_spec: str,
+        workspace: str,
+        route: dict | None = None,
+        reqs: dict | None = None,
+    ) -> str:
+        todo_path = os.path.join(workspace, ".todo.md")
+        if os.path.exists(todo_path):
+            return todo_path
+
+        route_data = route if isinstance(route, dict) else {}
+        req_data = reqs if isinstance(reqs, dict) else {}
+        intent = str(req_data.get("intent") or route_data.get("intent") or "trivial").strip() or "trivial"
+        risk_level = str(req_data.get("risk_level") or "normal").strip() or "normal"
+        if not TodoContinuationEnforcer.requires_plan(task_input, intent=intent, risk_level=risk_level):
+            return ""
+
+        ensure_documentation_files(workspace)
+        return write_project_todo(workspace, single_task_todo_items(task_input, role_spec))
+
     def _get_agent(self, role_spec: str, workspace: str | None = None) -> dict:
         params = inspect.signature(self.agent_mgr.get_or_create).parameters
         if "workspace" in params:
@@ -244,7 +267,14 @@ class AgentFactory:
             )
 
         agent = self._get_agent(role_spec, workspace=workspace)
-        reqs = self.req.analyze(agent, task_input)
+        reqs = self.req.analyze(agent, task_input, workspace=workspace or PROJECT_ROOT)
+        self._ensure_single_run_todo(
+            task_input=task_input,
+            role_spec=role_spec,
+            workspace=workspace or PROJECT_ROOT,
+            route=route,
+            reqs=reqs,
+        )
         file_missing = self._missing_local_skill_files(agent)
 
         skills = reqs.get("missing_skills", [])

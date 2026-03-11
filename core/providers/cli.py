@@ -40,6 +40,8 @@ class CliProviderSpec:
     combine_system_prompt: bool = False
     workspace_access_flag: str | None = None
     headless_edit_flags: tuple[str, ...] = ()
+    auth_status_command: tuple[str, ...] = ()
+    auth_login_command: tuple[str, ...] = ()
 
 
 _CLI_SPECS = {
@@ -55,6 +57,8 @@ _CLI_SPECS = {
         output_format_flags=("--output-format", "json"),
         workspace_access_flag="--add-dir",
         headless_edit_flags=("--permission-mode", "bypassPermissions"),
+        auth_status_command=("auth", "status"),
+        auth_login_command=("auth", "login"),
     ),
     "gemini_cli": CliProviderSpec(
         provider_id="gemini_cli",
@@ -71,7 +75,7 @@ _CLI_SPECS = {
     ),
     "codex_cli": CliProviderSpec(
         provider_id="codex_cli",
-        default_command=("codex", "--ask-for-approval", "never", "--sandbox", "workspace-write", "exec"),
+        default_command=("codex", "--ask-for-approval", "never", "--sandbox", "workspace-write", "exec", "--skip-git-repo-check"),
         command_env="AGENT_CODEX_CLI_COMMAND",
         install_command_env="AGENT_CODEX_CLI_INSTALL_COMMAND",
         install_package="@openai/codex",
@@ -80,8 +84,31 @@ _CLI_SPECS = {
         combine_system_prompt=True,
         workspace_access_flag="--add-dir",
         headless_edit_flags=(),
+        auth_status_command=("login", "status"),
+        auth_login_command=("login",),
     ),
 }
+
+_PERMISSION_DENIED_MARKERS = (
+    "access is denied",
+    "access denied",
+    "permission denied",
+    "operation not permitted",
+    "unauthorizedaccess",
+    "os error 5",
+)
+
+_AUTH_REQUIRED_MARKERS = (
+    "not logged in",
+    "not authenticated",
+    "authentication required",
+    "login required",
+    "please login",
+    "please log in",
+    "run `codex login`",
+    "run codex login",
+    "sign in required",
+)
 
 
 def get_cli_provider_spec(provider_id: str) -> CliProviderSpec:
@@ -257,8 +284,192 @@ def _build_cli_env(request: CliChatRequest, prepared: dict) -> dict[str, str]:
         for name in ("GEMINI_API_KEY", "GOOGLE_API_KEY", "GOOGLE_GENAI_USE_VERTEXAI"):
             env.pop(name, None)
         env["GOOGLE_GENAI_USE_GCA"] = "true"
+    if request.provider_id == "codex_cli":
+        env.pop("OPENAI_API_KEY", None)
     return env
 
+
+def _command_exists(command: str) -> bool:
+    target = str(command or "").strip()
+    if not target:
+        return False
+    if os.path.isabs(target) or any(sep in target for sep in (os.sep, "/")):
+        return os.path.exists(target)
+    return shutil.which(target) is not None
+
+
+def _excerpt(text: str, limit: int = 400) -> str:
+    return str(text or "")[:limit]
+
+
+def _classify_cli_issue(stdout: str, stderr: str) -> str:
+    haystack = f"{stdout}\n{stderr}".lower()
+    if any(marker in haystack for marker in _PERMISSION_DENIED_MARKERS):
+        return "permission_denied"
+    if any(marker in haystack for marker in _AUTH_REQUIRED_MARKERS):
+        return "auth_required"
+    return ""
+
+
+def _should_auto_login(spec: CliProviderSpec) -> bool:
+    if not spec.auth_login_command:
+        return False
+    return _env_truthy("AGENT_AUTO_LOGIN_CLI", default=True)
+
+
+def _auth_timeout_sec() -> int:
+    raw = str(os.getenv("AGENT_CLI_AUTH_TIMEOUT_SEC", "300") or "300").strip()
+    try:
+        return max(30, int(raw))
+    except ValueError:
+        return 300
+
+
+def _auth_status_timeout_sec() -> int:
+    raw = str(os.getenv("AGENT_CLI_AUTH_STATUS_TIMEOUT_SEC", "30") or "30").strip()
+    try:
+        return max(5, int(raw))
+    except ValueError:
+        return 30
+
+
+def _build_auth_command(executable: str, suffix: tuple[str, ...]) -> list[str]:
+    return [str(executable).strip(), *list(suffix)]
+
+
+def _run_cli_auth_preflight(
+    request: CliChatRequest,
+    spec: CliProviderSpec,
+    cmd: list[str],
+    env: dict[str, str],
+    runner: Callable[..., subprocess.CompletedProcess],
+) -> dict:
+    preflight = {
+        "provider_id": spec.provider_id,
+        "status": "skipped",
+        "auth_checked": False,
+        "login_attempted": False,
+    }
+    if not spec.auth_status_command:
+        return preflight
+
+    executable = str(cmd[0]).strip() if cmd else ""
+    if not _command_exists(executable):
+        preflight["status"] = "command_unavailable"
+        return preflight
+
+    status_cmd = _build_auth_command(executable, spec.auth_status_command)
+    preflight["auth_checked"] = True
+    preflight["status_command"] = status_cmd
+    try:
+        status_completed = _run_command(
+            runner,
+            status_cmd,
+            cwd=str(request.workspace),
+            env=env,
+            timeout_sec=_auth_status_timeout_sec(),
+        )
+    except FileNotFoundError as exc:
+        preflight["status"] = "command_unavailable"
+        preflight["status_stderr_excerpt"] = _excerpt(str(exc))
+        return preflight
+    except subprocess.TimeoutExpired as exc:
+        preflight["status"] = "status_timeout"
+        preflight["status_stdout_excerpt"] = _excerpt(str(getattr(exc, "stdout", "") or ""))
+        preflight["status_stderr_excerpt"] = _excerpt(str(getattr(exc, "stderr", "") or ""))
+        preflight["fatal_reason"] = "cli_auth_preflight_timeout"
+        return preflight
+
+    preflight["status_returncode"] = status_completed.returncode
+    preflight["status_stdout_excerpt"] = _excerpt(status_completed.stdout)
+    preflight["status_stderr_excerpt"] = _excerpt(status_completed.stderr)
+    status_issue = _classify_cli_issue(status_completed.stdout, status_completed.stderr)
+
+    if status_completed.returncode == 0 and status_issue != "permission_denied":
+        preflight["status"] = "authenticated"
+        return preflight
+
+    if status_issue == "permission_denied":
+        preflight["status"] = "permission_denied"
+        preflight["fatal_reason"] = "cli_permission_denied"
+        return preflight
+
+    if status_issue != "auth_required":
+        preflight["status"] = "status_inconclusive"
+        return preflight
+
+    preflight["status"] = "auth_required"
+    if not _should_auto_login(spec):
+        preflight["fatal_reason"] = "cli_auth_required"
+        return preflight
+
+    login_cmd = _build_auth_command(executable, spec.auth_login_command)
+    preflight["login_attempted"] = True
+    preflight["login_command"] = login_cmd
+    try:
+        login_completed = _run_command(
+            runner,
+            login_cmd,
+            cwd=str(request.workspace),
+            env=env,
+            timeout_sec=_auth_timeout_sec(),
+        )
+    except FileNotFoundError as exc:
+        preflight["status"] = "command_unavailable"
+        preflight["login_stderr_excerpt"] = _excerpt(str(exc))
+        preflight["fatal_reason"] = "cli_auth_required"
+        return preflight
+    except subprocess.TimeoutExpired as exc:
+        preflight["status"] = "login_timeout"
+        preflight["login_stdout_excerpt"] = _excerpt(str(getattr(exc, "stdout", "") or ""))
+        preflight["login_stderr_excerpt"] = _excerpt(str(getattr(exc, "stderr", "") or ""))
+        preflight["fatal_reason"] = "cli_auth_login_timeout"
+        return preflight
+
+    preflight["login_returncode"] = login_completed.returncode
+    preflight["login_stdout_excerpt"] = _excerpt(login_completed.stdout)
+    preflight["login_stderr_excerpt"] = _excerpt(login_completed.stderr)
+    login_issue = _classify_cli_issue(login_completed.stdout, login_completed.stderr)
+
+    if login_issue == "permission_denied":
+        preflight["status"] = "permission_denied"
+        preflight["fatal_reason"] = "cli_permission_denied"
+        return preflight
+
+    if login_completed.returncode != 0:
+        preflight["status"] = "auth_required"
+        preflight["fatal_reason"] = "cli_auth_required"
+        return preflight
+
+    preflight["status"] = "authenticated"
+    return preflight
+
+
+def _build_preflight_failure_result(
+    request: CliChatRequest,
+    cmd: list[str],
+    preflight: dict,
+) -> dict:
+    active_command = preflight.get("login_command") or preflight.get("status_command") or cmd
+    stdout_excerpt = (
+        str(preflight.get("login_stdout_excerpt", "") or "").strip()
+        or str(preflight.get("status_stdout_excerpt", "") or "").strip()
+    )
+    stderr_excerpt = (
+        str(preflight.get("login_stderr_excerpt", "") or "").strip()
+        or str(preflight.get("status_stderr_excerpt", "") or "").strip()
+    )
+    return {
+        "ok": False,
+        "provider_id": request.provider_id,
+        "reason": str(preflight.get("fatal_reason") or "cli_auth_required"),
+        "stdout": stdout_excerpt,
+        "stderr": stderr_excerpt,
+        "text": "",
+        "returncode": preflight.get("login_returncode", preflight.get("status_returncode")),
+        "command": active_command,
+        "preflight": preflight,
+    }
 
 def _compose_prompt(request: CliChatRequest, spec: CliProviderSpec, system_prompt: str = "") -> str:
     task_text = str(request.task_input or "").strip()
@@ -391,7 +602,24 @@ def execute_cli_chat(
     prepared = prepare_cli_session(request, cmd)
     env = _build_cli_env(request, prepared)
     runner = run_command or subprocess.run
-
+    auto_install = {"ok": False, "attempted": False, "reason": "auto_install_not_attempted"}
+    preflight = _run_cli_auth_preflight(request, spec, cmd, env, runner)
+    if preflight.get("status") == "command_unavailable" and _should_auto_install(request, spec):
+        auto_install = _attempt_cli_auto_install(
+            request,
+            spec,
+            env,
+            run_command=install_command_runner,
+        )
+        if auto_install.get("ok"):
+            cmd = build_cli_command(request)
+            preflight = _run_cli_auth_preflight(request, spec, cmd, env, runner)
+    if preflight.get("fatal_reason"):
+        result = _build_preflight_failure_result(request, cmd, preflight)
+        if auto_install.get("attempted"):
+            result["auto_install"] = auto_install
+        finalize_cli_session(request, prepared, result)
+        return result
     try:
         completed = _run_command(
             runner,
@@ -412,6 +640,12 @@ def execute_cli_chat(
             )
             if auto_install.get("ok"):
                 retry_cmd = build_cli_command(request)
+                preflight = _run_cli_auth_preflight(request, spec, retry_cmd, env, runner)
+                if preflight.get("fatal_reason"):
+                    result = _build_preflight_failure_result(request, retry_cmd, preflight)
+                    result["auto_install"] = auto_install
+                    finalize_cli_session(request, prepared, result)
+                    return result
                 try:
                     completed = _run_command(
                         runner,
@@ -433,6 +667,7 @@ def execute_cli_chat(
                         "returncode": completed.returncode,
                         "command": retry_cmd,
                         "auto_install": auto_install,
+                        "preflight": preflight,
                     }
                     finalize_cli_session(request, prepared, result)
                     return result
@@ -450,6 +685,7 @@ def execute_cli_chat(
                         "returncode": None,
                         "command": retry_cmd,
                         "auto_install": auto_install,
+                        "preflight": preflight,
                     }
                     finalize_cli_session(request, prepared, result)
                     return result
@@ -464,6 +700,7 @@ def execute_cli_chat(
             "returncode": None,
             "command": cmd,
             "auto_install": auto_install,
+            "preflight": preflight,
         }
         finalize_cli_session(request, prepared, result)
         return result
@@ -477,6 +714,7 @@ def execute_cli_chat(
             "text": "",
             "returncode": None,
             "command": cmd,
+            "preflight": preflight,
         }
         finalize_cli_session(request, prepared, result)
         return result
@@ -492,6 +730,11 @@ def execute_cli_chat(
         "text": text,
         "returncode": completed.returncode,
         "command": cmd,
+        "auto_install": auto_install,
+        "preflight": preflight,
     }
     finalize_cli_session(request, prepared, result)
     return result
+
+
+

@@ -123,3 +123,87 @@ def test_project_pipeline_writes_planning_artifacts_and_roles(monkeypatch, tmp_p
         ("Frontend Dev", ["frontend_game_ui"], str(tmp_path)),
         ("QA Engineer", ["integration_test_guard"], str(tmp_path)),
     ]
+
+
+def test_factory_single_run_auto_creates_todo_for_complex_task(monkeypatch, tmp_path):
+    al = _load_launcher(monkeypatch)
+    factory = al.AgentFactory()
+
+    factory.request_router.route = lambda **kwargs: {
+        "pipeline": "single",
+        "intent": "forced",
+        "confidence": 100,
+        "reasoning": "pipeline_mode=single",
+    }
+    factory.req.analyze = lambda agent, task_input, workspace=None: {
+        "goal": task_input,
+        "missing_skills": [],
+        "constraints": ["network_allowed"],
+        "risk_level": "elevated",
+    }
+    factory._get_agent = lambda role_spec, workspace=None: {
+        "name": role_spec,
+        "role": role_spec,
+        "skills": [],
+    }
+    factory._invoke_runner = lambda agent, task_input, run_id, auto_approve, workspace=None: {
+        "ok": True,
+        "reason": "completed",
+        "latency_ms": 1,
+        "approval_rejects": 0,
+    }
+
+    res = factory.run(
+        task_input="Create a minimal static web page with one button and verify the click state changes.",
+        role_spec="Frontend Architect",
+        workspace=str(tmp_path),
+        pipeline_mode="single",
+    )
+
+    content = (tmp_path / ".todo.md").read_text(encoding="utf-8")
+
+    assert res["ok"] is True
+    assert "- [ ] Frontend Architect: Create a minimal static web page with one button and verify the click state changes." in content
+    assert "docs/architecture.md" in content
+    assert "docs/change_history.md" in content
+
+
+def test_factory_single_run_keeps_existing_todo_file(monkeypatch, tmp_path):
+    al = _load_launcher(monkeypatch)
+    factory = al.AgentFactory()
+
+    todo_path = tmp_path / ".todo.md"
+    todo_path.write_text("# Existing TODO\n\n- [ ] keep original plan\n", encoding="utf-8")
+
+    factory.request_router.route = lambda **kwargs: {
+        "pipeline": "single",
+        "intent": "forced",
+        "confidence": 100,
+        "reasoning": "pipeline_mode=single",
+    }
+    factory.req.analyze = lambda agent, task_input, workspace=None: {
+        "goal": task_input,
+        "missing_skills": [],
+        "constraints": ["network_allowed"],
+        "risk_level": "strict",
+    }
+    factory._get_agent = lambda role_spec, workspace=None: {
+        "name": role_spec,
+        "role": role_spec,
+        "skills": [],
+    }
+    factory._invoke_runner = lambda agent, task_input, run_id, auto_approve, workspace=None: {
+        "ok": True,
+        "reason": "completed",
+        "latency_ms": 1,
+        "approval_rejects": 0,
+    }
+
+    factory.run(
+        task_input="Implement a multi-step frontend smoke page and keep the manual checklist intact.",
+        role_spec="Frontend Architect",
+        workspace=str(tmp_path),
+        pipeline_mode="single",
+    )
+
+    assert todo_path.read_text(encoding="utf-8") == "# Existing TODO\n\n- [ ] keep original plan\n"

@@ -26,19 +26,26 @@ class IntentGateHook(ContinuationHook):
 class TodoContinuationEnforcer(ContinuationHook):
     PRIORITY = 45
 
+    @staticmethod
+    def requires_plan(task_input: str, intent: str = "trivial", risk_level: str = "normal") -> bool:
+        text = str(task_input or "")
+        normalized_intent = str(intent or "trivial")
+        normalized_risk = str(risk_level or "normal")
+        is_complex = len(text) > 30 or any(
+            token in text.lower() for token in ["refactor", "build", "create", "implement"]
+        )
+        return normalized_intent in ["refactoring", "greenfield", "complex_feature"] or normalized_risk in [
+            "elevated",
+            "strict",
+        ] or is_complex
+
     def pre_execute(self, agent_state: dict) -> bool:
         task_input = str(agent_state.get("task_input", ""))
         intent = agent_state.get("intent", "trivial")
         risk_level = agent_state.get("risk_level", "normal")
         workspace = agent_state.get("workspace", os.getcwd())
 
-        is_complex = len(task_input) > 30 or any(
-            token in task_input.lower() for token in ["refactor", "build", "create", "implement"]
-        )
-        requires_plan = intent in ["refactoring", "greenfield", "complex_feature"] or risk_level in [
-            "elevated",
-            "strict",
-        ] or is_complex
+        requires_plan = self.requires_plan(task_input, intent=intent, risk_level=risk_level)
 
         if requires_plan:
             has_todo_file = os.path.exists(os.path.join(workspace, ".todo.md"))

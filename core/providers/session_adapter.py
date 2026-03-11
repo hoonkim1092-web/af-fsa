@@ -479,6 +479,12 @@ def finalize_cli_session(request, prepared: dict[str, Any], result: dict[str, An
             "last_response_excerpt": str(result.get("text", "") or "")[:1000],
         }
     )
+    preflight = result.get("preflight")
+    if isinstance(preflight, dict):
+        state["preflight"] = preflight
+    auto_install = result.get("auto_install")
+    if isinstance(auto_install, dict):
+        state["auto_install"] = auto_install
 
     bridge_result = None
     if spec.provider_id == "codex_cli":
@@ -616,3 +622,4 @@ __all__ = [
     "handle_hook_event",
     "prepare_cli_session",
 ]
+

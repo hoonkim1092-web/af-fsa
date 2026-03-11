@@ -3,7 +3,7 @@ import os
 import time
 
 from core.bootstrap_roles import ProjectPlanningDirector, build_bootstrap_agent
-from core.documentation_policy import documentation_todo_items, ensure_documentation_files, project_todo_title
+from core.documentation_policy import ensure_documentation_files, write_project_todo
 from core.dynamic_orchestrator import DynamicOrchestrator
 from core.utils import (
     append_dashboard_run,
@@ -63,13 +63,7 @@ class ProjectPipeline:
         todo_items = [str(x).strip() for x in (role_plan.get("todo_items") or []) if str(x).strip()]
         if not todo_items:
             todo_items = [f"{item.get('name')}: {item.get('objective')}" for item in (role_plan.get("roles") or [])]
-        todo_items = list(dict.fromkeys(todo_items + documentation_todo_items()))
-        lines = [f"# {project_todo_title()}", ""]
-        for item in todo_items:
-            lines.append(f"- [ ] {item}")
-        todo_path = os.path.join(workspace, ".todo.md")
-        write_text(todo_path, "\n".join(lines).strip() + "\n")
-        return todo_path
+        return write_project_todo(workspace, todo_items)
 
     def _materialize_roles(
         self,
