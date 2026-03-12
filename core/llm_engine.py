@@ -181,8 +181,23 @@ class LLMEngine:
         text = self._execute_with_retry(prompt)
         return text.strip() if text else ""
 
-    def generate_json(self, prompt: str) -> dict:
-        """JSON 응답 강제 파싱."""
+    def generate_json(self, prompt: str, output_schema: type | None = None) -> dict:
+        """JSON 응답 강제 파싱. output_schema가 주어지면 PydanticOutputAdapter로 파싱."""
+        # Pydantic schema 경로
+        if output_schema is not None:
+            from core.langchain_adapter import PydanticOutputAdapter
+            adapter = PydanticOutputAdapter(schema=output_schema)
+            # Add format instructions to prompt
+            enhanced_prompt = f"{prompt}\n\n{adapter.get_format_instructions()}"
+            text = self._execute_with_retry(enhanced_prompt)
+            if not text:
+                return {}
+            result = adapter.parse(text)
+            if hasattr(result, "model_dump"):
+                return result.model_dump()
+            return result if isinstance(result, dict) else {}
+
+        # 기존 regex 기반 파싱
         text = self._execute_with_retry(prompt)
         if not text:
             return {}

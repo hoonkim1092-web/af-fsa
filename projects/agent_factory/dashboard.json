@@ -1,397 +1,397 @@
-{
-  "project_id": "agent_factory",
-  "runs": [
-    {
-      "ts": "2026-02-28T19:55:31",
-      "type": "single_run",
-      "project_id": "agent_factory",
-      "role": "General",
-      "task": "track issues",
-      "skills_loaded": [],
-      "ok": false,
-      "reason": "",
-      "latency_ms": 0,
-      "approval_rejects": 0,
-      "build_enabled": true,
-      "missing_skills_detected": []
-    },
-    {
-      "ts": "2026-02-28T19:55:31",
-      "type": "single_run",
-      "project_id": "agent_factory",
-      "role": "General",
-      "task": "do something new",
-      "skills_loaded": [],
-      "ok": false,
-      "reason": "",
-      "latency_ms": 0,
-      "approval_rejects": 0,
-      "build_enabled": true,
-      "missing_skills_detected": []
-    },
-    {
-      "ts": "2026-02-28T19:55:32",
-      "type": "workflow_run",
-      "project_id": "agent_factory",
-      "workflow_path": "tests/_tmp/af-test-d41de8d4/wf.yaml",
-      "stage_count": 2,
-      "run_count": 4,
-      "base_roles": [
-        "Lilith",
-        "Himari"
-      ],
-      "ok": true,
-      "state_path": "projects/agent_factory/runs/wf_1772276132/state.json"
-    },
-    {
-      "ts": "2026-02-28T19:55:57",
-      "type": "single_run",
-      "project_id": "agent_factory",
-      "role": "General",
-      "task": "track issues",
-      "skills_loaded": [],
-      "ok": false,
-      "reason": "",
-      "latency_ms": 0,
-      "approval_rejects": 0,
-      "build_enabled": true,
-      "missing_skills_detected": []
-    },
-    {
-      "ts": "2026-02-28T19:55:57",
-      "type": "single_run",
-      "project_id": "agent_factory",
-      "role": "General",
-      "task": "do something new",
-      "skills_loaded": [],
-      "ok": false,
-      "reason": "",
-      "latency_ms": 0,
-      "approval_rejects": 0,
-      "build_enabled": true,
-      "missing_skills_detected": []
-    },
-    {
-      "ts": "2026-02-28T19:55:58",
-      "type": "workflow_run",
-      "project_id": "agent_factory",
-      "workflow_path": "tests/_tmp/af-test-5f0df517/wf.yaml",
-      "stage_count": 2,
-      "run_count": 4,
-      "base_roles": [
-        "Lilith",
-        "Himari"
-      ],
-      "ok": true,
-      "state_path": "projects/agent_factory/runs/wf_1772276158/state.json"
-    },
-    {
-      "ts": "2026-02-28T19:57:22",
-      "type": "single_run",
-      "project_id": "agent_factory",
-      "role": "General",
-      "task": "track issues",
-      "skills_loaded": [],
-      "ok": false,
-      "reason": "",
-      "latency_ms": 0,
-      "approval_rejects": 0,
-      "build_enabled": true,
-      "missing_skills_detected": []
-    },
-    {
-      "ts": "2026-02-28T19:57:22",
-      "type": "single_run",
-      "project_id": "agent_factory",
-      "role": "General",
-      "task": "do something new",
-      "skills_loaded": [],
-      "ok": false,
-      "reason": "",
-      "latency_ms": 0,
-      "approval_rejects": 0,
-      "build_enabled": true,
-      "missing_skills_detected": []
-    },
-    {
-      "ts": "2026-02-28T19:57:23",
-      "type": "workflow_run",
-      "project_id": "agent_factory",
-      "workflow_path": "tests/_tmp/af-test-48347011/wf.yaml",
-      "stage_count": 2,
-      "run_count": 4,
-      "base_roles": [
-        "Lilith",
-        "Himari"
-      ],
-      "ok": true,
-      "state_path": "projects/agent_factory/runs/wf_1772276243/state.json"
-    },
-    {
-      "ts": "2026-03-05T02:09:29",
-      "type": "single_run",
-      "project_id": "agent_factory",
-      "role": "General",
-      "task": "track issues",
-      "skills_loaded": [],
-      "ok": false,
-      "reason": "",
-      "latency_ms": 0,
-      "approval_rejects": 0,
-      "build_enabled": true,
-      "missing_skills_detected": []
-    },
-    {
-      "ts": "2026-03-08T00:56:51",
-      "type": "workflow_run",
-      "project_id": "agent_factory",
-      "workflow_path": "tests/_tmp/af-test-8188cc7c/wf.yaml",
-      "stage_count": 2,
-      "run_count": 4,
-      "base_roles": [
-        "Lilith",
-        "Himari"
-      ],
-      "ok": true,
-      "state_path": "projects/agent_factory/runs/wf_1772899011/state.json"
-    },
-    {
-      "ts": "2026-03-08T01:13:26",
-      "type": "workflow_run",
-      "project_id": "agent_factory",
-      "workflow_path": "tests/_tmp/af-test-31620d16/wf.yaml",
-      "stage_count": 2,
-      "run_count": 4,
-      "base_roles": [
-        "Lilith",
-        "Himari"
-      ],
-      "ok": true,
-      "state_path": "projects/agent_factory/runs/wf_1772900006/state.json"
-    },
-    {
-      "ts": "2026-03-08T01:15:01",
-      "type": "single_run",
-      "project_id": "agent_factory",
-      "role": "General",
-      "task": "x",
-      "skills_loaded": [],
-      "ok": true,
-      "reason": "gemini",
-      "latency_ms": 1,
-      "approval_rejects": 0,
-      "build_enabled": false,
-      "missing_skills_detected": [
-        "new_skill"
-      ]
-    },
-    {
-      "ts": "2026-03-08T01:15:06",
-      "type": "workflow_run",
-      "project_id": "agent_factory",
-      "workflow_path": "tests/_tmp/af-test-e89dd7c3/wf.yaml",
-      "stage_count": 2,
-      "run_count": 4,
-      "base_roles": [
-        "Lilith",
-        "Himari"
-      ],
-      "ok": true,
-      "state_path": "projects/agent_factory/runs/wf_1772900106/state.json"
-    },
-    {
-      "ts": "2026-03-08T01:15:45",
-      "type": "single_run",
-      "project_id": "agent_factory",
-      "role": "General",
-      "task": "x",
-      "skills_loaded": [],
-      "ok": true,
-      "reason": "gemini",
-      "latency_ms": 1,
-      "approval_rejects": 0,
-      "build_enabled": false,
-      "missing_skills_detected": [
-        "new_skill"
-      ]
-    },
-    {
-      "ts": "2026-03-08T01:15:46",
-      "type": "single_run",
-      "project_id": "agent_factory",
-      "role": "General",
-      "task": "x",
-      "skills_loaded": [],
-      "ok": true,
-      "reason": "gemini",
-      "latency_ms": 1,
-      "approval_rejects": 0,
-      "build_enabled": true,
-      "missing_skills_detected": []
-    },
-    {
-      "ts": "2026-03-08T01:15:47",
-      "type": "single_run",
-      "project_id": "agent_factory",
-      "role": "General",
-      "task": "track issues",
-      "skills_loaded": [],
-      "ok": false,
-      "reason": "",
-      "latency_ms": 0,
-      "approval_rejects": 0,
-      "build_enabled": true,
-      "missing_skills_detected": []
-    },
-    {
-      "ts": "2026-03-08T01:15:49",
-      "type": "single_run",
-      "project_id": "agent_factory",
-      "role": "General",
-      "task": "do something new",
-      "skills_loaded": [],
-      "ok": false,
-      "reason": "",
-      "latency_ms": 0,
-      "approval_rejects": 0,
-      "build_enabled": true,
-      "missing_skills_detected": []
-    },
-    {
-      "ts": "2026-03-08T01:15:50",
-      "type": "workflow_run",
-      "project_id": "agent_factory",
-      "workflow_path": "tests/_tmp/af-test-31356bed/wf.yaml",
-      "stage_count": 2,
-      "run_count": 4,
-      "base_roles": [
-        "Lilith",
-        "Himari"
-      ],
-      "ok": true,
-      "state_path": "projects/agent_factory/runs/wf_1772900150/state.json"
-    },
-    {
-      "ts": "2026-03-08T01:22:51",
-      "type": "single_run",
-      "project_id": "agent_factory",
-      "role": "General",
-      "task": "task",
-      "skills_loaded": [],
-      "ok": true,
-      "reason": "",
-      "latency_ms": 0,
-      "approval_rejects": 0,
-      "build_enabled": true,
-      "missing_skills_detected": []
-    },
-    {
-      "ts": "2026-03-10T02:27:05",
-      "type": "project_run",
-      "project_id": "af-test-08f2c060",
-      "task": "포커 게임 만들어줘",
-      "ok": true,
-      "reason": "completed",
-      "pipeline": "project",
-      "roles": [
-        "frontend_dev",
-        "qa_engineer"
-      ],
-      "planning_files": [
-        "tests/_tmp/af-test-08f2c060/planning/project_brief.json",
-        "tests/_tmp/af-test-08f2c060/planning/role_plan.json",
-        "tests/_tmp/af-test-08f2c060/.todo.md"
-      ]
-    },
-    {
-      "ts": "2026-03-10T02:27:23",
-      "type": "project_run",
-      "project_id": "af-test-6b80c7c6",
-      "task": "포커 게임 만들어줘",
-      "ok": true,
-      "reason": "completed",
-      "pipeline": "project",
-      "roles": [
-        "frontend_dev",
-        "qa_engineer"
-      ],
-      "planning_files": [
-        "tests/_tmp/af-test-6b80c7c6/planning/project_brief.json",
-        "tests/_tmp/af-test-6b80c7c6/planning/role_plan.json",
-        "tests/_tmp/af-test-6b80c7c6/.todo.md"
-      ]
-    },
-    {
-      "ts": "2026-03-10T03:02:18",
-      "type": "project_run",
-      "project_id": "af-test-d2f82d5f",
-      "task": "포커 게임 만들어줘",
-      "ok": true,
-      "reason": "completed",
-      "pipeline": "project",
-      "roles": [
-        "frontend_dev",
-        "qa_engineer"
-      ],
-      "planning_files": [
-        "tests/_tmp/af-test-d2f82d5f/planning/project_brief.json",
-        "tests/_tmp/af-test-d2f82d5f/planning/role_plan.json",
-        "tests/_tmp/af-test-d2f82d5f/.todo.md"
-      ]
-    },
-    {
-      "ts": "2026-03-10T03:02:36",
-      "type": "project_run",
-      "project_id": "af-test-eb5ea251",
-      "task": "포커 게임 만들어줘",
-      "ok": true,
-      "reason": "completed",
-      "pipeline": "project",
-      "roles": [
-        "frontend_dev",
-        "qa_engineer"
-      ],
-      "planning_files": [
-        "tests/_tmp/af-test-eb5ea251/planning/project_brief.json",
-        "tests/_tmp/af-test-eb5ea251/planning/role_plan.json",
-        "tests/_tmp/af-test-eb5ea251/.todo.md"
-      ]
-    },
-    {
-      "ts": "2026-03-10T03:10:25",
-      "type": "project_run",
-      "project_id": "af-test-58129ac1",
-      "task": "포커 게임 만들어줘",
-      "ok": true,
-      "reason": "completed",
-      "pipeline": "project",
-      "roles": [
-        "frontend_dev",
-        "qa_engineer"
-      ],
-      "planning_files": [
-        "tests/_tmp/af-test-58129ac1/planning/project_brief.json",
-        "tests/_tmp/af-test-58129ac1/planning/role_plan.json",
-        "tests/_tmp/af-test-58129ac1/.todo.md"
-      ]
-    },
-    {
-      "ts": "2026-03-10T03:13:20",
-      "type": "project_run",
-      "project_id": "af-test-8cbdc6db",
-      "task": "포커 게임 만들어줘",
-      "ok": true,
-      "reason": "completed",
-      "pipeline": "project",
-      "roles": [
-        "frontend_dev",
-        "qa_engineer"
-      ],
-      "planning_files": [
-        "tests/_tmp/af-test-8cbdc6db/planning/project_brief.json",
-        "tests/_tmp/af-test-8cbdc6db/planning/role_plan.json",
-        "tests/_tmp/af-test-8cbdc6db/.todo.md"
-      ]
-    }
-  ]
+{
+  "project_id": "agent_factory",
+  "runs": [
+    {
+      "ts": "2026-02-28T19:55:31",
+      "type": "single_run",
+      "project_id": "agent_factory",
+      "role": "General",
+      "task": "track issues",
+      "skills_loaded": [],
+      "ok": false,
+      "reason": "",
+      "latency_ms": 0,
+      "approval_rejects": 0,
+      "build_enabled": true,
+      "missing_skills_detected": []
+    },
+    {
+      "ts": "2026-02-28T19:55:31",
+      "type": "single_run",
+      "project_id": "agent_factory",
+      "role": "General",
+      "task": "do something new",
+      "skills_loaded": [],
+      "ok": false,
+      "reason": "",
+      "latency_ms": 0,
+      "approval_rejects": 0,
+      "build_enabled": true,
+      "missing_skills_detected": []
+    },
+    {
+      "ts": "2026-02-28T19:55:32",
+      "type": "workflow_run",
+      "project_id": "agent_factory",
+      "workflow_path": "tests/_tmp/af-test-d41de8d4/wf.yaml",
+      "stage_count": 2,
+      "run_count": 4,
+      "base_roles": [
+        "Lilith",
+        "Himari"
+      ],
+      "ok": true,
+      "state_path": "projects/agent_factory/runs/wf_1772276132/state.json"
+    },
+    {
+      "ts": "2026-02-28T19:55:57",
+      "type": "single_run",
+      "project_id": "agent_factory",
+      "role": "General",
+      "task": "track issues",
+      "skills_loaded": [],
+      "ok": false,
+      "reason": "",
+      "latency_ms": 0,
+      "approval_rejects": 0,
+      "build_enabled": true,
+      "missing_skills_detected": []
+    },
+    {
+      "ts": "2026-02-28T19:55:57",
+      "type": "single_run",
+      "project_id": "agent_factory",
+      "role": "General",
+      "task": "do something new",
+      "skills_loaded": [],
+      "ok": false,
+      "reason": "",
+      "latency_ms": 0,
+      "approval_rejects": 0,
+      "build_enabled": true,
+      "missing_skills_detected": []
+    },
+    {
+      "ts": "2026-02-28T19:55:58",
+      "type": "workflow_run",
+      "project_id": "agent_factory",
+      "workflow_path": "tests/_tmp/af-test-5f0df517/wf.yaml",
+      "stage_count": 2,
+      "run_count": 4,
+      "base_roles": [
+        "Lilith",
+        "Himari"
+      ],
+      "ok": true,
+      "state_path": "projects/agent_factory/runs/wf_1772276158/state.json"
+    },
+    {
+      "ts": "2026-02-28T19:57:22",
+      "type": "single_run",
+      "project_id": "agent_factory",
+      "role": "General",
+      "task": "track issues",
+      "skills_loaded": [],
+      "ok": false,
+      "reason": "",
+      "latency_ms": 0,
+      "approval_rejects": 0,
+      "build_enabled": true,
+      "missing_skills_detected": []
+    },
+    {
+      "ts": "2026-02-28T19:57:22",
+      "type": "single_run",
+      "project_id": "agent_factory",
+      "role": "General",
+      "task": "do something new",
+      "skills_loaded": [],
+      "ok": false,
+      "reason": "",
+      "latency_ms": 0,
+      "approval_rejects": 0,
+      "build_enabled": true,
+      "missing_skills_detected": []
+    },
+    {
+      "ts": "2026-02-28T19:57:23",
+      "type": "workflow_run",
+      "project_id": "agent_factory",
+      "workflow_path": "tests/_tmp/af-test-48347011/wf.yaml",
+      "stage_count": 2,
+      "run_count": 4,
+      "base_roles": [
+        "Lilith",
+        "Himari"
+      ],
+      "ok": true,
+      "state_path": "projects/agent_factory/runs/wf_1772276243/state.json"
+    },
+    {
+      "ts": "2026-03-05T02:09:29",
+      "type": "single_run",
+      "project_id": "agent_factory",
+      "role": "General",
+      "task": "track issues",
+      "skills_loaded": [],
+      "ok": false,
+      "reason": "",
+      "latency_ms": 0,
+      "approval_rejects": 0,
+      "build_enabled": true,
+      "missing_skills_detected": []
+    },
+    {
+      "ts": "2026-03-08T00:56:51",
+      "type": "workflow_run",
+      "project_id": "agent_factory",
+      "workflow_path": "tests/_tmp/af-test-8188cc7c/wf.yaml",
+      "stage_count": 2,
+      "run_count": 4,
+      "base_roles": [
+        "Lilith",
+        "Himari"
+      ],
+      "ok": true,
+      "state_path": "projects/agent_factory/runs/wf_1772899011/state.json"
+    },
+    {
+      "ts": "2026-03-08T01:13:26",
+      "type": "workflow_run",
+      "project_id": "agent_factory",
+      "workflow_path": "tests/_tmp/af-test-31620d16/wf.yaml",
+      "stage_count": 2,
+      "run_count": 4,
+      "base_roles": [
+        "Lilith",
+        "Himari"
+      ],
+      "ok": true,
+      "state_path": "projects/agent_factory/runs/wf_1772900006/state.json"
+    },
+    {
+      "ts": "2026-03-08T01:15:01",
+      "type": "single_run",
+      "project_id": "agent_factory",
+      "role": "General",
+      "task": "x",
+      "skills_loaded": [],
+      "ok": true,
+      "reason": "gemini",
+      "latency_ms": 1,
+      "approval_rejects": 0,
+      "build_enabled": false,
+      "missing_skills_detected": [
+        "new_skill"
+      ]
+    },
+    {
+      "ts": "2026-03-08T01:15:06",
+      "type": "workflow_run",
+      "project_id": "agent_factory",
+      "workflow_path": "tests/_tmp/af-test-e89dd7c3/wf.yaml",
+      "stage_count": 2,
+      "run_count": 4,
+      "base_roles": [
+        "Lilith",
+        "Himari"
+      ],
+      "ok": true,
+      "state_path": "projects/agent_factory/runs/wf_1772900106/state.json"
+    },
+    {
+      "ts": "2026-03-08T01:15:45",
+      "type": "single_run",
+      "project_id": "agent_factory",
+      "role": "General",
+      "task": "x",
+      "skills_loaded": [],
+      "ok": true,
+      "reason": "gemini",
+      "latency_ms": 1,
+      "approval_rejects": 0,
+      "build_enabled": false,
+      "missing_skills_detected": [
+        "new_skill"
+      ]
+    },
+    {
+      "ts": "2026-03-08T01:15:46",
+      "type": "single_run",
+      "project_id": "agent_factory",
+      "role": "General",
+      "task": "x",
+      "skills_loaded": [],
+      "ok": true,
+      "reason": "gemini",
+      "latency_ms": 1,
+      "approval_rejects": 0,
+      "build_enabled": true,
+      "missing_skills_detected": []
+    },
+    {
+      "ts": "2026-03-08T01:15:47",
+      "type": "single_run",
+      "project_id": "agent_factory",
+      "role": "General",
+      "task": "track issues",
+      "skills_loaded": [],
+      "ok": false,
+      "reason": "",
+      "latency_ms": 0,
+      "approval_rejects": 0,
+      "build_enabled": true,
+      "missing_skills_detected": []
+    },
+    {
+      "ts": "2026-03-08T01:15:49",
+      "type": "single_run",
+      "project_id": "agent_factory",
+      "role": "General",
+      "task": "do something new",
+      "skills_loaded": [],
+      "ok": false,
+      "reason": "",
+      "latency_ms": 0,
+      "approval_rejects": 0,
+      "build_enabled": true,
+      "missing_skills_detected": []
+    },
+    {
+      "ts": "2026-03-08T01:15:50",
+      "type": "workflow_run",
+      "project_id": "agent_factory",
+      "workflow_path": "tests/_tmp/af-test-31356bed/wf.yaml",
+      "stage_count": 2,
+      "run_count": 4,
+      "base_roles": [
+        "Lilith",
+        "Himari"
+      ],
+      "ok": true,
+      "state_path": "projects/agent_factory/runs/wf_1772900150/state.json"
+    },
+    {
+      "ts": "2026-03-08T01:22:51",
+      "type": "single_run",
+      "project_id": "agent_factory",
+      "role": "General",
+      "task": "task",
+      "skills_loaded": [],
+      "ok": true,
+      "reason": "",
+      "latency_ms": 0,
+      "approval_rejects": 0,
+      "build_enabled": true,
+      "missing_skills_detected": []
+    },
+    {
+      "ts": "2026-03-10T02:27:05",
+      "type": "project_run",
+      "project_id": "af-test-08f2c060",
+      "task": "포커 게임 만들어줘",
+      "ok": true,
+      "reason": "completed",
+      "pipeline": "project",
+      "roles": [
+        "frontend_dev",
+        "qa_engineer"
+      ],
+      "planning_files": [
+        "tests/_tmp/af-test-08f2c060/planning/project_brief.json",
+        "tests/_tmp/af-test-08f2c060/planning/role_plan.json",
+        "tests/_tmp/af-test-08f2c060/.todo.md"
+      ]
+    },
+    {
+      "ts": "2026-03-10T02:27:23",
+      "type": "project_run",
+      "project_id": "af-test-6b80c7c6",
+      "task": "포커 게임 만들어줘",
+      "ok": true,
+      "reason": "completed",
+      "pipeline": "project",
+      "roles": [
+        "frontend_dev",
+        "qa_engineer"
+      ],
+      "planning_files": [
+        "tests/_tmp/af-test-6b80c7c6/planning/project_brief.json",
+        "tests/_tmp/af-test-6b80c7c6/planning/role_plan.json",
+        "tests/_tmp/af-test-6b80c7c6/.todo.md"
+      ]
+    },
+    {
+      "ts": "2026-03-10T03:02:18",
+      "type": "project_run",
+      "project_id": "af-test-d2f82d5f",
+      "task": "포커 게임 만들어줘",
+      "ok": true,
+      "reason": "completed",
+      "pipeline": "project",
+      "roles": [
+        "frontend_dev",
+        "qa_engineer"
+      ],
+      "planning_files": [
+        "tests/_tmp/af-test-d2f82d5f/planning/project_brief.json",
+        "tests/_tmp/af-test-d2f82d5f/planning/role_plan.json",
+        "tests/_tmp/af-test-d2f82d5f/.todo.md"
+      ]
+    },
+    {
+      "ts": "2026-03-10T03:02:36",
+      "type": "project_run",
+      "project_id": "af-test-eb5ea251",
+      "task": "포커 게임 만들어줘",
+      "ok": true,
+      "reason": "completed",
+      "pipeline": "project",
+      "roles": [
+        "frontend_dev",
+        "qa_engineer"
+      ],
+      "planning_files": [
+        "tests/_tmp/af-test-eb5ea251/planning/project_brief.json",
+        "tests/_tmp/af-test-eb5ea251/planning/role_plan.json",
+        "tests/_tmp/af-test-eb5ea251/.todo.md"
+      ]
+    },
+    {
+      "ts": "2026-03-10T03:10:25",
+      "type": "project_run",
+      "project_id": "af-test-58129ac1",
+      "task": "포커 게임 만들어줘",
+      "ok": true,
+      "reason": "completed",
+      "pipeline": "project",
+      "roles": [
+        "frontend_dev",
+        "qa_engineer"
+      ],
+      "planning_files": [
+        "tests/_tmp/af-test-58129ac1/planning/project_brief.json",
+        "tests/_tmp/af-test-58129ac1/planning/role_plan.json",
+        "tests/_tmp/af-test-58129ac1/.todo.md"
+      ]
+    },
+    {
+      "ts": "2026-03-10T03:13:20",
+      "type": "project_run",
+      "project_id": "af-test-8cbdc6db",
+      "task": "포커 게임 만들어줘",
+      "ok": true,
+      "reason": "completed",
+      "pipeline": "project",
+      "roles": [
+        "frontend_dev",
+        "qa_engineer"
+      ],
+      "planning_files": [
+        "tests/_tmp/af-test-8cbdc6db/planning/project_brief.json",
+        "tests/_tmp/af-test-8cbdc6db/planning/role_plan.json",
+        "tests/_tmp/af-test-8cbdc6db/.todo.md"
+      ]
+    }
+  ]
 }

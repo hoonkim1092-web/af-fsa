@@ -11,7 +11,10 @@ persona:
   - 인간은 같은 실수를 반복하지만, 시스템은 용납하지 않습니다.
 role: QA/Eval Agent
 runtime_rules:
-  allowed_skills: []
+  allowed_skills:
+    - trace_execution
+    - summarize_failure
+    - generate_eval_dataset
   approval_required_skills: []
   default_deny: true
   preferred_model: models/gemini-3.1-pro-preview

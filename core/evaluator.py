@@ -12,8 +12,12 @@ class StrategyEvaluator:
     subtask needs a "Retry" (e.g., syntax typo) or a "Strategic Pivot" (e.g., wrong library,
     architectural mismatch).
     """
-    def __init__(self, model_name: str = "gemini-1.5-pro-latest"):
+    def __init__(self, model_name: str = "gemini-1.5-pro-latest", use_pydantic: bool = False):
         self.llm = LLMEngine(model_name=model_name)
+        self._pydantic_adapter = None
+        if use_pydantic:
+            from core.langchain_adapter import PydanticOutputAdapter
+            self._pydantic_adapter = PydanticOutputAdapter()
         
     def evaluate_failure(self, role: str, instruction: str, error_log: str) -> Dict[str, Any]:
         """
@@ -43,8 +47,14 @@ class StrategyEvaluator:
         """
         
         try:
-            res = self.llm.generate_json(prompt)
-            data = res if isinstance(res, dict) else safe_json_load(res)
+            if self._pydantic_adapter is not None:
+                text = self.llm.generate(prompt)
+                data = self._pydantic_adapter.parse(text)
+                if hasattr(data, "model_dump"):
+                    data = data.model_dump()
+            else:
+                res = self.llm.generate_json(prompt)
+                data = res if isinstance(res, dict) else safe_json_load(res)
             return {
                 "action": str(data.get("action", "abort")).strip().lower(),
                 "reasoning": str(data.get("reasoning", "")),

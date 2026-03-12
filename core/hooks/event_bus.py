@@ -4,6 +4,7 @@ from typing import Any
 
 from core.hooks.base import ToolCallDecision
 from core.hooks.guardrails import IntentGateHook, TodoContinuationEnforcer, ToolOutputTruncator
+from core.hooks.langsmith_tracing import LangSmithTracingHook
 
 
 class HookEventBus:
@@ -16,6 +17,11 @@ class HookEventBus:
         self._post_hooks: list[Any] = []
         self._pre_tool_hooks: list[Any] = []
         self._post_tool_hooks: list[Any] = []
+
+        # Auto-register LangSmith tracing when API key is present
+        import os
+        if os.getenv("LANGSMITH_API_KEY"):
+            self.register(LangSmithTracingHook())
 
     def register(self, hook: Any):
         if hasattr(hook, "pre_execute"):
@@ -90,4 +96,5 @@ __all__ = [
     "IntentGateHook",
     "TodoContinuationEnforcer",
     "ToolOutputTruncator",
+    "LangSmithTracingHook",
 ]

@@ -137,23 +137,34 @@ class ModelRouter:
     - 구독 없음: 에러 반환 + 구독 유도
     """
 
-    def pick(self, stage: str, agent_config: dict = None, is_complex: bool = True) -> str:
-        """최적 모델명을 반환한다."""
+    def pick(self, stage: str, agent_config: dict = None, is_complex: bool = True, return_langchain_model: bool = False) -> str | Any:
+        """최적 모델명을 반환한다. return_langchain_model=True이면 LangChain ChatModel 인스턴스 반환."""
 
         # [우선순위 1] 환경변수로 모델 강제 지정
         forced = (os.getenv("AGENT_CHAT_MODEL") or "").strip()
         if forced:
-            return forced
+            model_name = forced
+        else:
+            cli_providers = get_requested_cli_providers(os.getenv("AGENT_CHAT_PROVIDER"))
+            if cli_providers:
+                provider = self._pick_cli_provider(cli_providers, agent_config)
+                model_name = default_chat_model_for_provider(provider)
+            else:
+                model_name = self._pick_api_model(stage, agent_config, is_complex)
 
-        cli_providers = get_requested_cli_providers(os.getenv("AGENT_CHAT_PROVIDER"))
+        if return_langchain_model:
+            from core.langchain_adapter import LangChainChatModelFactory
+            # Infer provider from model name
+            provider_key = "gemini"
+            if "claude" in model_name or "anthropic" in model_name:
+                provider_key = "anthropic"
+            elif "gpt" in model_name or "openai" in model_name:
+                provider_key = "openai"
+            lc_model = LangChainChatModelFactory.create(provider_key, model_name)
+            if lc_model is not None:
+                return lc_model
 
-        if cli_providers:
-            # CLI 모드: 역할 기반 프로바이더 선택
-            provider = self._pick_cli_provider(cli_providers, agent_config)
-            return default_chat_model_for_provider(provider)
-
-        # --- 아래는 API Key 모드 (현재 비활성, 복구 대비 보존) ---
-        return self._pick_api_model(stage, agent_config, is_complex)
+        return model_name
 
     def pick_provider(self, agent_config: dict = None) -> str:
         """최적 CLI 프로바이더 ID를 반환한다."""

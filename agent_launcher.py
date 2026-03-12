@@ -85,7 +85,7 @@ class AgentFactory:
         self.registry = RegistryManager()
         self.git = GitManager()
         self.runner = AgentRunner(self.mr)
-        self.ultra = FSALoop(self.runner)
+        self.ultra = FSALoop(self.runner, self.agent_mgr)
         self.request_router = RequestRouter()
         # [GAP-3] Unified pipeline: Himari(Skeleton) + Builder(Release)
         self.procurer = SkillOrchestrator(

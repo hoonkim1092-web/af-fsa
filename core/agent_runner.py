@@ -551,11 +551,13 @@ class AgentRunner:
         )
 
     def load_skills(self, agent: dict) -> list:
+        MAX_ACTIVE_SKILLS = 12
+
         # Legacy support + Caching
         if not hasattr(self, '_skill_module_cache'):
             self._skill_module_cache = {}
         self._knowledge_skills = []
-            
+
         loaded_skills = []
         skill_ids = agent.get("skills", [])
         for sid in skill_ids:
@@ -611,6 +613,26 @@ class AgentRunner:
                         _safe_print(f"??ル쵑??[Runner] Knowledge ???꾪뀬 ?β돦裕녻キ????덉넮 ({sid}): {e}")
                 else:
                     _safe_print(f"??ル쵑??[Runner] ???꾪뀬 ???裕?.py/.md)??嶺뚢돦堉??????怨몃쾳: {sid}")
+
+        # LangChain BaseTool detection & wrapping
+        from core.langchain_adapter import LANGCHAIN_AVAILABLE, LangChainToolAdapter
+        if LANGCHAIN_AVAILABLE:
+            try:
+                from langchain_core.tools import BaseTool as _LCBaseTool
+                wrapped = []
+                for mod in loaded_skills:
+                    if isinstance(mod, _LCBaseTool):
+                        wrapped.append(LangChainToolAdapter(mod))
+                    else:
+                        wrapped.append(mod)
+                loaded_skills = wrapped
+            except ImportError:
+                pass
+
+        # 12-Cap enforcement: keep only top-N skills by declared order (yaml order = priority)
+        if len(loaded_skills) > MAX_ACTIVE_SKILLS:
+            _safe_print(f"⚠️ [Runner] 스킬 {len(loaded_skills)}개 → 상위 {MAX_ACTIVE_SKILLS}개만 로드")
+            loaded_skills = loaded_skills[:MAX_ACTIVE_SKILLS]
 
         return loaded_skills
 
