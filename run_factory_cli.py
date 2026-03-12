@@ -33,7 +33,19 @@ def _resolve_projects_root(override: str | None = None) -> str:
     return os.path.abspath(os.path.expanduser(raw))
 
 
+def _run_skill_creator(argv: list[str] | None = None):
+    """skill-create 서브커맨드 — Claude Code 스타일 스킬 생성기"""
+    from core.skill_creator import cli_main
+    cli_main(argv)
+
+
 def main(argv: list[str] | None = None):
+    # skill-create 서브커맨드 감지: 첫 인자가 "skill-create" 이면 스킬 생성기로 분기
+    effective_argv = argv if argv is not None else sys.argv[1:]
+    if effective_argv and effective_argv[0] == "skill-create":
+        _run_skill_creator(effective_argv[1:])
+        return
+
     parser = argparse.ArgumentParser(description="Agent Factory CLI")
     parser.add_argument("--project", "-p", type=str, required=True, help="프로젝트 ID (필수)")
     parser.add_argument("--role", "-r", type=str, help="에이전트 역할 (예: 'Saiba Midori', 'Backend Dev')")

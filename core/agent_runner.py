@@ -729,13 +729,17 @@ class AgentRunner:
 
 
         agent_state = {
+            "run_id": run_id,
+            "agent": agent,
             "task_input": task_input,
             "intent": "complex_feature" if is_complex else "trivial",
             "workspace": target_workspace
         }
-        
+
         if not bus.run_pre_execute(agent_state):
             result = {"ok": False, "reason": "hook_event_bus_blocked_pre"}
+            # Phase 3: 훅 post-execute 호출 (로깅)
+            result = bus.run_post_execute(agent_state, result)
             _flush_trace(result)
             return result
         
@@ -1039,6 +1043,8 @@ class AgentRunner:
             
             print("??Agent Execution Finished.")
             result = {"ok": True, "reason": "gemini", "latency_ms": int((time.time() - started) * 1000), "approval_rejects": approval_rejects}
+            # Phase 3: 훅 post-execute 호출 (로깅)
+            result = bus.run_post_execute(agent_state, result)
             _flush_trace(result)
             return result
 
@@ -1050,6 +1056,8 @@ class AgentRunner:
             print("???逾?熬곥굥諭쒏뤆?쎛 ??얜Ŧ堉????諛댁뎽??? 嶺뚮쪇沅?쭛???鍮??")
             result = {"ok": False, "reason": f"runner_error:{type(e).__name__}", "latency_ms": int((time.time() - started) * 1000), "approval_rejects": approval_rejects}
             _append_trace("error", {"stage": "runner", "message": str(e)})
+            # Phase 3: 훅 post-execute 호출 (로깅)
+            result = bus.run_post_execute(agent_state, result)
             _flush_trace(result)
             return result
 

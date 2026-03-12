@@ -5,11 +5,11 @@ skills:
     - abc
     id: abc
     last_test_ok: true
-    meta_path: D:\warkSpaces\agent-factory\tests\_tmp\af-test-d3c7d692\skills\abc\meta.yaml
+    meta_path: D:\warkSpaces\agent-factory\tests\_tmp\af-test-ca89fcd6\skills\abc\meta.yaml
     name: abc
-    path: D:\warkSpaces\agent-factory\tests\_tmp\af-test-d3c7d692\skills\abc\skill.py
+    path: D:\warkSpaces\agent-factory\tests\_tmp\af-test-ca89fcd6\skills\abc\skill.py
     status: candidate
-    updated_at: '2026-03-12T02:19:32'
+    updated_at: '2026-03-12T23:48:50'
     version: 0.1.0
   accept_changes:
     capabilities:

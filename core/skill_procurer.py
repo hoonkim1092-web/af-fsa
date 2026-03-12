@@ -187,33 +187,27 @@ def forge_new_skill(skill_name, role, coding_engine=None, skill_type="action"):
             log("FORGE", f"Action forge failed: {e}")
             return None
     else:
-        # Knowledge skill (Markdown) — 사용자가 편집 가능한 절차적 지식 문서
-        skill_dir = os.path.join(FORGE_DIR, skill_name)
-        os.makedirs(skill_dir, exist_ok=True)
-        output_path = os.path.join(skill_dir, "skill.md")
-
-        prompt = f"""\
-Create a Knowledge Guide (Markdown) for the role '{role}' about '{skill_name}'.
-The guide should contain specific steps, checklists, or procedural knowledge.
-Return ONLY the markdown content with the following YAML frontmatter at the top:
----
-name: "{skill_name}"
-description: "Brief summary of what this guide covers"
----
-
-# {skill_name} 가이드
-(본문 내용은 한국어로 작성하세요)"""
-        try:
-            md_content = llm.generate(prompt)
-            md_content = md_content.replace("```markdown", "").replace("```", "").strip()
-            with open(output_path, "w", encoding="utf-8") as f:
-                f.write(md_content)
-            log("FORGE", f"Knowledge forge complete: {output_path}")
-            register_skill(skill_name, f"Dynamically forged knowledge skill for {role}", output_path, stype="knowledge")
-            return output_path
-        except Exception as e:
-            log("FORGE", f"Knowledge forge failed: {e}")
-            return None
+        # Knowledge skill — skill_creator 모듈로 SKILL.md 기반 생성
+        from core.skill_creator import create_skill as creator_create
+        skill_dir = creator_create(
+            name=skill_name,
+            output_dir=FORGE_DIR,
+            skill_type="knowledge",
+            role=role,
+            context=f"Dynamically forged knowledge skill for role '{role}'",
+            use_llm=True,
+            coding_engine=coding_engine,
+        )
+        if skill_dir:
+            # SKILL.md 또는 skill.md 경로 탐색
+            for fname in ("SKILL.md", "skill.md"):
+                output_path = os.path.join(skill_dir, fname)
+                if os.path.exists(output_path):
+                    log("FORGE", f"Knowledge forge complete (skill_creator): {output_path}")
+                    register_skill(skill_name, f"Dynamically forged knowledge skill for {role}", output_path, stype="knowledge")
+                    return output_path
+        log("FORGE", f"Knowledge forge failed via skill_creator")
+        return None
 
 
 # =============================================================================
