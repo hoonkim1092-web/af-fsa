@@ -1,18 +1,18 @@
-{
-  "key": "assistant run_factory_clipy가 내부 SDK 키를 기본 비활성화하는지도 같이 포함하겠습니다 이 값이 켜져 있으면 실제 라우팅 체감이 많이 달라집니다",
-  "value": "[assistant] `run_factory_cli.py`가 내부 SDK 키를 기본 비활성화하는지도 같이 포함하겠습니다. 이 값이 켜져 있으면 실제 라우팅 체감이 많이 달라집니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T14:45:45.406103+00:00",
-  "updated_at": "2026-03-10T14:45:45.406103+00:00",
-  "details": {
-    "text": "[assistant] `run_factory_cli.py`가 내부 SDK 키를 기본 비활성화하는지도 같이 포함하겠습니다. 이 값이 켜져 있으면 실제 라우팅 체감이 많이 달라집니다.",
-    "event_timestamp": "2026-03-10T14:18:53.952Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
-    "session_line": 431,
-    "provider": "codex"
-  }
+{
+  "key": "assistant run_factory_clipy가 내부 SDK 키를 기본 비활성화하는지도 같이 포함하겠습니다 이 값이 켜져 있으면 실제 라우팅 체감이 많이 달라집니다",
+  "value": "[assistant] `run_factory_cli.py`가 내부 SDK 키를 기본 비활성화하는지도 같이 포함하겠습니다. 이 값이 켜져 있으면 실제 라우팅 체감이 많이 달라집니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T14:45:45.406103+00:00",
+  "updated_at": "2026-03-10T14:45:45.406103+00:00",
+  "details": {
+    "text": "[assistant] `run_factory_cli.py`가 내부 SDK 키를 기본 비활성화하는지도 같이 포함하겠습니다. 이 값이 켜져 있으면 실제 라우팅 체감이 많이 달라집니다.",
+    "event_timestamp": "2026-03-10T14:18:53.952Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
+    "session_line": 431,
+    "provider": "codex"
+  }
 }

@@ -1,18 +1,18 @@
-{
-  "key": "user git pull",
-  "value": "[user] git pull",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T14:45:45.362971+00:00",
-  "updated_at": "2026-03-10T14:45:45.362971+00:00",
-  "details": {
-    "text": "[user] git pull",
-    "event_timestamp": "2026-03-10T12:31:15.284Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-26-38-019cd7b6-a943-76b0-a5ca-ea4ca0db60e7.jsonl",
-    "session_line": 51,
-    "provider": "codex"
-  }
+{
+  "key": "user git pull",
+  "value": "[user] git pull",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T14:45:45.362971+00:00",
+  "updated_at": "2026-03-10T14:45:45.362971+00:00",
+  "details": {
+    "text": "[user] git pull",
+    "event_timestamp": "2026-03-10T12:31:15.284Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-26-38-019cd7b6-a943-76b0-a5ca-ea4ca0db60e7.jsonl",
+    "session_line": 51,
+    "provider": "codex"
+  }
 }

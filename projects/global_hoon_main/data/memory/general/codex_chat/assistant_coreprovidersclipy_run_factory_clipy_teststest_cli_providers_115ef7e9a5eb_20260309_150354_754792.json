@@ -1,18 +1,18 @@
-{
-  "key": "assistant 이제 실제 패치를 넣겠습니다 범위는 세 군데입니다 coreprovidersclipy에 자동 설치재시도 run_factory_clipy에 사용자 기본 활성화 teststest_cli_providers",
-  "value": "[assistant] 이제 실제 패치를 넣겠습니다. 범위는 세 군데입니다: `core/providers/cli.py`에 자동 설치/재시도, `run_factory_cli.py`에 사용자 기본 활성화, `tests/test_cli_providers.py`에 회귀 테스트 추가.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T15:03:54.754837+00:00",
-  "updated_at": "2026-03-09T15:03:54.754837+00:00",
-  "details": {
-    "text": "[assistant] 이제 실제 패치를 넣겠습니다. 범위는 세 군데입니다: `core/providers/cli.py`에 자동 설치/재시도, `run_factory_cli.py`에 사용자 기본 활성화, `tests/test_cli_providers.py`에 회귀 테스트 추가.",
-    "event_timestamp": "2026-03-09T15:00:07.446Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
-    "session_line": 376,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 이제 실제 패치를 넣겠습니다 범위는 세 군데입니다 coreprovidersclipy에 자동 설치재시도 run_factory_clipy에 사용자 기본 활성화 teststest_cli_providers",
+  "value": "[assistant] 이제 실제 패치를 넣겠습니다. 범위는 세 군데입니다: `core/providers/cli.py`에 자동 설치/재시도, `run_factory_cli.py`에 사용자 기본 활성화, `tests/test_cli_providers.py`에 회귀 테스트 추가.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T15:03:54.754837+00:00",
+  "updated_at": "2026-03-09T15:03:54.754837+00:00",
+  "details": {
+    "text": "[assistant] 이제 실제 패치를 넣겠습니다. 범위는 세 군데입니다: `core/providers/cli.py`에 자동 설치/재시도, `run_factory_cli.py`에 사용자 기본 활성화, `tests/test_cli_providers.py`에 회귀 테스트 추가.",
+    "event_timestamp": "2026-03-09T15:00:07.446Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 376,
+    "provider": "codex"
+  }
 }

@@ -1,18 +1,18 @@
-{
-  "key": "assistant Codex 기준으로는 로그인되어 있지 않습니다 codexcmd login status 결과가 Not logged in입니다참고로 GitHub CLI도 완전한 로그인 상태는 아닙니다 기본 계정 hoo",
-  "value": "[assistant] `Codex` 기준으로는 로그인되어 있지 않습니다. `codex.cmd login status` 결과가 `Not logged in`입니다.  참고로 `GitHub CLI`도 완전한 로그인 상태는 아닙니다. 기본 계정 `hoonkim1092-web`은 잡혀 있지만 토큰이 무효라 인증이 실패하고 있습니다.  필요하면 바로 이어서 `codex.cmd login --device-auth` 또는 `gh auth login -h github.co...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T14:39:12.903314+00:00",
-  "updated_at": "2026-03-09T14:39:12.903314+00:00",
-  "details": {
-    "text": "[assistant] `Codex` 기준으로는 로그인되어 있지 않습니다. `codex.cmd login status` 결과가 `Not logged in`입니다.\n\n참고로 `GitHub CLI`도 완전한 로그인 상태는 아닙니다. 기본 계정 `hoonkim1092-web`은 잡혀 있지만 토큰이 무효라 인증이 실패하고 있습니다.\n\n필요하면 바로 이어서\n`codex.cmd login --device-auth`\n또는\n`gh auth login -h github.com`\n으로 재로그인 진행할 수 있습니다.",
-    "event_timestamp": "2026-03-09T13:55:06.825Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T22-53-58-019cd2e0-4483-7943-8fd7-1e4deab29ea9.jsonl",
-    "session_line": 52,
-    "provider": "codex"
-  }
+{
+  "key": "assistant Codex 기준으로는 로그인되어 있지 않습니다 codexcmd login status 결과가 Not logged in입니다참고로 GitHub CLI도 완전한 로그인 상태는 아닙니다 기본 계정 hoo",
+  "value": "[assistant] `Codex` 기준으로는 로그인되어 있지 않습니다. `codex.cmd login status` 결과가 `Not logged in`입니다.  참고로 `GitHub CLI`도 완전한 로그인 상태는 아닙니다. 기본 계정 `hoonkim1092-web`은 잡혀 있지만 토큰이 무효라 인증이 실패하고 있습니다.  필요하면 바로 이어서 `codex.cmd login --device-auth` 또는 `gh auth login -h github.co...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T14:39:12.903314+00:00",
+  "updated_at": "2026-03-09T14:39:12.903314+00:00",
+  "details": {
+    "text": "[assistant] `Codex` 기준으로는 로그인되어 있지 않습니다. `codex.cmd login status` 결과가 `Not logged in`입니다.\n\n참고로 `GitHub CLI`도 완전한 로그인 상태는 아닙니다. 기본 계정 `hoonkim1092-web`은 잡혀 있지만 토큰이 무효라 인증이 실패하고 있습니다.\n\n필요하면 바로 이어서\n`codex.cmd login --device-auth`\n또는\n`gh auth login -h github.com`\n으로 재로그인 진행할 수 있습니다.",
+    "event_timestamp": "2026-03-09T13:55:06.825Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T22-53-58-019cd2e0-4483-7943-8fd7-1e4deab29ea9.jsonl",
+    "session_line": 52,
+    "provider": "codex"
+  }
 }

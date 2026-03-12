@@ -1,18 +1,18 @@
-{
-  "key": "assistant Applying patch with the file editor not the shell",
-  "value": "[assistant] Applying patch with the file editor (not the shell).",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-11T09:39:19.327361+00:00",
-  "updated_at": "2026-03-11T09:39:19.327361+00:00",
-  "details": {
-    "text": "[assistant] Applying patch with the file editor (not the shell).",
-    "event_timestamp": "2026-03-11T09:39:05.921Z",
-    "session_file": "D:/hoonProJect/worktrees/af_web_smoke_20260311_v4/.af_runtime/codex_home/sessions/2026/03/11/rollout-2026-03-11T18-38-02-019cdc42-ab1b-76b1-a6e6-84e797a84706.jsonl",
-    "session_line": 57,
-    "provider": "codex"
-  }
+{
+  "key": "assistant Applying patch with the file editor not the shell",
+  "value": "[assistant] Applying patch with the file editor (not the shell).",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-11T09:39:19.327361+00:00",
+  "updated_at": "2026-03-11T09:39:19.327361+00:00",
+  "details": {
+    "text": "[assistant] Applying patch with the file editor (not the shell).",
+    "event_timestamp": "2026-03-11T09:39:05.921Z",
+    "session_file": "D:/hoonProJect/worktrees/af_web_smoke_20260311_v4/.af_runtime/codex_home/sessions/2026/03/11/rollout-2026-03-11T18-38-02-019cdc42-ab1b-76b1-a6e6-84e797a84706.jsonl",
+    "session_line": 57,
+    "provider": "codex"
+  }
 }

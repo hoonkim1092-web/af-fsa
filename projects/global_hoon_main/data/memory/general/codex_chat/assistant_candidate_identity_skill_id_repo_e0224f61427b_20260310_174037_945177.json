@@ -1,18 +1,18 @@
-{
-  "key": "assistant 내 의견은 이렇습니다중복 허용 자체는 괜찮습니다 그러면 candidate identity는 필수 수정 사항이 아니라 정책 명확화 문제로 내려갑니다 즉 같은 skill_id가 여러 외부 repo에 있",
-  "value": "[assistant] 내 의견은 이렇습니다.  `중복 허용` 자체는 괜찮습니다. 그러면 `candidate identity`는 필수 수정 사항이 아니라 `정책 명확화` 문제로 내려갑니다. 즉 “같은 `skill_id`가 여러 외부 repo에 있어도 하나만 대표로 쓰겠다”는 방향이면 충분히 성립합니다.  다만 지금 방식은 `중복 허용`이 아니라 사실상 `silent overwrite`입니다. 그 차이는 큽니다. - 현재는 같은 `source_id + skil...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T17:40:37.945391+00:00",
-  "updated_at": "2026-03-10T17:40:37.945391+00:00",
-  "details": {
-    "text": "[assistant] 내 의견은 이렇습니다.\n\n`중복 허용` 자체는 괜찮습니다. 그러면 `candidate identity`는 필수 수정 사항이 아니라 `정책 명확화` 문제로 내려갑니다. 즉 “같은 `skill_id`가 여러 외부 repo에 있어도 하나만 대표로 쓰겠다”는 방향이면 충분히 성립합니다.\n\n다만 지금 방식은 `중복 허용`이 아니라 사실상 `silent overwrite`입니다. 그 차이는 큽니다.\n- 현재는 같은 `source_id + skill_id`면 마지막에 읽힌 repo가 이깁니다.\n- 이건 완전히 랜덤은 아니고, 현재 구현상 디렉터리 정렬 순서에 따라 꽂힙니다: [external_skill_candidate_importer.py](/D:/warkSpaces/agent-factory/core/external_skill_candidate_importer.py#L168), [external_skill_candidate_importer.py](/D:/warkSpaces/agent-factory/core/external_skill_candidate_importer.py#L257)\n- 문제는 “왜 그 후보가 선택됐는지”가 제품 규칙으로 드러나지 않는다는 점입니다.\n\n그래서 내 결론은:\n- `candidate identity` 확장은 지금 당장 안 해도 됨\n- 대신 최소한 아래 둘 중 하나는 있어야 함\n  1. “같은 source 내 중복은 repo 이름 정렬상 마지막이 우선” 같은 규칙을 문서화\n  2. overwrite 시 로그를 남겨서 어떤 후보가 밀렸는지 보이게 함\n\n즉 우선순위는 이렇게 봅니다.\n- 반드시 수정: 예외 격리, approval semantics\n- 선택 수정: candidate identity 확장\n- 최소 보강 필요: duplicate overwrite 규칙 가시화\n\n내 판단으로는 v1에서는 `candidate identity`를 안 늘리고, `overwrite 로그 + winner source_url 기록`만 넣어도 충분합니다.",
-    "event_timestamp": "2026-03-10T15:20:07.823Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
-    "session_line": 1156,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 내 의견은 이렇습니다중복 허용 자체는 괜찮습니다 그러면 candidate identity는 필수 수정 사항이 아니라 정책 명확화 문제로 내려갑니다 즉 같은 skill_id가 여러 외부 repo에 있",
+  "value": "[assistant] 내 의견은 이렇습니다.  `중복 허용` 자체는 괜찮습니다. 그러면 `candidate identity`는 필수 수정 사항이 아니라 `정책 명확화` 문제로 내려갑니다. 즉 “같은 `skill_id`가 여러 외부 repo에 있어도 하나만 대표로 쓰겠다”는 방향이면 충분히 성립합니다.  다만 지금 방식은 `중복 허용`이 아니라 사실상 `silent overwrite`입니다. 그 차이는 큽니다. - 현재는 같은 `source_id + skil...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:37.945391+00:00",
+  "updated_at": "2026-03-10T17:40:37.945391+00:00",
+  "details": {
+    "text": "[assistant] 내 의견은 이렇습니다.\n\n`중복 허용` 자체는 괜찮습니다. 그러면 `candidate identity`는 필수 수정 사항이 아니라 `정책 명확화` 문제로 내려갑니다. 즉 “같은 `skill_id`가 여러 외부 repo에 있어도 하나만 대표로 쓰겠다”는 방향이면 충분히 성립합니다.\n\n다만 지금 방식은 `중복 허용`이 아니라 사실상 `silent overwrite`입니다. 그 차이는 큽니다.\n- 현재는 같은 `source_id + skill_id`면 마지막에 읽힌 repo가 이깁니다.\n- 이건 완전히 랜덤은 아니고, 현재 구현상 디렉터리 정렬 순서에 따라 꽂힙니다: [external_skill_candidate_importer.py](/D:/warkSpaces/agent-factory/core/external_skill_candidate_importer.py#L168), [external_skill_candidate_importer.py](/D:/warkSpaces/agent-factory/core/external_skill_candidate_importer.py#L257)\n- 문제는 “왜 그 후보가 선택됐는지”가 제품 규칙으로 드러나지 않는다는 점입니다.\n\n그래서 내 결론은:\n- `candidate identity` 확장은 지금 당장 안 해도 됨\n- 대신 최소한 아래 둘 중 하나는 있어야 함\n  1. “같은 source 내 중복은 repo 이름 정렬상 마지막이 우선” 같은 규칙을 문서화\n  2. overwrite 시 로그를 남겨서 어떤 후보가 밀렸는지 보이게 함\n\n즉 우선순위는 이렇게 봅니다.\n- 반드시 수정: 예외 격리, approval semantics\n- 선택 수정: candidate identity 확장\n- 최소 보강 필요: duplicate overwrite 규칙 가시화\n\n내 판단으로는 v1에서는 `candidate identity`를 안 늘리고, `overwrite 로그 + winner source_url 기록`만 넣어도 충분합니다.",
+    "event_timestamp": "2026-03-10T15:20:07.823Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
+    "session_line": 1156,
+    "provider": "codex"
+  }
 }

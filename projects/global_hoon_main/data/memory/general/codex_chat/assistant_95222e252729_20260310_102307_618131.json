@@ -1,18 +1,18 @@
-{
-  "key": "assistant 리뷰 문서를 먼저 전부 훑고 주장들을 항목 단위로 뽑아내겠습니다 그다음 각 항목을 현재 코드와 테스트로 검증해서 맞음부분적으로 맞음현재는 아님으로 분류하겠습니다",
-  "value": "[assistant] 리뷰 문서를 먼저 전부 훑고, 주장들을 항목 단위로 뽑아내겠습니다. 그다음 각 항목을 현재 코드와 테스트로 검증해서 `맞음/부분적으로 맞음/현재는 아님`으로 분류하겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T10:23:07.618197+00:00",
-  "updated_at": "2026-03-10T10:23:07.618197+00:00",
-  "details": {
-    "text": "[assistant] 리뷰 문서를 먼저 전부 훑고, 주장들을 항목 단위로 뽑아내겠습니다. 그다음 각 항목을 현재 코드와 테스트로 검증해서 `맞음/부분적으로 맞음/현재는 아님`으로 분류하겠습니다.",
-    "event_timestamp": "2026-03-10T08:42:17.559Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
-    "session_line": 1623,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 리뷰 문서를 먼저 전부 훑고 주장들을 항목 단위로 뽑아내겠습니다 그다음 각 항목을 현재 코드와 테스트로 검증해서 맞음부분적으로 맞음현재는 아님으로 분류하겠습니다",
+  "value": "[assistant] 리뷰 문서를 먼저 전부 훑고, 주장들을 항목 단위로 뽑아내겠습니다. 그다음 각 항목을 현재 코드와 테스트로 검증해서 `맞음/부분적으로 맞음/현재는 아님`으로 분류하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T10:23:07.618197+00:00",
+  "updated_at": "2026-03-10T10:23:07.618197+00:00",
+  "details": {
+    "text": "[assistant] 리뷰 문서를 먼저 전부 훑고, 주장들을 항목 단위로 뽑아내겠습니다. 그다음 각 항목을 현재 코드와 테스트로 검증해서 `맞음/부분적으로 맞음/현재는 아님`으로 분류하겠습니다.",
+    "event_timestamp": "2026-03-10T08:42:17.559Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 1623,
+    "provider": "codex"
+  }
 }

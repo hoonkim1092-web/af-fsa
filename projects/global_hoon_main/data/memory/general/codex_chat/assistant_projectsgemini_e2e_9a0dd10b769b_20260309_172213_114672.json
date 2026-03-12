@@ -1,18 +1,18 @@
-{
-  "key": "assistant 현재 저장소 쪽에서는 런타임 산출물이 안 남았습니다 즉 방금 실행은 종료는 됐지만 내가 기대한 projectsgemini_e2e 경로로 완주하지는 않은 상태입니다 어디에 기록됐는지와 왜 수정이 안 ",
-  "value": "[assistant] 현재 저장소 쪽에서는 런타임 산출물이 안 남았습니다. 즉 방금 실행은 종료는 됐지만, 내가 기대한 `projects/gemini_e2e` 경로로 완주하지는 않은 상태입니다. 어디에 기록됐는지와 왜 수정이 안 일어났는지 바로 추적하겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T17:22:13.114777+00:00",
-  "updated_at": "2026-03-09T17:22:13.114777+00:00",
-  "details": {
-    "text": "[assistant] 현재 저장소 쪽에서는 런타임 산출물이 안 남았습니다. 즉 방금 실행은 종료는 됐지만, 내가 기대한 `projects/gemini_e2e` 경로로 완주하지는 않은 상태입니다. 어디에 기록됐는지와 왜 수정이 안 일어났는지 바로 추적하겠습니다.",
-    "event_timestamp": "2026-03-09T17:04:19.787Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
-    "session_line": 2073,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 현재 저장소 쪽에서는 런타임 산출물이 안 남았습니다 즉 방금 실행은 종료는 됐지만 내가 기대한 projectsgemini_e2e 경로로 완주하지는 않은 상태입니다 어디에 기록됐는지와 왜 수정이 안 ",
+  "value": "[assistant] 현재 저장소 쪽에서는 런타임 산출물이 안 남았습니다. 즉 방금 실행은 종료는 됐지만, 내가 기대한 `projects/gemini_e2e` 경로로 완주하지는 않은 상태입니다. 어디에 기록됐는지와 왜 수정이 안 일어났는지 바로 추적하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T17:22:13.114777+00:00",
+  "updated_at": "2026-03-09T17:22:13.114777+00:00",
+  "details": {
+    "text": "[assistant] 현재 저장소 쪽에서는 런타임 산출물이 안 남았습니다. 즉 방금 실행은 종료는 됐지만, 내가 기대한 `projects/gemini_e2e` 경로로 완주하지는 않은 상태입니다. 어디에 기록됐는지와 왜 수정이 안 일어났는지 바로 추적하겠습니다.",
+    "event_timestamp": "2026-03-09T17:04:19.787Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 2073,
+    "provider": "codex"
+  }
 }

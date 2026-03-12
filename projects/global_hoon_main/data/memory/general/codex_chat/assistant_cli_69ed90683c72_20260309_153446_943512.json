@@ -1,18 +1,18 @@
-{
-  "key": "assistant 제미나이 CLI 패키지명이 바뀌었을 가능성이 있어서 공식 소스 기준으로 설치 명령만 먼저 확인한 뒤 바로 설치하겠습니다",
-  "value": "[assistant] 제미나이 CLI 패키지명이 바뀌었을 가능성이 있어서, 공식 소스 기준으로 설치 명령만 먼저 확인한 뒤 바로 설치하겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T15:34:46.943570+00:00",
-  "updated_at": "2026-03-09T15:34:46.943570+00:00",
-  "details": {
-    "text": "[assistant] 제미나이 CLI 패키지명이 바뀌었을 가능성이 있어서, 공식 소스 기준으로 설치 명령만 먼저 확인한 뒤 바로 설치하겠습니다.",
-    "event_timestamp": "2026-03-09T15:18:48.988Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
-    "session_line": 502,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 제미나이 CLI 패키지명이 바뀌었을 가능성이 있어서 공식 소스 기준으로 설치 명령만 먼저 확인한 뒤 바로 설치하겠습니다",
+  "value": "[assistant] 제미나이 CLI 패키지명이 바뀌었을 가능성이 있어서, 공식 소스 기준으로 설치 명령만 먼저 확인한 뒤 바로 설치하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T15:34:46.943570+00:00",
+  "updated_at": "2026-03-09T15:34:46.943570+00:00",
+  "details": {
+    "text": "[assistant] 제미나이 CLI 패키지명이 바뀌었을 가능성이 있어서, 공식 소스 기준으로 설치 명령만 먼저 확인한 뒤 바로 설치하겠습니다.",
+    "event_timestamp": "2026-03-09T15:18:48.988Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 502,
+    "provider": "codex"
+  }
 }

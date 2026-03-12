@@ -1,18 +1,18 @@
-{
-  "key": "assistant 진행 끝났습니다 핵심은 두 군데입니다clipyDwarkSpacesagent-factorycoreprovidersclipy에서 gemini_cli 실행 시 GEMINI_API_KEY GOOGLE_AP",
-  "value": "[assistant] 진행 끝났습니다. 핵심은 두 군데입니다.  [cli.py](D:/warkSpaces/agent-factory/core/providers/cli.py)에서 `gemini_cli` 실행 시 `GEMINI_API_KEY`, `GOOGLE_API_KEY`, `GOOGLE_GENAI_USE_VERTEXAI`를 제거하고 `GOOGLE_GENAI_USE_GCA=true`로 OAuth 로그인 세션만 타게 바꿨습니다. 또 Gemini prompt를 `...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T16:45:45.263703+00:00",
-  "updated_at": "2026-03-09T16:45:45.263703+00:00",
-  "details": {
-    "text": "[assistant] 진행 끝났습니다. 핵심은 두 군데입니다.\n\n[cli.py](D:/warkSpaces/agent-factory/core/providers/cli.py)에서 `gemini_cli` 실행 시 `GEMINI_API_KEY`, `GOOGLE_API_KEY`, `GOOGLE_GENAI_USE_VERTEXAI`를 제거하고 `GOOGLE_GENAI_USE_GCA=true`로 OAuth 로그인 세션만 타게 바꿨습니다. 또 Gemini prompt를 `Task:`로 시작하게 바꿔서 first-line 기준으로도 작업이 바로 보이게 했고, 불필요한 파일 탐색/툴 사용을 억제하도록 정리했습니다. [session_adapter.py](D:/warkSpaces/agent-factory/core/providers/session_adapter.py)에서는 headless `-p` Gemini 실행일 때 훅이 추가 컨텍스트를 모델에 주입하지 않게 바꿨습니다. 관련 회귀 테스트는 [test_cli_providers.py](D:/warkSpaces/agent-factory/tests/test_cli_providers.py), [test_cli_session_adapter.py](D:/warkSpaces/agent-factory/tests/test_cli_session_adapter.py)까지 반영했습니다.\n\n실검증도 됐습니다. worktree 기준 회귀는 `22 passed, 1 warning`이었고, OAuth-only live smoke는 `PROVIDER_OAUTH_OK`로 성공했습니다. full `run_factory_cli.py` 경로도 `oauth_e2e3` 프로젝트에서 성공했고, [dashboard.json](D:/agent-factory/w/projects/oauth_e2e3/.af_runtime/dashboard.json)에 `ok: true`, `reason: gemini_cli`로 남았고, transcript도 `E2E_OAUTH_OK`를 반환했습니다. 참고로 full E2E는 guardrail 때문에 `.todo.md`가 있어야 통과합니다. 없으면 `hook_event_bus_blocked_pre`로 막힙니다.\n\n다음으로 원하면 이 변경분만 `git diff` 정리해서 커밋까지 이어가겠습니다.",
-    "event_timestamp": "2026-03-09T16:34:55.973Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
-    "session_line": 1490,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 진행 끝났습니다 핵심은 두 군데입니다clipyDwarkSpacesagent-factorycoreprovidersclipy에서 gemini_cli 실행 시 GEMINI_API_KEY GOOGLE_AP",
+  "value": "[assistant] 진행 끝났습니다. 핵심은 두 군데입니다.  [cli.py](D:/warkSpaces/agent-factory/core/providers/cli.py)에서 `gemini_cli` 실행 시 `GEMINI_API_KEY`, `GOOGLE_API_KEY`, `GOOGLE_GENAI_USE_VERTEXAI`를 제거하고 `GOOGLE_GENAI_USE_GCA=true`로 OAuth 로그인 세션만 타게 바꿨습니다. 또 Gemini prompt를 `...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T16:45:45.263703+00:00",
+  "updated_at": "2026-03-09T16:45:45.263703+00:00",
+  "details": {
+    "text": "[assistant] 진행 끝났습니다. 핵심은 두 군데입니다.\n\n[cli.py](D:/warkSpaces/agent-factory/core/providers/cli.py)에서 `gemini_cli` 실행 시 `GEMINI_API_KEY`, `GOOGLE_API_KEY`, `GOOGLE_GENAI_USE_VERTEXAI`를 제거하고 `GOOGLE_GENAI_USE_GCA=true`로 OAuth 로그인 세션만 타게 바꿨습니다. 또 Gemini prompt를 `Task:`로 시작하게 바꿔서 first-line 기준으로도 작업이 바로 보이게 했고, 불필요한 파일 탐색/툴 사용을 억제하도록 정리했습니다. [session_adapter.py](D:/warkSpaces/agent-factory/core/providers/session_adapter.py)에서는 headless `-p` Gemini 실행일 때 훅이 추가 컨텍스트를 모델에 주입하지 않게 바꿨습니다. 관련 회귀 테스트는 [test_cli_providers.py](D:/warkSpaces/agent-factory/tests/test_cli_providers.py), [test_cli_session_adapter.py](D:/warkSpaces/agent-factory/tests/test_cli_session_adapter.py)까지 반영했습니다.\n\n실검증도 됐습니다. worktree 기준 회귀는 `22 passed, 1 warning`이었고, OAuth-only live smoke는 `PROVIDER_OAUTH_OK`로 성공했습니다. full `run_factory_cli.py` 경로도 `oauth_e2e3` 프로젝트에서 성공했고, [dashboard.json](D:/agent-factory/w/projects/oauth_e2e3/.af_runtime/dashboard.json)에 `ok: true`, `reason: gemini_cli`로 남았고, transcript도 `E2E_OAUTH_OK`를 반환했습니다. 참고로 full E2E는 guardrail 때문에 `.todo.md`가 있어야 통과합니다. 없으면 `hook_event_bus_blocked_pre`로 막힙니다.\n\n다음으로 원하면 이 변경분만 `git diff` 정리해서 커밋까지 이어가겠습니다.",
+    "event_timestamp": "2026-03-09T16:34:55.973Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 1490,
+    "provider": "codex"
+  }
 }

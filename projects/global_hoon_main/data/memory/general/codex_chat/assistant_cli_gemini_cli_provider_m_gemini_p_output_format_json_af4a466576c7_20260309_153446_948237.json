@@ -1,18 +1,18 @@
-{
-  "key": "assistant 순수 CLI는 응답이 나왔습니다 이제 우리 gemini_cli provider 경로도 실제로 태워서 지금 코드가 가정하는 -m gemini -p  --output-format json 조합이 그대로",
-  "value": "[assistant] 순수 CLI는 응답이 나왔습니다. 이제 우리 `gemini_cli` provider 경로도 실제로 태워서, 지금 코드가 가정하는 `-m gemini -p ... --output-format json` 조합이 그대로 먹는지 확인하겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T15:34:46.948308+00:00",
-  "updated_at": "2026-03-09T15:34:46.948308+00:00",
-  "details": {
-    "text": "[assistant] 순수 CLI는 응답이 나왔습니다. 이제 우리 `gemini_cli` provider 경로도 실제로 태워서, 지금 코드가 가정하는 `-m gemini -p ... --output-format json` 조합이 그대로 먹는지 확인하겠습니다.",
-    "event_timestamp": "2026-03-09T15:30:00.592Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
-    "session_line": 554,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 순수 CLI는 응답이 나왔습니다 이제 우리 gemini_cli provider 경로도 실제로 태워서 지금 코드가 가정하는 -m gemini -p  --output-format json 조합이 그대로",
+  "value": "[assistant] 순수 CLI는 응답이 나왔습니다. 이제 우리 `gemini_cli` provider 경로도 실제로 태워서, 지금 코드가 가정하는 `-m gemini -p ... --output-format json` 조합이 그대로 먹는지 확인하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T15:34:46.948308+00:00",
+  "updated_at": "2026-03-09T15:34:46.948308+00:00",
+  "details": {
+    "text": "[assistant] 순수 CLI는 응답이 나왔습니다. 이제 우리 `gemini_cli` provider 경로도 실제로 태워서, 지금 코드가 가정하는 `-m gemini -p ... --output-format json` 조합이 그대로 먹는지 확인하겠습니다.",
+    "event_timestamp": "2026-03-09T15:30:00.592Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 554,
+    "provider": "codex"
+  }
 }

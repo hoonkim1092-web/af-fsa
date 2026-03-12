@@ -1,18 +1,18 @@
-{
-  "key": "assistant 현재 문서 정책은 coredocumentation_policypy 한 곳에서 템플릿과 프롬프트 계약을 관리하고 있습니다 여기에 OS 언어 코드 기반 문서 언어 규칙을 넣고 생성 문서와 런타임 계약 ",
-  "value": "[assistant] 현재 문서 정책은 `core/documentation_policy.py` 한 곳에서 템플릿과 프롬프트 계약을 관리하고 있습니다. 여기에 OS 언어 코드 기반 문서 언어 규칙을 넣고, 생성 문서와 런타임 계약 둘 다 같은 규칙을 따르도록 바꾸겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T10:23:07.643012+00:00",
-  "updated_at": "2026-03-10T10:23:07.643012+00:00",
-  "details": {
-    "text": "[assistant] 현재 문서 정책은 `core/documentation_policy.py` 한 곳에서 템플릿과 프롬프트 계약을 관리하고 있습니다. 여기에 OS 언어 코드 기반 문서 언어 규칙을 넣고, 생성 문서와 런타임 계약 둘 다 같은 규칙을 따르도록 바꾸겠습니다.",
-    "event_timestamp": "2026-03-10T08:56:47.847Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
-    "session_line": 1837,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 현재 문서 정책은 coredocumentation_policypy 한 곳에서 템플릿과 프롬프트 계약을 관리하고 있습니다 여기에 OS 언어 코드 기반 문서 언어 규칙을 넣고 생성 문서와 런타임 계약 ",
+  "value": "[assistant] 현재 문서 정책은 `core/documentation_policy.py` 한 곳에서 템플릿과 프롬프트 계약을 관리하고 있습니다. 여기에 OS 언어 코드 기반 문서 언어 규칙을 넣고, 생성 문서와 런타임 계약 둘 다 같은 규칙을 따르도록 바꾸겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T10:23:07.643012+00:00",
+  "updated_at": "2026-03-10T10:23:07.643012+00:00",
+  "details": {
+    "text": "[assistant] 현재 문서 정책은 `core/documentation_policy.py` 한 곳에서 템플릿과 프롬프트 계약을 관리하고 있습니다. 여기에 OS 언어 코드 기반 문서 언어 규칙을 넣고, 생성 문서와 런타임 계약 둘 다 같은 규칙을 따르도록 바꾸겠습니다.",
+    "event_timestamp": "2026-03-10T08:56:47.847Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 1837,
+    "provider": "codex"
+  }
 }

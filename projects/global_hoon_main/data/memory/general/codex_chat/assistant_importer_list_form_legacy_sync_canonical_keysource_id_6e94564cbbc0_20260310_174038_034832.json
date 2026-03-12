@@ -1,18 +1,18 @@
-{
-  "key": "assistant 회귀 테스트를 붙이겠습니다 importer가 list-form legacy 후보를 유지하는지 sync가 canonical keysource id로 정리하는지 두 축으로 고정하겠습니다",
-  "value": "[assistant] 회귀 테스트를 붙이겠습니다. importer가 list-form legacy 후보를 유지하는지, sync가 canonical key/source id로 정리하는지 두 축으로 고정하겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T17:40:38.034901+00:00",
-  "updated_at": "2026-03-10T17:40:38.034901+00:00",
-  "details": {
-    "text": "[assistant] 회귀 테스트를 붙이겠습니다. importer가 list-form legacy 후보를 유지하는지, sync가 canonical key/source id로 정리하는지 두 축으로 고정하겠습니다.",
-    "event_timestamp": "2026-03-10T16:21:08.262Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
-    "session_line": 2199,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 회귀 테스트를 붙이겠습니다 importer가 list-form legacy 후보를 유지하는지 sync가 canonical keysource id로 정리하는지 두 축으로 고정하겠습니다",
+  "value": "[assistant] 회귀 테스트를 붙이겠습니다. importer가 list-form legacy 후보를 유지하는지, sync가 canonical key/source id로 정리하는지 두 축으로 고정하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:38.034901+00:00",
+  "updated_at": "2026-03-10T17:40:38.034901+00:00",
+  "details": {
+    "text": "[assistant] 회귀 테스트를 붙이겠습니다. importer가 list-form legacy 후보를 유지하는지, sync가 canonical key/source id로 정리하는지 두 축으로 고정하겠습니다.",
+    "event_timestamp": "2026-03-10T16:21:08.262Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
+    "session_line": 2199,
+    "provider": "codex"
+  }
 }

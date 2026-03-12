@@ -1,18 +1,18 @@
-{
-  "key": "assistant 클로드 CLI 설치했습니다- 설치 명령 npm install -g anthropic-aiclaude-code- 확인된 버전 2171 Claude Code- 공식 문서 httpsdocsanthropi",
-  "value": "[assistant] 클로드 CLI 설치했습니다.  - 설치 명령: `npm install -g @anthropic-ai/claude-code` - 확인된 버전: `2.1.71 (Claude Code)` - 공식 문서: https://docs.anthropic.com/en/docs/claude-code/setup  참고로 이 PowerShell에서는 실행 정책 때문에 `claude.ps1`가 막혀서, 지금은 `claude.cmd`로 실행하는 게 안전합니다....",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T15:34:46.942607+00:00",
-  "updated_at": "2026-03-09T15:34:46.942607+00:00",
-  "details": {
-    "text": "[assistant] 클로드 CLI 설치했습니다.\n\n- 설치 명령: `npm install -g @anthropic-ai/claude-code`\n- 확인된 버전: `2.1.71 (Claude Code)`\n- 공식 문서: https://docs.anthropic.com/en/docs/claude-code/setup\n\n참고로 이 PowerShell에서는 실행 정책 때문에 `claude.ps1`가 막혀서, 지금은 `claude.cmd`로 실행하는 게 안전합니다.\n- 실행 예: `C:\\Users\\HOME\\AppData\\Roaming\\npm\\claude.cmd --version`\n\n원하면 다음으로 로그인까지 이어서 하겠습니다.",
-    "event_timestamp": "2026-03-09T15:17:12.850Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
-    "session_line": 492,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 클로드 CLI 설치했습니다- 설치 명령 npm install -g anthropic-aiclaude-code- 확인된 버전 2171 Claude Code- 공식 문서 httpsdocsanthropi",
+  "value": "[assistant] 클로드 CLI 설치했습니다.  - 설치 명령: `npm install -g @anthropic-ai/claude-code` - 확인된 버전: `2.1.71 (Claude Code)` - 공식 문서: https://docs.anthropic.com/en/docs/claude-code/setup  참고로 이 PowerShell에서는 실행 정책 때문에 `claude.ps1`가 막혀서, 지금은 `claude.cmd`로 실행하는 게 안전합니다....",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T15:34:46.942607+00:00",
+  "updated_at": "2026-03-09T15:34:46.942607+00:00",
+  "details": {
+    "text": "[assistant] 클로드 CLI 설치했습니다.\n\n- 설치 명령: `npm install -g @anthropic-ai/claude-code`\n- 확인된 버전: `2.1.71 (Claude Code)`\n- 공식 문서: https://docs.anthropic.com/en/docs/claude-code/setup\n\n참고로 이 PowerShell에서는 실행 정책 때문에 `claude.ps1`가 막혀서, 지금은 `claude.cmd`로 실행하는 게 안전합니다.\n- 실행 예: `C:\\Users\\HOME\\AppData\\Roaming\\npm\\claude.cmd --version`\n\n원하면 다음으로 로그인까지 이어서 하겠습니다.",
+    "event_timestamp": "2026-03-09T15:17:12.850Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 492,
+    "provider": "codex"
+  }
 }

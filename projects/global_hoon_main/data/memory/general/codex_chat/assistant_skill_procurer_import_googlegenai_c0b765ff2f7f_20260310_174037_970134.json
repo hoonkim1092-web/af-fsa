@@ -1,18 +1,18 @@
-{
-  "key": "assistant 이 변경으로 skill_procurer import만으로는 googlegenai가 더 이상 딸려오지 않아야 합니다 경고를 에러로 승격한 상태에서 바로 재검증하겠습니다",
-  "value": "[assistant] 이 변경으로 `skill_procurer` import만으로는 `google.genai`가 더 이상 딸려오지 않아야 합니다. 경고를 에러로 승격한 상태에서 바로 재검증하겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T17:40:37.970209+00:00",
-  "updated_at": "2026-03-10T17:40:37.970209+00:00",
-  "details": {
-    "text": "[assistant] 이 변경으로 `skill_procurer` import만으로는 `google.genai`가 더 이상 딸려오지 않아야 합니다. 경고를 에러로 승격한 상태에서 바로 재검증하겠습니다.",
-    "event_timestamp": "2026-03-10T15:34:01.673Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
-    "session_line": 1392,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 이 변경으로 skill_procurer import만으로는 googlegenai가 더 이상 딸려오지 않아야 합니다 경고를 에러로 승격한 상태에서 바로 재검증하겠습니다",
+  "value": "[assistant] 이 변경으로 `skill_procurer` import만으로는 `google.genai`가 더 이상 딸려오지 않아야 합니다. 경고를 에러로 승격한 상태에서 바로 재검증하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:37.970209+00:00",
+  "updated_at": "2026-03-10T17:40:37.970209+00:00",
+  "details": {
+    "text": "[assistant] 이 변경으로 `skill_procurer` import만으로는 `google.genai`가 더 이상 딸려오지 않아야 합니다. 경고를 에러로 승격한 상태에서 바로 재검증하겠습니다.",
+    "event_timestamp": "2026-03-10T15:34:01.673Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
+    "session_line": 1392,
+    "provider": "codex"
+  }
 }

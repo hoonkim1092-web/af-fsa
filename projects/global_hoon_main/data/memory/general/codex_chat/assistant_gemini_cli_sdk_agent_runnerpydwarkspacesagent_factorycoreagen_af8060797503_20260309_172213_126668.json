@@ -1,18 +1,18 @@
-{
-  "key": "assistant 맞습니다 지금 문제를 Gemini CLI만의 문제로 보면 안 됩니다핵심은 더 상위 구조입니다- 내부 SDK 경로는 agent_runnerpyDwarkSpacesagent-factorycoreagen",
-  "value": "[assistant] 맞습니다. 지금 문제를 `Gemini CLI만의 문제`로 보면 안 됩니다.  핵심은 더 상위 구조입니다. - 내부 SDK 경로는 [agent_runner.py](D:/warkSpaces/agent-factory/core/agent_runner.py)에서 `tool_functions`를 실제로 LLM에 주입합니다. - 반면 CLI provider 경로는 같은 파일의 `_run_with_cli_provider()`에서 [cli.py](D:...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T17:22:13.126959+00:00",
-  "updated_at": "2026-03-09T17:22:13.126959+00:00",
-  "details": {
-    "text": "[assistant] 맞습니다. 지금 문제를 `Gemini CLI만의 문제`로 보면 안 됩니다.\n\n핵심은 더 상위 구조입니다.\n- 내부 SDK 경로는 [agent_runner.py](D:/warkSpaces/agent-factory/core/agent_runner.py)에서 `tool_functions`를 실제로 LLM에 주입합니다.\n- 반면 CLI provider 경로는 같은 파일의 `_run_with_cli_provider()`에서 [cli.py](D:/warkSpaces/agent-factory/core/providers/cli.py)의 `execute_cli_chat()`만 호출하고, `tool_functions`를 전혀 넘기지 않습니다.\n- [session_adapter.py](D:/warkSpaces/agent-factory/core/providers/session_adapter.py)는 Claude/Gemini에 대해 `native_hooks`로 세션 상태, continuity context, transcript bridge만 붙입니다. 툴 주입은 하지 않습니다.\n- Codex도 예외는 아니고, `native_hooks` 대신 `wrapper_bridge`일 뿐 역시 Agent Factory 툴을 넘기지는 않습니다.\n\n즉 현재 구조는:\n- Claude/Gemini/Codex CLI를 “외부 LLM 프로세스”로 띄움\n- hooks/session은 붙임\n- 하지만 Agent Factory의 통일된 툴셋은 안 붙임\n\n그래서 provider마다 결과가 달라질 수 있습니다.\n- Gemini는 이번 transcript에서 `read_file`은 있었지만 `run_shell_command`/`write_file`이 없어서 실제 수정에 실패했습니다.\n- Claude나 Codex는 자기 CLI가 자체적으로 더 강한 편집 툴을 갖고 있으면 될 수도 있지만, 그건 `Agent Factory가 툴을 제공해서 되는 것`이 아니라 `그 provider 자체 툴이 우연히 충분해서 되는 것`입니다.\n\n정리하면:\n- `인증 문제`: Gemini 쪽은 이미 해결\n- `hooks/session 문제`: 동작함\n- `본질적 문제`: CLI provider 경로에 공통 편집 툴 레이어가 없음\n\n다음 수정 포인트는 하나입니다.\n- CLI provider 공통으로 `read/write/shell` 또는 Agent Factory tool registry를 붙이는 브리지 계층을 만들어야 합니다.\n\n원하면 다음 턴에서 그 브리지 설계부터 바로 잡겠습니다.",
-    "event_timestamp": "2026-03-09T17:14:32.882Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
-    "session_line": 2276,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 맞습니다 지금 문제를 Gemini CLI만의 문제로 보면 안 됩니다핵심은 더 상위 구조입니다- 내부 SDK 경로는 agent_runnerpyDwarkSpacesagent-factorycoreagen",
+  "value": "[assistant] 맞습니다. 지금 문제를 `Gemini CLI만의 문제`로 보면 안 됩니다.  핵심은 더 상위 구조입니다. - 내부 SDK 경로는 [agent_runner.py](D:/warkSpaces/agent-factory/core/agent_runner.py)에서 `tool_functions`를 실제로 LLM에 주입합니다. - 반면 CLI provider 경로는 같은 파일의 `_run_with_cli_provider()`에서 [cli.py](D:...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T17:22:13.126959+00:00",
+  "updated_at": "2026-03-09T17:22:13.126959+00:00",
+  "details": {
+    "text": "[assistant] 맞습니다. 지금 문제를 `Gemini CLI만의 문제`로 보면 안 됩니다.\n\n핵심은 더 상위 구조입니다.\n- 내부 SDK 경로는 [agent_runner.py](D:/warkSpaces/agent-factory/core/agent_runner.py)에서 `tool_functions`를 실제로 LLM에 주입합니다.\n- 반면 CLI provider 경로는 같은 파일의 `_run_with_cli_provider()`에서 [cli.py](D:/warkSpaces/agent-factory/core/providers/cli.py)의 `execute_cli_chat()`만 호출하고, `tool_functions`를 전혀 넘기지 않습니다.\n- [session_adapter.py](D:/warkSpaces/agent-factory/core/providers/session_adapter.py)는 Claude/Gemini에 대해 `native_hooks`로 세션 상태, continuity context, transcript bridge만 붙입니다. 툴 주입은 하지 않습니다.\n- Codex도 예외는 아니고, `native_hooks` 대신 `wrapper_bridge`일 뿐 역시 Agent Factory 툴을 넘기지는 않습니다.\n\n즉 현재 구조는:\n- Claude/Gemini/Codex CLI를 “외부 LLM 프로세스”로 띄움\n- hooks/session은 붙임\n- 하지만 Agent Factory의 통일된 툴셋은 안 붙임\n\n그래서 provider마다 결과가 달라질 수 있습니다.\n- Gemini는 이번 transcript에서 `read_file`은 있었지만 `run_shell_command`/`write_file`이 없어서 실제 수정에 실패했습니다.\n- Claude나 Codex는 자기 CLI가 자체적으로 더 강한 편집 툴을 갖고 있으면 될 수도 있지만, 그건 `Agent Factory가 툴을 제공해서 되는 것`이 아니라 `그 provider 자체 툴이 우연히 충분해서 되는 것`입니다.\n\n정리하면:\n- `인증 문제`: Gemini 쪽은 이미 해결\n- `hooks/session 문제`: 동작함\n- `본질적 문제`: CLI provider 경로에 공통 편집 툴 레이어가 없음\n\n다음 수정 포인트는 하나입니다.\n- CLI provider 공통으로 `read/write/shell` 또는 Agent Factory tool registry를 붙이는 브리지 계층을 만들어야 합니다.\n\n원하면 다음 턴에서 그 브리지 설계부터 바로 잡겠습니다.",
+    "event_timestamp": "2026-03-09T17:14:32.882Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 2276,
+    "provider": "codex"
+  }
 }

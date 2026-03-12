@@ -1,18 +1,18 @@
-{
-  "key": "assistant 공식 skill 디렉터리와 markdown 설치를 동시에 받도록 여러 경로를 손봅니다 외부 repo cache가 SKILLmd 포맷을 담고 있어도 후보로 잡히게 같이 보완하겠습니다",
-  "value": "[assistant] 공식 skill 디렉터리와 markdown 설치를 동시에 받도록 여러 경로를 손봅니다. 외부 repo cache가 `SKILL.md` 포맷을 담고 있어도 후보로 잡히게 같이 보완하겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T17:40:38.065382+00:00",
-  "updated_at": "2026-03-10T17:40:38.065382+00:00",
-  "details": {
-    "text": "[assistant] 공식 skill 디렉터리와 markdown 설치를 동시에 받도록 여러 경로를 손봅니다. 외부 repo cache가 `SKILL.md` 포맷을 담고 있어도 후보로 잡히게 같이 보완하겠습니다.",
-    "event_timestamp": "2026-03-10T16:46:51.172Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/11/rollout-2026-03-11T01-30-46-019cd896-2cfb-7692-a889-53fc50ef1599.jsonl",
-    "session_line": 186,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 공식 skill 디렉터리와 markdown 설치를 동시에 받도록 여러 경로를 손봅니다 외부 repo cache가 SKILLmd 포맷을 담고 있어도 후보로 잡히게 같이 보완하겠습니다",
+  "value": "[assistant] 공식 skill 디렉터리와 markdown 설치를 동시에 받도록 여러 경로를 손봅니다. 외부 repo cache가 `SKILL.md` 포맷을 담고 있어도 후보로 잡히게 같이 보완하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:38.065382+00:00",
+  "updated_at": "2026-03-10T17:40:38.065382+00:00",
+  "details": {
+    "text": "[assistant] 공식 skill 디렉터리와 markdown 설치를 동시에 받도록 여러 경로를 손봅니다. 외부 repo cache가 `SKILL.md` 포맷을 담고 있어도 후보로 잡히게 같이 보완하겠습니다.",
+    "event_timestamp": "2026-03-10T16:46:51.172Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/11/rollout-2026-03-11T01-30-46-019cd896-2cfb-7692-a889-53fc50ef1599.jsonl",
+    "session_line": 186,
+    "provider": "codex"
+  }
 }

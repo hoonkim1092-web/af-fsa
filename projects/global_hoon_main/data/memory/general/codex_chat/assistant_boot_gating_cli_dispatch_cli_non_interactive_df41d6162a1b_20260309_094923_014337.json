@@ -1,18 +1,18 @@
-{
-  "key": "assistant 구현 범위는 이 턴에서 기반 분리  boot gating  CLI dispatch  테스트까지 가져가겠습니다 실제 각 CLI의 고급 옵션 전체를 다 쓰는 게 아니라 공식 non-interactive",
-  "value": "[assistant] 구현 범위는 이 턴에서 `기반 분리 + boot gating + CLI dispatch + 테스트`까지 가져가겠습니다. 실제 각 CLI의 고급 옵션 전체를 다 쓰는 게 아니라, 공식 non-interactive 호출을 기본값으로 넣고 필요하면 env로 덮어쓸 수 있게 만드는 게 안전합니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T09:49:23.014405+00:00",
-  "updated_at": "2026-03-09T09:49:23.014405+00:00",
-  "details": {
-    "text": "[assistant] 구현 범위는 이 턴에서 `기반 분리 + boot gating + CLI dispatch + 테스트`까지 가져가겠습니다. 실제 각 CLI의 고급 옵션 전체를 다 쓰는 게 아니라, 공식 non-interactive 호출을 기본값으로 넣고 필요하면 env로 덮어쓸 수 있게 만드는 게 안전합니다.",
-    "event_timestamp": "2026-03-09T08:33:48.934Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/09/rollout-2026-03-09T12-29-14-019cd0a4-4ded-7bd3-b7ae-a9832dc22d45.jsonl",
-    "session_line": 1467,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 구현 범위는 이 턴에서 기반 분리  boot gating  CLI dispatch  테스트까지 가져가겠습니다 실제 각 CLI의 고급 옵션 전체를 다 쓰는 게 아니라 공식 non-interactive",
+  "value": "[assistant] 구현 범위는 이 턴에서 `기반 분리 + boot gating + CLI dispatch + 테스트`까지 가져가겠습니다. 실제 각 CLI의 고급 옵션 전체를 다 쓰는 게 아니라, 공식 non-interactive 호출을 기본값으로 넣고 필요하면 env로 덮어쓸 수 있게 만드는 게 안전합니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T09:49:23.014405+00:00",
+  "updated_at": "2026-03-09T09:49:23.014405+00:00",
+  "details": {
+    "text": "[assistant] 구현 범위는 이 턴에서 `기반 분리 + boot gating + CLI dispatch + 테스트`까지 가져가겠습니다. 실제 각 CLI의 고급 옵션 전체를 다 쓰는 게 아니라, 공식 non-interactive 호출을 기본값으로 넣고 필요하면 env로 덮어쓸 수 있게 만드는 게 안전합니다.",
+    "event_timestamp": "2026-03-09T08:33:48.934Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/09/rollout-2026-03-09T12-29-14-019cd0a4-4ded-7bd3-b7ae-a9832dc22d45.jsonl",
+    "session_line": 1467,
+    "provider": "codex"
+  }
 }

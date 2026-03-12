@@ -1,18 +1,18 @@
-{
-  "key": "assistant Findings1 High source-specific repo caches now depend on external_cache being enabled to discover raw py skill",
-  "value": "[assistant] **Findings** 1. High: source-specific repo caches now depend on `external_cache` being enabled to discover raw `.py` skills. [`RepoCacheSkillSource.iter_candidates()`](/D:/warkSpaces/agent-factory/core/external_skill_sources.py#L168) only calls...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T17:40:37.990171+00:00",
-  "updated_at": "2026-03-10T17:40:37.990171+00:00",
-  "details": {
-    "text": "[assistant] **Findings**\n1. High: source-specific repo caches now depend on `external_cache` being enabled to discover raw `.py` skills. [`RepoCacheSkillSource.iter_candidates()`](/D:/warkSpaces/agent-factory/core/external_skill_sources.py#L168) only calls the importer with `scan_python=False`, and [`_build_sources()`](/D:/warkSpaces/agent-factory/core/external_skill_sources.py#L280) only adds the raw-scan fallback via `CacheSweepSkillSource` when `external_cache` is present in priority. That means a policy like `[\"claude\",\"codex\"]` will stop seeing repos that don't ship `skill_candidates.yaml`/`registry.yaml`, even if the repo cloned correctly.\n\n2. Medium: repo sync failures are still silently reported as ordinary misses. [`RepoCacheSkillSource.prepare()`](/D:/warkSpaces/agent-factory/core/external_skill_sources.py#L150) and [`RepoCacheSkillSource.prepare()`](/D:/warkSpaces/agent-factory/core/external_skill_sources.py#L158) use `subprocess.run(..., check=False)`, and the resolver only marks `source_error` when an exception is raised. A failed `git clone`/`git pull` with nonzero exit code will therefore look like `no_candidate`, which hides auth/network problems and can send the flow to builder unnecessarily.\n\n3. Medium: legacy list-form `install_candidates` entries lose their source metadata during normalization. The dict branch in [`_normalize_registry_data()`](/D:/warkSpaces/agent-factory/core/skill_registry.py#L75) converts `source`/`source_id` into normalized `source_id`, but the list branch at [`_normalize_registry_data()`](/D:/warkSpaces/agent-factory/core/skill_registry.py#L81) just copies the item. Later, [`ExternalSkillResolver._build_sources()`](/D:/warkSpaces/agent-factory/core/external_skill_sources.py#L255) defaults missing `source_id` to `registry`, so old list-based registries will collapse Claude/Codex candidates into `registry` and bypass the source-priority behavior you just added.\n\nAssumption: 이번 리뷰는 방금 수정한 external-source/builder/lazy-import 변경 범위 위주로 봤습니다.",
-    "event_timestamp": "2026-03-10T15:42:54.184Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
-    "session_line": 1691,
-    "provider": "codex"
-  }
+{
+  "key": "assistant Findings1 High source-specific repo caches now depend on external_cache being enabled to discover raw py skill",
+  "value": "[assistant] **Findings** 1. High: source-specific repo caches now depend on `external_cache` being enabled to discover raw `.py` skills. [`RepoCacheSkillSource.iter_candidates()`](/D:/warkSpaces/agent-factory/core/external_skill_sources.py#L168) only calls...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:37.990171+00:00",
+  "updated_at": "2026-03-10T17:40:37.990171+00:00",
+  "details": {
+    "text": "[assistant] **Findings**\n1. High: source-specific repo caches now depend on `external_cache` being enabled to discover raw `.py` skills. [`RepoCacheSkillSource.iter_candidates()`](/D:/warkSpaces/agent-factory/core/external_skill_sources.py#L168) only calls the importer with `scan_python=False`, and [`_build_sources()`](/D:/warkSpaces/agent-factory/core/external_skill_sources.py#L280) only adds the raw-scan fallback via `CacheSweepSkillSource` when `external_cache` is present in priority. That means a policy like `[\"claude\",\"codex\"]` will stop seeing repos that don't ship `skill_candidates.yaml`/`registry.yaml`, even if the repo cloned correctly.\n\n2. Medium: repo sync failures are still silently reported as ordinary misses. [`RepoCacheSkillSource.prepare()`](/D:/warkSpaces/agent-factory/core/external_skill_sources.py#L150) and [`RepoCacheSkillSource.prepare()`](/D:/warkSpaces/agent-factory/core/external_skill_sources.py#L158) use `subprocess.run(..., check=False)`, and the resolver only marks `source_error` when an exception is raised. A failed `git clone`/`git pull` with nonzero exit code will therefore look like `no_candidate`, which hides auth/network problems and can send the flow to builder unnecessarily.\n\n3. Medium: legacy list-form `install_candidates` entries lose their source metadata during normalization. The dict branch in [`_normalize_registry_data()`](/D:/warkSpaces/agent-factory/core/skill_registry.py#L75) converts `source`/`source_id` into normalized `source_id`, but the list branch at [`_normalize_registry_data()`](/D:/warkSpaces/agent-factory/core/skill_registry.py#L81) just copies the item. Later, [`ExternalSkillResolver._build_sources()`](/D:/warkSpaces/agent-factory/core/external_skill_sources.py#L255) defaults missing `source_id` to `registry`, so old list-based registries will collapse Claude/Codex candidates into `registry` and bypass the source-priority behavior you just added.\n\nAssumption: 이번 리뷰는 방금 수정한 external-source/builder/lazy-import 변경 범위 위주로 봤습니다.",
+    "event_timestamp": "2026-03-10T15:42:54.184Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
+    "session_line": 1691,
+    "provider": "codex"
+  }
 }

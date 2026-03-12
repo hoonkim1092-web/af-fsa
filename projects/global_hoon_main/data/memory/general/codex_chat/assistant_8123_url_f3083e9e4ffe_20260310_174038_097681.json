@@ -1,18 +1,18 @@
-{
-  "key": "assistant 웹앱 서버를 백그라운드로 띄우고 접속 가능한지 바로 확인하겠습니다 포트 충돌을 피하려고 8123으로 실행한 뒤 응답이 오면 URL만 전달하겠습니다",
-  "value": "[assistant] 웹앱 서버를 백그라운드로 띄우고, 접속 가능한지 바로 확인하겠습니다. 포트 충돌을 피하려고 `8123`으로 실행한 뒤 응답이 오면 URL만 전달하겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T17:40:38.097761+00:00",
-  "updated_at": "2026-03-10T17:40:38.097761+00:00",
-  "details": {
-    "text": "[assistant] 웹앱 서버를 백그라운드로 띄우고, 접속 가능한지 바로 확인하겠습니다. 포트 충돌을 피하려고 `8123`으로 실행한 뒤 응답이 오면 URL만 전달하겠습니다.",
-    "event_timestamp": "2026-03-10T17:27:59.490Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/11/rollout-2026-03-11T01-30-46-019cd896-2cfb-7692-a889-53fc50ef1599.jsonl",
-    "session_line": 627,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 웹앱 서버를 백그라운드로 띄우고 접속 가능한지 바로 확인하겠습니다 포트 충돌을 피하려고 8123으로 실행한 뒤 응답이 오면 URL만 전달하겠습니다",
+  "value": "[assistant] 웹앱 서버를 백그라운드로 띄우고, 접속 가능한지 바로 확인하겠습니다. 포트 충돌을 피하려고 `8123`으로 실행한 뒤 응답이 오면 URL만 전달하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:38.097761+00:00",
+  "updated_at": "2026-03-10T17:40:38.097761+00:00",
+  "details": {
+    "text": "[assistant] 웹앱 서버를 백그라운드로 띄우고, 접속 가능한지 바로 확인하겠습니다. 포트 충돌을 피하려고 `8123`으로 실행한 뒤 응답이 오면 URL만 전달하겠습니다.",
+    "event_timestamp": "2026-03-10T17:27:59.490Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/11/rollout-2026-03-11T01-30-46-019cd896-2cfb-7692-a889-53fc50ef1599.jsonl",
+    "session_line": 627,
+    "provider": "codex"
+  }
 }

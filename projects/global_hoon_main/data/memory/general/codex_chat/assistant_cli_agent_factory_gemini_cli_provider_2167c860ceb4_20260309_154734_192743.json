@@ -1,18 +1,18 @@
-{
-  "key": "assistant 제미나이 테스트는 이제 됩니다직접 CLI 스모크는 성공했고 agent-factory의 gemini_cli provider 경로도 실제로 성공했습니다 중간에 세 가지 문제가 있었는데 같이 수정했습니다",
-  "value": "[assistant] 제미나이 테스트는 이제 됩니다.  직접 CLI 스모크는 성공했고, `agent-factory`의 `gemini_cli` provider 경로도 실제로 성공했습니다. 중간에 세 가지 문제가 있었는데 같이 수정했습니다. - Windows에서 npm 전역 shim 경로를 Python `subprocess`가 못 찾던 문제: [cli.py](D:/warkSpaces/agent-factory/core/providers/cli.py#L96) -...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T15:47:34.193283+00:00",
-  "updated_at": "2026-03-09T15:47:34.193283+00:00",
-  "details": {
-    "text": "[assistant] 제미나이 테스트는 이제 됩니다.\n\n직접 CLI 스모크는 성공했고, `agent-factory`의 `gemini_cli` provider 경로도 실제로 성공했습니다. 중간에 세 가지 문제가 있었는데 같이 수정했습니다.\n- Windows에서 npm 전역 shim 경로를 Python `subprocess`가 못 찾던 문제: [cli.py](D:/warkSpaces/agent-factory/core/providers/cli.py#L96)\n- 훅 브리지 실행 시 `core` import가 깨지던 문제: [session_adapter.py](D:/warkSpaces/agent-factory/core/providers/session_adapter.py#L256)\n- 기본 모델 alias인 `gemini`를 그대로 `-m gemini`로 넘겨 API가 거부하던 문제: [cli.py](D:/warkSpaces/agent-factory/core/providers/cli.py#L249)\n\n검증 결과는 이렇습니다.\n- 회귀 테스트: `15 passed, 1 warning`\n- 실제 provider 스모크: `ok: true`, `reason: gemini_cli`, `returncode: 0`\n- 실행 명령은 최종적으로 `C:\\Users\\HOME\\AppData\\Roaming\\npm\\gemini.CMD --output-format json -p ...` 형태로 성공했습니다.\n\n추가로, 엄격히 `GEMINI_PROVIDER_OK`만 반환하라고 했는데 실제 응답은 프로젝트 컨텍스트 문구를 섞어서 돌려줬습니다. 즉 CLI/provider/훅 체인은 정상이고, “응답을 얼마나 엄격히 통제할지”는 별도 튜닝 이슈로 남아 있습니다.\n\n보강한 테스트는 [test_cli_providers.py](D:/warkSpaces/agent-factory/tests/test_cli_providers.py#L91), [test_cli_providers.py](D:/warkSpaces/agent-factory/tests/test_cli_providers.py#L116), [test_cli_session_adapter.py](D:/warkSpaces/agent-factory/tests/test_cli_session_adapter.py#L12), [test_cli_session_adapter.py](D:/warkSpaces/agent-factory/tests/test_cli_session_adapter.py#L44)에 들어갔습니다.\n\n원하면 다음으로 `run_factory_cli.py` 전체 경로까지 제미나이 provider로 한 번 더 태워보겠습니다.",
-    "event_timestamp": "2026-03-09T15:40:29.176Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
-    "session_line": 696,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 제미나이 테스트는 이제 됩니다직접 CLI 스모크는 성공했고 agent-factory의 gemini_cli provider 경로도 실제로 성공했습니다 중간에 세 가지 문제가 있었는데 같이 수정했습니다",
+  "value": "[assistant] 제미나이 테스트는 이제 됩니다.  직접 CLI 스모크는 성공했고, `agent-factory`의 `gemini_cli` provider 경로도 실제로 성공했습니다. 중간에 세 가지 문제가 있었는데 같이 수정했습니다. - Windows에서 npm 전역 shim 경로를 Python `subprocess`가 못 찾던 문제: [cli.py](D:/warkSpaces/agent-factory/core/providers/cli.py#L96) -...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T15:47:34.193283+00:00",
+  "updated_at": "2026-03-09T15:47:34.193283+00:00",
+  "details": {
+    "text": "[assistant] 제미나이 테스트는 이제 됩니다.\n\n직접 CLI 스모크는 성공했고, `agent-factory`의 `gemini_cli` provider 경로도 실제로 성공했습니다. 중간에 세 가지 문제가 있었는데 같이 수정했습니다.\n- Windows에서 npm 전역 shim 경로를 Python `subprocess`가 못 찾던 문제: [cli.py](D:/warkSpaces/agent-factory/core/providers/cli.py#L96)\n- 훅 브리지 실행 시 `core` import가 깨지던 문제: [session_adapter.py](D:/warkSpaces/agent-factory/core/providers/session_adapter.py#L256)\n- 기본 모델 alias인 `gemini`를 그대로 `-m gemini`로 넘겨 API가 거부하던 문제: [cli.py](D:/warkSpaces/agent-factory/core/providers/cli.py#L249)\n\n검증 결과는 이렇습니다.\n- 회귀 테스트: `15 passed, 1 warning`\n- 실제 provider 스모크: `ok: true`, `reason: gemini_cli`, `returncode: 0`\n- 실행 명령은 최종적으로 `C:\\Users\\HOME\\AppData\\Roaming\\npm\\gemini.CMD --output-format json -p ...` 형태로 성공했습니다.\n\n추가로, 엄격히 `GEMINI_PROVIDER_OK`만 반환하라고 했는데 실제 응답은 프로젝트 컨텍스트 문구를 섞어서 돌려줬습니다. 즉 CLI/provider/훅 체인은 정상이고, “응답을 얼마나 엄격히 통제할지”는 별도 튜닝 이슈로 남아 있습니다.\n\n보강한 테스트는 [test_cli_providers.py](D:/warkSpaces/agent-factory/tests/test_cli_providers.py#L91), [test_cli_providers.py](D:/warkSpaces/agent-factory/tests/test_cli_providers.py#L116), [test_cli_session_adapter.py](D:/warkSpaces/agent-factory/tests/test_cli_session_adapter.py#L12), [test_cli_session_adapter.py](D:/warkSpaces/agent-factory/tests/test_cli_session_adapter.py#L44)에 들어갔습니다.\n\n원하면 다음으로 `run_factory_cli.py` 전체 경로까지 제미나이 provider로 한 번 더 태워보겠습니다.",
+    "event_timestamp": "2026-03-09T15:40:29.176Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 696,
+    "provider": "codex"
+  }
 }

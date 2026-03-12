@@ -1,18 +1,18 @@
-{
-  "key": "assistant Gemini 인증은 정상 동작했고 외부 워크스페이스 DhoonProJectworktreesgemini_course_smoke에 프로젝트 생성 후 코스 생성수정 테스트까지 완료했습니다 실제로 Gemi",
-  "value": "[assistant] Gemini 인증은 정상 동작했고, 외부 워크스페이스 `D:\\hoonProJect\\worktrees\\gemini_course_smoke`에 프로젝트 생성 후 코스 생성/수정 테스트까지 완료했습니다. 실제로 Gemini 기반 Agent Factory 런이 2번 성공했고, 생성 후 수정 내용도 파일 재검증으로 확인했습니다.  확인된 결과물: - [README.md](D:/hoonProJect/worktrees/gemini_course_sm...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T06:08:25.483390+00:00",
-  "updated_at": "2026-03-10T06:08:25.483390+00:00",
-  "details": {
-    "text": "[assistant] Gemini 인증은 정상 동작했고, 외부 워크스페이스 `D:\\hoonProJect\\worktrees\\gemini_course_smoke`에 프로젝트 생성 후 코스 생성/수정 테스트까지 완료했습니다. 실제로 Gemini 기반 Agent Factory 런이 2번 성공했고, 생성 후 수정 내용도 파일 재검증으로 확인했습니다.\n\n확인된 결과물:\n- [README.md](D:/hoonProJect/worktrees/gemini_course_smoke/README.md): 현재 `4-module guide` 문구로 수정 반영됨\n- [course_outline.md](D:/hoonProJect/worktrees/gemini_course_smoke/docs/course_outline.md): Module 2가 `Accelerating Daily Tasks`로 변경됐고, Module 4와 `Hands-on Exercises` 섹션이 추가됨\n\n참고로 처음엔 구조화 계획 훅 때문에 막혀서 [.todo.md](D:/hoonProJect/worktrees/gemini_course_smoke/.todo.md) 를 넣은 뒤 진행했습니다. 런타임 기록은 [runs](D:/hoonProJect/worktrees/gemini_course_smoke/runs) 와 [.af_runtime](D:/hoonProJect/worktrees/gemini_course_smoke/.af_runtime) 아래에 남아 있습니다.\n\n원하면 다음으로 이 테스트 프로젝트를 기준으로:\n1. 실제 서비스용 프로젝트명으로 하나 더 생성\n2. 생성 산출물 정리\n3. Git 연동까지 이어서 하겠습니다.",
-    "event_timestamp": "2026-03-10T05:08:49.085Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
-    "session_line": 593,
-    "provider": "codex"
-  }
+{
+  "key": "assistant Gemini 인증은 정상 동작했고 외부 워크스페이스 DhoonProJectworktreesgemini_course_smoke에 프로젝트 생성 후 코스 생성수정 테스트까지 완료했습니다 실제로 Gemi",
+  "value": "[assistant] Gemini 인증은 정상 동작했고, 외부 워크스페이스 `D:\\hoonProJect\\worktrees\\gemini_course_smoke`에 프로젝트 생성 후 코스 생성/수정 테스트까지 완료했습니다. 실제로 Gemini 기반 Agent Factory 런이 2번 성공했고, 생성 후 수정 내용도 파일 재검증으로 확인했습니다.  확인된 결과물: - [README.md](D:/hoonProJect/worktrees/gemini_course_sm...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T06:08:25.483390+00:00",
+  "updated_at": "2026-03-10T06:08:25.483390+00:00",
+  "details": {
+    "text": "[assistant] Gemini 인증은 정상 동작했고, 외부 워크스페이스 `D:\\hoonProJect\\worktrees\\gemini_course_smoke`에 프로젝트 생성 후 코스 생성/수정 테스트까지 완료했습니다. 실제로 Gemini 기반 Agent Factory 런이 2번 성공했고, 생성 후 수정 내용도 파일 재검증으로 확인했습니다.\n\n확인된 결과물:\n- [README.md](D:/hoonProJect/worktrees/gemini_course_smoke/README.md): 현재 `4-module guide` 문구로 수정 반영됨\n- [course_outline.md](D:/hoonProJect/worktrees/gemini_course_smoke/docs/course_outline.md): Module 2가 `Accelerating Daily Tasks`로 변경됐고, Module 4와 `Hands-on Exercises` 섹션이 추가됨\n\n참고로 처음엔 구조화 계획 훅 때문에 막혀서 [.todo.md](D:/hoonProJect/worktrees/gemini_course_smoke/.todo.md) 를 넣은 뒤 진행했습니다. 런타임 기록은 [runs](D:/hoonProJect/worktrees/gemini_course_smoke/runs) 와 [.af_runtime](D:/hoonProJect/worktrees/gemini_course_smoke/.af_runtime) 아래에 남아 있습니다.\n\n원하면 다음으로 이 테스트 프로젝트를 기준으로:\n1. 실제 서비스용 프로젝트명으로 하나 더 생성\n2. 생성 산출물 정리\n3. Git 연동까지 이어서 하겠습니다.",
+    "event_timestamp": "2026-03-10T05:08:49.085Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 593,
+    "provider": "codex"
+  }
 }

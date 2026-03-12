@@ -1,18 +1,18 @@
-{
-  "key": "assistant 남은 API-key 의존은 대체로 세 군데 축입니다 coreagent_runnerpy의 GeminiOpenAI 실행 분기 coremanagerpy의 agentrequirement 생성용 Gemini",
-  "value": "[assistant] 남은 API-key 의존은 대체로 세 군데 축입니다. `core/agent_runner.py`의 Gemini/OpenAI 실행 분기, `core/manager.py`의 agent/requirement 생성용 Gemini SDK, `core/config_paths.py`의 부트스트랩 키 강제입니다. 추가 누락이 있는지만 한 번 더 짧게 긁겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T16:45:45.268481+00:00",
-  "updated_at": "2026-03-09T16:45:45.268481+00:00",
-  "details": {
-    "text": "[assistant] 남은 API-key 의존은 대체로 세 군데 축입니다. `core/agent_runner.py`의 Gemini/OpenAI 실행 분기, `core/manager.py`의 agent/requirement 생성용 Gemini SDK, `core/config_paths.py`의 부트스트랩 키 강제입니다. 추가 누락이 있는지만 한 번 더 짧게 긁겠습니다.",
-    "event_timestamp": "2026-03-09T16:37:34.346Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
-    "session_line": 1527,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 남은 API-key 의존은 대체로 세 군데 축입니다 coreagent_runnerpy의 GeminiOpenAI 실행 분기 coremanagerpy의 agentrequirement 생성용 Gemini",
+  "value": "[assistant] 남은 API-key 의존은 대체로 세 군데 축입니다. `core/agent_runner.py`의 Gemini/OpenAI 실행 분기, `core/manager.py`의 agent/requirement 생성용 Gemini SDK, `core/config_paths.py`의 부트스트랩 키 강제입니다. 추가 누락이 있는지만 한 번 더 짧게 긁겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T16:45:45.268481+00:00",
+  "updated_at": "2026-03-09T16:45:45.268481+00:00",
+  "details": {
+    "text": "[assistant] 남은 API-key 의존은 대체로 세 군데 축입니다. `core/agent_runner.py`의 Gemini/OpenAI 실행 분기, `core/manager.py`의 agent/requirement 생성용 Gemini SDK, `core/config_paths.py`의 부트스트랩 키 강제입니다. 추가 누락이 있는지만 한 번 더 짧게 긁겠습니다.",
+    "event_timestamp": "2026-03-09T16:37:34.346Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 1527,
+    "provider": "codex"
+  }
 }

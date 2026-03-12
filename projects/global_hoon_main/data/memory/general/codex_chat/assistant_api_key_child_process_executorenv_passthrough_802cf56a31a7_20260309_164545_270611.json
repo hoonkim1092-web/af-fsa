@@ -1,18 +1,18 @@
-{
-  "key": "assistant API key 사용 자체뿐 아니라 child process로 키를 넘기는 경로도 봐야 합니다 executorenv passthrough 쪽도 함께 확인하겠습니다",
-  "value": "[assistant] API key 사용 자체뿐 아니라 child process로 키를 넘기는 경로도 봐야 합니다. `executor`/env passthrough 쪽도 함께 확인하겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T16:45:45.270724+00:00",
-  "updated_at": "2026-03-09T16:45:45.270724+00:00",
-  "details": {
-    "text": "[assistant] API key 사용 자체뿐 아니라 child process로 키를 넘기는 경로도 봐야 합니다. `executor`/env passthrough 쪽도 함께 확인하겠습니다.",
-    "event_timestamp": "2026-03-09T16:39:33.625Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
-    "session_line": 1561,
-    "provider": "codex"
-  }
+{
+  "key": "assistant API key 사용 자체뿐 아니라 child process로 키를 넘기는 경로도 봐야 합니다 executorenv passthrough 쪽도 함께 확인하겠습니다",
+  "value": "[assistant] API key 사용 자체뿐 아니라 child process로 키를 넘기는 경로도 봐야 합니다. `executor`/env passthrough 쪽도 함께 확인하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T16:45:45.270724+00:00",
+  "updated_at": "2026-03-09T16:45:45.270724+00:00",
+  "details": {
+    "text": "[assistant] API key 사용 자체뿐 아니라 child process로 키를 넘기는 경로도 봐야 합니다. `executor`/env passthrough 쪽도 함께 확인하겠습니다.",
+    "event_timestamp": "2026-03-09T16:39:33.625Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 1561,
+    "provider": "codex"
+  }
 }

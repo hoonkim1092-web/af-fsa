@@ -1,18 +1,18 @@
-{
-  "key": "assistant builderpy를 CLI 우선 경로로 바꿔둔 상태라 지금은 변경 내용과 테스트 결과를 빠르게 검증해서 마무리하겠습니다 corebuilderpy 새 테스트 문서 반영 상태만 확인하고 결과를 정리하겠",
-  "value": "[assistant] `builder.py`를 CLI 우선 경로로 바꿔둔 상태라, 지금은 변경 내용과 테스트 결과를 빠르게 검증해서 마무리하겠습니다. `core/builder.py`, 새 테스트, 문서 반영 상태만 확인하고 결과를 정리하겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T14:47:28.242718+00:00",
-  "updated_at": "2026-03-10T14:47:28.242718+00:00",
-  "details": {
-    "text": "[assistant] `builder.py`를 CLI 우선 경로로 바꿔둔 상태라, 지금은 변경 내용과 테스트 결과를 빠르게 검증해서 마무리하겠습니다. `core/builder.py`, 새 테스트, 문서 반영 상태만 확인하고 결과를 정리하겠습니다.",
-    "event_timestamp": "2026-03-10T14:46:51.102Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
-    "session_line": 610,
-    "provider": "codex"
-  }
+{
+  "key": "assistant builderpy를 CLI 우선 경로로 바꿔둔 상태라 지금은 변경 내용과 테스트 결과를 빠르게 검증해서 마무리하겠습니다 corebuilderpy 새 테스트 문서 반영 상태만 확인하고 결과를 정리하겠",
+  "value": "[assistant] `builder.py`를 CLI 우선 경로로 바꿔둔 상태라, 지금은 변경 내용과 테스트 결과를 빠르게 검증해서 마무리하겠습니다. `core/builder.py`, 새 테스트, 문서 반영 상태만 확인하고 결과를 정리하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T14:47:28.242718+00:00",
+  "updated_at": "2026-03-10T14:47:28.242718+00:00",
+  "details": {
+    "text": "[assistant] `builder.py`를 CLI 우선 경로로 바꿔둔 상태라, 지금은 변경 내용과 테스트 결과를 빠르게 검증해서 마무리하겠습니다. `core/builder.py`, 새 테스트, 문서 반영 상태만 확인하고 결과를 정리하겠습니다.",
+    "event_timestamp": "2026-03-10T14:46:51.102Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
+    "session_line": 610,
+    "provider": "codex"
+  }
 }

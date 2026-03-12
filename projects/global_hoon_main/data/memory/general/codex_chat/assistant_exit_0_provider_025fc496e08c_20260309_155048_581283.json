@@ -1,18 +1,18 @@
-{
-  "key": "assistant 엔트리포인트는 끝까지 실행됐고 프로세스도 exit 0으로 종료했습니다 출력이 중간에서 끊겨 보여서 실제 런 결과 파일에서 성공 여부와 provider를 확정하겠습니다",
-  "value": "[assistant] 엔트리포인트는 끝까지 실행됐고 프로세스도 `exit 0`으로 종료했습니다. 출력이 중간에서 끊겨 보여서, 실제 런 결과 파일에서 성공 여부와 provider를 확정하겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T15:50:48.581362+00:00",
-  "updated_at": "2026-03-09T15:50:48.581362+00:00",
-  "details": {
-    "text": "[assistant] 엔트리포인트는 끝까지 실행됐고 프로세스도 `exit 0`으로 종료했습니다. 출력이 중간에서 끊겨 보여서, 실제 런 결과 파일에서 성공 여부와 provider를 확정하겠습니다.",
-    "event_timestamp": "2026-03-09T15:49:00.767Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
-    "session_line": 789,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 엔트리포인트는 끝까지 실행됐고 프로세스도 exit 0으로 종료했습니다 출력이 중간에서 끊겨 보여서 실제 런 결과 파일에서 성공 여부와 provider를 확정하겠습니다",
+  "value": "[assistant] 엔트리포인트는 끝까지 실행됐고 프로세스도 `exit 0`으로 종료했습니다. 출력이 중간에서 끊겨 보여서, 실제 런 결과 파일에서 성공 여부와 provider를 확정하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T15:50:48.581362+00:00",
+  "updated_at": "2026-03-09T15:50:48.581362+00:00",
+  "details": {
+    "text": "[assistant] 엔트리포인트는 끝까지 실행됐고 프로세스도 `exit 0`으로 종료했습니다. 출력이 중간에서 끊겨 보여서, 실제 런 결과 파일에서 성공 여부와 provider를 확정하겠습니다.",
+    "event_timestamp": "2026-03-09T15:49:00.767Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 789,
+    "provider": "codex"
+  }
 }

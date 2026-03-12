@@ -1,18 +1,18 @@
-{
-  "key": "assistant 이번엔 dashboardjson을 런타임 아티팩트로 분리하겠습니다 방향은 프로젝트 루트의 tracked 파일에서 빼고 PROJECT_ROOTaf_runtimedashboardjson으로 옮기는 쪽이",
-  "value": "[assistant] 이번엔 `dashboard.json`을 런타임 아티팩트로 분리하겠습니다. 방향은 `프로젝트 루트의 tracked 파일`에서 빼고 `PROJECT_ROOT/.af_runtime/dashboard.json`으로 옮기는 쪽이 가장 안전합니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T09:49:23.047583+00:00",
-  "updated_at": "2026-03-09T09:49:23.047583+00:00",
-  "details": {
-    "text": "[assistant] 이번엔 `dashboard.json`을 런타임 아티팩트로 분리하겠습니다. 방향은 `프로젝트 루트의 tracked 파일`에서 빼고 `PROJECT_ROOT/.af_runtime/dashboard.json`으로 옮기는 쪽이 가장 안전합니다.",
-    "event_timestamp": "2026-03-09T09:12:20.885Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/09/rollout-2026-03-09T12-29-14-019cd0a4-4ded-7bd3-b7ae-a9832dc22d45.jsonl",
-    "session_line": 1743,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 이번엔 dashboardjson을 런타임 아티팩트로 분리하겠습니다 방향은 프로젝트 루트의 tracked 파일에서 빼고 PROJECT_ROOTaf_runtimedashboardjson으로 옮기는 쪽이",
+  "value": "[assistant] 이번엔 `dashboard.json`을 런타임 아티팩트로 분리하겠습니다. 방향은 `프로젝트 루트의 tracked 파일`에서 빼고 `PROJECT_ROOT/.af_runtime/dashboard.json`으로 옮기는 쪽이 가장 안전합니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T09:49:23.047583+00:00",
+  "updated_at": "2026-03-09T09:49:23.047583+00:00",
+  "details": {
+    "text": "[assistant] 이번엔 `dashboard.json`을 런타임 아티팩트로 분리하겠습니다. 방향은 `프로젝트 루트의 tracked 파일`에서 빼고 `PROJECT_ROOT/.af_runtime/dashboard.json`으로 옮기는 쪽이 가장 안전합니다.",
+    "event_timestamp": "2026-03-09T09:12:20.885Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/09/rollout-2026-03-09T12-29-14-019cd0a4-4ded-7bd3-b7ae-a9832dc22d45.jsonl",
+    "session_line": 1743,
+    "provider": "codex"
+  }
 }

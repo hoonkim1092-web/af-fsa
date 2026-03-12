@@ -1,18 +1,18 @@
-{
-  "key": "assistant 브라우저 로그인은 안 했습니다지금 제미나이 CLI는 기존 환경변수 GEMINI_API_KEY가 잡혀 있어서 그걸로 인증된 상태였습니다 그래서 제가 확인한 건- GEMINI_API_KEY 존재 확인-",
-  "value": "[assistant] 브라우저 로그인은 안 했습니다.  지금 제미나이 CLI는 기존 환경변수 `GEMINI_API_KEY`가 잡혀 있어서 그걸로 인증된 상태였습니다. 그래서 제가 확인한 건: - `GEMINI_API_KEY` 존재 확인 - `gemini.cmd --version` 동작 확인 - 직접 CLI 스모크 실행 성공  즉 `로그인 세션`을 만든 건 아니고, `API key 인증`으로 사용 중이었습니다. 원하면 브라우저 로그인 방식으로도 따로 확인해볼...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T16:31:42.488543+00:00",
-  "updated_at": "2026-03-09T16:31:42.488543+00:00",
-  "details": {
-    "text": "[assistant] 브라우저 로그인은 안 했습니다.\n\n지금 제미나이 CLI는 기존 환경변수 `GEMINI_API_KEY`가 잡혀 있어서 그걸로 인증된 상태였습니다. 그래서 제가 확인한 건:\n- `GEMINI_API_KEY` 존재 확인\n- `gemini.cmd --version` 동작 확인\n- 직접 CLI 스모크 실행 성공\n\n즉 `로그인 세션`을 만든 건 아니고, `API key 인증`으로 사용 중이었습니다. 원하면 브라우저 로그인 방식으로도 따로 확인해볼 수 있습니다.",
-    "event_timestamp": "2026-03-09T16:03:44.654Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
-    "session_line": 895,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 브라우저 로그인은 안 했습니다지금 제미나이 CLI는 기존 환경변수 GEMINI_API_KEY가 잡혀 있어서 그걸로 인증된 상태였습니다 그래서 제가 확인한 건- GEMINI_API_KEY 존재 확인-",
+  "value": "[assistant] 브라우저 로그인은 안 했습니다.  지금 제미나이 CLI는 기존 환경변수 `GEMINI_API_KEY`가 잡혀 있어서 그걸로 인증된 상태였습니다. 그래서 제가 확인한 건: - `GEMINI_API_KEY` 존재 확인 - `gemini.cmd --version` 동작 확인 - 직접 CLI 스모크 실행 성공  즉 `로그인 세션`을 만든 건 아니고, `API key 인증`으로 사용 중이었습니다. 원하면 브라우저 로그인 방식으로도 따로 확인해볼...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T16:31:42.488543+00:00",
+  "updated_at": "2026-03-09T16:31:42.488543+00:00",
+  "details": {
+    "text": "[assistant] 브라우저 로그인은 안 했습니다.\n\n지금 제미나이 CLI는 기존 환경변수 `GEMINI_API_KEY`가 잡혀 있어서 그걸로 인증된 상태였습니다. 그래서 제가 확인한 건:\n- `GEMINI_API_KEY` 존재 확인\n- `gemini.cmd --version` 동작 확인\n- 직접 CLI 스모크 실행 성공\n\n즉 `로그인 세션`을 만든 건 아니고, `API key 인증`으로 사용 중이었습니다. 원하면 브라우저 로그인 방식으로도 따로 확인해볼 수 있습니다.",
+    "event_timestamp": "2026-03-09T16:03:44.654Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 895,
+    "provider": "codex"
+  }
 }

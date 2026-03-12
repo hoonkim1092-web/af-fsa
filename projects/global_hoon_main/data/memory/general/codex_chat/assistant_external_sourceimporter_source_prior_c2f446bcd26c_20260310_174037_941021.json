@@ -1,18 +1,18 @@
-{
-  "key": "assistant 최근 변경한 external sourceimporter 경로를 중심으로 실제 동작상 깨질 수 있는 부분과 테스트 공백을 검토하겠습니다 우선 관련 파일을 라인 번호와 함께 읽고 source prior",
-  "value": "[assistant] 최근 변경한 external source/importer 경로를 중심으로, 실제 동작상 깨질 수 있는 부분과 테스트 공백을 검토하겠습니다. 우선 관련 파일을 라인 번호와 함께 읽고, source priority, importer merge, builder fallback 연결부를 확인하겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T17:40:37.941133+00:00",
-  "updated_at": "2026-03-10T17:40:37.941133+00:00",
-  "details": {
-    "text": "[assistant] 최근 변경한 external source/importer 경로를 중심으로, 실제 동작상 깨질 수 있는 부분과 테스트 공백을 검토하겠습니다. 우선 관련 파일을 라인 번호와 함께 읽고, source priority, importer merge, builder fallback 연결부를 확인하겠습니다.",
-    "event_timestamp": "2026-03-10T15:16:37.956Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
-    "session_line": 1129,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 최근 변경한 external sourceimporter 경로를 중심으로 실제 동작상 깨질 수 있는 부분과 테스트 공백을 검토하겠습니다 우선 관련 파일을 라인 번호와 함께 읽고 source prior",
+  "value": "[assistant] 최근 변경한 external source/importer 경로를 중심으로, 실제 동작상 깨질 수 있는 부분과 테스트 공백을 검토하겠습니다. 우선 관련 파일을 라인 번호와 함께 읽고, source priority, importer merge, builder fallback 연결부를 확인하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:37.941133+00:00",
+  "updated_at": "2026-03-10T17:40:37.941133+00:00",
+  "details": {
+    "text": "[assistant] 최근 변경한 external source/importer 경로를 중심으로, 실제 동작상 깨질 수 있는 부분과 테스트 공백을 검토하겠습니다. 우선 관련 파일을 라인 번호와 함께 읽고, source priority, importer merge, builder fallback 연결부를 확인하겠습니다.",
+    "event_timestamp": "2026-03-10T15:16:37.956Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
+    "session_line": 1129,
+    "provider": "codex"
+  }
 }

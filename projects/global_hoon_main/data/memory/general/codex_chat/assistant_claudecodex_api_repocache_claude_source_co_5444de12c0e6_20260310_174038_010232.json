@@ -1,18 +1,18 @@
-{
-  "key": "assistant 아니요 지금은 그 방식이 아닙니다현재 구조는- ClaudeCodex 엔진 내부 스킬 마켓에 API로 질의해서 가져오는 게 아님- 우리가 지정한 외부 repocache를 claude source co",
-  "value": "[assistant] 아니요. 지금은 그 방식이 아닙니다.  현재 구조는: - `Claude/Codex 엔진 내부 스킬 마켓`에 API로 질의해서 가져오는 게 아님 - 우리가 지정한 외부 repo/cache를 `claude` source, `codex` source라는 이름으로 읽는 구조입니다  즉 실제 소스는 이런 쪽입니다. - `AGENT_EXTERNAL_SKILL_CLAUDE_REPOS` - `AGENT_EXTERNAL_SKILL_CODEX_REPOS...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T17:40:38.010559+00:00",
-  "updated_at": "2026-03-10T17:40:38.010559+00:00",
-  "details": {
-    "text": "[assistant] 아니요. 지금은 그 방식이 아닙니다.\n\n현재 구조는:\n- `Claude/Codex 엔진 내부 스킬 마켓`에 API로 질의해서 가져오는 게 아님\n- 우리가 지정한 외부 repo/cache를 `claude` source, `codex` source라는 이름으로 읽는 구조입니다\n\n즉 실제 소스는 이런 쪽입니다.\n- `AGENT_EXTERNAL_SKILL_CLAUDE_REPOS`\n- `AGENT_EXTERNAL_SKILL_CODEX_REPOS`\n- 또는 `skills/_external_cache/claude/...`\n- 또는 `skills/_external_cache/codex/...`\n\n코드 위치:\n- source 설정 읽기: [external_skill_sources.py](/D:/warkSpaces/agent-factory/core/external_skill_sources.py#L45)\n- 외부 cache/importer: [external_skill_candidate_importer.py](/D:/warkSpaces/agent-factory/core/external_skill_candidate_importer.py#L232)\n- 실제 resolver 우선순위: [external_skill_sources.py](/D:/warkSpaces/agent-factory/core/external_skill_sources.py#L322)\n\n그래서 `claude`나 `codex`는 지금 “벤더 공식 스킬 마켓”이 아니라\n- `source label`\n- 또는 `repo bucket 이름`\n정도로 보는 게 맞습니다.\n\n한 줄 결론:\n- 지금은 `엔진 내부 마켓 연동` 아님\n- `외부 repo/cache 기반 수집`임\n\n원하면 다음으로\n1. 진짜 내부 마켓 연동이 가능한지 구조 검토\n2. 지금 명칭을 헷갈리지 않게 `claude_repo`, `codex_repo`로 바꾸는 리팩터링\n둘 중 하나 바로 정리해드리겠습니다.",
-    "event_timestamp": "2026-03-10T15:53:43.786Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
-    "session_line": 1852,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 아니요 지금은 그 방식이 아닙니다현재 구조는- ClaudeCodex 엔진 내부 스킬 마켓에 API로 질의해서 가져오는 게 아님- 우리가 지정한 외부 repocache를 claude source co",
+  "value": "[assistant] 아니요. 지금은 그 방식이 아닙니다.  현재 구조는: - `Claude/Codex 엔진 내부 스킬 마켓`에 API로 질의해서 가져오는 게 아님 - 우리가 지정한 외부 repo/cache를 `claude` source, `codex` source라는 이름으로 읽는 구조입니다  즉 실제 소스는 이런 쪽입니다. - `AGENT_EXTERNAL_SKILL_CLAUDE_REPOS` - `AGENT_EXTERNAL_SKILL_CODEX_REPOS...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:38.010559+00:00",
+  "updated_at": "2026-03-10T17:40:38.010559+00:00",
+  "details": {
+    "text": "[assistant] 아니요. 지금은 그 방식이 아닙니다.\n\n현재 구조는:\n- `Claude/Codex 엔진 내부 스킬 마켓`에 API로 질의해서 가져오는 게 아님\n- 우리가 지정한 외부 repo/cache를 `claude` source, `codex` source라는 이름으로 읽는 구조입니다\n\n즉 실제 소스는 이런 쪽입니다.\n- `AGENT_EXTERNAL_SKILL_CLAUDE_REPOS`\n- `AGENT_EXTERNAL_SKILL_CODEX_REPOS`\n- 또는 `skills/_external_cache/claude/...`\n- 또는 `skills/_external_cache/codex/...`\n\n코드 위치:\n- source 설정 읽기: [external_skill_sources.py](/D:/warkSpaces/agent-factory/core/external_skill_sources.py#L45)\n- 외부 cache/importer: [external_skill_candidate_importer.py](/D:/warkSpaces/agent-factory/core/external_skill_candidate_importer.py#L232)\n- 실제 resolver 우선순위: [external_skill_sources.py](/D:/warkSpaces/agent-factory/core/external_skill_sources.py#L322)\n\n그래서 `claude`나 `codex`는 지금 “벤더 공식 스킬 마켓”이 아니라\n- `source label`\n- 또는 `repo bucket 이름`\n정도로 보는 게 맞습니다.\n\n한 줄 결론:\n- 지금은 `엔진 내부 마켓 연동` 아님\n- `외부 repo/cache 기반 수집`임\n\n원하면 다음으로\n1. 진짜 내부 마켓 연동이 가능한지 구조 검토\n2. 지금 명칭을 헷갈리지 않게 `claude_repo`, `codex_repo`로 바꾸는 리팩터링\n둘 중 하나 바로 정리해드리겠습니다.",
+    "event_timestamp": "2026-03-10T15:53:43.786Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
+    "session_line": 1852,
+    "provider": "codex"
+  }
 }

@@ -1,18 +1,18 @@
-{
-  "key": "assistant 커밋하고 푸시했습니다- 브랜치 featunified-project-pipeline-subscription- 커밋 6694cac- 메시지 Refine CLI builder fallback and ex",
-  "value": "[assistant] 커밋하고 푸시했습니다.  - 브랜치: `feat/unified-project-pipeline-subscription` - 커밋: `6694cac` - 메시지: `Refine CLI builder fallback and external skill sourcing`  원격 푸시도 완료됐습니다: - `origin/feat/unified-project-pipeline-subscription` 까지 반영됨  참고로 커밋에는 이번에 작업한 소스/...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T17:40:38.047248+00:00",
-  "updated_at": "2026-03-10T17:40:38.047248+00:00",
-  "details": {
-    "text": "[assistant] 커밋하고 푸시했습니다.\n\n- 브랜치: `feat/unified-project-pipeline-subscription`\n- 커밋: `6694cac`\n- 메시지: `Refine CLI builder fallback and external skill sourcing`\n\n원격 푸시도 완료됐습니다:\n- `origin/feat/unified-project-pipeline-subscription` 까지 반영됨\n\n참고로 커밋에는 이번에 작업한 소스/테스트/문서만 넣었고, 워크트리에 남아 있는 프로젝트 런타임 로그나 메모리 JSON 같은 다른 로컬 변경은 포함하지 않았습니다.",
-    "event_timestamp": "2026-03-10T16:27:53.584Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
-    "session_line": 2303,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 커밋하고 푸시했습니다- 브랜치 featunified-project-pipeline-subscription- 커밋 6694cac- 메시지 Refine CLI builder fallback and ex",
+  "value": "[assistant] 커밋하고 푸시했습니다.  - 브랜치: `feat/unified-project-pipeline-subscription` - 커밋: `6694cac` - 메시지: `Refine CLI builder fallback and external skill sourcing`  원격 푸시도 완료됐습니다: - `origin/feat/unified-project-pipeline-subscription` 까지 반영됨  참고로 커밋에는 이번에 작업한 소스/...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:38.047248+00:00",
+  "updated_at": "2026-03-10T17:40:38.047248+00:00",
+  "details": {
+    "text": "[assistant] 커밋하고 푸시했습니다.\n\n- 브랜치: `feat/unified-project-pipeline-subscription`\n- 커밋: `6694cac`\n- 메시지: `Refine CLI builder fallback and external skill sourcing`\n\n원격 푸시도 완료됐습니다:\n- `origin/feat/unified-project-pipeline-subscription` 까지 반영됨\n\n참고로 커밋에는 이번에 작업한 소스/테스트/문서만 넣었고, 워크트리에 남아 있는 프로젝트 런타임 로그나 메모리 JSON 같은 다른 로컬 변경은 포함하지 않았습니다.",
+    "event_timestamp": "2026-03-10T16:27:53.584Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
+    "session_line": 2303,
+    "provider": "codex"
+  }
 }

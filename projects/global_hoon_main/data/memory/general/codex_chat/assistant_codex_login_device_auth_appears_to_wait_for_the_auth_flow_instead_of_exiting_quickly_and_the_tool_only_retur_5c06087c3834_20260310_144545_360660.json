@@ -1,18 +1,18 @@
-{
-  "key": "assistant codex login --device-auth appears to wait for the auth flow instead of exiting quickly and the tool only retur",
-  "value": "[assistant] `codex login --device-auth` appears to wait for the auth flow instead of exiting quickly, and the tool only returns output when the process ends. I’m restarting it in the background with stdout redirected so I can read the device code as soon as...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T14:45:45.360796+00:00",
-  "updated_at": "2026-03-10T14:45:45.360796+00:00",
-  "details": {
-    "text": "[assistant] `codex login --device-auth` appears to wait for the auth flow instead of exiting quickly, and the tool only returns output when the process ends. I’m restarting it in the background with stdout redirected so I can read the device code as soon as it is emitted.",
-    "event_timestamp": "2026-03-10T12:29:46.779Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-26-38-019cd7b6-a943-76b0-a5ca-ea4ca0db60e7.jsonl",
-    "session_line": 22,
-    "provider": "codex"
-  }
+{
+  "key": "assistant codex login --device-auth appears to wait for the auth flow instead of exiting quickly and the tool only retur",
+  "value": "[assistant] `codex login --device-auth` appears to wait for the auth flow instead of exiting quickly, and the tool only returns output when the process ends. I’m restarting it in the background with stdout redirected so I can read the device code as soon as...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T14:45:45.360796+00:00",
+  "updated_at": "2026-03-10T14:45:45.360796+00:00",
+  "details": {
+    "text": "[assistant] `codex login --device-auth` appears to wait for the auth flow instead of exiting quickly, and the tool only returns output when the process ends. I’m restarting it in the background with stdout redirected so I can read the device code as soon as it is emitted.",
+    "event_timestamp": "2026-03-10T12:29:46.779Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-26-38-019cd7b6-a943-76b0-a5ca-ea4ca0db60e7.jsonl",
+    "session_line": 22,
+    "provider": "codex"
+  }
 }

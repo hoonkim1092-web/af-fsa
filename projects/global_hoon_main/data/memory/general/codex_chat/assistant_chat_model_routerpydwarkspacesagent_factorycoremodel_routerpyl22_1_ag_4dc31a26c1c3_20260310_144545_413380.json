@@ -1,18 +1,18 @@
-{
-  "key": "assistant chat에는 고정된 단일 기본 엔진이 있는 게 아닙니다 model_routerpyDwarkSpacesagent-factorycoremodel_routerpyL22 기준으로 순서대로 덮어씁니다1 AG",
-  "value": "[assistant] `chat`에는 고정된 단일 기본 엔진이 있는 게 아닙니다. [model_router.py](/D:/warkSpaces/agent-factory/core/model_router.py#L22) 기준으로 순서대로 덮어씁니다.  1. `AGENT_CHAT_MODEL`이 있으면 그 모델을 강제 사용합니다. 2. `AGENT_CHAT_PROVIDER`가 있으면 provider 기본 alias를 씁니다.    - `claude_cli -> cla...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T14:45:45.413748+00:00",
-  "updated_at": "2026-03-10T14:45:45.413748+00:00",
-  "details": {
-    "text": "[assistant] `chat`에는 고정된 단일 기본 엔진이 있는 게 아닙니다. [model_router.py](/D:/warkSpaces/agent-factory/core/model_router.py#L22) 기준으로 순서대로 덮어씁니다.\n\n1. `AGENT_CHAT_MODEL`이 있으면 그 모델을 강제 사용합니다.\n2. `AGENT_CHAT_PROVIDER`가 있으면 provider 기본 alias를 씁니다.\n   - `claude_cli -> claude`\n   - `gemini_cli -> gemini`\n   - `codex_cli -> gpt-5`\n   근거: [registry.py](/D:/warkSpaces/agent-factory/core/providers/registry.py#L9)\n3. 단순 작업이면 `lightweight` 엔진으로 갑니다.\n   - 실제 우선순위: `Claude Haiku -> OpenAI GPT mini -> Gemini Flash`\n   - 근거: [model_utils.py](/D:/warkSpaces/agent-factory/model_utils.py#L536)\n4. 복잡 작업이면 role 기반 엔진으로 갑니다.\n   - role 키워드 매핑: [model_utils.py](/D:/warkSpaces/agent-factory/model_utils.py#L564)\n   - 예:\n     - `architect/design` -> `architect_claude`\n     - `developer/engineer` -> `coder_claude`\n     - `research` -> `researcher_gemini`\n     - `manager/pd/director` -> `manager_gpt`\n     - `reason/reviewer` -> `reasoner_o`\n     - `codex/pipeline` -> `codex`\n\n그래서 “아무 설정도 없고 role도 특별하지 않은 기본값”만 딱 말하면:\n- 단순 작업이면 `lightweight`\n- 그 외 기본 fallback 엔진은 `researcher_gemini`\n근거: [model_router.py](/D:/warkSpaces/agent-factory/core/model_router.py#L33), [model_utils.py](/D:/warkSpaces/agent-factory/model_utils.py#L575)\n\n다만 당신처럼 `API key를 안 쓸` 거면, 실운영 기본 엔진은 내부 `researcher_gemini`가 아니라 `CLI provider`입니다. 즉 보통은 `AGENT_CHAT_PROVIDER=gemini_cli` 같은 식으로 두고, 실제 실행기는 Gemini CLI가 됩니다.",
-    "event_timestamp": "2026-03-10T14:23:21.722Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
-    "session_line": 473,
-    "provider": "codex"
-  }
+{
+  "key": "assistant chat에는 고정된 단일 기본 엔진이 있는 게 아닙니다 model_routerpyDwarkSpacesagent-factorycoremodel_routerpyL22 기준으로 순서대로 덮어씁니다1 AG",
+  "value": "[assistant] `chat`에는 고정된 단일 기본 엔진이 있는 게 아닙니다. [model_router.py](/D:/warkSpaces/agent-factory/core/model_router.py#L22) 기준으로 순서대로 덮어씁니다.  1. `AGENT_CHAT_MODEL`이 있으면 그 모델을 강제 사용합니다. 2. `AGENT_CHAT_PROVIDER`가 있으면 provider 기본 alias를 씁니다.    - `claude_cli -> cla...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T14:45:45.413748+00:00",
+  "updated_at": "2026-03-10T14:45:45.413748+00:00",
+  "details": {
+    "text": "[assistant] `chat`에는 고정된 단일 기본 엔진이 있는 게 아닙니다. [model_router.py](/D:/warkSpaces/agent-factory/core/model_router.py#L22) 기준으로 순서대로 덮어씁니다.\n\n1. `AGENT_CHAT_MODEL`이 있으면 그 모델을 강제 사용합니다.\n2. `AGENT_CHAT_PROVIDER`가 있으면 provider 기본 alias를 씁니다.\n   - `claude_cli -> claude`\n   - `gemini_cli -> gemini`\n   - `codex_cli -> gpt-5`\n   근거: [registry.py](/D:/warkSpaces/agent-factory/core/providers/registry.py#L9)\n3. 단순 작업이면 `lightweight` 엔진으로 갑니다.\n   - 실제 우선순위: `Claude Haiku -> OpenAI GPT mini -> Gemini Flash`\n   - 근거: [model_utils.py](/D:/warkSpaces/agent-factory/model_utils.py#L536)\n4. 복잡 작업이면 role 기반 엔진으로 갑니다.\n   - role 키워드 매핑: [model_utils.py](/D:/warkSpaces/agent-factory/model_utils.py#L564)\n   - 예:\n     - `architect/design` -> `architect_claude`\n     - `developer/engineer` -> `coder_claude`\n     - `research` -> `researcher_gemini`\n     - `manager/pd/director` -> `manager_gpt`\n     - `reason/reviewer` -> `reasoner_o`\n     - `codex/pipeline` -> `codex`\n\n그래서 “아무 설정도 없고 role도 특별하지 않은 기본값”만 딱 말하면:\n- 단순 작업이면 `lightweight`\n- 그 외 기본 fallback 엔진은 `researcher_gemini`\n근거: [model_router.py](/D:/warkSpaces/agent-factory/core/model_router.py#L33), [model_utils.py](/D:/warkSpaces/agent-factory/model_utils.py#L575)\n\n다만 당신처럼 `API key를 안 쓸` 거면, 실운영 기본 엔진은 내부 `researcher_gemini`가 아니라 `CLI provider`입니다. 즉 보통은 `AGENT_CHAT_PROVIDER=gemini_cli` 같은 식으로 두고, 실제 실행기는 Gemini CLI가 됩니다.",
+    "event_timestamp": "2026-03-10T14:23:21.722Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
+    "session_line": 473,
+    "provider": "codex"
+  }
 }

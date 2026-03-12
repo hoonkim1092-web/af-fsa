@@ -1,18 +1,18 @@
-{
-  "key": "assistant 확인됐습니다 지금 OpenAI로 실제 호출됩니다검증 결과- codex exec Reply with exactly OPENAI_OK 실행- 응답 OPENAI_OK- provider openai- mo",
-  "value": "[assistant] 확인됐습니다. 지금 OpenAI로 실제 호출됩니다.  검증 결과: - `codex exec \"Reply with exactly: OPENAI_OK\"` 실행 - 응답: `OPENAI_OK` - provider: `openai` - model: `gpt-5.4`  즉 현재는 `OpenAI/Codex 로그인 + 실제 API 호출`까지 정상입니다.   처음 시도는 샌드박스 네트워크 제한 때문에 막혔고, 권한 상승으로 재실행했을 때 성공했습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T14:39:12.854506+00:00",
-  "updated_at": "2026-03-09T14:39:12.854506+00:00",
-  "details": {
-    "text": "[assistant] 확인됐습니다. 지금 OpenAI로 실제 호출됩니다.\n\n검증 결과:\n- `codex exec \"Reply with exactly: OPENAI_OK\"` 실행\n- 응답: `OPENAI_OK`\n- provider: `openai`\n- model: `gpt-5.4`\n\n즉 현재는 `OpenAI/Codex 로그인 + 실제 API 호출`까지 정상입니다.  \n처음 시도는 샌드박스 네트워크 제한 때문에 막혔고, 권한 상승으로 재실행했을 때 성공했습니다.",
-    "event_timestamp": "2026-03-07T17:40:15.722Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/07/rollout-2026-03-07T23-57-50-019cc8ce-02f3-7c92-a357-f51576977b23.jsonl",
-    "session_line": 1847,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 확인됐습니다 지금 OpenAI로 실제 호출됩니다검증 결과- codex exec Reply with exactly OPENAI_OK 실행- 응답 OPENAI_OK- provider openai- mo",
+  "value": "[assistant] 확인됐습니다. 지금 OpenAI로 실제 호출됩니다.  검증 결과: - `codex exec \"Reply with exactly: OPENAI_OK\"` 실행 - 응답: `OPENAI_OK` - provider: `openai` - model: `gpt-5.4`  즉 현재는 `OpenAI/Codex 로그인 + 실제 API 호출`까지 정상입니다.   처음 시도는 샌드박스 네트워크 제한 때문에 막혔고, 권한 상승으로 재실행했을 때 성공했습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T14:39:12.854506+00:00",
+  "updated_at": "2026-03-09T14:39:12.854506+00:00",
+  "details": {
+    "text": "[assistant] 확인됐습니다. 지금 OpenAI로 실제 호출됩니다.\n\n검증 결과:\n- `codex exec \"Reply with exactly: OPENAI_OK\"` 실행\n- 응답: `OPENAI_OK`\n- provider: `openai`\n- model: `gpt-5.4`\n\n즉 현재는 `OpenAI/Codex 로그인 + 실제 API 호출`까지 정상입니다.  \n처음 시도는 샌드박스 네트워크 제한 때문에 막혔고, 권한 상승으로 재실행했을 때 성공했습니다.",
+    "event_timestamp": "2026-03-07T17:40:15.722Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/07/rollout-2026-03-07T23-57-50-019cc8ce-02f3-7c92-a357-f51576977b23.jsonl",
+    "session_line": 1847,
+    "provider": "codex"
+  }
 }

@@ -1,18 +1,18 @@
-{
-  "key": "user --ask-for-approval never --sandbox workspace-write          이건 뭐지",
-  "value": "[user] --ask-for-approval never --sandbox workspace-write          이건 뭐지",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T06:58:54.445405+00:00",
-  "updated_at": "2026-03-10T06:58:54.445405+00:00",
-  "details": {
-    "text": "[user] --ask-for-approval never --sandbox workspace-write          이건 뭐지",
-    "event_timestamp": "2026-03-10T06:48:49.264Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
-    "session_line": 1074,
-    "provider": "codex"
-  }
+{
+  "key": "user --ask-for-approval never --sandbox workspace-write          이건 뭐지",
+  "value": "[user] --ask-for-approval never --sandbox workspace-write          이건 뭐지",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T06:58:54.445405+00:00",
+  "updated_at": "2026-03-10T06:58:54.445405+00:00",
+  "details": {
+    "text": "[user] --ask-for-approval never --sandbox workspace-write          이건 뭐지",
+    "event_timestamp": "2026-03-10T06:48:49.264Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 1074,
+    "provider": "codex"
+  }
 }

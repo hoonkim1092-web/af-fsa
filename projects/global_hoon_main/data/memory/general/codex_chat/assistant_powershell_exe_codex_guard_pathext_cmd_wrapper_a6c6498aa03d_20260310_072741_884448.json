@@ -1,18 +1,18 @@
-{
-  "key": "assistant 직접 powershell 호출이 실제 exe를 먼저 잡는 케이스가 있어서 Codex guard 환경에서 PATHEXT도 조정해 cmd wrapper가 우선되도록 올리겠습니다",
-  "value": "[assistant] 직접 `powershell` 호출이 실제 `.exe`를 먼저 잡는 케이스가 있어서, Codex guard 환경에서 `PATHEXT`도 조정해 `.cmd` wrapper가 우선되도록 올리겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T07:27:41.884553+00:00",
-  "updated_at": "2026-03-10T07:27:41.884553+00:00",
-  "details": {
-    "text": "[assistant] 직접 `powershell` 호출이 실제 `.exe`를 먼저 잡는 케이스가 있어서, Codex guard 환경에서 `PATHEXT`도 조정해 `.cmd` wrapper가 우선되도록 올리겠습니다.",
-    "event_timestamp": "2026-03-10T07:26:50.433Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
-    "session_line": 1435,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 직접 powershell 호출이 실제 exe를 먼저 잡는 케이스가 있어서 Codex guard 환경에서 PATHEXT도 조정해 cmd wrapper가 우선되도록 올리겠습니다",
+  "value": "[assistant] 직접 `powershell` 호출이 실제 `.exe`를 먼저 잡는 케이스가 있어서, Codex guard 환경에서 `PATHEXT`도 조정해 `.cmd` wrapper가 우선되도록 올리겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T07:27:41.884553+00:00",
+  "updated_at": "2026-03-10T07:27:41.884553+00:00",
+  "details": {
+    "text": "[assistant] 직접 `powershell` 호출이 실제 `.exe`를 먼저 잡는 케이스가 있어서, Codex guard 환경에서 `PATHEXT`도 조정해 `.cmd` wrapper가 우선되도록 올리겠습니다.",
+    "event_timestamp": "2026-03-10T07:26:50.433Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 1435,
+    "provider": "codex"
+  }
 }

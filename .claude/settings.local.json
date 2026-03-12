@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(where sync:*)",
+      "Read(//d D:/hoonProJect/worktrees/**)",
+      "Bash(cmd /c start_db.cmd agent-factory)",
+      "WebFetch(domain:aisparkup.com)",
+      "Bash(pip list:*)",
+      "Bash(find \"D:/hoonProJect/worktrees/agent-factory\" -maxdepth 2 -type f \\\\\\( -name \"requirements*.txt\" -o -name \"pyproject.toml\" -o -name \"setup.py\" -o -name \"setup.cfg\" -o -name \"poetry.lock\" -o -name \"Pipfile\" \\\\\\) 2>/dev/null | head -20)",
+      "Bash(find \"D:/hoonProJect/worktrees/agent-factory\" -type f -name \"*.toml\" -o -name \"*.cfg\" 2>/dev/null | head -20)",
+      "Bash(grep -l \"langchain\\\\|langgraph\" \"D:/hoonProJect/worktrees/agent-factory\"/*.py 2>/dev/null | head -10)",
+      "Bash(find \"D:/hoonProJect/worktrees/agent-factory/core\" -type f -name \"*.py\" -exec grep -l \"langchain\\\\|langgraph\" {} \\\\; 2>/dev/null | head -10)",
+      "Bash(find \"D:/hoonProJect/worktrees/agent-factory/docs\" -type f -name \"*.md\" 2>/dev/null | head -10)",
+      "Bash(grep -r \"import.*langchain\\\\|from.*langchain\" \"D:/hoonProJect/worktrees/agent-factory\" --include=\"*.py\" 2>/dev/null | head -20)",
+      "Bash(pip show:*)",
+      "Bash(cd \"D:\\\\hoonProJect\\\\worktrees\\\\agent-factory\" && python -c \"from core.langchain_adapter import LANGCHAIN_AVAILABLE; print\\(f'LANGCHAIN_AVAILABLE={LANGCHAIN_AVAILABLE}'\\)\")",
+      "Bash(cd \"D:\\\\hoonProJect\\\\worktrees\\\\agent-factory\" && python -c \"from core.hooks.langsmith_tracing import LangSmithTracingHook; print\\('LangSmithTracingHook OK'\\)\")",
+      "Bash(cd \"D:\\\\hoonProJect\\\\worktrees\\\\agent-factory\" && python -c \"from core.hooks.human_interrupt import HumanInterruptHook; from core.hooks.checkpoint import CheckpointHook; print\\('Phase 6 hooks OK'\\)\")",
+      "Bash(cd \"D:\\\\hoonProJect\\\\worktrees\\\\agent-factory\" && python -c \"from core.hooks.event_bus import HookEventBus, LangSmithTracingHook; bus = HookEventBus\\(\\); print\\('HookEventBus OK'\\)\")"
+    ]
+  }
+}

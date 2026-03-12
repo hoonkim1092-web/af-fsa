@@ -1,18 +1,18 @@
-{
-  "key": "user 메로리 안넣으면 내일 회사에서 이어서 작업을 할 수 없는거 아닌가",
-  "value": "[user] 메로리 안넣으면 내일 회사에서 이어서 작업을 할 수 없는거 아닌가?",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T14:45:45.349905+00:00",
-  "updated_at": "2026-03-10T14:45:45.349905+00:00",
-  "details": {
-    "text": "[user] 메로리 안넣으면 내일 회사에서 이어서 작업을 할 수 없는거 아닌가?",
-    "event_timestamp": "2026-03-09T18:20:49.582Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
-    "session_line": 3522,
-    "provider": "codex"
-  }
+{
+  "key": "user 메로리 안넣으면 내일 회사에서 이어서 작업을 할 수 없는거 아닌가",
+  "value": "[user] 메로리 안넣으면 내일 회사에서 이어서 작업을 할 수 없는거 아닌가?",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T14:45:45.349905+00:00",
+  "updated_at": "2026-03-10T14:45:45.349905+00:00",
+  "details": {
+    "text": "[user] 메로리 안넣으면 내일 회사에서 이어서 작업을 할 수 없는거 아닌가?",
+    "event_timestamp": "2026-03-09T18:20:49.582Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 3522,
+    "provider": "codex"
+  }
 }

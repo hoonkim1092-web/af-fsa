@@ -1,18 +1,18 @@
-{
-  "key": "assistant Python의 Windows 핸들 이슈가 capture_output에서도 반복됩니다 실행 검증은 파일 리다이렉션으로 바꿔서 wrapper 반환코드와 stderr 메시지만 확인하겠습니다",
-  "value": "[assistant] Python의 Windows 핸들 이슈가 `capture_output`에서도 반복됩니다. 실행 검증은 파일 리다이렉션으로 바꿔서 wrapper 반환코드와 stderr 메시지만 확인하겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T07:26:31.137267+00:00",
-  "updated_at": "2026-03-10T07:26:31.137267+00:00",
-  "details": {
-    "text": "[assistant] Python의 Windows 핸들 이슈가 `capture_output`에서도 반복됩니다. 실행 검증은 파일 리다이렉션으로 바꿔서 wrapper 반환코드와 stderr 메시지만 확인하겠습니다.",
-    "event_timestamp": "2026-03-10T07:26:01.823Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
-    "session_line": 1425,
-    "provider": "codex"
-  }
+{
+  "key": "assistant Python의 Windows 핸들 이슈가 capture_output에서도 반복됩니다 실행 검증은 파일 리다이렉션으로 바꿔서 wrapper 반환코드와 stderr 메시지만 확인하겠습니다",
+  "value": "[assistant] Python의 Windows 핸들 이슈가 `capture_output`에서도 반복됩니다. 실행 검증은 파일 리다이렉션으로 바꿔서 wrapper 반환코드와 stderr 메시지만 확인하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T07:26:31.137267+00:00",
+  "updated_at": "2026-03-10T07:26:31.137267+00:00",
+  "details": {
+    "text": "[assistant] Python의 Windows 핸들 이슈가 `capture_output`에서도 반복됩니다. 실행 검증은 파일 리다이렉션으로 바꿔서 wrapper 반환코드와 stderr 메시지만 확인하겠습니다.",
+    "event_timestamp": "2026-03-10T07:26:01.823Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 1425,
+    "provider": "codex"
+  }
 }

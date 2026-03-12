@@ -1,18 +1,18 @@
-{
-  "key": "assistant 첫 구현 범위는 이렇게 잡겠습니다- DynamicOrchestrator 바깥에 붙는 continuitymanifest 계층 추가- HookEventBus를 확장 가능한 lifecycle bus로 분",
-  "value": "[assistant] 첫 구현 범위는 이렇게 잡겠습니다.  - `DynamicOrchestrator` 바깥에 붙는 `continuity/manifest` 계층 추가 - `HookEventBus`를 확장 가능한 lifecycle bus로 분리 - 테스트는 먼저 추가하고, 그다음 구현 - `tests/_tmp` 같은 산출물성 테스트 파일은 정리 대상부터 확인  이 범위면 병렬 오케스트레이션을 건드리지 않으면서도, 이후 CLI 구독 백엔드로 확장할 기반을 만들...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T09:49:22.971079+00:00",
-  "updated_at": "2026-03-09T09:49:22.971079+00:00",
-  "details": {
-    "text": "[assistant] 첫 구현 범위는 이렇게 잡겠습니다.\n\n- `DynamicOrchestrator` 바깥에 붙는 `continuity/manifest` 계층 추가\n- `HookEventBus`를 확장 가능한 lifecycle bus로 분리\n- 테스트는 먼저 추가하고, 그다음 구현\n- `tests/_tmp` 같은 산출물성 테스트 파일은 정리 대상부터 확인\n\n이 범위면 병렬 오케스트레이션을 건드리지 않으면서도, 이후 CLI 구독 백엔드로 확장할 기반을 만들 수 있습니다.",
-    "event_timestamp": "2026-03-09T07:49:28.975Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/09/rollout-2026-03-09T12-29-14-019cd0a4-4ded-7bd3-b7ae-a9832dc22d45.jsonl",
-    "session_line": 1066,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 첫 구현 범위는 이렇게 잡겠습니다- DynamicOrchestrator 바깥에 붙는 continuitymanifest 계층 추가- HookEventBus를 확장 가능한 lifecycle bus로 분",
+  "value": "[assistant] 첫 구현 범위는 이렇게 잡겠습니다.  - `DynamicOrchestrator` 바깥에 붙는 `continuity/manifest` 계층 추가 - `HookEventBus`를 확장 가능한 lifecycle bus로 분리 - 테스트는 먼저 추가하고, 그다음 구현 - `tests/_tmp` 같은 산출물성 테스트 파일은 정리 대상부터 확인  이 범위면 병렬 오케스트레이션을 건드리지 않으면서도, 이후 CLI 구독 백엔드로 확장할 기반을 만들...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T09:49:22.971079+00:00",
+  "updated_at": "2026-03-09T09:49:22.971079+00:00",
+  "details": {
+    "text": "[assistant] 첫 구현 범위는 이렇게 잡겠습니다.\n\n- `DynamicOrchestrator` 바깥에 붙는 `continuity/manifest` 계층 추가\n- `HookEventBus`를 확장 가능한 lifecycle bus로 분리\n- 테스트는 먼저 추가하고, 그다음 구현\n- `tests/_tmp` 같은 산출물성 테스트 파일은 정리 대상부터 확인\n\n이 범위면 병렬 오케스트레이션을 건드리지 않으면서도, 이후 CLI 구독 백엔드로 확장할 기반을 만들 수 있습니다.",
+    "event_timestamp": "2026-03-09T07:49:28.975Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/09/rollout-2026-03-09T12-29-14-019cd0a4-4ded-7bd3-b7ae-a9832dc22d45.jsonl",
+    "session_line": 1066,
+    "provider": "codex"
+  }
 }

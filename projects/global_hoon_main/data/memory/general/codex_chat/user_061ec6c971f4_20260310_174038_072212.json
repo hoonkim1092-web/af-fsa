@@ -1,18 +1,18 @@
-{
-  "key": "user 코드리뷰해봐",
-  "value": "[user] 코드리뷰해봐",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T17:40:38.072256+00:00",
-  "updated_at": "2026-03-10T17:40:38.072256+00:00",
-  "details": {
-    "text": "[user] 코드리뷰해봐",
-    "event_timestamp": "2026-03-10T16:58:50.936Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/11/rollout-2026-03-11T01-30-46-019cd896-2cfb-7692-a889-53fc50ef1599.jsonl",
-    "session_line": 381,
-    "provider": "codex"
-  }
+{
+  "key": "user 코드리뷰해봐",
+  "value": "[user] 코드리뷰해봐",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:38.072256+00:00",
+  "updated_at": "2026-03-10T17:40:38.072256+00:00",
+  "details": {
+    "text": "[user] 코드리뷰해봐",
+    "event_timestamp": "2026-03-10T16:58:50.936Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/11/rollout-2026-03-11T01-30-46-019cd896-2cfb-7692-a889-53fc50ef1599.jsonl",
+    "session_line": 381,
+    "provider": "codex"
+  }
 }

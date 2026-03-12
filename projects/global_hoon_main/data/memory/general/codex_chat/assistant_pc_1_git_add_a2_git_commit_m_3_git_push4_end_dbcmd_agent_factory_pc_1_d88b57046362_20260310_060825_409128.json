@@ -1,18 +1,18 @@
-{
-  "key": "assistant 체크리스트회사 PC에서 끝낼 때1 코드 바뀐 게 있으면 git add -A2 git commit -m   3 git push4 end_dbcmd agent-factory집 PC에서 시작할 때1 같은",
-  "value": "[assistant] **체크리스트**  회사 PC에서 끝낼 때: 1. 코드 바뀐 게 있으면 `git add -A` 2. `git commit -m \"...\"`   3. `git push` 4. `.\\end_db.cmd agent-factory`  집 PC에서 시작할 때: 1. 같은 브랜치로 이동 2. `git pull` 3. `.\\start_db.cmd agent-factory`  한 줄로 기억하면: - 종료: `git push` + `.\\end_db.c...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T06:08:25.409249+00:00",
-  "updated_at": "2026-03-10T06:08:25.409249+00:00",
-  "details": {
-    "text": "[assistant] **체크리스트**\n\n회사 PC에서 끝낼 때:\n1. 코드 바뀐 게 있으면 `git add -A`\n2. `git commit -m \"...\"`  \n3. `git push`\n4. `.\\end_db.cmd agent-factory`\n\n집 PC에서 시작할 때:\n1. 같은 브랜치로 이동\n2. `git pull`\n3. `.\\start_db.cmd agent-factory`\n\n한 줄로 기억하면:\n- 종료: `git push` + `.\\end_db.cmd agent-factory`\n- 시작: `git pull` + `.\\start_db.cmd agent-factory`\n\n합본 명령도 있습니다:\n- 종료: `.\\end_sync.cmd agent-factory`\n- 시작: `.\\start_sync.cmd agent-factory`\n\n주의:\n- 코드 변경은 `git`\n- 이어하기 상태는 `db sync`\n- 둘 중 하나만 하면 반쪽만 옮겨집니다",
-    "event_timestamp": "2026-03-10T02:04:24.874Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
-    "session_line": 224,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 체크리스트회사 PC에서 끝낼 때1 코드 바뀐 게 있으면 git add -A2 git commit -m   3 git push4 end_dbcmd agent-factory집 PC에서 시작할 때1 같은",
+  "value": "[assistant] **체크리스트**  회사 PC에서 끝낼 때: 1. 코드 바뀐 게 있으면 `git add -A` 2. `git commit -m \"...\"`   3. `git push` 4. `.\\end_db.cmd agent-factory`  집 PC에서 시작할 때: 1. 같은 브랜치로 이동 2. `git pull` 3. `.\\start_db.cmd agent-factory`  한 줄로 기억하면: - 종료: `git push` + `.\\end_db.c...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T06:08:25.409249+00:00",
+  "updated_at": "2026-03-10T06:08:25.409249+00:00",
+  "details": {
+    "text": "[assistant] **체크리스트**\n\n회사 PC에서 끝낼 때:\n1. 코드 바뀐 게 있으면 `git add -A`\n2. `git commit -m \"...\"`  \n3. `git push`\n4. `.\\end_db.cmd agent-factory`\n\n집 PC에서 시작할 때:\n1. 같은 브랜치로 이동\n2. `git pull`\n3. `.\\start_db.cmd agent-factory`\n\n한 줄로 기억하면:\n- 종료: `git push` + `.\\end_db.cmd agent-factory`\n- 시작: `git pull` + `.\\start_db.cmd agent-factory`\n\n합본 명령도 있습니다:\n- 종료: `.\\end_sync.cmd agent-factory`\n- 시작: `.\\start_sync.cmd agent-factory`\n\n주의:\n- 코드 변경은 `git`\n- 이어하기 상태는 `db sync`\n- 둘 중 하나만 하면 반쪽만 옮겨집니다",
+    "event_timestamp": "2026-03-10T02:04:24.874Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 224,
+    "provider": "codex"
+  }
 }

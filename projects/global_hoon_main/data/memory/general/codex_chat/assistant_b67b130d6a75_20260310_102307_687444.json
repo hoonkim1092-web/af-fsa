@@ -1,18 +1,18 @@
-{
-  "key": "assistant 두 파일은 내용량이 많아서 통째로 한글화하겠습니다 타임스탬프와 구조는 유지하고 본문과 항목 설명만 한국어로 바꾸겠습니다",
-  "value": "[assistant] 두 파일은 내용량이 많아서 통째로 한글화하겠습니다. 타임스탬프와 구조는 유지하고, 본문과 항목 설명만 한국어로 바꾸겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T10:23:07.687499+00:00",
-  "updated_at": "2026-03-10T10:23:07.687499+00:00",
-  "details": {
-    "text": "[assistant] 두 파일은 내용량이 많아서 통째로 한글화하겠습니다. 타임스탬프와 구조는 유지하고, 본문과 항목 설명만 한국어로 바꾸겠습니다.",
-    "event_timestamp": "2026-03-10T09:06:27.782Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
-    "session_line": 1951,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 두 파일은 내용량이 많아서 통째로 한글화하겠습니다 타임스탬프와 구조는 유지하고 본문과 항목 설명만 한국어로 바꾸겠습니다",
+  "value": "[assistant] 두 파일은 내용량이 많아서 통째로 한글화하겠습니다. 타임스탬프와 구조는 유지하고, 본문과 항목 설명만 한국어로 바꾸겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T10:23:07.687499+00:00",
+  "updated_at": "2026-03-10T10:23:07.687499+00:00",
+  "details": {
+    "text": "[assistant] 두 파일은 내용량이 많아서 통째로 한글화하겠습니다. 타임스탬프와 구조는 유지하고, 본문과 항목 설명만 한국어로 바꾸겠습니다.",
+    "event_timestamp": "2026-03-10T09:06:27.782Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 1951,
+    "provider": "codex"
+  }
 }

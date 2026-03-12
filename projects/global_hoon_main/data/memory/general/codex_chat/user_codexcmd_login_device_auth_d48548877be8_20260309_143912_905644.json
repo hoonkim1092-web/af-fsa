@@ -1,18 +1,18 @@
-{
-  "key": "user codexcmd login --device-auth",
-  "value": "[user] codex.cmd login --device-auth",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T14:39:12.905740+00:00",
-  "updated_at": "2026-03-09T14:39:12.905740+00:00",
-  "details": {
-    "text": "[user] codex.cmd login --device-auth",
-    "event_timestamp": "2026-03-09T13:55:33.380Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T22-53-58-019cd2e0-4483-7943-8fd7-1e4deab29ea9.jsonl",
-    "session_line": 57,
-    "provider": "codex"
-  }
+{
+  "key": "user codexcmd login --device-auth",
+  "value": "[user] codex.cmd login --device-auth",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T14:39:12.905740+00:00",
+  "updated_at": "2026-03-09T14:39:12.905740+00:00",
+  "details": {
+    "text": "[user] codex.cmd login --device-auth",
+    "event_timestamp": "2026-03-09T13:55:33.380Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T22-53-58-019cd2e0-4483-7943-8fd7-1e4deab29ea9.jsonl",
+    "session_line": 57,
+    "provider": "codex"
+  }
 }

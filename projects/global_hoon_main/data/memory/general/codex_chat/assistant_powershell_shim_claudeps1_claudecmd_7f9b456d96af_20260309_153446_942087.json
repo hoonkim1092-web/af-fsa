@@ -1,18 +1,18 @@
-{
-  "key": "assistant PowerShell 기본 shim은 claudeps1이라 실행 정책에 막힙니다 실제 사용 가능한 claudecmd가 같이 깔렸는지 확인하고 그 경로로 버전 응답을 확인하겠습니다",
-  "value": "[assistant] PowerShell 기본 shim은 `claude.ps1`이라 실행 정책에 막힙니다. 실제 사용 가능한 `claude.cmd`가 같이 깔렸는지 확인하고, 그 경로로 버전 응답을 확인하겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T15:34:46.942129+00:00",
-  "updated_at": "2026-03-09T15:34:46.942129+00:00",
-  "details": {
-    "text": "[assistant] PowerShell 기본 shim은 `claude.ps1`이라 실행 정책에 막힙니다. 실제 사용 가능한 `claude.cmd`가 같이 깔렸는지 확인하고, 그 경로로 버전 응답을 확인하겠습니다.",
-    "event_timestamp": "2026-03-09T15:17:02.391Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
-    "session_line": 484,
-    "provider": "codex"
-  }
+{
+  "key": "assistant PowerShell 기본 shim은 claudeps1이라 실행 정책에 막힙니다 실제 사용 가능한 claudecmd가 같이 깔렸는지 확인하고 그 경로로 버전 응답을 확인하겠습니다",
+  "value": "[assistant] PowerShell 기본 shim은 `claude.ps1`이라 실행 정책에 막힙니다. 실제 사용 가능한 `claude.cmd`가 같이 깔렸는지 확인하고, 그 경로로 버전 응답을 확인하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T15:34:46.942129+00:00",
+  "updated_at": "2026-03-09T15:34:46.942129+00:00",
+  "details": {
+    "text": "[assistant] PowerShell 기본 shim은 `claude.ps1`이라 실행 정책에 막힙니다. 실제 사용 가능한 `claude.cmd`가 같이 깔렸는지 확인하고, 그 경로로 버전 응답을 확인하겠습니다.",
+    "event_timestamp": "2026-03-09T15:17:02.391Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 484,
+    "provider": "codex"
+  }
 }
