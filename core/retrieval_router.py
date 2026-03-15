@@ -6,7 +6,7 @@ core/retrieval_router.py
 Phase 1: Retrieval Integration Architecture
 - 코드/설정 → direct_local (Glob/Grep)
 - 스킬 후보 → semantic_skill (SemanticEmbedder)
-- 문서/가이드 → document_rag (향후 Phase 2에서 구현)
+- 문서/가이드 → document_rag (DocumentIndex 하이브리드 검색)
 - 최신 정보 → live_web (향후)
 """
 from __future__ import annotations
@@ -14,7 +14,10 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from core.document_index import SearchResult
 
 
 class RetrievalStrategy(Enum):
@@ -67,6 +70,9 @@ _PATH_PATTERN = re.compile(
 
 class RetrievalRouter:
     """요청을 분석하여 최적의 검색 전략을 결정."""
+
+    def __init__(self):
+        self._pipeline = None  # lazy init IngestionPipeline
 
     def classify(self, query: str, context: Optional[dict] = None) -> RetrievalPlan:
         """
@@ -134,6 +140,27 @@ class RetrievalRouter:
             filters=self._build_filters(context),
             confidence=confidence,
         )
+
+    def retrieve_documents(
+        self,
+        query: str,
+        top_k: int = 5,
+        context: Optional[dict] = None,
+    ) -> List["SearchResult"]:
+        """DOCUMENT_RAG 전략으로 문서 검색.
+
+        IngestionPipeline을 lazy 초기화하여 프로젝트 문서를 검색한다.
+        """
+        if self._pipeline is None:
+            try:
+                from core.ingestion_pipeline import IngestionPipeline
+                self._pipeline = IngestionPipeline()
+                self._pipeline.run()
+            except Exception:
+                return []
+
+        filters = self._build_filters(context) if context else None
+        return self._pipeline.search(query, top_k=top_k, filters=filters)
 
     @staticmethod
     def _build_filters(context: Optional[dict]) -> Dict[str, str]:
