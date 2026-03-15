@@ -317,7 +317,7 @@ def test_agent_runner_uses_cli_provider_before_sdk_fallback(monkeypatch, tmp_pat
     monkeypatch.setattr(ar, "execute_cli_chat", fake_execute_cli_chat)
 
     runner = ar.AgentRunner(ar.ModelRouter())
-    monkeypatch.setattr(runner, "load_skills", lambda agent: [])
+    monkeypatch.setattr(runner, "load_skills", lambda agent, **kw: [])
     monkeypatch.setattr(
         runner,
         "build_tool_registry",
@@ -369,7 +369,7 @@ def test_agent_runner_cli_only_short_task_does_not_require_todo(monkeypatch, tmp
     monkeypatch.setattr(ar, "execute_cli_chat", fake_execute_cli_chat)
 
     runner = ar.AgentRunner(ar.ModelRouter())
-    monkeypatch.setattr(runner, "load_skills", lambda agent: [])
+    monkeypatch.setattr(runner, "load_skills", lambda agent, **kw: [])
     monkeypatch.setattr(
         runner,
         "build_tool_registry",
@@ -421,7 +421,7 @@ def test_agent_runner_cli_only_still_blocks_complex_task_without_todo(monkeypatc
     monkeypatch.setattr(ar, "execute_cli_chat", fake_execute_cli_chat)
 
     runner = ar.AgentRunner(ar.ModelRouter())
-    monkeypatch.setattr(runner, "load_skills", lambda agent: [])
+    monkeypatch.setattr(runner, "load_skills", lambda agent, **kw: [])
     monkeypatch.setattr(
         runner,
         "build_tool_registry",

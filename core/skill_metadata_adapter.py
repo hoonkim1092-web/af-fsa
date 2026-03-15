@@ -41,8 +41,12 @@ def convert_meta_yaml_to_metadata(meta_path: str) -> Optional[SkillMetadata]:
             name=meta.get("name", skill_id).replace("-", " ").title(),
             version=meta.get("version", "0.1.0"),
             description=meta.get("description", ""),
+            when_to_use=meta.get("when_to_use", ""),
+            when_NOT_to_use=meta.get("when_NOT_to_use", ""),
             category=_parse_category(meta.get("category", "coding")),
             skill_type=SkillType.ACTION,
+            when_to_use_keywords=meta.get("when_to_use_keywords", []),
+            semantic_tags=meta.get("semantic_tags", []),
             max_tokens=meta.get("max_tokens", 4000),
             timeout_sec=meta.get("timeout_sec", 30),
             incompatible_with=meta.get("incompatible_with", []),
@@ -117,7 +121,13 @@ def convert_yaml_config_to_metadata(skill_config: dict) -> Optional[SkillMetadat
     Returns:
         SkillMetadata 객체
     """
-    skill_id = skill_config.get("skill_id", skill_config.get("id", "unknown"))
+    skill_id = skill_config.get("skill_id", skill_config.get("id", ""))
+    if not skill_id or skill_id == "unknown":
+        name = skill_config.get("name", "")
+        if name:
+            skill_id = name.lower().replace(" ", "-")
+        else:
+            return None
 
     return SkillMetadata(
         skill_id=skill_id,

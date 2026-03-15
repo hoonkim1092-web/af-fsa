@@ -65,26 +65,37 @@ class _StdoutCapturer:
         return self
 
     def __exit__(self, *args):
-        sys.stdout = self.original_stdout
-        sys.stderr = self.original_stderr
-        if self._log_handle:
-            self._log_handle.close()
+        # stdout/stderr 복원은 예외 발생과 무관하게 반드시 수행
+        try:
+            if self._log_handle:
+                self._log_handle.close()
+        finally:
+            sys.stdout = self.original_stdout
+            sys.stderr = self.original_stderr
 
     def write(self, text: str):
-        """stdout/stderr 쓰기 인터셉트"""
-        if text:
-            # 메모리 버퍼에 저장
+        """stdout/stderr 쓰기 인터셉트. 예외 시에도 원본 stdout 출력 보장."""
+        if not text:
+            return
+        try:
             self.captured_buffer.write(text)
-            # 파일에 저장
+        except Exception:
+            pass
+        try:
             if self._log_handle:
                 self._log_handle.write(text)
                 self._log_handle.flush()
-            # 원본 stdout/stderr에도 출력 (실시간 모니터링용)
+        except Exception:
+            pass
+        try:
             self.original_stdout.write(text)
+        except Exception:
+            pass
 
     def flush(self):
         if self._log_handle:
             self._log_handle.flush()
+        self.original_stdout.flush()
 
     def get_captured(self) -> str:
         """캡처된 모든 텍스트 반환"""
@@ -112,7 +123,7 @@ class LangSmithTracingHook(ContinuationHook):
         # Phase 3: JSONL 로깅
         self._run_id: str | None = None
         self._log_file_path: str | None = None
-        self._log_entries: list[dict] = []
+        self._jsonl_handle = None
         self._stdout_capturer: _StdoutCapturer | None = None
         self._start_time: float | None = None
 
@@ -123,21 +134,35 @@ class LangSmithTracingHook(ContinuationHook):
         log_dir = os.path.join(cwd, ".system_generated", "logs")
         return log_dir
 
+    def _open_jsonl(self):
+        """JSONL 파일 핸들 열기 (append 모드)."""
+        if self._log_file_path and self._jsonl_handle is None:
+            os.makedirs(os.path.dirname(self._log_file_path), exist_ok=True)
+            self._jsonl_handle = open(self._log_file_path, 'a', encoding='utf-8')
+
+    def _close_jsonl(self):
+        """JSONL 파일 핸들 닫기"""
+        if self._jsonl_handle:
+            try:
+                self._jsonl_handle.close()
+            except Exception:
+                pass
+            self._jsonl_handle = None
+
     def _write_jsonl_entry(self, event: dict):
         """JSONL 형식으로 이벤트 로그 기록"""
         if not self._log_file_path:
             return
         try:
-            # JSONL 형식: 한 줄에 하나의 JSON 객체
             entry = {
                 "timestamp": now_iso(),
                 **event
             }
-            self._log_entries.append(entry)
-
-            # 파일에 실시간 기록 (append mode)
-            with open(self._log_file_path, 'a', encoding='utf-8') as f:
-                f.write(json.dumps(entry, ensure_ascii=False) + '\n')
+            if self._jsonl_handle is None:
+                self._open_jsonl()
+            if self._jsonl_handle:
+                self._jsonl_handle.write(json.dumps(entry, ensure_ascii=False) + '\n')
+                self._jsonl_handle.flush()
         except Exception:
             pass  # fire-and-forget
 
@@ -148,10 +173,20 @@ class LangSmithTracingHook(ContinuationHook):
             self._run_id = agent_state.get("run_id", str(uuid.uuid4()))
             self._start_time = time.time()
 
-            # Phase 3: JSONL 로그 파일 생성
+            # Phase 3: JSONL 로그 파일 경로 설정
             log_dir = self._get_log_dir()
             self._log_file_path = os.path.join(log_dir, f"trace_{self._run_id}.jsonl")
+
+            # 동일 run_id 재실행 시 이전 데이터 혼합 방지: 새 실행은 파일을 초기화
+            self._close_jsonl()
             os.makedirs(log_dir, exist_ok=True)
+            if os.path.exists(self._log_file_path):
+                open(self._log_file_path, 'w').close()  # truncate
+
+            # stdout/stderr 캡처 시작
+            stdout_log = os.path.join(log_dir, f"stdout_{self._run_id}.log")
+            self._stdout_capturer = _StdoutCapturer(stdout_log)
+            self._stdout_capturer.__enter__()
 
             # 초기 이벤트 기록
             self._write_jsonl_entry({
@@ -177,10 +212,25 @@ class LangSmithTracingHook(ContinuationHook):
         return True
 
     def post_execute(self, agent_state: dict, result: Any) -> Any:
-        """에이전트 실행 후 훅"""
+        """에이전트 실행 후 훅.
+
+        주의: agent_runner.py에서 도구 결과에도 run_post_execute()를 호출하므로,
+        최종 에이전트 결과(ok + reason 키를 동시에 보유)인 경우에만 run_end를 기록한다.
+        도구 결과는 보통 raw string이거나 ok/reason을 동시에 갖지 않는다.
+        """
+        # 최종 결과인지 판별: ok와 reason 키를 동시에 보유한 dict만
+        is_final = (
+            isinstance(result, dict)
+            and "ok" in result
+            and "reason" in result
+        )
+
+        if not is_final:
+            return result  # 도구 결과 → run_end 기록하지 않음
+
         try:
-            ok = result.get("ok", False) if isinstance(result, dict) else bool(result)
-            reason = result.get("reason", "") if isinstance(result, dict) else ""
+            ok = result.get("ok", False)
+            reason = result.get("reason", "")
             duration_ms = int((time.time() - self._start_time) * 1000) if self._start_time else 0
 
             # Phase 3: JSONL 종료 이벤트 기록
@@ -212,7 +262,25 @@ class LangSmithTracingHook(ContinuationHook):
                 self._run_tree.patch()
         except Exception:
             pass  # fire-and-forget
+        finally:
+            # stdout/stderr 캡처 종료
+            if self._stdout_capturer:
+                try:
+                    self._stdout_capturer.__exit__(None, None, None)
+                except Exception:
+                    pass
+                self._stdout_capturer = None
+            self._close_jsonl()
         return result
+
+    @staticmethod
+    def _safe_truncate(text: str, max_len: int) -> str:
+        """UTF-8 멀티바이트 문자 경계를 존중하는 안전한 문자열 절단."""
+        if len(text) <= max_len:
+            return text
+        truncated = text[:max_len]
+        # 서로게이트 쌍의 중간에서 잘리지 않도록 encode/decode
+        return truncated.encode("utf-8", errors="ignore").decode("utf-8", errors="ignore")
 
     def pre_tool_call(self, agent_state: dict, tool_name: str, tool_args: dict[str, Any]) -> ToolCallDecision:
         """스킬 호출 전 훅"""
@@ -222,7 +290,12 @@ class LangSmithTracingHook(ContinuationHook):
             for k, v in tool_args.items():
                 if k.startswith("_"):
                     continue
-                safe_args[k] = str(v)[:500] if isinstance(v, str) else v
+                if isinstance(v, str):
+                    safe_args[k] = self._safe_truncate(v, 500)
+                elif isinstance(v, (int, float, bool, type(None), list, dict)):
+                    safe_args[k] = v
+                else:
+                    safe_args[k] = self._safe_truncate(str(v), 500)
 
             self._write_jsonl_entry({
                 "event_type": "skill_call_start",
@@ -265,7 +338,9 @@ class LangSmithTracingHook(ContinuationHook):
             if self._enabled:
                 span_key = None
                 if isinstance(result, dict):
-                    span_key = result.pop("_langsmith_span_key", None)
+                    span_key = result.get("_langsmith_span_key")
+                    if span_key is not None:
+                        result = {k: v for k, v in result.items() if k != "_langsmith_span_key"}
 
                 if span_key is None:
                     for k in list(self._tool_spans.keys()):

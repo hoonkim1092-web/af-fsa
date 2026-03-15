@@ -11,6 +11,7 @@ core/skill_registry.py
   3. 기존 YAML/MD 스킬 자동 로드 (호환성)
 """
 
+import logging
 import os
 import threading
 import yaml
@@ -22,6 +23,9 @@ from core.skill_metadata_adapter import (
 )
 from core.config_paths import SKILLS_DIR, PROJECT_SKILLS_DIR
 from core.file_io import read_yaml, write_yaml
+from core.utils import get_codex_skill_roots
+
+logger = logging.getLogger(__name__)
 
 # 기존 REGISTRY_FILE, DOCS_FILE 상수 (호환성)
 REGISTRY_FILE = os.path.join(PROJECT_SKILLS_DIR, "registry.yaml") if PROJECT_SKILLS_DIR else "registry.yaml"
@@ -39,7 +43,7 @@ class SkillRegistry:
     """
 
     _instance = None
-    _lock = threading.Lock()
+    _lock = threading.RLock()
 
     def __new__(cls):
         if cls._instance is None:
@@ -55,7 +59,7 @@ class SkillRegistry:
         self._initialized = True
 
         self._registry: Dict[str, SkillMetadata] = {}
-        self._lock = threading.Lock()
+        self._lock = threading.RLock()
         self._auto_loaded = False
 
     def register(self, metadata: SkillMetadata) -> None:
@@ -110,26 +114,50 @@ class SkillRegistry:
             self._auto_loaded = False
 
     def auto_load_from_directories(self, force: bool = False) -> int:
-        """기존 스킬 디렉토리에서 메타데이터를 자동으로 로드합니다."""
+        """기존 스킬 디렉토리에서 메타데이터를 자동으로 로드합니다.
+
+        스캔 순서:
+          1. PROJECT_SKILLS_DIR  — 프로젝트별 스킬 (최우선)
+          2. SKILLS_DIR          — agent-factory 글로벌 스킬
+          3. Codex Skill Roots   — ~/.agents/skills/, ~/.codex/skills/ 등 사용자 전역 스킬
+        """
         with self._lock:
             if self._auto_loaded and not force:
                 return 0
 
             loaded_count = 0
 
-            # Project Skills
+            # 1) Project Skills
             if os.path.isdir(PROJECT_SKILLS_DIR):
                 loaded_count += self._load_from_directory(PROJECT_SKILLS_DIR)
 
-            # Global Skills
+            # 2) Global Skills
             if os.path.isdir(SKILLS_DIR):
                 loaded_count += self._load_from_directory(SKILLS_DIR)
+
+            # 3) User-wide Codex Skill Roots (~/.agents/skills/, ~/.codex/skills/, etc.)
+            already_scanned = {
+                os.path.normpath(os.path.abspath(PROJECT_SKILLS_DIR)).lower(),
+                os.path.normpath(os.path.abspath(SKILLS_DIR)).lower(),
+            }
+            for codex_root in get_codex_skill_roots():
+                norm = os.path.normpath(os.path.abspath(codex_root)).lower()
+                if norm in already_scanned:
+                    continue
+                already_scanned.add(norm)
+                if os.path.isdir(codex_root):
+                    loaded_count += self._load_from_directory(codex_root)
 
             self._auto_loaded = True
             return loaded_count
 
-    def _load_from_directory(self, base_dir: str) -> int:
-        """디렉토리 하위의 모든 스킬을 로드합니다."""
+    _SKIP_DIRS = {"forge", "_external_cache", "__pycache__", "warehouse"}
+
+    def _load_from_directory(self, base_dir: str, _depth: int = 0) -> int:
+        """디렉토리 하위의 모든 스킬을 로드합니다 (최대 3단계 재귀)."""
+        if _depth > 3:
+            return 0
+
         count = 0
         try:
             for item in os.listdir(base_dir):
@@ -137,7 +165,7 @@ class SkillRegistry:
                 if not os.path.isdir(skill_dir):
                     continue
 
-                if item.startswith(".") or item in ("forge", "_external_cache"):
+                if item.startswith(".") or item in self._SKIP_DIRS:
                     continue
 
                 metadata = auto_detect_and_convert(skill_dir, item)
@@ -145,10 +173,55 @@ class SkillRegistry:
                     self.register(metadata)
                     count += 1
 
+                    # 번들 meta.yaml: sub_skills 선언이 있으면 개별 스킬도 등록
+                    count += self._load_sub_skills(skill_dir)
+
+                    # 하위 디렉토리도 재귀 탐색 (번들 내 서브 스킬)
+                    count += self._load_from_directory(skill_dir, _depth + 1)
+                else:
+                    # 메타데이터 없으면 하위 디렉토리 재귀 탐색
+                    count += self._load_from_directory(skill_dir, _depth + 1)
+
         except Exception as e:
-            print(f"[WARN] 스킬 디렉토리 로드 실패 ({base_dir}): {e}")
+            logger.warning("스킬 디렉토리 로드 실패 (%s): %s", base_dir, e)
 
         return count
+
+    def _load_sub_skills(self, skill_dir: str) -> int:
+        """meta.yaml의 sub_skills 선언에서 개별 스킬을 등록합니다.
+
+        번들 meta.yaml에 sub_skills 배열이 있으면, 각 항목을 독립적인
+        SkillMetadata로 변환하여 레지스트리에 등록합니다. 이를 통해
+        Python 파일의 @skill_metadata 데코레이터 스킬을 동적 import 없이
+        선언적으로 등록할 수 있습니다.
+        """
+        meta_path = os.path.join(skill_dir, "meta.yaml")
+        if not os.path.exists(meta_path):
+            return 0
+
+        try:
+            meta = read_yaml(meta_path)
+            if not isinstance(meta, dict):
+                return 0
+
+            sub_skills = meta.get("sub_skills", [])
+            if not isinstance(sub_skills, list):
+                return 0
+
+            count = 0
+            for skill_config in sub_skills:
+                if not isinstance(skill_config, dict):
+                    continue
+
+                sub_metadata = convert_yaml_config_to_metadata(skill_config)
+                if sub_metadata and sub_metadata.skill_id not in self._registry:
+                    self._registry[sub_metadata.skill_id] = sub_metadata
+                    count += 1
+
+            return count
+        except Exception as e:
+            logger.debug("sub_skills 로드 실패 (%s): %s", skill_dir, e)
+            return 0
 
     def register_from_agent_config(self, agent_skills: List[dict]) -> int:
         """Agent YAML의 skills 배열을 로드합니다."""
@@ -159,6 +232,8 @@ class SkillRegistry:
                     continue
 
                 metadata = convert_yaml_config_to_metadata(skill_config)
+                if metadata is None:
+                    continue
                 skill_id = metadata.skill_id
                 if skill_id not in self._registry:
                     self.register(metadata)
@@ -181,8 +256,8 @@ def get_global_registry() -> SkillRegistry:
     return _global_registry
 
 
-def register_skill(metadata: SkillMetadata) -> None:
-    """글로벌 레지스트리에 스킬을 등록합니다."""
+def register_skill_metadata(metadata: SkillMetadata) -> None:
+    """글로벌 레지스트리에 SkillMetadata를 등록합니다."""
     get_global_registry().register(metadata)
 
 

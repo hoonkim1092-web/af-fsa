@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+import logging
 from typing import Any
 
 from core.hooks.base import ToolCallDecision
 from core.hooks.guardrails import IntentGateHook, TodoContinuationEnforcer, ToolOutputTruncator
 from core.hooks.langsmith_tracing import LangSmithTracingHook
+
+logger = logging.getLogger(__name__)
 
 
 class HookEventBus:
@@ -18,10 +21,9 @@ class HookEventBus:
         self._pre_tool_hooks: list[Any] = []
         self._post_tool_hooks: list[Any] = []
 
-        # Auto-register LangSmith tracing when API key is present
-        import os
-        if os.getenv("LANGSMITH_API_KEY"):
-            self.register(LangSmithTracingHook())
+        # Always register tracing hook: JSONL local logging works without API key,
+        # LangSmith API tracing activates only when LANGSMITH_API_KEY is set.
+        self.register(LangSmithTracingHook())
 
     def register(self, hook: Any):
         if hasattr(hook, "pre_execute"):
@@ -45,7 +47,7 @@ class HookEventBus:
     def run_pre_execute(self, agent_state: dict) -> bool:
         for hook in self._pre_hooks:
             if not hook.pre_execute(agent_state):
-                print(f"[HookEventBus] Execution blocked by {hook.__class__.__name__}")
+                logger.warning("Execution blocked by %s", hook.__class__.__name__)
                 return False
         return True
 

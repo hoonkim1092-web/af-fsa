@@ -550,7 +550,7 @@ class AgentRunner:
             )
         )
 
-    def load_skills(self, agent: dict) -> list:
+    def load_skills(self, agent: dict, task_input: str = "") -> list:
         MAX_ACTIVE_SKILLS = 12
 
         # Legacy support + Caching
@@ -560,6 +560,21 @@ class AgentRunner:
 
         loaded_skills = []
         skill_ids = agent.get("skills", [])
+
+        # 스킬이 명시되지 않았으면 DynamicSkillLoader로 자동 선택
+        if not skill_ids and task_input:
+            try:
+                from core.skill_loader import DynamicSkillLoader
+                loader = DynamicSkillLoader()
+                selected, scores = loader.load_skills_for_task(task_input, verbose=True)
+                skill_ids = [s.skill_id for s in selected]
+                if skill_ids:
+                    _safe_print(f"🔄 [Runner] 작업 기반 자동 스킬 선택: {len(skill_ids)}개")
+                    for sid in skill_ids:
+                        sc = scores.get(sid, 0.0)
+                        _safe_print(f"   - {sid} (관련성: {sc:.2f})")
+            except Exception as e:
+                _safe_print(f"⚠️ [Runner] 자동 스킬 선택 실패, 스킬 없이 진행: {e}")
         for sid in skill_ids:
             sid = safe_id(str(sid))
             skill_py, skill_meta = resolve_skill_paths(sid)
@@ -694,8 +709,8 @@ class AgentRunner:
             _flush_trace(result)
             return result
 
-        # 1. Load Skills
-        modules = self.load_skills(agent)
+        # 1. Load Skills (task_input 전달 → 스킬 미선언 시 자동 선택)
+        modules = self.load_skills(agent, task_input=task_input)
         policy_runner = PolicyRuntime(base_dir=BASE_DIR)
         policy = policy_runner.resolve_agent_policy(agent)
         agent_name = agent.get("name", "")
@@ -709,6 +724,8 @@ class AgentRunner:
         bus.register(IntentGateHook())
         bus.register(TodoContinuationEnforcer())
         bus.register(ToolOutputTruncator())
+        from core.hooks.context_fork import ContextForkHook
+        bus.register(ContextForkHook())
 
         # 시작 시 라우팅 상태 노티 (세션 당 1회)
         from core.model_router import print_startup_routing_notice
@@ -812,6 +829,8 @@ class AgentRunner:
                             "command": cli_result.get("command", []),
                         },
                     )
+                    # Phase 5: CLI 경로에서도 훅 post-execute 호출 (트레이싱/통계)
+                    result = bus.run_post_execute(agent_state, result)
                     _flush_trace(result)
                     return result
 
@@ -832,6 +851,8 @@ class AgentRunner:
                     "latency_ms": int((time.time() - started) * 1000),
                     "approval_rejects": approval_rejects,
                 }
+                # Phase 5: CLI 실패 경로에서도 훅 post-execute 호출
+                result = bus.run_post_execute(agent_state, result)
                 _flush_trace(result)
                 return result
 
@@ -1014,9 +1035,6 @@ class AgentRunner:
                                 # Execute
                                 res_obj = tool_func(**dict(tool_decision.tool_args or fargs))
                                 res_obj = bus.run_post_tool_call(agent_state, fname, res_obj)
-
-                                # Fire POST hooks (e.g. ToolOutputTruncator)
-                                res_obj = bus.run_post_execute(agent_state, res_obj)
                                 
                                 print(f"  -> Result: {str(res_obj)[:100]}...", flush=True)
                                 _append_trace("tool_result", {"name": str(fname), "result": str(res_obj)[:800]})

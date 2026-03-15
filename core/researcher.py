@@ -9,11 +9,27 @@ from core.utils import (
 )
 from core.config_paths import AGENTS_DIR, REGISTRY_PATH
 from core.research_engine import query_notebooklm
+from core.retrieval_router import RetrievalRouter, RetrievalStrategy
 
 class HimariResearchAgent:
     """Specialized research agent utilizing local and external knowledge (NotebookLM)."""
     def __init__(self, mr):
         self.mr = mr
+        self._router = RetrievalRouter()
+        self._embedder = None
+        self._embedder_checked = False
+
+    @property
+    def embedder(self):
+        """SemanticEmbedder 지연 초기화."""
+        if not self._embedder_checked:
+            self._embedder_checked = True
+            try:
+                from core.semantic_embedder import SemanticEmbedder
+                self._embedder = SemanticEmbedder()
+            except Exception:
+                self._embedder = None
+        return self._embedder
 
     def _himari_identity(self) -> dict:
         path = os.path.join(AGENTS_DIR, "himari.yaml")
@@ -79,8 +95,22 @@ class HimariResearchAgent:
         exists_meta = bool(resolve_existing_path(meta_path)) if meta_path else bool(resolved_meta)
         last_test_ok = bool(meta.get("last_test_ok", False))
 
+        # --- 시맨틱 유사도 (Phase 1: SemanticEmbedder 통합) ---
+        semantic_score = 0.0
+        if self.embedder and self.embedder.is_available:
+            try:
+                from core.skill_registry import get_global_registry
+                registry = get_global_registry()
+                skill_meta = registry.get(item["id"])
+                if skill_meta:
+                    semantic_score = self.embedder.compute_similarity(need, skill_meta)
+            except Exception:
+                pass
+
+        # 점수 계산: 토큰(25) + 시맨틱(35) + 파일존재(20) + 메타존재(10) + 테스트(10)
         score = 0
-        score += min(len(overlap) * 25, 60)
+        score += min(len(overlap) * 5, 25)                  # 토큰 오버랩 (25점)
+        score += int(semantic_score * 35)                    # 시맨틱 유사도 (35점)
         if exists_py:
             score += 20
         if exists_meta:
@@ -93,8 +123,25 @@ class HimariResearchAgent:
             "exists_meta_yaml": exists_meta,
             "last_test_ok": last_test_ok,
             "token_overlap": overlap,
+            "semantic_score": round(semantic_score, 3),
         }
         return score, verify
+
+    def _build_rationale(self, need: str, best: dict) -> str:
+        """최상위 후보의 매칭 근거를 1줄 문자열로 생성."""
+        parts = []
+        v = best.get("verification", {})
+        overlap = v.get("token_overlap", [])
+        semantic = v.get("semantic_score", 0.0)
+        if overlap:
+            parts.append(f"token_overlap={len(overlap)}/{','.join(overlap[:3])}")
+        if semantic > 0:
+            parts.append(f"semantic={semantic:.2f}")
+        if v.get("exists_skill_py"):
+            parts.append("file_exists")
+        if v.get("last_test_ok"):
+            parts.append("test_passed")
+        return f"score={best.get('score', 0)}: {' + '.join(parts)}" if parts else ""
 
     def _fallback_project_brief(self, task_input: str) -> dict:
         text = (task_input or "").lower()
@@ -199,6 +246,26 @@ Rules:
         idx = self._registry_skill_index()
         if not missing:
             return {"suggestions": {}, "all_candidates": [], "evidence_pack": {"targets": {}}}
+
+        # Phase 1: 검색 전략 분류 및 로깅
+        plan = self._router.classify(
+            reqs.get("goal", ""),
+            context={"phase": "research", "role": agent.get("role", "")},
+        )
+        print(f"[Retrieval] strategy={plan.primary.value}, confidence={plan.confidence:.2f}, "
+              f"semantic={'ON' if self.embedder and self.embedder.is_available else 'OFF'}")
+
+        # SemanticEmbedder: 스킬 임베딩 사전 계산
+        if self.embedder and self.embedder.is_available:
+            try:
+                from core.skill_registry import get_global_registry, ensure_skills_loaded
+                ensure_skills_loaded()
+                registry = get_global_registry()
+                all_skills = registry.get_all()
+                if all_skills:
+                    self.embedder.precompute_skill_embeddings(all_skills)
+            except Exception:
+                pass
 
         skill_catalog = []
         for sid, item in idx.items():
@@ -307,14 +374,29 @@ LocalSkillCatalog(JSON): {json.dumps(skill_catalog, ensure_ascii=False)}
                 "top_score": (best or {}).get("score", 0),
                 "verified": bool(best and best["verification"]["exists_skill_py"]),
                 "candidates": ranked,
+                # Phase 1: provenance
+                "matching_rationale": self._build_rationale(need, best) if best else "",
+                "source_type": "local_registry",
+                "feedback_history": [],
             }
+
+        # 검색 전략 분류
+        retrieval_plan = self._router.classify(
+            reqs.get("goal", ""),
+            context={"phase": "research", "role": agent.get("role", "")},
+        )
 
         evidence_pack = {
             "generated_at": now_iso(),
             "agent_role": agent.get("role"),
             "goal": reqs.get("goal"),
             "targets": targets,
-            "notebook_insight": notebook_insight
+            "notebook_insight": notebook_insight,
+            # Phase 1 확장 필드
+            "retrieval_strategy": retrieval_plan.primary.value,
+            "retrieval_confidence": round(retrieval_plan.confidence, 3),
+            "semantic_available": bool(self.embedder and self.embedder.is_available),
+            "feedback_history": [],
         }
         return {"suggestions": suggestions, "all_candidates": all_candidates, "evidence_pack": evidence_pack}
 

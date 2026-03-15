@@ -5,11 +5,11 @@ skills:
     - abc
     id: abc
     last_test_ok: true
-    meta_path: D:\warkSpaces\agent-factory\tests\_tmp\af-test-ca89fcd6\skills\abc\meta.yaml
+    meta_path: D:\warkSpaces\agent-factory\tests\_tmp\af-test-d2b652c2\skills\abc\meta.yaml
     name: abc
-    path: D:\warkSpaces\agent-factory\tests\_tmp\af-test-ca89fcd6\skills\abc\skill.py
+    path: D:\warkSpaces\agent-factory\tests\_tmp\af-test-d2b652c2\skills\abc\skill.py
     status: candidate
-    updated_at: '2026-03-12T23:48:50'
+    updated_at: '2026-03-16T00:36:09'
     version: 0.1.0
   accept_changes:
     capabilities:
@@ -767,6 +767,25 @@ skills:
     type: action
     updated_at: '2026-02-24T15:05:12'
     version: 1.0.0
+  generate-eval-dataset:
+    capabilities:
+    - generate-eval-dataset
+    - 테스트생성
+    - 평가데이터
+    - dataset
+    category: eval
+    dependencies: []
+    id: generate-eval-dataset
+    meta_path: skills/evaluator/generate_eval_dataset/meta.yaml
+    name: Generate Evaluation Dataset
+    path: skills/evaluator/generate_eval_dataset/skill.py
+    purpose: 여러 실행 로그를 분석하여 에이전트 행동 검증을 위한 평가 데이터셋을 자동 생성
+    skill_id: generate-eval-dataset
+    skill_name: generate-eval-dataset
+    status: active
+    type: action
+    updated_at: '2026-03-13T00:00:00'
+    version: 1.0.0
   generate_image:
     capabilities:
     - image_gen
@@ -1445,6 +1464,25 @@ skills:
     type: action
     updated_at: '2026-02-13T02:10:00'
     version: 1.0.0
+  summarize-failure:
+    capabilities:
+    - summarize-failure
+    - 에러분석
+    - 실패원인
+    - failure
+    category: eval
+    dependencies: []
+    id: summarize-failure
+    meta_path: skills/evaluator/summarize_failure/meta.yaml
+    name: Summarize Failure
+    path: skills/evaluator/summarize_failure/skill.py
+    purpose: 실패한 에이전트 실행의 원인을 분석하고 심각도 판정 및 수정 제안을 생성
+    skill_id: summarize-failure
+    skill_name: summarize-failure
+    status: active
+    type: action
+    updated_at: '2026-03-13T00:00:00'
+    version: 1.0.0
   thumbnail:
     capabilities:
     - thumbnail
@@ -1460,6 +1498,25 @@ skills:
     status: active
     type: action
     updated_at: '2026-02-24T15:05:09'
+    version: 1.0.0
+  trace-execution:
+    capabilities:
+    - trace-execution
+    - 로그분석
+    - 실행흐름
+    - debugging
+    category: eval
+    dependencies: []
+    id: trace-execution
+    meta_path: skills/evaluator/trace_execution/meta.yaml
+    name: Trace Execution
+    path: skills/evaluator/trace_execution/skill.py
+    purpose: JSONL 로그에서 에이전트 실행 흐름을 추출하고 구조화된 분석 결과를 반환
+    skill_id: trace-execution
+    skill_name: trace-execution
+    status: active
+    type: action
+    updated_at: '2026-03-13T00:00:00'
     version: 1.0.0
   trigger_rule_design:
     capabilities:

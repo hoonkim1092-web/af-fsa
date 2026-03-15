@@ -132,6 +132,9 @@ class TestLangSmithTracingHook:
                 result = {"status": "success", "data": "search results"}
                 hook.post_tool_call(agent_state, "web_search", result)
 
+                # 핸들 닫기 (post_execute 호출로 stdout capturer + JSONL 정리)
+                hook.post_execute(agent_state, {"ok": True, "reason": "test"})
+
                 # JSONL 파일 확인
                 log_file = os.path.join(tmpdir, ".system_generated", "logs", "trace_test_run_456.jsonl")
 
@@ -196,6 +199,7 @@ class TestLangSmithTracingHook:
 
                 # pre_execute 호출 시 디렉토리가 생성되어야 함
                 hook.pre_execute(agent_state)
+                hook.post_execute(agent_state, {"ok": True, "reason": "cleanup"})
 
                 assert os.path.exists(log_dir), "Log directory not created"
 
@@ -216,7 +220,7 @@ class TestLangSmithTracingHook:
                 }
 
                 hook.pre_execute(agent_state)
-                hook.post_execute(agent_state, {"ok": True})
+                hook.post_execute(agent_state, {"ok": True, "reason": "success"})
 
                 log_file = os.path.join(tmpdir, ".system_generated", "logs", "trace_time_test.jsonl")
 
@@ -252,6 +256,7 @@ class TestLangSmithTracingHook:
                 tool_args = {"query": long_arg}
 
                 hook.pre_tool_call(agent_state, "test_skill", tool_args)
+                hook.post_execute(agent_state, {"ok": True, "reason": "cleanup"})
 
                 log_file = os.path.join(tmpdir, ".system_generated", "logs", "trace_truncate_test.jsonl")
 
@@ -304,8 +309,8 @@ class TestPhase3Integration:
                 # post_tool_call
                 result = bus.run_post_tool_call(agent_state, "skill1", {"ok": True})
 
-                # post_execute
-                final_result = bus.run_post_execute(agent_state, {"ok": True})
+                # post_execute (최종 결과에는 ok+reason 필요)
+                final_result = bus.run_post_execute(agent_state, {"ok": True, "reason": "success"})
                 assert final_result.get("ok") is True
 
                 # JSONL 파일 생성 확인

@@ -39,11 +39,20 @@ def _run_skill_creator(argv: list[str] | None = None):
     cli_main(argv)
 
 
+def _run_preflight(argv: list[str] | None = None):
+    """preflight 서브커맨드 — 스킬 사전 신뢰도 검증"""
+    from core.skill_preflight import cli_main
+    cli_main(argv)
+
+
 def main(argv: list[str] | None = None):
     # skill-create 서브커맨드 감지: 첫 인자가 "skill-create" 이면 스킬 생성기로 분기
     effective_argv = argv if argv is not None else sys.argv[1:]
     if effective_argv and effective_argv[0] == "skill-create":
         _run_skill_creator(effective_argv[1:])
+        return
+    if effective_argv and effective_argv[0] == "preflight":
+        _run_preflight(effective_argv[1:])
         return
 
     parser = argparse.ArgumentParser(description="Agent Factory CLI")
