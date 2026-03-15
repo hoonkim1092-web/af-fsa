@@ -100,7 +100,7 @@ class IngestionPipeline:
     def search(self, query: str, top_k: int = 10, filters: Optional[dict] = None):
         """인덱스 검색 (인덱싱 안 됐으면 자동 실행)."""
         if self.index.chunk_count == 0:
-            self.run()
+            self.run(force=True)
         return self.index.search(query, top_k=top_k, filters=filters)
 
     def _collect_files(self) -> List[str]:

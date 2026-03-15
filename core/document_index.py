@@ -57,7 +57,10 @@ class _SparseIndex:
         self._avg_doc_length: float = 0.0
 
     def add(self, chunk_id: str, text: str):
-        """청크를 인덱스에 추가."""
+        """청크를 인덱스에 추가. 이미 존재하면 이전 엔트리를 제거 후 재추가."""
+        # Bug fix: 재인덱싱 시 옛 term→chunk_id 매핑 제거
+        self.remove(chunk_id)
+
         tokens = _tokenize(text)
         if not tokens:
             return
@@ -69,6 +72,22 @@ class _SparseIndex:
         tf_counts = Counter(tokens)
         for term, count in tf_counts.items():
             self._inverted[term][chunk_id] = count / len(tokens)  # normalized TF
+
+    def remove(self, chunk_id: str):
+        """청크를 역인덱스에서 제거."""
+        if chunk_id not in self._doc_lengths:
+            return
+        self._doc_lengths.pop(chunk_id, None)
+        # 역인덱스에서 해당 chunk_id 제거
+        empty_terms = []
+        for term, postings in self._inverted.items():
+            postings.pop(chunk_id, None)
+            if not postings:
+                empty_terms.append(term)
+        for term in empty_terms:
+            del self._inverted[term]
+        self._total_docs = len(self._doc_lengths)
+        self._avg_doc_length = sum(self._doc_lengths.values()) / max(self._total_docs, 1) if self._doc_lengths else 0.0
 
     def search(self, query: str, top_k: int = DEFAULT_TOP_K) -> List[Tuple[str, float]]:
         """BM25-lite 스코어링으로 검색. [(chunk_id, score), ...]"""
@@ -130,15 +149,17 @@ class _DenseIndex:
     def is_available(self) -> bool:
         return self._is_available
 
-    def add_batch(self, items: List[Tuple[str, str]]):
-        """[(chunk_id, text), ...] 배치 임베딩 추가."""
+    def add_batch(self, items: List[Tuple[str, str]], force_update: bool = True):
+        """[(chunk_id, text), ...] 배치 임베딩 추가.
+
+        force_update=True: 이미 있는 chunk_id도 재계산 (콘텐츠 변경 대응)
+        """
         if not self._is_available or not items:
             return
 
         try:
             for chunk_id, text in items:
-                # 이미 있으면 스킵
-                if chunk_id in self._embeddings:
+                if not force_update and chunk_id in self._embeddings:
                     continue
                 truncated = text[:2000]  # API 입력 제한
                 response = self._client.models.embed_content(
@@ -172,6 +193,10 @@ class _DenseIndex:
 
         scored.sort(key=lambda x: x[1], reverse=True)
         return scored[:top_k]
+
+    def remove(self, chunk_id: str):
+        """청크 임베딩 제거."""
+        self._embeddings.pop(chunk_id, None)
 
     def clear(self):
         self._embeddings.clear()
@@ -292,7 +317,7 @@ class DocumentIndex:
             return results[:top_k]
 
     def remove_stale(self, valid_paths: set):
-        """존재하지 않는 파일의 청크를 제거."""
+        """존재하지 않는 파일의 청크를 모든 인덱스에서 제거."""
         with self._lock:
             to_remove = [
                 cid for cid, chunk in self._chunks.items()
@@ -301,6 +326,9 @@ class DocumentIndex:
             for cid in to_remove:
                 self._chunks.pop(cid, None)
                 self._chunk_hashes.pop(cid, None)
+                # Bug fix: sparse/dense 인덱스에서도 제거
+                self._sparse.remove(cid)
+                self._dense.remove(cid)
 
     def save_cache(self):
         """인덱스 메타데이터를 디스크에 저장 (임베딩 포함)."""
@@ -353,11 +381,12 @@ _TOKEN_RE = None
 
 
 def _tokenize(text: str) -> List[str]:
-    """간단한 토크나이저. 영문 소문자 + 한글 어절."""
+    """간단한 토크나이저. 영문 소문자 + 한글 (완성형+자모)."""
     global _TOKEN_RE
     if _TOKEN_RE is None:
         import re
-        _TOKEN_RE = re.compile(r"[a-z0-9_]+|[\uac00-\ud7af]+", re.IGNORECASE)
+        # 영문+숫자+언더스코어 | 한글 완성형+자모
+        _TOKEN_RE = re.compile(r"[a-zA-Z0-9_]+|[\uac00-\ud7af\u3131-\u3163\u314f-\u3163]+")
     return [t.lower() for t in _TOKEN_RE.findall(text) if len(t) >= 2]
 
 

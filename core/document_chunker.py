@@ -83,11 +83,11 @@ class DocumentChunker:
         chunks: List[DocumentChunk] = []
 
         for root, _dirs, files in os.walk(directory):
-            # 숨김 디렉토리, __pycache__, node_modules 스킵
-            basename = os.path.basename(root)
-            if basename.startswith(".") or basename in ("__pycache__", "node_modules", ".git"):
-                _dirs[:] = []
-                continue
+            # 숨김 디렉토리, __pycache__, node_modules 스킵 (하위 탐색 차단)
+            _dirs[:] = [
+                d for d in _dirs
+                if not d.startswith(".") and d not in ("__pycache__", "node_modules", ".git")
+            ]
 
             for fname in sorted(files):
                 ext = os.path.splitext(fname)[1].lower()
