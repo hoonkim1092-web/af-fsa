@@ -67,10 +67,11 @@ def get_max_skills_for_model(model_name: str) -> int:
         >>> get_max_skills_for_model("claude-haiku-4-5")
         3
         >>> get_max_skills_for_model("claude-sonnet-4-6")
-        228
+        200  # ✅ MIN-2 수정: MAX_SKILLS_ABSOLUTE(200) 제한
     """
     context = get_context_tokens(model_name)
-    available = context * CONTEXT_USAGE_RATIO - RESERVED_TOKENS
+    # ✅ MIN-1 수정: available이 음수가 되는 경우 처리
+    available = max(0, context * CONTEXT_USAGE_RATIO - RESERVED_TOKENS)
     count = int(available / SKILL_SIGNATURE_TOKENS_AVG)
     return max(MIN_SKILLS, min(count, MAX_SKILLS_ABSOLUTE))
 
@@ -82,17 +83,9 @@ class SkillLoaderConfig:
     model_name: str = "default"
     """로더가 적용될 모델 이름"""
 
-    enforce_dep_consistency: bool = True
-    """의존성 주입 시 일관성 유지 (최대 스킬 초과 방지)"""
-
-    use_adaptive_limit: bool = True
-    """True: 모델별 자동 계산 / False: max_skills_override 사용"""
-
     max_skills_override: int = 0
-    """0: 자동 계산 사용 / >0: 수동 지정"""
-
-    dep_inject_max_iter: int = 5
-    """의존성 재귀 주입 최대 반복 횟수"""
+    """0: 자동 계산 사용 (get_max_skills_for_model 호출)
+       >0: 수동으로 지정된 값 사용"""
 
     @property
     def max_skills(self) -> int:
@@ -101,11 +94,9 @@ class SkillLoaderConfig:
 
         우선순위:
         1. max_skills_override > 0 이면 해당 값 사용
-        2. use_adaptive_limit=True 면 get_max_skills_for_model() 사용
-        3. 기본값 12
+        2. 그 외: get_max_skills_for_model()로 모델별 자동 계산
         """
         if self.max_skills_override > 0:
             return self.max_skills_override
-        if self.use_adaptive_limit:
-            return get_max_skills_for_model(self.model_name)
-        return 12
+        # ✅ MIN-3 수정: 항상 적응형 계산 사용
+        return get_max_skills_for_model(self.model_name)

@@ -202,7 +202,7 @@ class DynamicSkillLoader:
         exclude_skills=None,
         min_score=0.0,
         verbose=False,
-        max_skills: int = 0,  # 0 = MAX_SKILLS_IN_CONTEXT (레거시)
+        max_skills: int | None = None,  # ✅ MAJ-2 수정: 명확한 타입
     ):
         """
         작업 입력에 맞춰 스킬을 자동 선택.
@@ -212,12 +212,14 @@ class DynamicSkillLoader:
             exclude_skills: 제외할 스킬 ID 목록
             min_score: 최소 점수 필터
             verbose: 상세 로그 출력 여부
-            max_skills: 최대 스킬 개수 (0 = MAX_SKILLS_IN_CONTEXT)
+            max_skills: 최대 스킬 개수
+                - None (기본값): MAX_SKILLS_IN_CONTEXT 사용 (레거시 호환)
+                - 양수: 지정된 개수만 선택
 
         Returns:
             (선택된 SkillMetadata 목록, 스킬별 점수 딕셔너리)
         """
-        effective_max = max_skills if max_skills > 0 else MAX_SKILLS_IN_CONTEXT
+        effective_max = max_skills if max_skills is not None else MAX_SKILLS_IN_CONTEXT
 
         registry = get_global_registry()
         all_skills = registry.get_all()
@@ -256,6 +258,38 @@ class DynamicSkillLoader:
 
         return selected_skills, selected_scores
 
+    def _get_all_required_deps_recursive(
+        self,
+        skill_ids: List[str],
+        dep_graph: SkillDependencyGraph,
+    ) -> set:
+        """
+        선택된 스킬들의 모든 의존성을 재귀적으로 수집.
+
+        주어진 스킬 ID들에 대해 직접 의존성뿐 아니라,
+        그 의존성이 필요로 하는 의존성까지 모두 포함하여 반환.
+
+        Args:
+            skill_ids: 초기 스킬 ID 목록
+            dep_graph: 의존성 그래프
+
+        Returns:
+            모든 의존성 스킬 ID의 집합
+        """
+        visited = set()
+
+        def collect_recursive(sids: List[str]):
+            """재귀적으로 의존성 수집."""
+            for sid in sids:
+                if sid not in visited:
+                    visited.add(sid)
+                    missing = dep_graph.get_required_deps([sid])
+                    if missing:
+                        collect_recursive(missing)  # ← 재귀!
+
+        collect_recursive(skill_ids)
+        return visited
+
     def _inject_missing_deps(
         self,
         skill_ids: List[str],
@@ -268,7 +302,7 @@ class DynamicSkillLoader:
         선택된 스킬의 미포함 의존 스킬을 재귀적으로 주입 (최대 5단계).
 
         의존성 추가로 max_skills 초과 시:
-        - 모든 선택된 스킬의 필수 의존성은 보존
+        - 모든 선택된 스킬의 필수 의존성은 보존 (재귀적 포함)
         - 필수 의존성만으로도 max_skills 이상이면 경고 후 의존성만 반환
         - 그 외 경우, 의존성 + 비의존성(점수 순)으로 max_skills 채움
 
@@ -303,10 +337,9 @@ class DynamicSkillLoader:
 
         # max_skills 초과 처리 (의존성 우선 보존)
         if len(result) > max_skills:
-            # 모든 선택 스킬의 필수 의존성 세트 구성
-            dep_set = set()
-            for sid in skill_ids:  # 원본 선택 스킬만 고려
-                dep_set.update(dep_graph.get_required_deps([sid]))
+            # ✅ CR-2 수정: 재귀적으로 모든 의존성 수집
+            # 원본 선택 스킬의 모든 (직접 + 간접) 의존성을 포함
+            dep_set = self._get_all_required_deps_recursive(skill_ids, dep_graph)
 
             # 의존성인 스킬 vs 일반 스킬 분류
             core_deps = [s for s in result if s in dep_set]
@@ -321,8 +354,14 @@ class DynamicSkillLoader:
                 )
                 result = core_deps[:max_skills]
             else:
-                # 의존성을 우선 유지하고, 나머지를 점수 순으로 추가
-                result = core_deps + non_deps[: max_skills - len(core_deps)]
+                # ✅ MAJ-1 수정: non_deps를 점수 순으로 정렬
+                # 의존성을 우선 유지하고, 점수 높은 스킬부터 추가
+                non_deps_sorted = sorted(
+                    non_deps,
+                    key=lambda s: scores.get(s, 0),
+                    reverse=True  # 높은 점수부터
+                )
+                result = core_deps + non_deps_sorted[: max_skills - len(core_deps)]
 
         return result
 

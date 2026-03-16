@@ -47,6 +47,7 @@ from core.providers.registry import (
     strip_engine_api_keys,
 )
 from core.model_router import ModelRouter
+from core.skill_loader import AdaptiveSkillLoader  # ✅ MIN-4 수정: 파일 상단에서 import
 from model_utils import (
     get_best_model,
     print_agent_model_summary,
@@ -563,7 +564,7 @@ class AgentRunner:
             AdaptiveSkillLoader 인스턴스 (캐시된)
         """
         if model_name not in self._skill_loader_cache:
-            from core.skill_loader import AdaptiveSkillLoader
+            # ✅ MIN-4 수정: 파일 상단 import 사용
             self._skill_loader_cache[model_name] = AdaptiveSkillLoader.for_model(model_name)
         return self._skill_loader_cache[model_name]
 
@@ -579,7 +580,7 @@ class AgentRunner:
         # 스킬이 명시되지 않았으면 AdaptiveSkillLoader로 자동 선택
         if not skill_ids and task_input:
             try:
-                from core.skill_loader import AdaptiveSkillLoader
+                # ✅ MIN-4 수정: 파일 상단 import 사용
                 loader = self._get_skill_loader(self._current_model_name)
                 selected, scores = loader.load_skills_for_task(task_input, verbose=True)
                 skill_ids = [s.skill_id for s in selected]
@@ -659,13 +660,10 @@ class AgentRunner:
             except ImportError:
                 pass
 
-        # 모델별 컨텍스트 크기에 맞춰 스킬 수를 제한
-        from core.skill_context_config import get_max_skills_for_model
-        max_skills = get_max_skills_for_model(self._current_model_name)
-        if len(loaded_skills) > max_skills:
-            _safe_print(f"⚠️ [Runner] 스킬 {len(loaded_skills)}개 → 상위 {max_skills}개만 로드")
-            loaded_skills = loaded_skills[:max_skills]
-
+        # ✅ MAJ-3 수정: 중복 제한 제거
+        # 스킬 개수 제한은 이미 적용됨:
+        # - 자동 선택: AdaptiveSkillLoader에서 max_skills 적용
+        # - 명시적 선택: 사용자가 지정한 리스트 존중 (제한 없음)
         return loaded_skills
 
     def build_tool_registry(self, module_list: list, ctx: dict, policy: dict) -> ToolRegistry:
@@ -726,16 +724,6 @@ class AgentRunner:
             _flush_trace(result)
             return result
 
-        # 1. Load Skills (task_input 전달 → 스킬 미선언 시 자동 선택)
-        modules = self.load_skills(agent, task_input=task_input)
-        policy_runner = PolicyRuntime(base_dir=BASE_DIR)
-        policy = policy_runner.resolve_agent_policy(agent)
-        agent_name = agent.get("name", "")
-        
-        registry = self.build_tool_registry(modules, ctx, policy)
-        tool_functions = registry.get_active_tools()
-        self._list_approval_required_tools(tool_functions, policy)
-        
         # Continuation Hook Enforcement via Event Bus
         bus = HookEventBus()
         bus.register(IntentGateHook())
@@ -776,10 +764,21 @@ class AgentRunner:
             result = bus.run_post_execute(agent_state, result)
             _flush_trace(result)
             return result
-        
+
+        # ✅ CR-1 수정: 모델 이름을 먼저 결정 (load_skills() 호출 전)
         from model_utils import get_dynamic_default_model
         model_name = normalize_model_name(agent.get("preferred_model") or self.mr.pick("chat", agent_config=agent, is_complex=is_complex) or get_dynamic_default_model("flash"))
-        self._current_model_name = model_name  # load_skills()에서 참조
+        self._current_model_name = model_name  # ← load_skills()가 이 값을 사용
+
+        # 1. Load Skills (task_input 전달 → 스킬 미선언 시 자동 선택)
+        # ✅ load_skills() 호출은 model_name 설정 후에 진행
+        modules = self.load_skills(agent, task_input=task_input)
+        policy_runner = PolicyRuntime(base_dir=BASE_DIR)
+        policy = policy_runner.resolve_agent_policy(agent)
+
+        registry = self.build_tool_registry(modules, ctx, policy)
+        tool_functions = registry.get_active_tools()
+        self._list_approval_required_tools(tool_functions, policy)
 
         # System Prompt construction
         sys_prompt = self._build_runtime_system_prompt(agent)
