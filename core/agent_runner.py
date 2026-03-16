@@ -85,6 +85,8 @@ class AgentRunner:
     def __init__(self, model_router: ModelRouter | None = None):
         self.mr = model_router or ModelRouter()
         self._knowledge_skills = []
+        self._skill_loader_cache: dict = {}  # 모델별 로더 캐싱
+        self._current_model_name: str = "default"  # 현재 모델 이름
 
     def _resolve_system_prompt(self, agent: dict) -> str:
         direct = str(agent.get("system_ko", "")).strip()
@@ -550,9 +552,22 @@ class AgentRunner:
             )
         )
 
-    def load_skills(self, agent: dict, task_input: str = "") -> list:
-        MAX_ACTIVE_SKILLS = 12
+    def _get_skill_loader(self, model_name: str):
+        """
+        모델 이름별로 AdaptiveSkillLoader를 캐싱하여 반환.
 
+        Args:
+            model_name: 모델 이름
+
+        Returns:
+            AdaptiveSkillLoader 인스턴스 (캐시된)
+        """
+        if model_name not in self._skill_loader_cache:
+            from core.skill_loader import AdaptiveSkillLoader
+            self._skill_loader_cache[model_name] = AdaptiveSkillLoader.for_model(model_name)
+        return self._skill_loader_cache[model_name]
+
+    def load_skills(self, agent: dict, task_input: str = "") -> list:
         # Legacy support + Caching
         if not hasattr(self, '_skill_module_cache'):
             self._skill_module_cache = {}
@@ -561,11 +576,11 @@ class AgentRunner:
         loaded_skills = []
         skill_ids = agent.get("skills", [])
 
-        # 스킬이 명시되지 않았으면 DynamicSkillLoader로 자동 선택
+        # 스킬이 명시되지 않았으면 AdaptiveSkillLoader로 자동 선택
         if not skill_ids and task_input:
             try:
-                from core.skill_loader import DynamicSkillLoader
-                loader = DynamicSkillLoader()
+                from core.skill_loader import AdaptiveSkillLoader
+                loader = self._get_skill_loader(self._current_model_name)
                 selected, scores = loader.load_skills_for_task(task_input, verbose=True)
                 skill_ids = [s.skill_id for s in selected]
                 if skill_ids:
@@ -644,10 +659,12 @@ class AgentRunner:
             except ImportError:
                 pass
 
-        # 12-Cap enforcement: keep only top-N skills by declared order (yaml order = priority)
-        if len(loaded_skills) > MAX_ACTIVE_SKILLS:
-            _safe_print(f"⚠️ [Runner] 스킬 {len(loaded_skills)}개 → 상위 {MAX_ACTIVE_SKILLS}개만 로드")
-            loaded_skills = loaded_skills[:MAX_ACTIVE_SKILLS]
+        # 모델별 컨텍스트 크기에 맞춰 스킬 수를 제한
+        from core.skill_context_config import get_max_skills_for_model
+        max_skills = get_max_skills_for_model(self._current_model_name)
+        if len(loaded_skills) > max_skills:
+            _safe_print(f"⚠️ [Runner] 스킬 {len(loaded_skills)}개 → 상위 {max_skills}개만 로드")
+            loaded_skills = loaded_skills[:max_skills]
 
         return loaded_skills
 
@@ -762,7 +779,8 @@ class AgentRunner:
         
         from model_utils import get_dynamic_default_model
         model_name = normalize_model_name(agent.get("preferred_model") or self.mr.pick("chat", agent_config=agent, is_complex=is_complex) or get_dynamic_default_model("flash"))
-        
+        self._current_model_name = model_name  # load_skills()에서 참조
+
         # System Prompt construction
         sys_prompt = self._build_runtime_system_prompt(agent)
 

@@ -196,7 +196,29 @@ class DynamicSkillLoader:
             self._dep_graph = SkillDependencyGraph(all_skills)
         return self._dep_graph
 
-    def load_skills_for_task(self, task_input: str, exclude_skills=None, min_score=0.0, verbose=False):
+    def load_skills_for_task(
+        self,
+        task_input: str,
+        exclude_skills=None,
+        min_score=0.0,
+        verbose=False,
+        max_skills: int = 0,  # 0 = MAX_SKILLS_IN_CONTEXT (레거시)
+    ):
+        """
+        작업 입력에 맞춰 스킬을 자동 선택.
+
+        Args:
+            task_input: 작업 설명
+            exclude_skills: 제외할 스킬 ID 목록
+            min_score: 최소 점수 필터
+            verbose: 상세 로그 출력 여부
+            max_skills: 최대 스킬 개수 (0 = MAX_SKILLS_IN_CONTEXT)
+
+        Returns:
+            (선택된 SkillMetadata 목록, 스킬별 점수 딕셔너리)
+        """
+        effective_max = max_skills if max_skills > 0 else MAX_SKILLS_IN_CONTEXT
+
         registry = get_global_registry()
         all_skills = registry.get_all()
 
@@ -211,7 +233,7 @@ class DynamicSkillLoader:
             if score >= min_score:
                 scores[skill_id] = score
 
-        sorted_skills = sorted(scores.items(), key=lambda x: x[1], reverse=True)[:MAX_SKILLS_IN_CONTEXT]
+        sorted_skills = sorted(scores.items(), key=lambda x: x[1], reverse=True)[:effective_max]
         selected_ids = [sid for sid, _ in sorted_skills]
 
         # 충돌 해결
@@ -219,12 +241,10 @@ class DynamicSkillLoader:
 
         # 의존성 자동 포함 + 위상 정렬
         dep_graph = self._get_dep_graph(all_skills)
-        resolved_ids = self._inject_missing_deps(resolved_ids, dep_graph, all_skills, scores)
+        resolved_ids = self._inject_missing_deps(
+            resolved_ids, dep_graph, all_skills, scores, max_skills=effective_max
+        )
         resolved_ids, excluded = dep_graph.topological_sort(resolved_ids)
-
-        # 12-Cap 재적용 (의존성 추가로 초과할 수 있음)
-        if len(resolved_ids) > MAX_SKILLS_IN_CONTEXT:
-            resolved_ids = resolved_ids[:MAX_SKILLS_IN_CONTEXT]
 
         selected_skills = [all_skills[sid] for sid in resolved_ids if sid in all_skills]
         selected_scores = {sid: scores.get(sid, 0.0) for sid in resolved_ids}
@@ -242,21 +262,67 @@ class DynamicSkillLoader:
         dep_graph: SkillDependencyGraph,
         all_skills: Dict[str, SkillMetadata],
         scores: Dict[str, float],
+        max_skills: int = MAX_SKILLS_IN_CONTEXT,
     ) -> List[str]:
-        """선택된 스킬의 미포함 의존 스킬을 자동 주입."""
-        missing = dep_graph.get_required_deps(skill_ids)
-        if not missing:
-            return skill_ids
+        """
+        선택된 스킬의 미포함 의존 스킬을 재귀적으로 주입 (최대 5단계).
 
+        의존성 추가로 max_skills 초과 시:
+        - 모든 선택된 스킬의 필수 의존성은 보존
+        - 필수 의존성만으로도 max_skills 이상이면 경고 후 의존성만 반환
+        - 그 외 경우, 의존성 + 비의존성(점수 순)으로 max_skills 채움
+
+        Args:
+            skill_ids: 선택된 스킬 ID 목록
+            dep_graph: 의존성 그래프
+            all_skills: 전체 스킬 메타데이터
+            scores: 스킬별 점수
+            max_skills: 최대 스킬 개수
+
+        Returns:
+            최종 스킬 ID 목록 (의존성 일관성 유지)
+        """
         result = list(skill_ids)
-        for dep_id in missing:
-            if dep_id in all_skills and dep_id not in result:
-                result.append(dep_id)
-                # 의존성으로 추가된 스킬은 최소 점수 부여
-                if dep_id not in scores:
-                    scores[dep_id] = 0.01
-                if len(result) >= MAX_SKILLS_IN_CONTEXT:
-                    break
+
+        # 재귀적 의존성 주입 (최대 5단계)
+        for iteration in range(5):
+            missing = dep_graph.get_required_deps(result)
+            if not missing:
+                break
+
+            added = False
+            for dep_id in missing:
+                if dep_id in all_skills and dep_id not in result:
+                    result.append(dep_id)
+                    if dep_id not in scores:
+                        scores[dep_id] = 0.01
+                    added = True
+
+            if not added:
+                break
+
+        # max_skills 초과 처리 (의존성 우선 보존)
+        if len(result) > max_skills:
+            # 모든 선택 스킬의 필수 의존성 세트 구성
+            dep_set = set()
+            for sid in skill_ids:  # 원본 선택 스킬만 고려
+                dep_set.update(dep_graph.get_required_deps([sid]))
+
+            # 의존성인 스킬 vs 일반 스킬 분류
+            core_deps = [s for s in result if s in dep_set]
+            non_deps = [s for s in result if s not in dep_set]
+
+            if len(core_deps) >= max_skills:
+                logger.warning(
+                    "의존성(%d개)만으로 max_skills(%d) 초과. "
+                    "일부 의존성이 누락될 수 있습니다.",
+                    len(core_deps),
+                    max_skills,
+                )
+                result = core_deps[:max_skills]
+            else:
+                # 의존성을 우선 유지하고, 나머지를 점수 순으로 추가
+                result = core_deps + non_deps[: max_skills - len(core_deps)]
 
         return result
 
@@ -335,3 +401,59 @@ class DynamicSkillLoader:
         lines.append("- 검증 필요? → 테스트 스킬 사용")
 
         return "\n".join(lines)
+
+
+# =============================================================================
+# 적응형 스킬 로더 (모델별 컨텍스트 자동 계산)
+# =============================================================================
+class AdaptiveSkillLoader(DynamicSkillLoader):
+    """
+    모델 이름에 따라 컨텍스트 크기에 적합한 스킬 개수를 자동 계산하는 로더.
+
+    Example:
+        >>> loader = AdaptiveSkillLoader.for_model("claude-sonnet-4-6")
+        >>> selected, scores = loader.load_skills_for_task("코드 작성")
+        >>> # max_skills가 자동으로 228개로 설정됨
+    """
+
+    def __init__(self, config=None):
+        """
+        Args:
+            config: SkillLoaderConfig 인스턴스 (None이면 기본값 사용)
+        """
+        super().__init__()
+        if config is None:
+            from core.skill_context_config import SkillLoaderConfig
+            config = SkillLoaderConfig()
+        self.config = config
+
+    def load_skills_for_task(self, task_input: str, **kwargs):
+        """
+        작업 입력에 맞춰 스킬을 자동 선택 (모델별 max_skills 자동 적용).
+
+        Args:
+            task_input: 작업 설명
+            **kwargs: load_skills_for_task()의 다른 파라미터
+
+        Returns:
+            (선택된 SkillMetadata 목록, 스킬별 점수 딕셔너리)
+        """
+        # max_skills를 명시하지 않으면 설정값 사용
+        if "max_skills" not in kwargs:
+            kwargs["max_skills"] = self.config.max_skills
+        return super().load_skills_for_task(task_input, **kwargs)
+
+    @classmethod
+    def for_model(cls, model_name: str) -> "AdaptiveSkillLoader":
+        """
+        모델 이름으로 적응형 로더 생성.
+
+        Args:
+            model_name: 모델 이름 (예: "claude-haiku-4-5", "claude-sonnet-4-6")
+
+        Returns:
+            AdaptiveSkillLoader 인스턴스
+        """
+        from core.skill_context_config import SkillLoaderConfig
+        config = SkillLoaderConfig(model_name=model_name)
+        return cls(config=config)
