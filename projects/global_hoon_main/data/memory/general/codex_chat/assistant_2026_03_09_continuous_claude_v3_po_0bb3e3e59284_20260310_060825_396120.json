@@ -1,18 +1,18 @@
-{
-  "key": "assistant 네 그렇게 보는 게 맞습니다 코드와 문서에 직접 회사와 집이라고 쓰여 있진 않지만 목적은 분명히 다음 세션에서 이어하기입니다 설계 문서 2026-03-09-continuous-claude-v3-po",
-  "value": "[assistant] 네, 그렇게 보는 게 맞습니다. 코드와 문서에 직접 \"회사와 집\"이라고 쓰여 있진 않지만, 목적은 분명히 \"다음 세션에서 이어하기\"입니다. 설계 문서 [2026-03-09-continuous-claude-v3-port-design.md#L160](D:/hoonProJect/worktrees/agent-factory/docs/plans/2026-03-09-continuous-claude-v3-port-design.md#L160) 에서 `...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T06:08:25.396336+00:00",
-  "updated_at": "2026-03-10T06:08:25.396336+00:00",
-  "details": {
-    "text": "[assistant] 네, 그렇게 보는 게 맞습니다. 코드와 문서에 직접 \"회사와 집\"이라고 쓰여 있진 않지만, 목적은 분명히 \"다음 세션에서 이어하기\"입니다. 설계 문서 [2026-03-09-continuous-claude-v3-port-design.md#L160](D:/hoonProJect/worktrees/agent-factory/docs/plans/2026-03-09-continuous-claude-v3-port-design.md#L160) 에서 `resume_brief.md`를 \"resume 시 최소 실행 상태를 복구\"하는 산출물로 두고 있고, [session_adapter.py#L172](D:/hoonProJect/worktrees/agent-factory/core/providers/session_adapter.py#L172) 에서는 이 파일을 다시 읽어 세션 컨텍스트에 넣습니다. 또 [session_adapter.py#L295](D:/hoonProJect/worktrees/agent-factory/core/providers/session_adapter.py#L295) 와 [session_adapter.py#L330](D:/hoonProJect/worktrees/agent-factory/core/providers/session_adapter.py#L330) 에서 세션 준비/종료 시 다시 써 줍니다.\n\n그리고 이번 파일들은 실제로도 어제인 2026년 3월 9일에 생성됐습니다. 루트 [resume_brief.md](D:/hoonProJect/worktrees/agent-factory/resume_brief.md) 와 [projects/agent_factory/resume_brief.md](D:/hoonProJect/worktrees/agent-factory/projects/agent_factory/resume_brief.md) 는 각각 2026-03-09T11:06:47Z, 2026-03-09T11:06:43Z 에 `Trigger: sync_push`로 기록돼 있어서, 어제 작업을 다른 환경에서 이어받으려고 만든 연속성 파일로 보면 됩니다. [projects/logi-mind-v22](D:/hoonProJect/worktrees/agent-factory/projects/logi-mind-v22) 도 같은 메커니즘의 별도 워크스페이스 흔적이고, 현재 `agent-factory` 자체를 이어받는 핵심은 주로 두 개의 `resume_brief.md` 쪽입니다.",
-    "event_timestamp": "2026-03-10T01:27:57.005Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
-    "session_line": 161,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 네 그렇게 보는 게 맞습니다 코드와 문서에 직접 회사와 집이라고 쓰여 있진 않지만 목적은 분명히 다음 세션에서 이어하기입니다 설계 문서 2026-03-09-continuous-claude-v3-po",
+  "value": "[assistant] 네, 그렇게 보는 게 맞습니다. 코드와 문서에 직접 \"회사와 집\"이라고 쓰여 있진 않지만, 목적은 분명히 \"다음 세션에서 이어하기\"입니다. 설계 문서 [2026-03-09-continuous-claude-v3-port-design.md#L160](D:/hoonProJect/worktrees/agent-factory/docs/plans/2026-03-09-continuous-claude-v3-port-design.md#L160) 에서 `...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T06:08:25.396336+00:00",
+  "updated_at": "2026-03-10T06:08:25.396336+00:00",
+  "details": {
+    "text": "[assistant] 네, 그렇게 보는 게 맞습니다. 코드와 문서에 직접 \"회사와 집\"이라고 쓰여 있진 않지만, 목적은 분명히 \"다음 세션에서 이어하기\"입니다. 설계 문서 [2026-03-09-continuous-claude-v3-port-design.md#L160](D:/hoonProJect/worktrees/agent-factory/docs/plans/2026-03-09-continuous-claude-v3-port-design.md#L160) 에서 `resume_brief.md`를 \"resume 시 최소 실행 상태를 복구\"하는 산출물로 두고 있고, [session_adapter.py#L172](D:/hoonProJect/worktrees/agent-factory/core/providers/session_adapter.py#L172) 에서는 이 파일을 다시 읽어 세션 컨텍스트에 넣습니다. 또 [session_adapter.py#L295](D:/hoonProJect/worktrees/agent-factory/core/providers/session_adapter.py#L295) 와 [session_adapter.py#L330](D:/hoonProJect/worktrees/agent-factory/core/providers/session_adapter.py#L330) 에서 세션 준비/종료 시 다시 써 줍니다.\n\n그리고 이번 파일들은 실제로도 어제인 2026년 3월 9일에 생성됐습니다. 루트 [resume_brief.md](D:/hoonProJect/worktrees/agent-factory/resume_brief.md) 와 [projects/agent_factory/resume_brief.md](D:/hoonProJect/worktrees/agent-factory/projects/agent_factory/resume_brief.md) 는 각각 2026-03-09T11:06:47Z, 2026-03-09T11:06:43Z 에 `Trigger: sync_push`로 기록돼 있어서, 어제 작업을 다른 환경에서 이어받으려고 만든 연속성 파일로 보면 됩니다. [projects/logi-mind-v22](D:/hoonProJect/worktrees/agent-factory/projects/logi-mind-v22) 도 같은 메커니즘의 별도 워크스페이스 흔적이고, 현재 `agent-factory` 자체를 이어받는 핵심은 주로 두 개의 `resume_brief.md` 쪽입니다.",
+    "event_timestamp": "2026-03-10T01:27:57.005Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 161,
+    "provider": "codex"
+  }
 }

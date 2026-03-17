@@ -1,0 +1,4 @@
+
+[TodoContinuationEnforcer] ERROR: complex tasks require a structured plan.
+[TodoContinuationEnforcer] Add `.todo.md` or a project board state first.
+

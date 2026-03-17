@@ -1,18 +1,18 @@
-{
-  "key": "assistant 같은 source 내부 중복 차단까지 넣었습니다 이제 importer는 same source  same skill_id가 나오면 정렬상 먼저 발견된 후보만 유지하고 나머지는 duplicates_sk",
-  "value": "[assistant] 같은 source 내부 중복 차단까지 넣었습니다. 이제 importer는 `same source + same skill_id`가 나오면 정렬상 먼저 발견된 후보만 유지하고, 나머지는 `duplicates_skipped`로 기록합니다. cross-source 중복은 그대로 허용됩니다.  변경 핵심은 여기입니다. - duplicate guard와 `source_repo` 추적: [external_skill_candidate_importer...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T17:40:37.954473+00:00",
-  "updated_at": "2026-03-10T17:40:37.954473+00:00",
-  "details": {
-    "text": "[assistant] 같은 source 내부 중복 차단까지 넣었습니다. 이제 importer는 `same source + same skill_id`가 나오면 정렬상 먼저 발견된 후보만 유지하고, 나머지는 `duplicates_skipped`로 기록합니다. cross-source 중복은 그대로 허용됩니다.\n\n변경 핵심은 여기입니다.\n- duplicate guard와 `source_repo` 추적: [external_skill_candidate_importer.py](/D:/warkSpaces/agent-factory/core/external_skill_candidate_importer.py#L219)\n- importer 출력에 `duplicates_skipped` 추가: [external_skill_candidate_importer.py](/D:/warkSpaces/agent-factory/core/external_skill_candidate_importer.py#L363)\n- wrapper 스크립트: [import_external_skill_candidates.py](/D:/warkSpaces/agent-factory/scripts/import_external_skill_candidates.py#L1)\n- 스키마 문서 반영: [registry_schema.md](/D:/warkSpaces/agent-factory/docs/registry_schema.md#L17)\n- 중복 차단 테스트: [test_external_skill_candidate_importer.py](/D:/warkSpaces/agent-factory/tests/test_external_skill_candidate_importer.py#L61)\n\n검증은 통과했습니다.\n- `pytest` 관련 묶음: `11 passed`\n- `py_compile`: 성공\n- 현재 워크스페이스에서 `python scripts/import_external_skill_candidates.py --check` 결과는 `external_candidates=0 duplicates_skipped=0 install_candidates=0` 입니다.\n\n즉 구조는 지금 이렇게 됩니다.\n- `research`\n- `claude -> codex -> registry -> external_cache`\n- 같은 source 내부 duplicate는 importer에서 차단\n- 다 실패하면 builder fallback",
-    "event_timestamp": "2026-03-10T15:24:54.192Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
-    "session_line": 1225,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 같은 source 내부 중복 차단까지 넣었습니다 이제 importer는 same source  same skill_id가 나오면 정렬상 먼저 발견된 후보만 유지하고 나머지는 duplicates_sk",
+  "value": "[assistant] 같은 source 내부 중복 차단까지 넣었습니다. 이제 importer는 `same source + same skill_id`가 나오면 정렬상 먼저 발견된 후보만 유지하고, 나머지는 `duplicates_skipped`로 기록합니다. cross-source 중복은 그대로 허용됩니다.  변경 핵심은 여기입니다. - duplicate guard와 `source_repo` 추적: [external_skill_candidate_importer...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:37.954473+00:00",
+  "updated_at": "2026-03-10T17:40:37.954473+00:00",
+  "details": {
+    "text": "[assistant] 같은 source 내부 중복 차단까지 넣었습니다. 이제 importer는 `same source + same skill_id`가 나오면 정렬상 먼저 발견된 후보만 유지하고, 나머지는 `duplicates_skipped`로 기록합니다. cross-source 중복은 그대로 허용됩니다.\n\n변경 핵심은 여기입니다.\n- duplicate guard와 `source_repo` 추적: [external_skill_candidate_importer.py](/D:/warkSpaces/agent-factory/core/external_skill_candidate_importer.py#L219)\n- importer 출력에 `duplicates_skipped` 추가: [external_skill_candidate_importer.py](/D:/warkSpaces/agent-factory/core/external_skill_candidate_importer.py#L363)\n- wrapper 스크립트: [import_external_skill_candidates.py](/D:/warkSpaces/agent-factory/scripts/import_external_skill_candidates.py#L1)\n- 스키마 문서 반영: [registry_schema.md](/D:/warkSpaces/agent-factory/docs/registry_schema.md#L17)\n- 중복 차단 테스트: [test_external_skill_candidate_importer.py](/D:/warkSpaces/agent-factory/tests/test_external_skill_candidate_importer.py#L61)\n\n검증은 통과했습니다.\n- `pytest` 관련 묶음: `11 passed`\n- `py_compile`: 성공\n- 현재 워크스페이스에서 `python scripts/import_external_skill_candidates.py --check` 결과는 `external_candidates=0 duplicates_skipped=0 install_candidates=0` 입니다.\n\n즉 구조는 지금 이렇게 됩니다.\n- `research`\n- `claude -> codex -> registry -> external_cache`\n- 같은 source 내부 duplicate는 importer에서 차단\n- 다 실패하면 builder fallback",
+    "event_timestamp": "2026-03-10T15:24:54.192Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
+    "session_line": 1225,
+    "provider": "codex"
+  }
 }

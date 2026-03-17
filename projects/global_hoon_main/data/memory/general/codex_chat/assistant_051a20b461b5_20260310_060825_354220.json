@@ -1,18 +1,18 @@
-{
-  "key": "assistant 해당 경로들이 실제로 무엇인지 확인하기 위해 파일 내용과 디렉터리 구성을 읽어보겠습니다 추적 상태도 같이 봐서 원격에서 온 건지 로컬 생성물인지 구분하겠습니다",
-  "value": "[assistant] 해당 경로들이 실제로 무엇인지 확인하기 위해 파일 내용과 디렉터리 구성을 읽어보겠습니다. 추적 상태도 같이 봐서 원격에서 온 건지 로컬 생성물인지 구분하겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T06:08:25.354269+00:00",
-  "updated_at": "2026-03-10T06:08:25.354269+00:00",
-  "details": {
-    "text": "[assistant] 해당 경로들이 실제로 무엇인지 확인하기 위해 파일 내용과 디렉터리 구성을 읽어보겠습니다. 추적 상태도 같이 봐서 원격에서 온 건지 로컬 생성물인지 구분하겠습니다.",
-    "event_timestamp": "2026-03-10T01:22:33.096Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
-    "session_line": 91,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 해당 경로들이 실제로 무엇인지 확인하기 위해 파일 내용과 디렉터리 구성을 읽어보겠습니다 추적 상태도 같이 봐서 원격에서 온 건지 로컬 생성물인지 구분하겠습니다",
+  "value": "[assistant] 해당 경로들이 실제로 무엇인지 확인하기 위해 파일 내용과 디렉터리 구성을 읽어보겠습니다. 추적 상태도 같이 봐서 원격에서 온 건지 로컬 생성물인지 구분하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T06:08:25.354269+00:00",
+  "updated_at": "2026-03-10T06:08:25.354269+00:00",
+  "details": {
+    "text": "[assistant] 해당 경로들이 실제로 무엇인지 확인하기 위해 파일 내용과 디렉터리 구성을 읽어보겠습니다. 추적 상태도 같이 봐서 원격에서 온 건지 로컬 생성물인지 구분하겠습니다.",
+    "event_timestamp": "2026-03-10T01:22:33.096Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 91,
+    "provider": "codex"
+  }
 }

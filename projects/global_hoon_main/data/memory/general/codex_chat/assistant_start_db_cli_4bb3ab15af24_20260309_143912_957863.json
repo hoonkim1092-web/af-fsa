@@ -1,18 +1,18 @@
-{
-  "key": "assistant 현재 대화에 남아 있는 확실한 기록은 브랜치 확인 클론 start_db까지만입니다 CLI 하다 만 작업이 뭔지는 추측하지 않고 워크스페이스 흔적으로 바로 재구성하겠습니다",
-  "value": "[assistant] 현재 대화에 남아 있는 확실한 기록은 브랜치 확인, 클론, `start_db`까지만입니다. `CLI 하다 만 작업`이 뭔지는 추측하지 않고 워크스페이스 흔적으로 바로 재구성하겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T14:39:12.957945+00:00",
-  "updated_at": "2026-03-09T14:39:12.957945+00:00",
-  "details": {
-    "text": "[assistant] 현재 대화에 남아 있는 확실한 기록은 브랜치 확인, 클론, `start_db`까지만입니다. `CLI 하다 만 작업`이 뭔지는 추측하지 않고 워크스페이스 흔적으로 바로 재구성하겠습니다.",
-    "event_timestamp": "2026-03-09T14:36:30.434Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
-    "session_line": 144,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 현재 대화에 남아 있는 확실한 기록은 브랜치 확인 클론 start_db까지만입니다 CLI 하다 만 작업이 뭔지는 추측하지 않고 워크스페이스 흔적으로 바로 재구성하겠습니다",
+  "value": "[assistant] 현재 대화에 남아 있는 확실한 기록은 브랜치 확인, 클론, `start_db`까지만입니다. `CLI 하다 만 작업`이 뭔지는 추측하지 않고 워크스페이스 흔적으로 바로 재구성하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T14:39:12.957945+00:00",
+  "updated_at": "2026-03-09T14:39:12.957945+00:00",
+  "details": {
+    "text": "[assistant] 현재 대화에 남아 있는 확실한 기록은 브랜치 확인, 클론, `start_db`까지만입니다. `CLI 하다 만 작업`이 뭔지는 추측하지 않고 워크스페이스 흔적으로 바로 재구성하겠습니다.",
+    "event_timestamp": "2026-03-09T14:36:30.434Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 144,
+    "provider": "codex"
+  }
 }

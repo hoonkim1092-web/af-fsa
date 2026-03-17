@@ -1,18 +1,18 @@
-{
-  "key": "assistant 마지막 경로는 agent_launcher 자체의 top-level Gemini SDK import입니다 이건 CLI-only 환경에서 완전히 불필요하니 제거하겠습니다",
-  "value": "[assistant] 마지막 경로는 `agent_launcher` 자체의 top-level Gemini SDK import입니다. 이건 CLI-only 환경에서 완전히 불필요하니 제거하겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T17:40:37.978482+00:00",
-  "updated_at": "2026-03-10T17:40:37.978482+00:00",
-  "details": {
-    "text": "[assistant] 마지막 경로는 `agent_launcher` 자체의 top-level Gemini SDK import입니다. 이건 CLI-only 환경에서 완전히 불필요하니 제거하겠습니다.",
-    "event_timestamp": "2026-03-10T15:36:35.364Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
-    "session_line": 1504,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 마지막 경로는 agent_launcher 자체의 top-level Gemini SDK import입니다 이건 CLI-only 환경에서 완전히 불필요하니 제거하겠습니다",
+  "value": "[assistant] 마지막 경로는 `agent_launcher` 자체의 top-level Gemini SDK import입니다. 이건 CLI-only 환경에서 완전히 불필요하니 제거하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:37.978482+00:00",
+  "updated_at": "2026-03-10T17:40:37.978482+00:00",
+  "details": {
+    "text": "[assistant] 마지막 경로는 `agent_launcher` 자체의 top-level Gemini SDK import입니다. 이건 CLI-only 환경에서 완전히 불필요하니 제거하겠습니다.",
+    "event_timestamp": "2026-03-10T15:36:35.364Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
+    "session_line": 1504,
+    "provider": "codex"
+  }
 }

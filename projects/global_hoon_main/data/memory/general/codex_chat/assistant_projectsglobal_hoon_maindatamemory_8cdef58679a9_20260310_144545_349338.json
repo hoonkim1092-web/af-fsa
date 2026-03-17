@@ -1,18 +1,18 @@
-{
-  "key": "assistant 제가 임의로 제외했습니다 이유는 두 가지입니다- projectsglobal_hoon_maindatamemory는 코드가 아니라 런타임 메모리세션 기록이라서 한 번 실행할 때마다 대량으로 생기고 커밋",
-  "value": "[assistant] 제가 임의로 제외했습니다. 이유는 두 가지입니다.  - `projects/global_hoon_main/data/memory/...`는 코드가 아니라 런타임 메모리/세션 기록이라서, 한 번 실행할 때마다 대량으로 생기고 커밋이 금방 더러워집니다. - 이번 변경의 본질은 파이프라인/CLI/테스트 수정이어서, 메모리 JSON까지 같이 넣으면 리뷰와 롤백이 어려워집니다.  특히 이번엔 `codex_chat/*.json`이 수십 개 생겨서,...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T14:45:45.349438+00:00",
-  "updated_at": "2026-03-10T14:45:45.349438+00:00",
-  "details": {
-    "text": "[assistant] 제가 임의로 제외했습니다. 이유는 두 가지입니다.\n\n- `projects/global_hoon_main/data/memory/...`는 코드가 아니라 런타임 메모리/세션 기록이라서, 한 번 실행할 때마다 대량으로 생기고 커밋이 금방 더러워집니다.\n- 이번 변경의 본질은 파이프라인/CLI/테스트 수정이어서, 메모리 JSON까지 같이 넣으면 리뷰와 롤백이 어려워집니다.\n\n특히 이번엔 `codex_chat/*.json`이 수십 개 생겨서, 그대로 넣으면 “코드 변경 커밋”이 아니라 “세션 덤프 커밋”에 가까워졌습니다. 그래서 소스/테스트/문서만 먼저 올렸습니다.\n\n다만 네 의도가 “메모리도 repo로 같이 남겨야 한다”면 그 기준으로 맞추겠습니다. 원하면 바로 아래 둘 중 원하는 범위로 추가 커밋해서 푸시하겠습니다.\n\n- `memory만`: `projects/global_hoon_main/data/memory/...`\n- `memory + 런타임 산출물까지 전부`: `projects/gemini_live_edit/...` 포함 전체",
-    "event_timestamp": "2026-03-09T18:20:21.600Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
-    "session_line": 3517,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 제가 임의로 제외했습니다 이유는 두 가지입니다- projectsglobal_hoon_maindatamemory는 코드가 아니라 런타임 메모리세션 기록이라서 한 번 실행할 때마다 대량으로 생기고 커밋",
+  "value": "[assistant] 제가 임의로 제외했습니다. 이유는 두 가지입니다.  - `projects/global_hoon_main/data/memory/...`는 코드가 아니라 런타임 메모리/세션 기록이라서, 한 번 실행할 때마다 대량으로 생기고 커밋이 금방 더러워집니다. - 이번 변경의 본질은 파이프라인/CLI/테스트 수정이어서, 메모리 JSON까지 같이 넣으면 리뷰와 롤백이 어려워집니다.  특히 이번엔 `codex_chat/*.json`이 수십 개 생겨서,...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T14:45:45.349438+00:00",
+  "updated_at": "2026-03-10T14:45:45.349438+00:00",
+  "details": {
+    "text": "[assistant] 제가 임의로 제외했습니다. 이유는 두 가지입니다.\n\n- `projects/global_hoon_main/data/memory/...`는 코드가 아니라 런타임 메모리/세션 기록이라서, 한 번 실행할 때마다 대량으로 생기고 커밋이 금방 더러워집니다.\n- 이번 변경의 본질은 파이프라인/CLI/테스트 수정이어서, 메모리 JSON까지 같이 넣으면 리뷰와 롤백이 어려워집니다.\n\n특히 이번엔 `codex_chat/*.json`이 수십 개 생겨서, 그대로 넣으면 “코드 변경 커밋”이 아니라 “세션 덤프 커밋”에 가까워졌습니다. 그래서 소스/테스트/문서만 먼저 올렸습니다.\n\n다만 네 의도가 “메모리도 repo로 같이 남겨야 한다”면 그 기준으로 맞추겠습니다. 원하면 바로 아래 둘 중 원하는 범위로 추가 커밋해서 푸시하겠습니다.\n\n- `memory만`: `projects/global_hoon_main/data/memory/...`\n- `memory + 런타임 산출물까지 전부`: `projects/gemini_live_edit/...` 포함 전체",
+    "event_timestamp": "2026-03-09T18:20:21.600Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 3517,
+    "provider": "codex"
+  }
 }

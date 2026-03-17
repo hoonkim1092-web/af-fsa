@@ -1,18 +1,18 @@
-{
-  "key": "user 그럼 지금 구독한 계정으로 사용하는거지 api key 로 사용하는게 아니고",
-  "value": "[user] 그럼 지금 구독한 계정으로 사용하는거지, api key 로 사용하는게 아니고",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T14:39:12.855057+00:00",
-  "updated_at": "2026-03-09T14:39:12.855057+00:00",
-  "details": {
-    "text": "[user] 그럼 지금 구독한 계정으로 사용하는거지, api key 로 사용하는게 아니고",
-    "event_timestamp": "2026-03-07T17:40:41.547Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/07/rollout-2026-03-07T23-57-50-019cc8ce-02f3-7c92-a357-f51576977b23.jsonl",
-    "session_line": 1852,
-    "provider": "codex"
-  }
+{
+  "key": "user 그럼 지금 구독한 계정으로 사용하는거지 api key 로 사용하는게 아니고",
+  "value": "[user] 그럼 지금 구독한 계정으로 사용하는거지, api key 로 사용하는게 아니고",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T14:39:12.855057+00:00",
+  "updated_at": "2026-03-09T14:39:12.855057+00:00",
+  "details": {
+    "text": "[user] 그럼 지금 구독한 계정으로 사용하는거지, api key 로 사용하는게 아니고",
+    "event_timestamp": "2026-03-07T17:40:41.547Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/07/rollout-2026-03-07T23-57-50-019cc8ce-02f3-7c92-a357-f51576977b23.jsonl",
+    "session_line": 1852,
+    "provider": "codex"
+  }
 }

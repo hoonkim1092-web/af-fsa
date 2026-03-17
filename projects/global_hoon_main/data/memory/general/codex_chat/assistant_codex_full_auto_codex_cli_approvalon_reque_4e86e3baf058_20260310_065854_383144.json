@@ -1,18 +1,18 @@
-{
-  "key": "assistant 원인은 두 겹이었습니다첫째 이전 Codex 실행 설정 자체가 무승인이 아니었습니다 예전 설정은 --full-auto였는데 설치된 Codex CLI 기준으로 이건 실제로 approvalon-reque",
-  "value": "[assistant] 원인은 두 겹이었습니다.  첫째, 이전 Codex 실행 설정 자체가 무승인이 아니었습니다. 예전 설정은 `--full-auto`였는데, 설치된 Codex CLI 기준으로 이건 실제로 `approval=on-request + sandbox=workspace-write`라서, 샌드박스를 벗어나거나 Codex가 위험하다고 본 작업이면 저 승인 UI를 띄울 수 있었습니다. 그래서 지금은 [core/providers/cli.py](D:/hoon...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T06:58:54.383353+00:00",
-  "updated_at": "2026-03-10T06:58:54.383353+00:00",
-  "details": {
-    "text": "[assistant] 원인은 두 겹이었습니다.\n\n첫째, 이전 Codex 실행 설정 자체가 무승인이 아니었습니다. 예전 설정은 `--full-auto`였는데, 설치된 Codex CLI 기준으로 이건 실제로 `approval=on-request + sandbox=workspace-write`라서, 샌드박스를 벗어나거나 Codex가 위험하다고 본 작업이면 저 승인 UI를 띄울 수 있었습니다. 그래서 지금은 [core/providers/cli.py](D:/hoonProJect/worktrees/agent-factory/core/providers/cli.py#L73)에서 `codex --ask-for-approval never --sandbox workspace-write exec`로 바꿨습니다.\n\n둘째, 샌드박스 자체가 좁으면 Codex가 승격이 필요하다고 판단할 수 있습니다. 현재 provider는 `workspace-write`만 주고 있고, 추가 쓰기 범위는 필요할 때만 [core/providers/cli.py](D:/hoonProJect/worktrees/agent-factory/core/providers/cli.py#L306) 쪽 `--add-dir`로 붙습니다. 그래서 아래 작업이 나오면 예전 `on-request` 설정에서는 승인 프롬프트가 뜰 수 있었습니다.\n\n- 현재 workspace 밖 파일을 읽거나 쓰려는 경우\n- 부모 repo나 전역 홈 디렉터리 쪽을 건드리려는 경우\n- 샌드박스에서 허용되지 않은 shell 작업을 하려는 경우\n\n정리하면, \"샌드박스 문제\"의 진짜 원인은 샌드박스 자체보다 `--full-auto`가 무승인이 아니었던 점입니다. 이제는 `never + workspace-write`로 바꿔서, 샌드박스 위반이 나면 승인창 대신 실패로 모델에 반환돼야 합니다.\n\n추가로 확인한 내용:\n- `AGENT_CODEX_CLI_COMMAND` override는 현재 비어 있어서 새 기본 명령이 무시되고 있진 않습니다.\n- 관련 테스트는 `21 passed`로 확인했습니다.\n\n아직도 같은 프롬프트가 뜨면 거의 둘 중 하나입니다.\n- factory 경로가 아니라 `codex`를 직접 interactive로 실행 중인 경우\n- 패치 전 프로세스/세션이 아직 살아 있는 경우\n\n원하면 다음으로 실제 지금 어떤 명령줄로 Codex가 뜨는지까지 잡아서 확인해드리겠습니다.",
-    "event_timestamp": "2026-03-10T06:15:14.325Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
-    "session_line": 1034,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 원인은 두 겹이었습니다첫째 이전 Codex 실행 설정 자체가 무승인이 아니었습니다 예전 설정은 --full-auto였는데 설치된 Codex CLI 기준으로 이건 실제로 approvalon-reque",
+  "value": "[assistant] 원인은 두 겹이었습니다.  첫째, 이전 Codex 실행 설정 자체가 무승인이 아니었습니다. 예전 설정은 `--full-auto`였는데, 설치된 Codex CLI 기준으로 이건 실제로 `approval=on-request + sandbox=workspace-write`라서, 샌드박스를 벗어나거나 Codex가 위험하다고 본 작업이면 저 승인 UI를 띄울 수 있었습니다. 그래서 지금은 [core/providers/cli.py](D:/hoon...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T06:58:54.383353+00:00",
+  "updated_at": "2026-03-10T06:58:54.383353+00:00",
+  "details": {
+    "text": "[assistant] 원인은 두 겹이었습니다.\n\n첫째, 이전 Codex 실행 설정 자체가 무승인이 아니었습니다. 예전 설정은 `--full-auto`였는데, 설치된 Codex CLI 기준으로 이건 실제로 `approval=on-request + sandbox=workspace-write`라서, 샌드박스를 벗어나거나 Codex가 위험하다고 본 작업이면 저 승인 UI를 띄울 수 있었습니다. 그래서 지금은 [core/providers/cli.py](D:/hoonProJect/worktrees/agent-factory/core/providers/cli.py#L73)에서 `codex --ask-for-approval never --sandbox workspace-write exec`로 바꿨습니다.\n\n둘째, 샌드박스 자체가 좁으면 Codex가 승격이 필요하다고 판단할 수 있습니다. 현재 provider는 `workspace-write`만 주고 있고, 추가 쓰기 범위는 필요할 때만 [core/providers/cli.py](D:/hoonProJect/worktrees/agent-factory/core/providers/cli.py#L306) 쪽 `--add-dir`로 붙습니다. 그래서 아래 작업이 나오면 예전 `on-request` 설정에서는 승인 프롬프트가 뜰 수 있었습니다.\n\n- 현재 workspace 밖 파일을 읽거나 쓰려는 경우\n- 부모 repo나 전역 홈 디렉터리 쪽을 건드리려는 경우\n- 샌드박스에서 허용되지 않은 shell 작업을 하려는 경우\n\n정리하면, \"샌드박스 문제\"의 진짜 원인은 샌드박스 자체보다 `--full-auto`가 무승인이 아니었던 점입니다. 이제는 `never + workspace-write`로 바꿔서, 샌드박스 위반이 나면 승인창 대신 실패로 모델에 반환돼야 합니다.\n\n추가로 확인한 내용:\n- `AGENT_CODEX_CLI_COMMAND` override는 현재 비어 있어서 새 기본 명령이 무시되고 있진 않습니다.\n- 관련 테스트는 `21 passed`로 확인했습니다.\n\n아직도 같은 프롬프트가 뜨면 거의 둘 중 하나입니다.\n- factory 경로가 아니라 `codex`를 직접 interactive로 실행 중인 경우\n- 패치 전 프로세스/세션이 아직 살아 있는 경우\n\n원하면 다음으로 실제 지금 어떤 명령줄로 Codex가 뜨는지까지 잡아서 확인해드리겠습니다.",
+    "event_timestamp": "2026-03-10T06:15:14.325Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 1034,
+    "provider": "codex"
+  }
 }

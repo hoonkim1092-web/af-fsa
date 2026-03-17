@@ -1,18 +1,18 @@
-{
-  "key": "assistant 직접 호출은 실행됐고 이 경로는 세션 상태 파일이 남습니다 표준 출력 대신 oauth_smokeaf_runtimecli_sessions를 보면 성공 여부를 바로 확인할 수 있습니다",
-  "value": "[assistant] 직접 호출은 실행됐고, 이 경로는 세션 상태 파일이 남습니다. 표준 출력 대신 `oauth_smoke/.af_runtime/cli_sessions`를 보면 성공 여부를 바로 확인할 수 있습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T16:31:42.507983+00:00",
-  "updated_at": "2026-03-09T16:31:42.507983+00:00",
-  "details": {
-    "text": "[assistant] 직접 호출은 실행됐고, 이 경로는 세션 상태 파일이 남습니다. 표준 출력 대신 `oauth_smoke/.af_runtime/cli_sessions`를 보면 성공 여부를 바로 확인할 수 있습니다.",
-    "event_timestamp": "2026-03-09T16:21:50.563Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
-    "session_line": 1170,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 직접 호출은 실행됐고 이 경로는 세션 상태 파일이 남습니다 표준 출력 대신 oauth_smokeaf_runtimecli_sessions를 보면 성공 여부를 바로 확인할 수 있습니다",
+  "value": "[assistant] 직접 호출은 실행됐고, 이 경로는 세션 상태 파일이 남습니다. 표준 출력 대신 `oauth_smoke/.af_runtime/cli_sessions`를 보면 성공 여부를 바로 확인할 수 있습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T16:31:42.507983+00:00",
+  "updated_at": "2026-03-09T16:31:42.507983+00:00",
+  "details": {
+    "text": "[assistant] 직접 호출은 실행됐고, 이 경로는 세션 상태 파일이 남습니다. 표준 출력 대신 `oauth_smoke/.af_runtime/cli_sessions`를 보면 성공 여부를 바로 확인할 수 있습니다.",
+    "event_timestamp": "2026-03-09T16:21:50.563Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 1170,
+    "provider": "codex"
+  }
 }

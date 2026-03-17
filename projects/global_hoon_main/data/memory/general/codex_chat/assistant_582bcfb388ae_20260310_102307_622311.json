@@ -1,18 +1,18 @@
-{
-  "key": "assistant 보고서의 항목별 진위 여부를 문서화하려면 남은 핵심 파일 몇 개만 더 확인하면 됩니다 특히 중복 유틸 엔트리포인트 런타임 라우팅 쪽이 현재도 그대로인지 먼저 맞춰보겠습니다",
-  "value": "[assistant] 보고서의 항목별 진위 여부를 문서화하려면, 남은 핵심 파일 몇 개만 더 확인하면 됩니다. 특히 중복 유틸, 엔트리포인트, 런타임 라우팅 쪽이 현재도 그대로인지 먼저 맞춰보겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T10:23:07.622361+00:00",
-  "updated_at": "2026-03-10T10:23:07.622361+00:00",
-  "details": {
-    "text": "[assistant] 보고서의 항목별 진위 여부를 문서화하려면, 남은 핵심 파일 몇 개만 더 확인하면 됩니다. 특히 중복 유틸, 엔트리포인트, 런타임 라우팅 쪽이 현재도 그대로인지 먼저 맞춰보겠습니다.",
-    "event_timestamp": "2026-03-10T08:43:49.431Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
-    "session_line": 1660,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 보고서의 항목별 진위 여부를 문서화하려면 남은 핵심 파일 몇 개만 더 확인하면 됩니다 특히 중복 유틸 엔트리포인트 런타임 라우팅 쪽이 현재도 그대로인지 먼저 맞춰보겠습니다",
+  "value": "[assistant] 보고서의 항목별 진위 여부를 문서화하려면, 남은 핵심 파일 몇 개만 더 확인하면 됩니다. 특히 중복 유틸, 엔트리포인트, 런타임 라우팅 쪽이 현재도 그대로인지 먼저 맞춰보겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T10:23:07.622361+00:00",
+  "updated_at": "2026-03-10T10:23:07.622361+00:00",
+  "details": {
+    "text": "[assistant] 보고서의 항목별 진위 여부를 문서화하려면, 남은 핵심 파일 몇 개만 더 확인하면 됩니다. 특히 중복 유틸, 엔트리포인트, 런타임 라우팅 쪽이 현재도 그대로인지 먼저 맞춰보겠습니다.",
+    "event_timestamp": "2026-03-10T08:43:49.431Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 1660,
+    "provider": "codex"
+  }
 }

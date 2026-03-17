@@ -1,18 +1,18 @@
-{
-  "key": "user start_db agent-factory",
-  "value": "[user] start_db agent-factory",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T14:45:45.379993+00:00",
-  "updated_at": "2026-03-10T14:45:45.379993+00:00",
-  "details": {
-    "text": "[user] start_db agent-factory",
-    "event_timestamp": "2026-03-10T13:48:19.567Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
-    "session_line": 151,
-    "provider": "codex"
-  }
+{
+  "key": "user start_db agent-factory",
+  "value": "[user] start_db agent-factory",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T14:45:45.379993+00:00",
+  "updated_at": "2026-03-10T14:45:45.379993+00:00",
+  "details": {
+    "text": "[user] start_db agent-factory",
+    "event_timestamp": "2026-03-10T13:48:19.567Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
+    "session_line": 151,
+    "provider": "codex"
+  }
 }

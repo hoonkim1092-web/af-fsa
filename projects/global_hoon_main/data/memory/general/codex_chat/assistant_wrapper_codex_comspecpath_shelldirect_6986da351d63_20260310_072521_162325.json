@@ -1,18 +1,18 @@
-{
-  "key": "assistant Wrapper는 들어갔습니다 이제 Codex 세션이 실제로 COMSPECPATH를 바꾸는지와 shelldirect 실행 둘 다 막는지 테스트를 붙입니다",
-  "value": "[assistant] Wrapper는 들어갔습니다. 이제 Codex 세션이 실제로 `COMSPEC/PATH`를 바꾸는지와, shell/direct 실행 둘 다 막는지 테스트를 붙입니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T07:25:21.162418+00:00",
-  "updated_at": "2026-03-10T07:25:21.162418+00:00",
-  "details": {
-    "text": "[assistant] Wrapper는 들어갔습니다. 이제 Codex 세션이 실제로 `COMSPEC/PATH`를 바꾸는지와, shell/direct 실행 둘 다 막는지 테스트를 붙입니다.",
-    "event_timestamp": "2026-03-10T07:24:47.550Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
-    "session_line": 1405,
-    "provider": "codex"
-  }
+{
+  "key": "assistant Wrapper는 들어갔습니다 이제 Codex 세션이 실제로 COMSPECPATH를 바꾸는지와 shelldirect 실행 둘 다 막는지 테스트를 붙입니다",
+  "value": "[assistant] Wrapper는 들어갔습니다. 이제 Codex 세션이 실제로 `COMSPEC/PATH`를 바꾸는지와, shell/direct 실행 둘 다 막는지 테스트를 붙입니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T07:25:21.162418+00:00",
+  "updated_at": "2026-03-10T07:25:21.162418+00:00",
+  "details": {
+    "text": "[assistant] Wrapper는 들어갔습니다. 이제 Codex 세션이 실제로 `COMSPEC/PATH`를 바꾸는지와, shell/direct 실행 둘 다 막는지 테스트를 붙입니다.",
+    "event_timestamp": "2026-03-10T07:24:47.550Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 1405,
+    "provider": "codex"
+  }
 }

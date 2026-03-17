@@ -1,18 +1,18 @@
-{
-  "key": "assistant Gemini CLI 설정 경로 우회는 확인됐습니다 이제 인증과 네트워크가 실제로 되는지 아주 짧은 headless 호출로 먼저 확인합니다",
-  "value": "[assistant] Gemini CLI 설정 경로 우회는 확인됐습니다. 이제 인증과 네트워크가 실제로 되는지, 아주 짧은 headless 호출로 먼저 확인합니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T06:08:25.448940+00:00",
-  "updated_at": "2026-03-10T06:08:25.448940+00:00",
-  "details": {
-    "text": "[assistant] Gemini CLI 설정 경로 우회는 확인됐습니다. 이제 인증과 네트워크가 실제로 되는지, 아주 짧은 headless 호출로 먼저 확인합니다.",
-    "event_timestamp": "2026-03-10T04:20:27.739Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
-    "session_line": 368,
-    "provider": "codex"
-  }
+{
+  "key": "assistant Gemini CLI 설정 경로 우회는 확인됐습니다 이제 인증과 네트워크가 실제로 되는지 아주 짧은 headless 호출로 먼저 확인합니다",
+  "value": "[assistant] Gemini CLI 설정 경로 우회는 확인됐습니다. 이제 인증과 네트워크가 실제로 되는지, 아주 짧은 headless 호출로 먼저 확인합니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T06:08:25.448940+00:00",
+  "updated_at": "2026-03-10T06:08:25.448940+00:00",
+  "details": {
+    "text": "[assistant] Gemini CLI 설정 경로 우회는 확인됐습니다. 이제 인증과 네트워크가 실제로 되는지, 아주 짧은 headless 호출로 먼저 확인합니다.",
+    "event_timestamp": "2026-03-10T04:20:27.739Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 368,
+    "provider": "codex"
+  }
 }

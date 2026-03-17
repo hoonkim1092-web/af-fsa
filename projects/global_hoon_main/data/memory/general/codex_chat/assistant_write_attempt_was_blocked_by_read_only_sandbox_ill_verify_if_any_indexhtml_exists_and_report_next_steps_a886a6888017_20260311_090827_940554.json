@@ -1,18 +1,18 @@
-{
-  "key": "assistant Write attempt was blocked by read-only sandbox Ill verify if any indexhtml exists and report next steps",
-  "value": "[assistant] Write attempt was blocked by read-only sandbox. I’ll verify if any `index.html` exists and report next steps.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-11T09:08:27.940617+00:00",
-  "updated_at": "2026-03-11T09:08:27.940617+00:00",
-  "details": {
-    "text": "[assistant] Write attempt was blocked by read-only sandbox. I’ll verify if any `index.html` exists and report next steps.",
-    "event_timestamp": "2026-03-11T09:08:18.395Z",
-    "session_file": "D:/hoonProJect/worktrees/af_web_smoke_20260311_v3/.af_runtime/codex_home/sessions/2026/03/11/rollout-2026-03-11T18-07-57-019cdc27-2031-7690-9523-e0563414b135.jsonl",
-    "session_line": 20,
-    "provider": "codex"
-  }
+{
+  "key": "assistant Write attempt was blocked by read-only sandbox Ill verify if any indexhtml exists and report next steps",
+  "value": "[assistant] Write attempt was blocked by read-only sandbox. I’ll verify if any `index.html` exists and report next steps.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-11T09:08:27.940617+00:00",
+  "updated_at": "2026-03-11T09:08:27.940617+00:00",
+  "details": {
+    "text": "[assistant] Write attempt was blocked by read-only sandbox. I’ll verify if any `index.html` exists and report next steps.",
+    "event_timestamp": "2026-03-11T09:08:18.395Z",
+    "session_file": "D:/hoonProJect/worktrees/af_web_smoke_20260311_v3/.af_runtime/codex_home/sessions/2026/03/11/rollout-2026-03-11T18-07-57-019cdc27-2031-7690-9523-e0563414b135.jsonl",
+    "session_line": 20,
+    "provider": "codex"
+  }
 }

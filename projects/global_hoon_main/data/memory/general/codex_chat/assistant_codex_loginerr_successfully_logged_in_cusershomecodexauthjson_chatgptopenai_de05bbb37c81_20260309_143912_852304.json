@@ -1,18 +1,18 @@
-{
-  "key": "assistant 인증은 실제로 완료됐습니다확인된 근거- codex_loginerr에 Successfully logged in 이 찍혔습니다- CUsersHOMEcodexauthjson 에 ChatGPTOpenAI ",
-  "value": "[assistant] 인증은 실제로 완료됐습니다.  확인된 근거: - `codex_login.err`에 `Successfully logged in` 이 찍혔습니다. - `C:\\Users\\HOME\\.codex\\auth.json` 에 ChatGPT/OpenAI 토큰이 새로 저장됐습니다. - `chatgpt plan type`도 `plus`로 들어 있습니다.  다만 이상하게도 현재 `codex login status` 명령은 계속 `Not logged in`이라...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T14:39:12.852447+00:00",
-  "updated_at": "2026-03-09T14:39:12.852447+00:00",
-  "details": {
-    "text": "[assistant] 인증은 실제로 완료됐습니다.\n\n확인된 근거:\n- `codex_login.err`에 `Successfully logged in` 이 찍혔습니다.\n- `C:\\Users\\HOME\\.codex\\auth.json` 에 ChatGPT/OpenAI 토큰이 새로 저장됐습니다.\n- `chatgpt plan type`도 `plus`로 들어 있습니다.\n\n다만 이상하게도 현재 `codex login status` 명령은 계속 `Not logged in`이라고 반환하고 있습니다.  \n즉 상태 조회 커맨드가 꼬였거나, 현재 설치된 Codex CLI의 로컬 상태 반영에 문제가 있는 것으로 보입니다.\n\n정리하면:\n- 실제 인증 토큰 저장: 완료\n- 디바이스 로그인 절차: 성공\n- `login status` 출력: 비정상\n\n필요하면 다음으로 `codex exec` 같은 실제 OpenAI 호출이 되는지 짧게 한 번 검증해볼 수 있습니다.",
-    "event_timestamp": "2026-03-07T17:39:08.297Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/07/rollout-2026-03-07T23-57-50-019cc8ce-02f3-7c92-a357-f51576977b23.jsonl",
-    "session_line": 1825,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 인증은 실제로 완료됐습니다확인된 근거- codex_loginerr에 Successfully logged in 이 찍혔습니다- CUsersHOMEcodexauthjson 에 ChatGPTOpenAI ",
+  "value": "[assistant] 인증은 실제로 완료됐습니다.  확인된 근거: - `codex_login.err`에 `Successfully logged in` 이 찍혔습니다. - `C:\\Users\\HOME\\.codex\\auth.json` 에 ChatGPT/OpenAI 토큰이 새로 저장됐습니다. - `chatgpt plan type`도 `plus`로 들어 있습니다.  다만 이상하게도 현재 `codex login status` 명령은 계속 `Not logged in`이라...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T14:39:12.852447+00:00",
+  "updated_at": "2026-03-09T14:39:12.852447+00:00",
+  "details": {
+    "text": "[assistant] 인증은 실제로 완료됐습니다.\n\n확인된 근거:\n- `codex_login.err`에 `Successfully logged in` 이 찍혔습니다.\n- `C:\\Users\\HOME\\.codex\\auth.json` 에 ChatGPT/OpenAI 토큰이 새로 저장됐습니다.\n- `chatgpt plan type`도 `plus`로 들어 있습니다.\n\n다만 이상하게도 현재 `codex login status` 명령은 계속 `Not logged in`이라고 반환하고 있습니다.  \n즉 상태 조회 커맨드가 꼬였거나, 현재 설치된 Codex CLI의 로컬 상태 반영에 문제가 있는 것으로 보입니다.\n\n정리하면:\n- 실제 인증 토큰 저장: 완료\n- 디바이스 로그인 절차: 성공\n- `login status` 출력: 비정상\n\n필요하면 다음으로 `codex exec` 같은 실제 OpenAI 호출이 되는지 짧게 한 번 검증해볼 수 있습니다.",
+    "event_timestamp": "2026-03-07T17:39:08.297Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/07/rollout-2026-03-07T23-57-50-019cc8ce-02f3-7c92-a357-f51576977b23.jsonl",
+    "session_line": 1825,
+    "provider": "codex"
+  }
 }

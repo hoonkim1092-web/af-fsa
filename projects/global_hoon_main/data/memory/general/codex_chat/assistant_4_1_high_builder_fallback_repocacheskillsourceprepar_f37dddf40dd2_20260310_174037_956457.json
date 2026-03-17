@@ -1,18 +1,18 @@
-{
-  "key": "assistant 문제 있습니다 우선 수정이 필요한 건 4개입니다1 High 외부 소스 준비 실패가 builder fallback까지 가지 못하고 전체 조달을 끊습니다 RepoCacheSkillSourceprepar",
-  "value": "[assistant] 문제 있습니다. 우선 수정이 필요한 건 4개입니다.  1. High: 외부 소스 준비 실패가 builder fallback까지 가지 못하고 전체 조달을 끊습니다. [`RepoCacheSkillSource.prepare()`](/D:/warkSpaces/agent-factory/core/external_skill_sources.py#L139) 는 `os.makedirs(...)`를 try 밖에서 호출하고, 호출부 [`resolve_and...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T17:40:37.957003+00:00",
-  "updated_at": "2026-03-10T17:40:37.957003+00:00",
-  "details": {
-    "text": "[assistant] 문제 있습니다. 우선 수정이 필요한 건 4개입니다.\n\n1. High: 외부 소스 준비 실패가 builder fallback까지 가지 못하고 전체 조달을 끊습니다. [`RepoCacheSkillSource.prepare()`](/D:/warkSpaces/agent-factory/core/external_skill_sources.py#L139) 는 `os.makedirs(...)`를 try 밖에서 호출하고, 호출부 [`resolve_and_install()`](/D:/warkSpaces/agent-factory/core/external_skill_sources.py#L321) 도 `source.prepare()`를 감싸지 않습니다. 그래서 권한/파일시스템 오류가 나면 원래 의도인 `miss -> 다음 source -> builder`가 아니라 hard fail로 끝납니다.\n\n2. Medium: approval semantics가 아직 틀려 있습니다. [`procure_multiple()`](/D:/warkSpaces/agent-factory/core/skill_procurer.py#L419) 는 external reusable skill 설치 직전에도 action을 `build`로 계산합니다. 그 결과 install-only approval 정책에서는 외부 재사용이 불필요하게 막히거나, 감사 로그가 build로 남습니다. 실제 external install 시도는 그 다음 [`_try_external_install()`](/D:/warkSpaces/agent-factory/core/skill_procurer.py#L434) 에서 일어납니다.\n\n3. Medium: 구형 registry 호환 경로는 설치 실패여도 성공처럼 로그를 남길 수 있습니다. [`_try_external_install()`](/D:/warkSpaces/agent-factory/core/skill_procurer.py#L261) 의 fallback branch는 `installed_skill_id`가 비어 있어도 `installed_from = \"external\"`을 넣습니다. 그러면 [`_log_external_outcome()`](/D:/warkSpaces/agent-factory/core/skill_procurer.py#L283) 가 성공 로그를 찍고 `evidence_pack`에도 설치된 것처럼 남길 수 있습니다.\n\n4. Medium: duplicate 차단이 importer에는 들어갔지만, live repo-cache resolver 경로는 여전히 모든 `.py`를 직접 스캔합니다. [`RepoCacheSkillSource.iter_candidates()`](/D:/warkSpaces/agent-factory/core/external_skill_sources.py#L164) 와 [`_build_sources()`](/D:/warkSpaces/agent-factory/core/external_skill_sources.py#L255) 조합 때문에 `external_skill_sources` 정책을 쓰면 importer의 manifest 기반 정제와 duplicate suppression을 우회합니다. 즉 퍼포먼스/노이즈/중복 통제가 완전히 일관되지는 않습니다.\n\n잔여 리스크도 있습니다. 이 4개는 현재 테스트가 직접 커버하지 않습니다. 특히 `prepare()` 예외, approval gate action 분기, 구형 registry branch는 회귀 테스트가 추가되어야 합니다.",
-    "event_timestamp": "2026-03-10T15:26:07.992Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
-    "session_line": 1244,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 문제 있습니다 우선 수정이 필요한 건 4개입니다1 High 외부 소스 준비 실패가 builder fallback까지 가지 못하고 전체 조달을 끊습니다 RepoCacheSkillSourceprepar",
+  "value": "[assistant] 문제 있습니다. 우선 수정이 필요한 건 4개입니다.  1. High: 외부 소스 준비 실패가 builder fallback까지 가지 못하고 전체 조달을 끊습니다. [`RepoCacheSkillSource.prepare()`](/D:/warkSpaces/agent-factory/core/external_skill_sources.py#L139) 는 `os.makedirs(...)`를 try 밖에서 호출하고, 호출부 [`resolve_and...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:37.957003+00:00",
+  "updated_at": "2026-03-10T17:40:37.957003+00:00",
+  "details": {
+    "text": "[assistant] 문제 있습니다. 우선 수정이 필요한 건 4개입니다.\n\n1. High: 외부 소스 준비 실패가 builder fallback까지 가지 못하고 전체 조달을 끊습니다. [`RepoCacheSkillSource.prepare()`](/D:/warkSpaces/agent-factory/core/external_skill_sources.py#L139) 는 `os.makedirs(...)`를 try 밖에서 호출하고, 호출부 [`resolve_and_install()`](/D:/warkSpaces/agent-factory/core/external_skill_sources.py#L321) 도 `source.prepare()`를 감싸지 않습니다. 그래서 권한/파일시스템 오류가 나면 원래 의도인 `miss -> 다음 source -> builder`가 아니라 hard fail로 끝납니다.\n\n2. Medium: approval semantics가 아직 틀려 있습니다. [`procure_multiple()`](/D:/warkSpaces/agent-factory/core/skill_procurer.py#L419) 는 external reusable skill 설치 직전에도 action을 `build`로 계산합니다. 그 결과 install-only approval 정책에서는 외부 재사용이 불필요하게 막히거나, 감사 로그가 build로 남습니다. 실제 external install 시도는 그 다음 [`_try_external_install()`](/D:/warkSpaces/agent-factory/core/skill_procurer.py#L434) 에서 일어납니다.\n\n3. Medium: 구형 registry 호환 경로는 설치 실패여도 성공처럼 로그를 남길 수 있습니다. [`_try_external_install()`](/D:/warkSpaces/agent-factory/core/skill_procurer.py#L261) 의 fallback branch는 `installed_skill_id`가 비어 있어도 `installed_from = \"external\"`을 넣습니다. 그러면 [`_log_external_outcome()`](/D:/warkSpaces/agent-factory/core/skill_procurer.py#L283) 가 성공 로그를 찍고 `evidence_pack`에도 설치된 것처럼 남길 수 있습니다.\n\n4. Medium: duplicate 차단이 importer에는 들어갔지만, live repo-cache resolver 경로는 여전히 모든 `.py`를 직접 스캔합니다. [`RepoCacheSkillSource.iter_candidates()`](/D:/warkSpaces/agent-factory/core/external_skill_sources.py#L164) 와 [`_build_sources()`](/D:/warkSpaces/agent-factory/core/external_skill_sources.py#L255) 조합 때문에 `external_skill_sources` 정책을 쓰면 importer의 manifest 기반 정제와 duplicate suppression을 우회합니다. 즉 퍼포먼스/노이즈/중복 통제가 완전히 일관되지는 않습니다.\n\n잔여 리스크도 있습니다. 이 4개는 현재 테스트가 직접 커버하지 않습니다. 특히 `prepare()` 예외, approval gate action 분기, 구형 registry branch는 회귀 테스트가 추가되어야 합니다.",
+    "event_timestamp": "2026-03-10T15:26:07.992Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
+    "session_line": 1244,
+    "provider": "codex"
+  }
 }

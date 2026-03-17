@@ -1,18 +1,18 @@
-{
-  "key": "assistant 디스크에 남은 기록 기준으로는 기억 복원됐습니다 네가 말한 CLI 작업은 이 슬라이스였습니다- 최근 CLI 핵심 커밋 e10da74 feat add cli continuity and resume s",
-  "value": "[assistant] 디스크에 남은 기록 기준으로는 기억 복원됐습니다. 네가 말한 CLI 작업은 이 슬라이스였습니다.  - 최근 CLI 핵심 커밋: `e10da74` (`feat: add cli continuity and resume sync automation`) - 계획 문서: [task_plan.md](D:/warkSpaces/agent-factory/task_plan.md) - 진행 로그: [progress.md](D:/warkSpaces/agent...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T14:39:12.959982+00:00",
-  "updated_at": "2026-03-09T14:39:12.959982+00:00",
-  "details": {
-    "text": "[assistant] 디스크에 남은 기록 기준으로는 기억 복원됐습니다. 네가 말한 CLI 작업은 이 슬라이스였습니다.\n\n- 최근 CLI 핵심 커밋: `e10da74` (`feat: add cli continuity and resume sync automation`)\n- 계획 문서: [task_plan.md](D:/warkSpaces/agent-factory/task_plan.md)\n- 진행 로그: [progress.md](D:/warkSpaces/agent-factory/progress.md)\n\n기록상 내용은 이렇습니다.\n- `claude_cli` / `gemini_cli` / `codex_cli`를 명시적 provider로 분리\n- API 키 없이도 CLI-only bootstrap 가능하게 조정\n- `AgentRunner`를 modular CLI adapter 경유로 라우팅\n- 회귀 검증까지 완료로 표시됨: `29 passed`\n\n즉, 이 브랜치에 남아 있는 흔적만 보면 `CLI 구현 작업 자체`는 하다 만 상태라기보다 이미 커밋돼 있습니다. 지금 실제로 남은 건 구현이 아니라 `E2E로 CLI를 한 번 실제 실행해서 이어지는지 검증`하는 단계에 가깝습니다.\n\n원하면 바로 `D:\\warkSpaces\\agent-factory`에서 `run_factory_cli.py` 기준으로 어디까지 동작하는지 이어서 확인하겠습니다.",
-    "event_timestamp": "2026-03-09T14:37:09.758Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
-    "session_line": 170,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 디스크에 남은 기록 기준으로는 기억 복원됐습니다 네가 말한 CLI 작업은 이 슬라이스였습니다- 최근 CLI 핵심 커밋 e10da74 feat add cli continuity and resume s",
+  "value": "[assistant] 디스크에 남은 기록 기준으로는 기억 복원됐습니다. 네가 말한 CLI 작업은 이 슬라이스였습니다.  - 최근 CLI 핵심 커밋: `e10da74` (`feat: add cli continuity and resume sync automation`) - 계획 문서: [task_plan.md](D:/warkSpaces/agent-factory/task_plan.md) - 진행 로그: [progress.md](D:/warkSpaces/agent...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T14:39:12.959982+00:00",
+  "updated_at": "2026-03-09T14:39:12.959982+00:00",
+  "details": {
+    "text": "[assistant] 디스크에 남은 기록 기준으로는 기억 복원됐습니다. 네가 말한 CLI 작업은 이 슬라이스였습니다.\n\n- 최근 CLI 핵심 커밋: `e10da74` (`feat: add cli continuity and resume sync automation`)\n- 계획 문서: [task_plan.md](D:/warkSpaces/agent-factory/task_plan.md)\n- 진행 로그: [progress.md](D:/warkSpaces/agent-factory/progress.md)\n\n기록상 내용은 이렇습니다.\n- `claude_cli` / `gemini_cli` / `codex_cli`를 명시적 provider로 분리\n- API 키 없이도 CLI-only bootstrap 가능하게 조정\n- `AgentRunner`를 modular CLI adapter 경유로 라우팅\n- 회귀 검증까지 완료로 표시됨: `29 passed`\n\n즉, 이 브랜치에 남아 있는 흔적만 보면 `CLI 구현 작업 자체`는 하다 만 상태라기보다 이미 커밋돼 있습니다. 지금 실제로 남은 건 구현이 아니라 `E2E로 CLI를 한 번 실제 실행해서 이어지는지 검증`하는 단계에 가깝습니다.\n\n원하면 바로 `D:\\warkSpaces\\agent-factory`에서 `run_factory_cli.py` 기준으로 어디까지 동작하는지 이어서 확인하겠습니다.",
+    "event_timestamp": "2026-03-09T14:37:09.758Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 170,
+    "provider": "codex"
+  }
 }

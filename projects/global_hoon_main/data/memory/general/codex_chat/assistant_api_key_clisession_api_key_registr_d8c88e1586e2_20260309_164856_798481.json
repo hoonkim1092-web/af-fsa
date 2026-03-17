@@ -1,18 +1,18 @@
-{
-  "key": "assistant 클로드 제미나이 코덱스의 엔진 API key 사용 경로를 정리했고 CLIsession 경로에서는 기본적으로 API key를 쓰지 않도록 바꿨습니다핵심 변경은 이렇습니다- 공통 게이트를 registr",
-  "value": "[assistant] 클로드, 제미나이, 코덱스의 엔진 API key 사용 경로를 정리했고, CLI/session 경로에서는 기본적으로 API key를 쓰지 않도록 바꿨습니다.  핵심 변경은 이렇습니다. - 공통 게이트를 [registry.py](D:/warkSpaces/agent-factory/core/providers/registry.py)에 만들었습니다. 여기서 `AGENT_DISABLE_ENGINE_API_KEYS`와 provider 타입을 보고 엔...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T16:48:56.798956+00:00",
-  "updated_at": "2026-03-09T16:48:56.798956+00:00",
-  "details": {
-    "text": "[assistant] 클로드, 제미나이, 코덱스의 엔진 API key 사용 경로를 정리했고, CLI/session 경로에서는 기본적으로 API key를 쓰지 않도록 바꿨습니다.\n\n핵심 변경은 이렇습니다.\n- 공통 게이트를 [registry.py](D:/warkSpaces/agent-factory/core/providers/registry.py)에 만들었습니다. 여기서 `AGENT_DISABLE_ENGINE_API_KEYS`와 provider 타입을 보고 엔진 key 사용을 막고, child env에서 key를 제거합니다.\n- 실제 CLI 실행부인 [cli.py](D:/warkSpaces/agent-factory/core/providers/cli.py)에서 각 provider별로 key env를 제거합니다.\n  - Claude: `ANTHROPIC_API_KEY`\n  - Codex: `OPENAI_API_KEY`\n  - Gemini: `GEMINI_API_KEY`, `GOOGLE_API_KEY`, `GOOGLE_GENAI_USE_VERTEXAI` 제거 후 `GOOGLE_GENAI_USE_GCA=true`\n- 부트스트랩/런타임도 같이 맞췄습니다.\n  - [config_paths.py](D:/warkSpaces/agent-factory/core/config_paths.py)\n  - [run_factory_cli.py](D:/warkSpaces/agent-factory/run_factory_cli.py)\n  - [agent_runner.py](D:/warkSpaces/agent-factory/core/agent_runner.py)\n  - [llm_engine.py](D:/warkSpaces/agent-factory/core/llm_engine.py)\n  - [model_utils.py](D:/warkSpaces/agent-factory/model_utils.py)\n\n기본 동작도 바꿨습니다.\n- [run_factory_cli.py](D:/warkSpaces/agent-factory/run_factory_cli.py)에서 `AGENT_DISABLE_ENGINE_API_KEYS=1`을 기본값으로 둬서, 프로젝트 CLI는 기본적으로 엔진 API key 경로를 타지 않습니다.\n- 기존의 raw `os.getenv(...)` 기반 key 참조는 런타임 주요 경로에서 helper 기반으로 교체했습니다.\n\n검증도 했습니다.\n- 테스트: [test_cli_providers.py](D:/warkSpaces/agent-factory/tests/test_cli_providers.py) 포함 회귀에서 `25 passed, 1 warning`\n- 라이브 검증: Gemini를 API key 없이 OAuth 로그인 세션만으로 full E2E 실행했고 성공했습니다. `dashboard.json` 기준 `ok: true`, `reason: gemini_cli`, 응답도 `E2E_NO_API_KEY_OK`였습니다.\n\n남은 건 선택사항입니다. `config/schema.py` 같은 설정 표면에 남아 있는 legacy env 필드까지 완전히 걷어낼지, 아니면 지금처럼 “값은 있어도 런타임에서 무시” 상태로 둘지 정하면 됩니다.",
-    "event_timestamp": "2026-03-09T16:47:00.330Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
-    "session_line": 1737,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 클로드 제미나이 코덱스의 엔진 API key 사용 경로를 정리했고 CLIsession 경로에서는 기본적으로 API key를 쓰지 않도록 바꿨습니다핵심 변경은 이렇습니다- 공통 게이트를 registr",
+  "value": "[assistant] 클로드, 제미나이, 코덱스의 엔진 API key 사용 경로를 정리했고, CLI/session 경로에서는 기본적으로 API key를 쓰지 않도록 바꿨습니다.  핵심 변경은 이렇습니다. - 공통 게이트를 [registry.py](D:/warkSpaces/agent-factory/core/providers/registry.py)에 만들었습니다. 여기서 `AGENT_DISABLE_ENGINE_API_KEYS`와 provider 타입을 보고 엔...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T16:48:56.798956+00:00",
+  "updated_at": "2026-03-09T16:48:56.798956+00:00",
+  "details": {
+    "text": "[assistant] 클로드, 제미나이, 코덱스의 엔진 API key 사용 경로를 정리했고, CLI/session 경로에서는 기본적으로 API key를 쓰지 않도록 바꿨습니다.\n\n핵심 변경은 이렇습니다.\n- 공통 게이트를 [registry.py](D:/warkSpaces/agent-factory/core/providers/registry.py)에 만들었습니다. 여기서 `AGENT_DISABLE_ENGINE_API_KEYS`와 provider 타입을 보고 엔진 key 사용을 막고, child env에서 key를 제거합니다.\n- 실제 CLI 실행부인 [cli.py](D:/warkSpaces/agent-factory/core/providers/cli.py)에서 각 provider별로 key env를 제거합니다.\n  - Claude: `ANTHROPIC_API_KEY`\n  - Codex: `OPENAI_API_KEY`\n  - Gemini: `GEMINI_API_KEY`, `GOOGLE_API_KEY`, `GOOGLE_GENAI_USE_VERTEXAI` 제거 후 `GOOGLE_GENAI_USE_GCA=true`\n- 부트스트랩/런타임도 같이 맞췄습니다.\n  - [config_paths.py](D:/warkSpaces/agent-factory/core/config_paths.py)\n  - [run_factory_cli.py](D:/warkSpaces/agent-factory/run_factory_cli.py)\n  - [agent_runner.py](D:/warkSpaces/agent-factory/core/agent_runner.py)\n  - [llm_engine.py](D:/warkSpaces/agent-factory/core/llm_engine.py)\n  - [model_utils.py](D:/warkSpaces/agent-factory/model_utils.py)\n\n기본 동작도 바꿨습니다.\n- [run_factory_cli.py](D:/warkSpaces/agent-factory/run_factory_cli.py)에서 `AGENT_DISABLE_ENGINE_API_KEYS=1`을 기본값으로 둬서, 프로젝트 CLI는 기본적으로 엔진 API key 경로를 타지 않습니다.\n- 기존의 raw `os.getenv(...)` 기반 key 참조는 런타임 주요 경로에서 helper 기반으로 교체했습니다.\n\n검증도 했습니다.\n- 테스트: [test_cli_providers.py](D:/warkSpaces/agent-factory/tests/test_cli_providers.py) 포함 회귀에서 `25 passed, 1 warning`\n- 라이브 검증: Gemini를 API key 없이 OAuth 로그인 세션만으로 full E2E 실행했고 성공했습니다. `dashboard.json` 기준 `ok: true`, `reason: gemini_cli`, 응답도 `E2E_NO_API_KEY_OK`였습니다.\n\n남은 건 선택사항입니다. `config/schema.py` 같은 설정 표면에 남아 있는 legacy env 필드까지 완전히 걷어낼지, 아니면 지금처럼 “값은 있어도 런타임에서 무시” 상태로 둘지 정하면 됩니다.",
+    "event_timestamp": "2026-03-09T16:47:00.330Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 1737,
+    "provider": "codex"
+  }
 }

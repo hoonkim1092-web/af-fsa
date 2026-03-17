@@ -1,18 +1,18 @@
-{
-  "key": "assistant 아니요 저 셋을 그대로 깃에 올리는 건 보통 맞지 않습니다이유는 간단합니다 회사집 이어하기 경로는 이미 git보다 DB sync 쪽으로 설계돼 있습니다 방금 실행한 start_db agent-fac",
-  "value": "[assistant] 아니요. 저 셋을 그대로 깃에 올리는 건 보통 맞지 않습니다.  이유는 간단합니다. 회사/집 이어하기 경로는 이미 `git`보다 `DB sync` 쪽으로 설계돼 있습니다. 방금 실행한 `start_db agent-factory`도 실제로 DB에서 project/global context를 pull했고, `resume_brief.md`는 그 상태를 바탕으로 매번 다시 쓸 수 있는 요약 산출물입니다. 코드상으로도 [scripts/sync_...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T06:08:25.400854+00:00",
-  "updated_at": "2026-03-10T06:08:25.400854+00:00",
-  "details": {
-    "text": "[assistant] 아니요. 저 셋을 그대로 깃에 올리는 건 보통 맞지 않습니다.\n\n이유는 간단합니다. 회사/집 이어하기 경로는 이미 `git`보다 `DB sync` 쪽으로 설계돼 있습니다. 방금 실행한 `start_db agent-factory`도 실제로 DB에서 project/global context를 pull했고, `resume_brief.md`는 그 상태를 바탕으로 매번 다시 쓸 수 있는 요약 산출물입니다. 코드상으로도 [scripts/sync_easy.ps1#L64](D:/hoonProJect/worktrees/agent-factory/scripts/sync_easy.ps1#L64) 에서 `sync_push` 시 `write_resume_brief.py`를 호출하고, [core/continuity/resume_brief.py#L173](D:/hoonProJect/worktrees/agent-factory/core/continuity/resume_brief.py#L173) 에서 워크스페이스에 `resume_brief.md`를 생성합니다. 즉 원본이라기보다 재생성 가능한 요약 파일입니다.\n\n현재 기준으로는 이렇게 보는 게 맞습니다.\n\n- [resume_brief.md](D:/hoonProJect/worktrees/agent-factory/resume_brief.md): 커밋 비추천\n- [projects/agent_factory/resume_brief.md](D:/hoonProJect/worktrees/agent-factory/projects/agent_factory/resume_brief.md): 커밋 비추천\n- [projects/logi-mind-v22](D:/hoonProJect/worktrees/agent-factory/projects/logi-mind-v22): 지금은 `resume_brief.md`와 빈 `.af_runtime/`만 있어서 커밋 비추천\n\n추가 근거로, 현재 저장소에는 `resume_brief.md`가 추적된 이력이 없고, `git ls-files`에도 잡히지 않았습니다. 반면 `.af_runtime/dashboard.json`은 일부 프로젝트에서만 선택적으로 추적되고 있어서, \"모든 런타임 산출물을 다 올린다\"는 정책도 아닙니다.\n\n실무적으로는 이렇게 가는 게 맞습니다.\n- 이어하기 목적이면: DB sync 유지, `resume_brief.md`는 로컬 산출물로 둠\n- 저장소에 남길 가치가 있는 건: 실제 프로젝트 정의 파일, 설정 파일, 코드, 문서만 커밋\n- 원하면 다음 단계로: 이 세 항목을 `.gitignore`에 추가해서 작업트리 소음 없애드릴 수 있습니다.",
-    "event_timestamp": "2026-03-10T01:39:54.145Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
-    "session_line": 182,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 아니요 저 셋을 그대로 깃에 올리는 건 보통 맞지 않습니다이유는 간단합니다 회사집 이어하기 경로는 이미 git보다 DB sync 쪽으로 설계돼 있습니다 방금 실행한 start_db agent-fac",
+  "value": "[assistant] 아니요. 저 셋을 그대로 깃에 올리는 건 보통 맞지 않습니다.  이유는 간단합니다. 회사/집 이어하기 경로는 이미 `git`보다 `DB sync` 쪽으로 설계돼 있습니다. 방금 실행한 `start_db agent-factory`도 실제로 DB에서 project/global context를 pull했고, `resume_brief.md`는 그 상태를 바탕으로 매번 다시 쓸 수 있는 요약 산출물입니다. 코드상으로도 [scripts/sync_...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T06:08:25.400854+00:00",
+  "updated_at": "2026-03-10T06:08:25.400854+00:00",
+  "details": {
+    "text": "[assistant] 아니요. 저 셋을 그대로 깃에 올리는 건 보통 맞지 않습니다.\n\n이유는 간단합니다. 회사/집 이어하기 경로는 이미 `git`보다 `DB sync` 쪽으로 설계돼 있습니다. 방금 실행한 `start_db agent-factory`도 실제로 DB에서 project/global context를 pull했고, `resume_brief.md`는 그 상태를 바탕으로 매번 다시 쓸 수 있는 요약 산출물입니다. 코드상으로도 [scripts/sync_easy.ps1#L64](D:/hoonProJect/worktrees/agent-factory/scripts/sync_easy.ps1#L64) 에서 `sync_push` 시 `write_resume_brief.py`를 호출하고, [core/continuity/resume_brief.py#L173](D:/hoonProJect/worktrees/agent-factory/core/continuity/resume_brief.py#L173) 에서 워크스페이스에 `resume_brief.md`를 생성합니다. 즉 원본이라기보다 재생성 가능한 요약 파일입니다.\n\n현재 기준으로는 이렇게 보는 게 맞습니다.\n\n- [resume_brief.md](D:/hoonProJect/worktrees/agent-factory/resume_brief.md): 커밋 비추천\n- [projects/agent_factory/resume_brief.md](D:/hoonProJect/worktrees/agent-factory/projects/agent_factory/resume_brief.md): 커밋 비추천\n- [projects/logi-mind-v22](D:/hoonProJect/worktrees/agent-factory/projects/logi-mind-v22): 지금은 `resume_brief.md`와 빈 `.af_runtime/`만 있어서 커밋 비추천\n\n추가 근거로, 현재 저장소에는 `resume_brief.md`가 추적된 이력이 없고, `git ls-files`에도 잡히지 않았습니다. 반면 `.af_runtime/dashboard.json`은 일부 프로젝트에서만 선택적으로 추적되고 있어서, \"모든 런타임 산출물을 다 올린다\"는 정책도 아닙니다.\n\n실무적으로는 이렇게 가는 게 맞습니다.\n- 이어하기 목적이면: DB sync 유지, `resume_brief.md`는 로컬 산출물로 둠\n- 저장소에 남길 가치가 있는 건: 실제 프로젝트 정의 파일, 설정 파일, 코드, 문서만 커밋\n- 원하면 다음 단계로: 이 세 항목을 `.gitignore`에 추가해서 작업트리 소음 없애드릴 수 있습니다.",
+    "event_timestamp": "2026-03-10T01:39:54.145Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 182,
+    "provider": "codex"
+  }
 }

@@ -1,18 +1,18 @@
-{
-  "key": "assistant 증거는 확보됐습니다 auto 라우팅과 project pipeline 경유는 통과했고 다만 manifest resume 검증 한 건이 실패해서 오케스트레이션은 동작하지만 resume 상태 복원은 완전",
-  "value": "[assistant] 증거는 확보됐습니다. `auto` 라우팅과 project pipeline 경유는 통과했고, 다만 manifest resume 검증 한 건이 실패해서 “오케스트레이션은 동작하지만 resume 상태 복원은 완전하지 않다”가 현재 결론입니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T10:23:07.592253+00:00",
-  "updated_at": "2026-03-10T10:23:07.592253+00:00",
-  "details": {
-    "text": "[assistant] 증거는 확보됐습니다. `auto` 라우팅과 project pipeline 경유는 통과했고, 다만 manifest resume 검증 한 건이 실패해서 “오케스트레이션은 동작하지만 resume 상태 복원은 완전하지 않다”가 현재 결론입니다.",
-    "event_timestamp": "2026-03-10T08:10:09.209Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
-    "session_line": 1545,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 증거는 확보됐습니다 auto 라우팅과 project pipeline 경유는 통과했고 다만 manifest resume 검증 한 건이 실패해서 오케스트레이션은 동작하지만 resume 상태 복원은 완전",
+  "value": "[assistant] 증거는 확보됐습니다. `auto` 라우팅과 project pipeline 경유는 통과했고, 다만 manifest resume 검증 한 건이 실패해서 “오케스트레이션은 동작하지만 resume 상태 복원은 완전하지 않다”가 현재 결론입니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T10:23:07.592253+00:00",
+  "updated_at": "2026-03-10T10:23:07.592253+00:00",
+  "details": {
+    "text": "[assistant] 증거는 확보됐습니다. `auto` 라우팅과 project pipeline 경유는 통과했고, 다만 manifest resume 검증 한 건이 실패해서 “오케스트레이션은 동작하지만 resume 상태 복원은 완전하지 않다”가 현재 결론입니다.",
+    "event_timestamp": "2026-03-10T08:10:09.209Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 1545,
+    "provider": "codex"
+  }
 }

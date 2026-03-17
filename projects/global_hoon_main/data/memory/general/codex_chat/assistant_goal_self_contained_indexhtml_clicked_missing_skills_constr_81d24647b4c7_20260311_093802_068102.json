@@ -1,18 +1,18 @@
-{
-  "key": "assistant   goal 프로젝트 루트에 스모크 테스트용 self-contained indexhtml을 생성하고 버튼 클릭 시 상태 텍스트를 clicked로 변경한다  missing_skills   constr",
-  "value": "[assistant] {   \"goal\": \"프로젝트 루트에 스모크 테스트용 self-contained index.html을 생성하고 버튼 클릭 시 상태 텍스트를 'clicked'로 변경한다.\",   \"missing_skills\": [],   \"constraints\": [\"network_allowed\", \"no_system_tools\", \"data_io_allowed\"],   \"risk_level\": \"strict\" }",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-11T09:38:02.068180+00:00",
-  "updated_at": "2026-03-11T09:38:02.068180+00:00",
-  "details": {
-    "text": "[assistant] {\n  \"goal\": \"프로젝트 루트에 스모크 테스트용 self-contained index.html을 생성하고 버튼 클릭 시 상태 텍스트를 'clicked'로 변경한다.\",\n  \"missing_skills\": [],\n  \"constraints\": [\"network_allowed\", \"no_system_tools\", \"data_io_allowed\"],\n  \"risk_level\": \"strict\"\n}",
-    "event_timestamp": "2026-03-11T09:38:01.768Z",
-    "session_file": "D:/hoonProJect/worktrees/af_web_smoke_20260311_v4/.af_runtime/codex_home/sessions/2026/03/11/rollout-2026-03-11T18-37-55-019cdc42-8bb5-7293-a789-d295da48c3c6.jsonl",
-    "session_line": 9,
-    "provider": "codex"
-  }
+{
+  "key": "assistant   goal 프로젝트 루트에 스모크 테스트용 self-contained indexhtml을 생성하고 버튼 클릭 시 상태 텍스트를 clicked로 변경한다  missing_skills   constr",
+  "value": "[assistant] {   \"goal\": \"프로젝트 루트에 스모크 테스트용 self-contained index.html을 생성하고 버튼 클릭 시 상태 텍스트를 'clicked'로 변경한다.\",   \"missing_skills\": [],   \"constraints\": [\"network_allowed\", \"no_system_tools\", \"data_io_allowed\"],   \"risk_level\": \"strict\" }",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-11T09:38:02.068180+00:00",
+  "updated_at": "2026-03-11T09:38:02.068180+00:00",
+  "details": {
+    "text": "[assistant] {\n  \"goal\": \"프로젝트 루트에 스모크 테스트용 self-contained index.html을 생성하고 버튼 클릭 시 상태 텍스트를 'clicked'로 변경한다.\",\n  \"missing_skills\": [],\n  \"constraints\": [\"network_allowed\", \"no_system_tools\", \"data_io_allowed\"],\n  \"risk_level\": \"strict\"\n}",
+    "event_timestamp": "2026-03-11T09:38:01.768Z",
+    "session_file": "D:/hoonProJect/worktrees/af_web_smoke_20260311_v4/.af_runtime/codex_home/sessions/2026/03/11/rollout-2026-03-11T18-37-55-019cdc42-8bb5-7293-a789-d295da48c3c6.jsonl",
+    "session_line": 9,
+    "provider": "codex"
+  }
 }

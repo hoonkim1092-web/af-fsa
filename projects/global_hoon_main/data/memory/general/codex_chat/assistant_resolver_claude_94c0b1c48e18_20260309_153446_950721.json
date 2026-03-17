@@ -1,18 +1,18 @@
-{
-  "key": "assistant resolver 보강 때문에 기존 테스트가 claude 대신 전체 경로를 보게 됐습니다 기대값만 현실에 맞게 조정하고 다시 돌리겠습니다",
-  "value": "[assistant] resolver 보강 때문에 기존 테스트가 `claude` 대신 전체 경로를 보게 됐습니다. 기대값만 현실에 맞게 조정하고 다시 돌리겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T15:34:46.950793+00:00",
-  "updated_at": "2026-03-09T15:34:46.950793+00:00",
-  "details": {
-    "text": "[assistant] resolver 보강 때문에 기존 테스트가 `claude` 대신 전체 경로를 보게 됐습니다. 기대값만 현실에 맞게 조정하고 다시 돌리겠습니다.",
-    "event_timestamp": "2026-03-09T15:32:33.105Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
-    "session_line": 583,
-    "provider": "codex"
-  }
+{
+  "key": "assistant resolver 보강 때문에 기존 테스트가 claude 대신 전체 경로를 보게 됐습니다 기대값만 현실에 맞게 조정하고 다시 돌리겠습니다",
+  "value": "[assistant] resolver 보강 때문에 기존 테스트가 `claude` 대신 전체 경로를 보게 됐습니다. 기대값만 현실에 맞게 조정하고 다시 돌리겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T15:34:46.950793+00:00",
+  "updated_at": "2026-03-09T15:34:46.950793+00:00",
+  "details": {
+    "text": "[assistant] resolver 보강 때문에 기존 테스트가 `claude` 대신 전체 경로를 보게 됐습니다. 기대값만 현실에 맞게 조정하고 다시 돌리겠습니다.",
+    "event_timestamp": "2026-03-09T15:32:33.105Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 583,
+    "provider": "codex"
+  }
 }

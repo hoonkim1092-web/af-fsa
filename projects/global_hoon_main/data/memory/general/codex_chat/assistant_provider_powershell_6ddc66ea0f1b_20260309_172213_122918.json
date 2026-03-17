@@ -1,18 +1,18 @@
-{
-  "key": "assistant 한 번에 확인되도록 임시 검증 스크립트를 만들어서 직접 provider 호출 결과를 파일로 남기겠습니다 이러면 PowerShell 인라인 문제를 배제할 수 있습니다",
-  "value": "[assistant] 한 번에 확인되도록 임시 검증 스크립트를 만들어서 직접 provider 호출 결과를 파일로 남기겠습니다. 이러면 PowerShell 인라인 문제를 배제할 수 있습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T17:22:13.122957+00:00",
-  "updated_at": "2026-03-09T17:22:13.122957+00:00",
-  "details": {
-    "text": "[assistant] 한 번에 확인되도록 임시 검증 스크립트를 만들어서 직접 provider 호출 결과를 파일로 남기겠습니다. 이러면 PowerShell 인라인 문제를 배제할 수 있습니다.",
-    "event_timestamp": "2026-03-09T17:09:59.252Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
-    "session_line": 2207,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 한 번에 확인되도록 임시 검증 스크립트를 만들어서 직접 provider 호출 결과를 파일로 남기겠습니다 이러면 PowerShell 인라인 문제를 배제할 수 있습니다",
+  "value": "[assistant] 한 번에 확인되도록 임시 검증 스크립트를 만들어서 직접 provider 호출 결과를 파일로 남기겠습니다. 이러면 PowerShell 인라인 문제를 배제할 수 있습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T17:22:13.122957+00:00",
+  "updated_at": "2026-03-09T17:22:13.122957+00:00",
+  "details": {
+    "text": "[assistant] 한 번에 확인되도록 임시 검증 스크립트를 만들어서 직접 provider 호출 결과를 파일로 남기겠습니다. 이러면 PowerShell 인라인 문제를 배제할 수 있습니다.",
+    "event_timestamp": "2026-03-09T17:09:59.252Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 2207,
+    "provider": "codex"
+  }
 }

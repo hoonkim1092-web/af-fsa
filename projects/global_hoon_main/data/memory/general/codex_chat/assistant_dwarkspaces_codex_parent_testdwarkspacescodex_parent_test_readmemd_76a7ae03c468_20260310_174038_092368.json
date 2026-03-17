@@ -1,18 +1,18 @@
-{
-  "key": "assistant DwarkSpaces 아래에 테스트 프로젝트를 만들고 실행까지 확인했습니다생성된 위치는 codex_parent_testDwarkSpacescodex_parent_test 이고 파일은 READMEmd",
-  "value": "[assistant] `D:\\warkSpaces` 아래에 테스트 프로젝트를 만들고 실행까지 확인했습니다.  생성된 위치는 [codex_parent_test](/D:/warkSpaces/codex_parent_test) 이고, 파일은 [README.md](/D:/warkSpaces/codex_parent_test/README.md) 와 [main.py](/D:/warkSpaces/codex_parent_test/main.py) 입니다. `main.py` 실행...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T17:40:38.092585+00:00",
-  "updated_at": "2026-03-10T17:40:38.092585+00:00",
-  "details": {
-    "text": "[assistant] `D:\\warkSpaces` 아래에 테스트 프로젝트를 만들고 실행까지 확인했습니다.\n\n생성된 위치는 [codex_parent_test](/D:/warkSpaces/codex_parent_test) 이고, 파일은 [README.md](/D:/warkSpaces/codex_parent_test/README.md) 와 [main.py](/D:/warkSpaces/codex_parent_test/main.py) 입니다. `main.py` 실행 결과는 `codex parent test ok` 였습니다.\n\n즉, Codex 작업 흐름으로 루트 상위 폴더에 새 프로젝트를 만드는 기본 테스트는 통과했습니다. 원하면 다음으로는 여기서 `git init`, 간단한 `requirements.txt`, 또는 아주 작은 웹앱까지 이어서 확인할 수 있습니다.",
-    "event_timestamp": "2026-03-10T17:23:52.799Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/11/rollout-2026-03-11T01-30-46-019cd896-2cfb-7692-a889-53fc50ef1599.jsonl",
-    "session_line": 580,
-    "provider": "codex"
-  }
+{
+  "key": "assistant DwarkSpaces 아래에 테스트 프로젝트를 만들고 실행까지 확인했습니다생성된 위치는 codex_parent_testDwarkSpacescodex_parent_test 이고 파일은 READMEmd",
+  "value": "[assistant] `D:\\warkSpaces` 아래에 테스트 프로젝트를 만들고 실행까지 확인했습니다.  생성된 위치는 [codex_parent_test](/D:/warkSpaces/codex_parent_test) 이고, 파일은 [README.md](/D:/warkSpaces/codex_parent_test/README.md) 와 [main.py](/D:/warkSpaces/codex_parent_test/main.py) 입니다. `main.py` 실행...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:38.092585+00:00",
+  "updated_at": "2026-03-10T17:40:38.092585+00:00",
+  "details": {
+    "text": "[assistant] `D:\\warkSpaces` 아래에 테스트 프로젝트를 만들고 실행까지 확인했습니다.\n\n생성된 위치는 [codex_parent_test](/D:/warkSpaces/codex_parent_test) 이고, 파일은 [README.md](/D:/warkSpaces/codex_parent_test/README.md) 와 [main.py](/D:/warkSpaces/codex_parent_test/main.py) 입니다. `main.py` 실행 결과는 `codex parent test ok` 였습니다.\n\n즉, Codex 작업 흐름으로 루트 상위 폴더에 새 프로젝트를 만드는 기본 테스트는 통과했습니다. 원하면 다음으로는 여기서 `git init`, 간단한 `requirements.txt`, 또는 아주 작은 웹앱까지 이어서 확인할 수 있습니다.",
+    "event_timestamp": "2026-03-10T17:23:52.799Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/11/rollout-2026-03-11T01-30-46-019cd896-2cfb-7692-a889-53fc50ef1599.jsonl",
+    "session_line": 580,
+    "provider": "codex"
+  }
 }

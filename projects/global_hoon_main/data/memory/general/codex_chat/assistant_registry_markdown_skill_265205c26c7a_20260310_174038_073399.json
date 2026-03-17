@@ -1,18 +1,18 @@
-{
-  "key": "assistant 후보 재사용 판단과 registry 정규화 쪽도 같이 봤습니다 공식markdown skill을 찾는 것과 검증된 재사용 후보로 인정하는 것이 아직 일부 분리돼 있을 가능성이 있어 그 부분 라인을 확",
-  "value": "[assistant] 후보 재사용 판단과 registry 정규화 쪽도 같이 봤습니다. 공식/markdown skill을 “찾는 것”과 “검증된 재사용 후보로 인정하는 것”이 아직 일부 분리돼 있을 가능성이 있어 그 부분 라인을 확인 중입니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T17:40:38.073492+00:00",
-  "updated_at": "2026-03-10T17:40:38.073492+00:00",
-  "details": {
-    "text": "[assistant] 후보 재사용 판단과 registry 정규화 쪽도 같이 봤습니다. 공식/markdown skill을 “찾는 것”과 “검증된 재사용 후보로 인정하는 것”이 아직 일부 분리돼 있을 가능성이 있어 그 부분 라인을 확인 중입니다.",
-    "event_timestamp": "2026-03-10T16:59:51.200Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/11/rollout-2026-03-11T01-30-46-019cd896-2cfb-7692-a889-53fc50ef1599.jsonl",
-    "session_line": 393,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 후보 재사용 판단과 registry 정규화 쪽도 같이 봤습니다 공식markdown skill을 찾는 것과 검증된 재사용 후보로 인정하는 것이 아직 일부 분리돼 있을 가능성이 있어 그 부분 라인을 확",
+  "value": "[assistant] 후보 재사용 판단과 registry 정규화 쪽도 같이 봤습니다. 공식/markdown skill을 “찾는 것”과 “검증된 재사용 후보로 인정하는 것”이 아직 일부 분리돼 있을 가능성이 있어 그 부분 라인을 확인 중입니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:38.073492+00:00",
+  "updated_at": "2026-03-10T17:40:38.073492+00:00",
+  "details": {
+    "text": "[assistant] 후보 재사용 판단과 registry 정규화 쪽도 같이 봤습니다. 공식/markdown skill을 “찾는 것”과 “검증된 재사용 후보로 인정하는 것”이 아직 일부 분리돼 있을 가능성이 있어 그 부분 라인을 확인 중입니다.",
+    "event_timestamp": "2026-03-10T16:59:51.200Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/11/rollout-2026-03-11T01-30-46-019cd896-2cfb-7692-a889-53fc50ef1599.jsonl",
+    "session_line": 393,
+    "provider": "codex"
+  }
 }

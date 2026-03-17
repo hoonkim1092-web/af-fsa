@@ -1,18 +1,18 @@
-{
-  "key": "assistant 리뷰에서 지적한 3개 핵심 문제를 수정했습니다coreexternal_skill_sourcespyDwarkSpacesagent-factorycoreexternal_skill_sourcespyL168 ",
-  "value": "[assistant] 리뷰에서 지적한 3개 핵심 문제를 수정했습니다.  [core/external_skill_sources.py](/D:/warkSpaces/agent-factory/core/external_skill_sources.py#L168) 에서 repo-cache/cached sweep 후보 수집을 importer 기반으로 통일했고, [core/external_skill_sources.py](/D:/warkSpaces/agent-factory/co...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T17:40:37.966921+00:00",
-  "updated_at": "2026-03-10T17:40:37.966921+00:00",
-  "details": {
-    "text": "[assistant] 리뷰에서 지적한 3개 핵심 문제를 수정했습니다.\n\n[core/external_skill_sources.py](/D:/warkSpaces/agent-factory/core/external_skill_sources.py#L168) 에서 repo-cache/cached sweep 후보 수집을 importer 기반으로 통일했고, [core/external_skill_sources.py](/D:/warkSpaces/agent-factory/core/external_skill_sources.py#L340) 에서 `source.prepare()`/`iter_candidates()` 예외를 `source_error`로 격리해서 다음 source나 builder fallback으로 계속 진행되게 바꿨습니다. manifest 메타도 [core/external_skill_sources.py](/D:/warkSpaces/agent-factory/core/external_skill_sources.py#L268) 에서 `source_repo`까지 보존합니다.\n\n[core/skill_procurer.py](/D:/warkSpaces/agent-factory/core/skill_procurer.py#L238) 에서는 external install 거절 기록 helper를 추가했고, approval semantics를 분리했습니다. 이제 verified local install은 [core/skill_procurer.py](/D:/warkSpaces/agent-factory/core/skill_procurer.py#L445) 에서 `install`로 판단하고, external reusable install은 [core/skill_procurer.py](/D:/warkSpaces/agent-factory/core/skill_procurer.py#L460) 에서 별도 `install` 승인 후 시도하며, 실패하거나 거절되면 [core/skill_procurer.py](/D:/warkSpaces/agent-factory/core/skill_procurer.py#L488) 에서 `build` 승인을 다시 확인한 뒤 builder로 내려갑니다. legacy external resolver도 [core/skill_procurer.py](/D:/warkSpaces/agent-factory/core/skill_procurer.py#L281) 에서 실제 설치되지 않았으면 더 이상 `installed_from=\"external\"`로 성공처럼 기록하지 않습니다.\n\n회귀 테스트도 추가했습니다. [tests/test_external_skill_sources.py](/D:/warkSpaces/agent-factory/tests/test_external_skill_sources.py#L59) 에 prepare 예외 격리와 importer 기반 candidate 로딩을 넣었고, [tests/test_skill_procurer_external_fallback.py](/D:/warkSpaces/agent-factory/tests/test_skill_procurer_external_fallback.py#L79) 에 external install 거절 후 builder fallback, legacy external miss 로그 검증을 추가했습니다.\n\n검증 결과:\n- `C:\\Users\\HOME\\AppData\\Local\\Python\\bin\\python.exe -m pytest -q tests\\test_external_skill_sources.py tests\\test_skill_procurer_external_fallback.py tests\\test_skill_procurer_logging.py tests\\test_builder_cli_fallback.py tests\\test_external_skill_candidate_importer.py tests\\test_project_policy_defaults.py`\n- 결과: `15 passed`\n- `C:\\Users\\HOME\\AppData\\Local\\Python\\bin\\python.exe -m py_compile core\\external_skill_sources.py core\\skill_procurer.py`\n- 결과: 성공\n\n남은 건 기능 버그라기보다 경고 수준입니다. 테스트 중 `google.genai` 쪽 deprecation warning 1건이 있었지만 이번 수정과 직접 관련은 없습니다.",
-    "event_timestamp": "2026-03-10T15:32:03.875Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
-    "session_line": 1329,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 리뷰에서 지적한 3개 핵심 문제를 수정했습니다coreexternal_skill_sourcespyDwarkSpacesagent-factorycoreexternal_skill_sourcespyL168 ",
+  "value": "[assistant] 리뷰에서 지적한 3개 핵심 문제를 수정했습니다.  [core/external_skill_sources.py](/D:/warkSpaces/agent-factory/core/external_skill_sources.py#L168) 에서 repo-cache/cached sweep 후보 수집을 importer 기반으로 통일했고, [core/external_skill_sources.py](/D:/warkSpaces/agent-factory/co...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:37.966921+00:00",
+  "updated_at": "2026-03-10T17:40:37.966921+00:00",
+  "details": {
+    "text": "[assistant] 리뷰에서 지적한 3개 핵심 문제를 수정했습니다.\n\n[core/external_skill_sources.py](/D:/warkSpaces/agent-factory/core/external_skill_sources.py#L168) 에서 repo-cache/cached sweep 후보 수집을 importer 기반으로 통일했고, [core/external_skill_sources.py](/D:/warkSpaces/agent-factory/core/external_skill_sources.py#L340) 에서 `source.prepare()`/`iter_candidates()` 예외를 `source_error`로 격리해서 다음 source나 builder fallback으로 계속 진행되게 바꿨습니다. manifest 메타도 [core/external_skill_sources.py](/D:/warkSpaces/agent-factory/core/external_skill_sources.py#L268) 에서 `source_repo`까지 보존합니다.\n\n[core/skill_procurer.py](/D:/warkSpaces/agent-factory/core/skill_procurer.py#L238) 에서는 external install 거절 기록 helper를 추가했고, approval semantics를 분리했습니다. 이제 verified local install은 [core/skill_procurer.py](/D:/warkSpaces/agent-factory/core/skill_procurer.py#L445) 에서 `install`로 판단하고, external reusable install은 [core/skill_procurer.py](/D:/warkSpaces/agent-factory/core/skill_procurer.py#L460) 에서 별도 `install` 승인 후 시도하며, 실패하거나 거절되면 [core/skill_procurer.py](/D:/warkSpaces/agent-factory/core/skill_procurer.py#L488) 에서 `build` 승인을 다시 확인한 뒤 builder로 내려갑니다. legacy external resolver도 [core/skill_procurer.py](/D:/warkSpaces/agent-factory/core/skill_procurer.py#L281) 에서 실제 설치되지 않았으면 더 이상 `installed_from=\"external\"`로 성공처럼 기록하지 않습니다.\n\n회귀 테스트도 추가했습니다. [tests/test_external_skill_sources.py](/D:/warkSpaces/agent-factory/tests/test_external_skill_sources.py#L59) 에 prepare 예외 격리와 importer 기반 candidate 로딩을 넣었고, [tests/test_skill_procurer_external_fallback.py](/D:/warkSpaces/agent-factory/tests/test_skill_procurer_external_fallback.py#L79) 에 external install 거절 후 builder fallback, legacy external miss 로그 검증을 추가했습니다.\n\n검증 결과:\n- `C:\\Users\\HOME\\AppData\\Local\\Python\\bin\\python.exe -m pytest -q tests\\test_external_skill_sources.py tests\\test_skill_procurer_external_fallback.py tests\\test_skill_procurer_logging.py tests\\test_builder_cli_fallback.py tests\\test_external_skill_candidate_importer.py tests\\test_project_policy_defaults.py`\n- 결과: `15 passed`\n- `C:\\Users\\HOME\\AppData\\Local\\Python\\bin\\python.exe -m py_compile core\\external_skill_sources.py core\\skill_procurer.py`\n- 결과: 성공\n\n남은 건 기능 버그라기보다 경고 수준입니다. 테스트 중 `google.genai` 쪽 deprecation warning 1건이 있었지만 이번 수정과 직접 관련은 없습니다.",
+    "event_timestamp": "2026-03-10T15:32:03.875Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
+    "session_line": 1329,
+    "provider": "codex"
+  }
 }

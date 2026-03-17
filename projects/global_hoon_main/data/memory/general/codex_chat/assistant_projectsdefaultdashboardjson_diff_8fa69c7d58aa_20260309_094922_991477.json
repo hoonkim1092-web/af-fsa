@@ -1,18 +1,18 @@
-{
-  "key": "assistant 테스트가 projectsdefaultdashboardjson도 건드렸습니다 이건 기능 변경과 무관한 런타임 산출물이어서 diff만 확인하고 제가 만든 부수 변경이면 원복 쪽으로 정리하겠습니다",
-  "value": "[assistant] 테스트가 `projects/default/dashboard.json`도 건드렸습니다. 이건 기능 변경과 무관한 런타임 산출물이어서, diff만 확인하고 제가 만든 부수 변경이면 원복 쪽으로 정리하겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T09:49:22.991527+00:00",
-  "updated_at": "2026-03-09T09:49:22.991527+00:00",
-  "details": {
-    "text": "[assistant] 테스트가 `projects/default/dashboard.json`도 건드렸습니다. 이건 기능 변경과 무관한 런타임 산출물이어서, diff만 확인하고 제가 만든 부수 변경이면 원복 쪽으로 정리하겠습니다.",
-    "event_timestamp": "2026-03-09T08:11:22.918Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/09/rollout-2026-03-09T12-29-14-019cd0a4-4ded-7bd3-b7ae-a9832dc22d45.jsonl",
-    "session_line": 1268,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 테스트가 projectsdefaultdashboardjson도 건드렸습니다 이건 기능 변경과 무관한 런타임 산출물이어서 diff만 확인하고 제가 만든 부수 변경이면 원복 쪽으로 정리하겠습니다",
+  "value": "[assistant] 테스트가 `projects/default/dashboard.json`도 건드렸습니다. 이건 기능 변경과 무관한 런타임 산출물이어서, diff만 확인하고 제가 만든 부수 변경이면 원복 쪽으로 정리하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T09:49:22.991527+00:00",
+  "updated_at": "2026-03-09T09:49:22.991527+00:00",
+  "details": {
+    "text": "[assistant] 테스트가 `projects/default/dashboard.json`도 건드렸습니다. 이건 기능 변경과 무관한 런타임 산출물이어서, diff만 확인하고 제가 만든 부수 변경이면 원복 쪽으로 정리하겠습니다.",
+    "event_timestamp": "2026-03-09T08:11:22.918Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/09/rollout-2026-03-09T12-29-14-019cd0a4-4ded-7bd3-b7ae-a9832dc22d45.jsonl",
+    "session_line": 1268,
+    "provider": "codex"
+  }
 }

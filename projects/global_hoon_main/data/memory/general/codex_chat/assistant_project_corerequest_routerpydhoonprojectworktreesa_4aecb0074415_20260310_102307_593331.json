@@ -1,18 +1,18 @@
-{
-  "key": "assistant 지금 시스템은 항상 오케스트레이션으로 도는 건 아니고 project로 라우팅될 때는 오케스트레이션으로 갑니다 코드 경로는 corerequest_routerpyDhoonProJectworktreesa",
-  "value": "[assistant] 지금 시스템은 `항상` 오케스트레이션으로 도는 건 아니고, `project`로 라우팅될 때는 오케스트레이션으로 갑니다. 코드 경로는 [core/request_router.py](/D:/hoonProJect/worktrees/agent-factory/core/request_router.py#L57)에서 `project/single`을 고르고, [agent_launcher.py](/D:/hoonProJect/worktrees/agent-f...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T10:23:07.593569+00:00",
-  "updated_at": "2026-03-10T10:23:07.593569+00:00",
-  "details": {
-    "text": "[assistant] 지금 시스템은 `항상` 오케스트레이션으로 도는 건 아니고, `project`로 라우팅될 때는 오케스트레이션으로 갑니다. 코드 경로는 [core/request_router.py](/D:/hoonProJect/worktrees/agent-factory/core/request_router.py#L57)에서 `project/single`을 고르고, [agent_launcher.py](/D:/hoonProJect/worktrees/agent-factory/agent_launcher.py#L235)에서 `project`면 [core/project_pipeline.py](/D:/hoonProJect/worktrees/agent-factory/core/project_pipeline.py#L183)가 `DynamicOrchestrator`를 만들어 [core/dynamic_orchestrator.py](/D:/hoonProJect/worktrees/agent-factory/core/dynamic_orchestrator.py#L334)의 `run_project()`를 호출합니다.\n\n검증 결과는 두 갈래입니다. `python -m pytest tests/test_request_router.py tests/test_project_pipeline.py tests/test_dynamic_orchestrator_workspace_scope.py -q`는 `8 passed`였고, 샘플 라우팅도 실제로 프로젝트성 요청은 `{'pipeline': 'project', ...}`, 단순 수정 요청은 `{'pipeline': 'single', ...}`로 나왔습니다. 그래서 현재 “project 모드 오케스트레이션 경로” 자체는 살아 있습니다.\n\n다만 resume 쪽에는 문제 하나가 있습니다. `python -m pytest tests/test_orchestrator_manifest.py::test_dynamic_orchestrator_writes_manifest_and_restores_interruptions -q`는 실패했고, [tests/test_orchestrator_manifest.py](/D:/hoonProJect/worktrees/agent-factory/tests/test_orchestrator_manifest.py#L121) 기준으로 `result[\"interrupted_subtasks\"]`가 없어 `KeyError`가 납니다. 즉 현재 결론은 이겁니다: 오케스트레이션 실행 경로는 동작하지만, manifest 기반 재개 상태 복원은 완전히 정상은 아닙니다.\n\n원하면 다음으로 이 resume 버그까지 바로 고치겠습니다.",
-    "event_timestamp": "2026-03-10T08:10:42.510Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
-    "session_line": 1557,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 지금 시스템은 항상 오케스트레이션으로 도는 건 아니고 project로 라우팅될 때는 오케스트레이션으로 갑니다 코드 경로는 corerequest_routerpyDhoonProJectworktreesa",
+  "value": "[assistant] 지금 시스템은 `항상` 오케스트레이션으로 도는 건 아니고, `project`로 라우팅될 때는 오케스트레이션으로 갑니다. 코드 경로는 [core/request_router.py](/D:/hoonProJect/worktrees/agent-factory/core/request_router.py#L57)에서 `project/single`을 고르고, [agent_launcher.py](/D:/hoonProJect/worktrees/agent-f...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T10:23:07.593569+00:00",
+  "updated_at": "2026-03-10T10:23:07.593569+00:00",
+  "details": {
+    "text": "[assistant] 지금 시스템은 `항상` 오케스트레이션으로 도는 건 아니고, `project`로 라우팅될 때는 오케스트레이션으로 갑니다. 코드 경로는 [core/request_router.py](/D:/hoonProJect/worktrees/agent-factory/core/request_router.py#L57)에서 `project/single`을 고르고, [agent_launcher.py](/D:/hoonProJect/worktrees/agent-factory/agent_launcher.py#L235)에서 `project`면 [core/project_pipeline.py](/D:/hoonProJect/worktrees/agent-factory/core/project_pipeline.py#L183)가 `DynamicOrchestrator`를 만들어 [core/dynamic_orchestrator.py](/D:/hoonProJect/worktrees/agent-factory/core/dynamic_orchestrator.py#L334)의 `run_project()`를 호출합니다.\n\n검증 결과는 두 갈래입니다. `python -m pytest tests/test_request_router.py tests/test_project_pipeline.py tests/test_dynamic_orchestrator_workspace_scope.py -q`는 `8 passed`였고, 샘플 라우팅도 실제로 프로젝트성 요청은 `{'pipeline': 'project', ...}`, 단순 수정 요청은 `{'pipeline': 'single', ...}`로 나왔습니다. 그래서 현재 “project 모드 오케스트레이션 경로” 자체는 살아 있습니다.\n\n다만 resume 쪽에는 문제 하나가 있습니다. `python -m pytest tests/test_orchestrator_manifest.py::test_dynamic_orchestrator_writes_manifest_and_restores_interruptions -q`는 실패했고, [tests/test_orchestrator_manifest.py](/D:/hoonProJect/worktrees/agent-factory/tests/test_orchestrator_manifest.py#L121) 기준으로 `result[\"interrupted_subtasks\"]`가 없어 `KeyError`가 납니다. 즉 현재 결론은 이겁니다: 오케스트레이션 실행 경로는 동작하지만, manifest 기반 재개 상태 복원은 완전히 정상은 아닙니다.\n\n원하면 다음으로 이 resume 버그까지 바로 고치겠습니다.",
+    "event_timestamp": "2026-03-10T08:10:42.510Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 1557,
+    "provider": "codex"
+  }
 }

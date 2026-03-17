@@ -1,18 +1,18 @@
-{
-  "key": "assistant 공통 게이트를 많이 건드렸기 때문에 마지막으로 실제 CLI 엔드투엔드 한 번 더 확인하겠습니다 이번에는 AGENT_DISABLE_ENGINE_API_KEYS를 따로 주지 않고 run_factory_",
-  "value": "[assistant] 공통 게이트를 많이 건드렸기 때문에, 마지막으로 실제 CLI 엔드투엔드 한 번 더 확인하겠습니다. 이번에는 `AGENT_DISABLE_ENGINE_API_KEYS`를 따로 주지 않고 `run_factory_cli.py` 기본값만 믿고 태웁니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T16:45:45.275141+00:00",
-  "updated_at": "2026-03-09T16:45:45.275141+00:00",
-  "details": {
-    "text": "[assistant] 공통 게이트를 많이 건드렸기 때문에, 마지막으로 실제 CLI 엔드투엔드 한 번 더 확인하겠습니다. 이번에는 `AGENT_DISABLE_ENGINE_API_KEYS`를 따로 주지 않고 `run_factory_cli.py` 기본값만 믿고 태웁니다.",
-    "event_timestamp": "2026-03-09T16:43:59.345Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
-    "session_line": 1683,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 공통 게이트를 많이 건드렸기 때문에 마지막으로 실제 CLI 엔드투엔드 한 번 더 확인하겠습니다 이번에는 AGENT_DISABLE_ENGINE_API_KEYS를 따로 주지 않고 run_factory_",
+  "value": "[assistant] 공통 게이트를 많이 건드렸기 때문에, 마지막으로 실제 CLI 엔드투엔드 한 번 더 확인하겠습니다. 이번에는 `AGENT_DISABLE_ENGINE_API_KEYS`를 따로 주지 않고 `run_factory_cli.py` 기본값만 믿고 태웁니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T16:45:45.275141+00:00",
+  "updated_at": "2026-03-09T16:45:45.275141+00:00",
+  "details": {
+    "text": "[assistant] 공통 게이트를 많이 건드렸기 때문에, 마지막으로 실제 CLI 엔드투엔드 한 번 더 확인하겠습니다. 이번에는 `AGENT_DISABLE_ENGINE_API_KEYS`를 따로 주지 않고 `run_factory_cli.py` 기본값만 믿고 태웁니다.",
+    "event_timestamp": "2026-03-09T16:43:59.345Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 1683,
+    "provider": "codex"
+  }
 }

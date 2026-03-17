@@ -1,18 +1,18 @@
-{
-  "key": "assistant coreskill_procurer 쪽 호환성 하나가 깨졌습니다 기존 테스트가 모듈 레벨 resolve_skill_paths를 monkeypatch하고 있어서 import는 유지한 채 내부 로직만 r",
-  "value": "[assistant] `core.skill_procurer` 쪽 호환성 하나가 깨졌습니다. 기존 테스트가 모듈 레벨 `resolve_skill_paths`를 monkeypatch하고 있어서, import는 유지한 채 내부 로직만 `resolve_any_skill_path`로 쓰도록 되돌리겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T17:40:38.068746+00:00",
-  "updated_at": "2026-03-10T17:40:38.068746+00:00",
-  "details": {
-    "text": "[assistant] `core.skill_procurer` 쪽 호환성 하나가 깨졌습니다. 기존 테스트가 모듈 레벨 `resolve_skill_paths`를 monkeypatch하고 있어서, import는 유지한 채 내부 로직만 `resolve_any_skill_path`로 쓰도록 되돌리겠습니다.",
-    "event_timestamp": "2026-03-10T16:54:30.061Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/11/rollout-2026-03-11T01-30-46-019cd896-2cfb-7692-a889-53fc50ef1599.jsonl",
-    "session_line": 342,
-    "provider": "codex"
-  }
+{
+  "key": "assistant coreskill_procurer 쪽 호환성 하나가 깨졌습니다 기존 테스트가 모듈 레벨 resolve_skill_paths를 monkeypatch하고 있어서 import는 유지한 채 내부 로직만 r",
+  "value": "[assistant] `core.skill_procurer` 쪽 호환성 하나가 깨졌습니다. 기존 테스트가 모듈 레벨 `resolve_skill_paths`를 monkeypatch하고 있어서, import는 유지한 채 내부 로직만 `resolve_any_skill_path`로 쓰도록 되돌리겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:38.068746+00:00",
+  "updated_at": "2026-03-10T17:40:38.068746+00:00",
+  "details": {
+    "text": "[assistant] `core.skill_procurer` 쪽 호환성 하나가 깨졌습니다. 기존 테스트가 모듈 레벨 `resolve_skill_paths`를 monkeypatch하고 있어서, import는 유지한 채 내부 로직만 `resolve_any_skill_path`로 쓰도록 되돌리겠습니다.",
+    "event_timestamp": "2026-03-10T16:54:30.061Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/11/rollout-2026-03-11T01-30-46-019cd896-2cfb-7692-a889-53fc50ef1599.jsonl",
+    "session_line": 342,
+    "provider": "codex"
+  }
 }

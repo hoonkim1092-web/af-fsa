@@ -1,18 +1,18 @@
-{
-  "key": "assistant 하나는 찾았습니다 sync_skill_registry가 source id를 canonical helper 대신 자체 safe_id로 정규화하고 있어서 구식 claudecodex를 다시 써버릴 수 있",
-  "value": "[assistant] 하나는 찾았습니다. `sync_skill_registry`가 source id를 canonical helper 대신 자체 `safe_id`로 정규화하고 있어서 구식 `claude`/`codex`를 다시 써버릴 수 있습니다. 나머지 한두 개 더 있는지 확인하겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T17:40:38.026970+00:00",
-  "updated_at": "2026-03-10T17:40:38.026970+00:00",
-  "details": {
-    "text": "[assistant] 하나는 찾았습니다. `sync_skill_registry`가 source id를 canonical helper 대신 자체 `safe_id`로 정규화하고 있어서 구식 `claude`/`codex`를 다시 써버릴 수 있습니다. 나머지 한두 개 더 있는지 확인하겠습니다.",
-    "event_timestamp": "2026-03-10T16:13:50.679Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
-    "session_line": 2086,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 하나는 찾았습니다 sync_skill_registry가 source id를 canonical helper 대신 자체 safe_id로 정규화하고 있어서 구식 claudecodex를 다시 써버릴 수 있",
+  "value": "[assistant] 하나는 찾았습니다. `sync_skill_registry`가 source id를 canonical helper 대신 자체 `safe_id`로 정규화하고 있어서 구식 `claude`/`codex`를 다시 써버릴 수 있습니다. 나머지 한두 개 더 있는지 확인하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:38.026970+00:00",
+  "updated_at": "2026-03-10T17:40:38.026970+00:00",
+  "details": {
+    "text": "[assistant] 하나는 찾았습니다. `sync_skill_registry`가 source id를 canonical helper 대신 자체 `safe_id`로 정규화하고 있어서 구식 `claude`/`codex`를 다시 써버릴 수 있습니다. 나머지 한두 개 더 있는지 확인하겠습니다.",
+    "event_timestamp": "2026-03-10T16:13:50.679Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
+    "session_line": 2086,
+    "provider": "codex"
+  }
 }

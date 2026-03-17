@@ -1,18 +1,18 @@
-{
-  "key": "assistant 문서 확인 결과가 갈립니다 Claude와 Gemini는 공식적으로 deny 규칙을 지원하고 Codex는 현재 공식 문서상 승인샌드박스 모드만 명확하며 per-command deny는 안 보입니다 C",
-  "value": "[assistant] 문서 확인 결과가 갈립니다. Claude와 Gemini는 공식적으로 deny 규칙을 지원하고, Codex는 현재 공식 문서상 승인/샌드박스 모드만 명확하며 per-command deny는 안 보입니다. Codex는 로컬 설치 패키지까지 확인해서 숨은 설정이 있는지 더 보겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T07:17:49.447127+00:00",
-  "updated_at": "2026-03-10T07:17:49.447127+00:00",
-  "details": {
-    "text": "[assistant] 문서 확인 결과가 갈립니다. Claude와 Gemini는 공식적으로 deny 규칙을 지원하고, Codex는 현재 공식 문서상 승인/샌드박스 모드만 명확하며 per-command deny는 안 보입니다. Codex는 로컬 설치 패키지까지 확인해서 숨은 설정이 있는지 더 보겠습니다.",
-    "event_timestamp": "2026-03-10T07:11:34.241Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
-    "session_line": 1207,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 문서 확인 결과가 갈립니다 Claude와 Gemini는 공식적으로 deny 규칙을 지원하고 Codex는 현재 공식 문서상 승인샌드박스 모드만 명확하며 per-command deny는 안 보입니다 C",
+  "value": "[assistant] 문서 확인 결과가 갈립니다. Claude와 Gemini는 공식적으로 deny 규칙을 지원하고, Codex는 현재 공식 문서상 승인/샌드박스 모드만 명확하며 per-command deny는 안 보입니다. Codex는 로컬 설치 패키지까지 확인해서 숨은 설정이 있는지 더 보겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T07:17:49.447127+00:00",
+  "updated_at": "2026-03-10T07:17:49.447127+00:00",
+  "details": {
+    "text": "[assistant] 문서 확인 결과가 갈립니다. Claude와 Gemini는 공식적으로 deny 규칙을 지원하고, Codex는 현재 공식 문서상 승인/샌드박스 모드만 명확하며 per-command deny는 안 보입니다. Codex는 로컬 설치 패키지까지 확인해서 숨은 설정이 있는지 더 보겠습니다.",
+    "event_timestamp": "2026-03-10T07:11:34.241Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 1207,
+    "provider": "codex"
+  }
 }

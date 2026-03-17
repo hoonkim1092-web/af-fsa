@@ -1,18 +1,18 @@
-{
-  "key": "assistant 디바이스 인증을 시작하겠습니다 브라우저 승인 대기까지 포함될 수 있어서 인증 명령을 직접 실행합니다",
-  "value": "[assistant] 디바이스 인증을 시작하겠습니다. 브라우저 승인 대기까지 포함될 수 있어서 인증 명령을 직접 실행합니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T14:39:12.906579+00:00",
-  "updated_at": "2026-03-09T14:39:12.906579+00:00",
-  "details": {
-    "text": "[assistant] 디바이스 인증을 시작하겠습니다. 브라우저 승인 대기까지 포함될 수 있어서 인증 명령을 직접 실행합니다.",
-    "event_timestamp": "2026-03-09T13:55:46.130Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T22-53-58-019cd2e0-4483-7943-8fd7-1e4deab29ea9.jsonl",
-    "session_line": 61,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 디바이스 인증을 시작하겠습니다 브라우저 승인 대기까지 포함될 수 있어서 인증 명령을 직접 실행합니다",
+  "value": "[assistant] 디바이스 인증을 시작하겠습니다. 브라우저 승인 대기까지 포함될 수 있어서 인증 명령을 직접 실행합니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T14:39:12.906579+00:00",
+  "updated_at": "2026-03-09T14:39:12.906579+00:00",
+  "details": {
+    "text": "[assistant] 디바이스 인증을 시작하겠습니다. 브라우저 승인 대기까지 포함될 수 있어서 인증 명령을 직접 실행합니다.",
+    "event_timestamp": "2026-03-09T13:55:46.130Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T22-53-58-019cd2e0-4483-7943-8fd7-1e4deab29ea9.jsonl",
+    "session_line": 61,
+    "provider": "codex"
+  }
 }

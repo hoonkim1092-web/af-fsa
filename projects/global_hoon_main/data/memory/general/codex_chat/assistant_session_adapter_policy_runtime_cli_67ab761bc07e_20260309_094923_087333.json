@@ -1,18 +1,18 @@
-{
-  "key": "assistant 테스트는 의도대로 빨갛습니다 이제 session_adapter 모듈과 policy_runtime 정리를 넣고 CLI 실행 경로에 연결하겠습니다",
-  "value": "[assistant] 테스트는 의도대로 빨갛습니다. 이제 `session_adapter` 모듈과 `policy_runtime` 정리를 넣고, CLI 실행 경로에 연결하겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T09:49:23.087395+00:00",
-  "updated_at": "2026-03-09T09:49:23.087395+00:00",
-  "details": {
-    "text": "[assistant] 테스트는 의도대로 빨갛습니다. 이제 `session_adapter` 모듈과 `policy_runtime` 정리를 넣고, CLI 실행 경로에 연결하겠습니다.",
-    "event_timestamp": "2026-03-09T09:42:10.610Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/09/rollout-2026-03-09T12-29-14-019cd0a4-4ded-7bd3-b7ae-a9832dc22d45.jsonl",
-    "session_line": 2025,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 테스트는 의도대로 빨갛습니다 이제 session_adapter 모듈과 policy_runtime 정리를 넣고 CLI 실행 경로에 연결하겠습니다",
+  "value": "[assistant] 테스트는 의도대로 빨갛습니다. 이제 `session_adapter` 모듈과 `policy_runtime` 정리를 넣고, CLI 실행 경로에 연결하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T09:49:23.087395+00:00",
+  "updated_at": "2026-03-09T09:49:23.087395+00:00",
+  "details": {
+    "text": "[assistant] 테스트는 의도대로 빨갛습니다. 이제 `session_adapter` 모듈과 `policy_runtime` 정리를 넣고, CLI 실행 경로에 연결하겠습니다.",
+    "event_timestamp": "2026-03-09T09:42:10.610Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/09/rollout-2026-03-09T12-29-14-019cd0a4-4ded-7bd3-b7ae-a9832dc22d45.jsonl",
+    "session_line": 2025,
+    "provider": "codex"
+  }
 }

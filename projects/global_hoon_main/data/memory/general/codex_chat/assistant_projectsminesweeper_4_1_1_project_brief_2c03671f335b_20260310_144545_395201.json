@@ -1,18 +1,18 @@
-{
-  "key": "assistant 초기 projectsminesweeper 세팅은 대략 4가지 자료를 합쳐서 만듭니다1 사용자 요청 원문  지뢰찾기 게임 만들어줘 자체가 1차 입력입니다 이걸 바탕으로 먼저 project_brief를",
-  "value": "[assistant] 초기 `projects/minesweeper/` 세팅은 대략 4가지 자료를 합쳐서 만듭니다.  1. 사용자 요청 원문   `\"지뢰찾기 게임 만들어줘\"` 자체가 1차 입력입니다. 이걸 바탕으로 먼저 `project_brief`를 만듭니다: [researcher.py](/D:/warkSpaces/agent-factory/core/researcher.py#L143)  2. `project_brief`   여기서 `goal`, `constra...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T14:45:45.395714+00:00",
-  "updated_at": "2026-03-10T14:45:45.395714+00:00",
-  "details": {
-    "text": "[assistant] 초기 `projects/minesweeper/` 세팅은 대략 4가지 자료를 합쳐서 만듭니다.\n\n1. 사용자 요청 원문  \n`\"지뢰찾기 게임 만들어줘\"` 자체가 1차 입력입니다. 이걸 바탕으로 먼저 `project_brief`를 만듭니다: [researcher.py](/D:/warkSpaces/agent-factory/core/researcher.py#L143)\n\n2. `project_brief`  \n여기서 `goal`, `constraints`, `required_skills`, `role_hints`, `deliverables`, `risks`를 뽑습니다.  \nLLM이 되면 LLM이 만들고, 안 되면 휴리스틱 fallback이 만듭니다: [researcher.py](/D:/warkSpaces/agent-factory/core/researcher.py#L143), [researcher.py](/D:/warkSpaces/agent-factory/core/researcher.py#L101)\n\n`game` 계열이면 fallback 기준으로 이런 식입니다.\n- `required_skills`: `gameplay_core`, `state_machine`, `frontend_game_ui`, `integration_test_guard`\n- `role_hints`: `game_logic_dev`, `frontend_dev`, `qa_engineer`\n\n3. `role_plan`  \n그다음 Planning Director가 `task_input + project_brief`를 받아 역할 목록과 각 역할의 `objective`, `required_skills`, `todo_items`를 만듭니다: [bootstrap_roles.py](/D:/warkSpaces/agent-factory/core/bootstrap_roles.py#L133)  \n즉 “어떤 agent를 몇 명 만들고 무슨 책임을 줄지”는 여기서 정해집니다.\n\n4. agent 템플릿/기본값  \n각 역할별 agent yaml을 만들 때는 먼저 이 순서로 찾습니다: [manager.py](/D:/warkSpaces/agent-factory/core/manager.py#L40)\n- 프로젝트 안에 이미 있는 agent yaml\n- 전역 템플릿 yaml\n- 그것도 없으면 role 이름만 보고 새 agent spec 생성\n- 생성 실패 시 fallback agent spec 사용: [manager.py](/D:/warkSpaces/agent-factory/core/manager.py#L17)\n\n그리고 프로젝트 파이프라인이 공통 baseline을 덧붙입니다.\n- 기본 skills: `file_handler`, `core_memory`\n- `project_role.objective`\n- `project_role.required_skills`  \n근거: [project_pipeline.py](/D:/warkSpaces/agent-factory/core/project_pipeline.py#L18), [project_pipeline.py](/D:/warkSpaces/agent-factory/core/project_pipeline.py#L43), [project_pipeline.py](/D:/warkSpaces/agent-factory/core/project_pipeline.py#L103)\n\n한 줄로 요약하면:\n`사용자 요청 -> project_brief -> role_plan -> 기존/전역 agent 템플릿 + baseline skill 병합` 으로 agent가 세팅됩니다.\n\n즉 처음부터 “지뢰찾기 전용 전문 지식 파일”이 따로 있는 건 아니고, 요청문에서 역할과 스킬을 뽑아 agent yaml을 조립하는 구조입니다.\n\n원하면 다음 답변에서 `\"지뢰찾기 게임 만들어줘\"`를 넣었을 때 실제로 어떤 `project_brief.json` / `role_plan.json`이 나와야 정상인지 샘플까지 써드리겠습니다.",
-    "event_timestamp": "2026-03-10T13:57:33.504Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
-    "session_line": 309,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 초기 projectsminesweeper 세팅은 대략 4가지 자료를 합쳐서 만듭니다1 사용자 요청 원문  지뢰찾기 게임 만들어줘 자체가 1차 입력입니다 이걸 바탕으로 먼저 project_brief를",
+  "value": "[assistant] 초기 `projects/minesweeper/` 세팅은 대략 4가지 자료를 합쳐서 만듭니다.  1. 사용자 요청 원문   `\"지뢰찾기 게임 만들어줘\"` 자체가 1차 입력입니다. 이걸 바탕으로 먼저 `project_brief`를 만듭니다: [researcher.py](/D:/warkSpaces/agent-factory/core/researcher.py#L143)  2. `project_brief`   여기서 `goal`, `constra...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T14:45:45.395714+00:00",
+  "updated_at": "2026-03-10T14:45:45.395714+00:00",
+  "details": {
+    "text": "[assistant] 초기 `projects/minesweeper/` 세팅은 대략 4가지 자료를 합쳐서 만듭니다.\n\n1. 사용자 요청 원문  \n`\"지뢰찾기 게임 만들어줘\"` 자체가 1차 입력입니다. 이걸 바탕으로 먼저 `project_brief`를 만듭니다: [researcher.py](/D:/warkSpaces/agent-factory/core/researcher.py#L143)\n\n2. `project_brief`  \n여기서 `goal`, `constraints`, `required_skills`, `role_hints`, `deliverables`, `risks`를 뽑습니다.  \nLLM이 되면 LLM이 만들고, 안 되면 휴리스틱 fallback이 만듭니다: [researcher.py](/D:/warkSpaces/agent-factory/core/researcher.py#L143), [researcher.py](/D:/warkSpaces/agent-factory/core/researcher.py#L101)\n\n`game` 계열이면 fallback 기준으로 이런 식입니다.\n- `required_skills`: `gameplay_core`, `state_machine`, `frontend_game_ui`, `integration_test_guard`\n- `role_hints`: `game_logic_dev`, `frontend_dev`, `qa_engineer`\n\n3. `role_plan`  \n그다음 Planning Director가 `task_input + project_brief`를 받아 역할 목록과 각 역할의 `objective`, `required_skills`, `todo_items`를 만듭니다: [bootstrap_roles.py](/D:/warkSpaces/agent-factory/core/bootstrap_roles.py#L133)  \n즉 “어떤 agent를 몇 명 만들고 무슨 책임을 줄지”는 여기서 정해집니다.\n\n4. agent 템플릿/기본값  \n각 역할별 agent yaml을 만들 때는 먼저 이 순서로 찾습니다: [manager.py](/D:/warkSpaces/agent-factory/core/manager.py#L40)\n- 프로젝트 안에 이미 있는 agent yaml\n- 전역 템플릿 yaml\n- 그것도 없으면 role 이름만 보고 새 agent spec 생성\n- 생성 실패 시 fallback agent spec 사용: [manager.py](/D:/warkSpaces/agent-factory/core/manager.py#L17)\n\n그리고 프로젝트 파이프라인이 공통 baseline을 덧붙입니다.\n- 기본 skills: `file_handler`, `core_memory`\n- `project_role.objective`\n- `project_role.required_skills`  \n근거: [project_pipeline.py](/D:/warkSpaces/agent-factory/core/project_pipeline.py#L18), [project_pipeline.py](/D:/warkSpaces/agent-factory/core/project_pipeline.py#L43), [project_pipeline.py](/D:/warkSpaces/agent-factory/core/project_pipeline.py#L103)\n\n한 줄로 요약하면:\n`사용자 요청 -> project_brief -> role_plan -> 기존/전역 agent 템플릿 + baseline skill 병합` 으로 agent가 세팅됩니다.\n\n즉 처음부터 “지뢰찾기 전용 전문 지식 파일”이 따로 있는 건 아니고, 요청문에서 역할과 스킬을 뽑아 agent yaml을 조립하는 구조입니다.\n\n원하면 다음 답변에서 `\"지뢰찾기 게임 만들어줘\"`를 넣었을 때 실제로 어떤 `project_brief.json` / `role_plan.json`이 나와야 정상인지 샘플까지 써드리겠습니다.",
+    "event_timestamp": "2026-03-10T13:57:33.504Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
+    "session_line": 309,
+    "provider": "codex"
+  }
 }

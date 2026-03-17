@@ -1,18 +1,18 @@
-{
-  "key": "assistant 워닝 원인을 먼저 좁히겠습니다 googlegenai가 아직 import 시점에 끌려오는 경로가 남아 있는지 확인하고 가능하면 코드에서 제거하겠습니다",
-  "value": "[assistant] 워닝 원인을 먼저 좁히겠습니다. `google.genai`가 아직 import 시점에 끌려오는 경로가 남아 있는지 확인하고, 가능하면 코드에서 제거하겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T17:40:37.967847+00:00",
-  "updated_at": "2026-03-10T17:40:37.967847+00:00",
-  "details": {
-    "text": "[assistant] 워닝 원인을 먼저 좁히겠습니다. `google.genai`가 아직 import 시점에 끌려오는 경로가 남아 있는지 확인하고, 가능하면 코드에서 제거하겠습니다.",
-    "event_timestamp": "2026-03-10T15:32:54.608Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
-    "session_line": 1338,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 워닝 원인을 먼저 좁히겠습니다 googlegenai가 아직 import 시점에 끌려오는 경로가 남아 있는지 확인하고 가능하면 코드에서 제거하겠습니다",
+  "value": "[assistant] 워닝 원인을 먼저 좁히겠습니다. `google.genai`가 아직 import 시점에 끌려오는 경로가 남아 있는지 확인하고, 가능하면 코드에서 제거하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:37.967847+00:00",
+  "updated_at": "2026-03-10T17:40:37.967847+00:00",
+  "details": {
+    "text": "[assistant] 워닝 원인을 먼저 좁히겠습니다. `google.genai`가 아직 import 시점에 끌려오는 경로가 남아 있는지 확인하고, 가능하면 코드에서 제거하겠습니다.",
+    "event_timestamp": "2026-03-10T15:32:54.608Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
+    "session_line": 1338,
+    "provider": "codex"
+  }
 }

@@ -1,18 +1,18 @@
-{
-  "key": "assistant I cant share the exact system prompt but heres a concise summary of how Im configured for you- Role Coding age",
-  "value": "[assistant] I can’t share the exact system prompt, but here’s a concise summary of how I’m configured for you:  - Role: Coding agent in Codex CLI — precise, safe, and helpful; concise, direct, friendly tone. - Capabilities: Read/modify files in the workspac...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T17:40:38.140269+00:00",
-  "updated_at": "2026-03-10T17:40:38.140269+00:00",
-  "details": {
-    "text": "[assistant] I can’t share the exact system prompt, but here’s a concise summary of how I’m configured for you:\n\n- Role: Coding agent in Codex CLI — precise, safe, and helpful; concise, direct, friendly tone.\n- Capabilities: Read/modify files in the workspace, run shell commands, make and update task plans, and interact via short progress notes.\n- Tools:\n  - `functions.shell` to run PowerShell commands.\n  - `functions.update_plan` to track multi‑step work.\n  - `functions.request_user_input` for quick choices.\n  - `functions.view_image` for local images.\n  - `web.run` exists for browsing with strict citation rules, but network access is restricted here.\n- Sandbox: Filesystem is workspace‑write; writable roots include:\n  - `D:\\warkSpaces\\agent-factory`\n  - `D:\\warkSpaces\\agent-factory\\projects\\smoke_codex_factory`\n  - `C:\\Users\\HOME\\.codex\\memories`\n  Editing outside these paths isn’t allowed. Approval policy: never escalate.\n- AGENTS.md scope: Obey repository AGENTS.md guidelines; follow listed skills when invoked:\n  - skill-creator (create/update skills)\n  - skill-installer (list/install curated or repo skills)\n- Skill usage: If a request names a listed skill or clearly matches one, I load its `SKILL.md`, follow its workflow, and keep context small.\n- Working style: Use short preambles before tool calls, keep plans lightweight for multi‑step tasks, and finish tasks end‑to‑end before handing back.\n- Date/locale: Today is March 11, 2026 (Asia/Seoul); user location assumed United States. I clarify absolute dates when relevant.\n\nIf you want, I can also show how I’d apply these to your next task or spin up a brief plan.",
-    "event_timestamp": "2026-03-10T17:40:37.546Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/11/rollout-2026-03-11T02-40-29-019cd8d6-0209-7cf0-860f-e82bae4faf1b.jsonl",
-    "session_line": 11,
-    "provider": "codex"
-  }
+{
+  "key": "assistant I cant share the exact system prompt but heres a concise summary of how Im configured for you- Role Coding age",
+  "value": "[assistant] I can’t share the exact system prompt, but here’s a concise summary of how I’m configured for you:  - Role: Coding agent in Codex CLI — precise, safe, and helpful; concise, direct, friendly tone. - Capabilities: Read/modify files in the workspac...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:38.140269+00:00",
+  "updated_at": "2026-03-10T17:40:38.140269+00:00",
+  "details": {
+    "text": "[assistant] I can’t share the exact system prompt, but here’s a concise summary of how I’m configured for you:\n\n- Role: Coding agent in Codex CLI — precise, safe, and helpful; concise, direct, friendly tone.\n- Capabilities: Read/modify files in the workspace, run shell commands, make and update task plans, and interact via short progress notes.\n- Tools:\n  - `functions.shell` to run PowerShell commands.\n  - `functions.update_plan` to track multi‑step work.\n  - `functions.request_user_input` for quick choices.\n  - `functions.view_image` for local images.\n  - `web.run` exists for browsing with strict citation rules, but network access is restricted here.\n- Sandbox: Filesystem is workspace‑write; writable roots include:\n  - `D:\\warkSpaces\\agent-factory`\n  - `D:\\warkSpaces\\agent-factory\\projects\\smoke_codex_factory`\n  - `C:\\Users\\HOME\\.codex\\memories`\n  Editing outside these paths isn’t allowed. Approval policy: never escalate.\n- AGENTS.md scope: Obey repository AGENTS.md guidelines; follow listed skills when invoked:\n  - skill-creator (create/update skills)\n  - skill-installer (list/install curated or repo skills)\n- Skill usage: If a request names a listed skill or clearly matches one, I load its `SKILL.md`, follow its workflow, and keep context small.\n- Working style: Use short preambles before tool calls, keep plans lightweight for multi‑step tasks, and finish tasks end‑to‑end before handing back.\n- Date/locale: Today is March 11, 2026 (Asia/Seoul); user location assumed United States. I clarify absolute dates when relevant.\n\nIf you want, I can also show how I’d apply these to your next task or spin up a brief plan.",
+    "event_timestamp": "2026-03-10T17:40:37.546Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/11/rollout-2026-03-11T02-40-29-019cd8d6-0209-7cf0-860f-e82bae4faf1b.jsonl",
+    "session_line": 11,
+    "provider": "codex"
+  }
 }

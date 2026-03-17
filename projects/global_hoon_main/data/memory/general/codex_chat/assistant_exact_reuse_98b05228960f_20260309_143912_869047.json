@@ -1,18 +1,18 @@
-{
-  "key": "assistant 리팩토링 테스트는 세 가지로 붙입니다 라우팅 프로젝트 파이프라인 산출물 exact reuse 우선만 고정하면 핵심 구조가 맞게 들어간지 확인할 수 있습니다",
-  "value": "[assistant] 리팩토링 테스트는 세 가지로 붙입니다. `라우팅`, `프로젝트 파이프라인 산출물`, `exact reuse 우선`만 고정하면 핵심 구조가 맞게 들어간지 확인할 수 있습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T14:39:12.869117+00:00",
-  "updated_at": "2026-03-09T14:39:12.869117+00:00",
-  "details": {
-    "text": "[assistant] 리팩토링 테스트는 세 가지로 붙입니다. `라우팅`, `프로젝트 파이프라인 산출물`, `exact reuse 우선`만 고정하면 핵심 구조가 맞게 들어간지 확인할 수 있습니다.",
-    "event_timestamp": "2026-03-08T01:57:14.616Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/07/rollout-2026-03-07T23-57-50-019cc8ce-02f3-7c92-a357-f51576977b23.jsonl",
-    "session_line": 2043,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 리팩토링 테스트는 세 가지로 붙입니다 라우팅 프로젝트 파이프라인 산출물 exact reuse 우선만 고정하면 핵심 구조가 맞게 들어간지 확인할 수 있습니다",
+  "value": "[assistant] 리팩토링 테스트는 세 가지로 붙입니다. `라우팅`, `프로젝트 파이프라인 산출물`, `exact reuse 우선`만 고정하면 핵심 구조가 맞게 들어간지 확인할 수 있습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T14:39:12.869117+00:00",
+  "updated_at": "2026-03-09T14:39:12.869117+00:00",
+  "details": {
+    "text": "[assistant] 리팩토링 테스트는 세 가지로 붙입니다. `라우팅`, `프로젝트 파이프라인 산출물`, `exact reuse 우선`만 고정하면 핵심 구조가 맞게 들어간지 확인할 수 있습니다.",
+    "event_timestamp": "2026-03-08T01:57:14.616Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/07/rollout-2026-03-07T23-57-50-019cc8ce-02f3-7c92-a357-f51576977b23.jsonl",
+    "session_line": 2043,
+    "provider": "codex"
+  }
 }

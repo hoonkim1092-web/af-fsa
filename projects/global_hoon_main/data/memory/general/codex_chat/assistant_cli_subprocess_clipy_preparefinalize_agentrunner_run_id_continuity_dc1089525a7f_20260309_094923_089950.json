@@ -1,18 +1,18 @@
-{
-  "key": "assistant CLI subprocess 실행부도 같이 정리합니다 clipy는 이제 preparefinalize 훅을 호출하고 AgentRunner가 run_id를 넘겨서 continuity 파일 이름과 세션 추",
-  "value": "[assistant] CLI subprocess 실행부도 같이 정리합니다. `cli.py`는 이제 `prepare/finalize` 훅을 호출하고, `AgentRunner`가 `run_id`를 넘겨서 continuity 파일 이름과 세션 추적이 같은 축을 쓰게 만들겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T09:49:23.090030+00:00",
-  "updated_at": "2026-03-09T09:49:23.090030+00:00",
-  "details": {
-    "text": "[assistant] CLI subprocess 실행부도 같이 정리합니다. `cli.py`는 이제 `prepare/finalize` 훅을 호출하고, `AgentRunner`가 `run_id`를 넘겨서 continuity 파일 이름과 세션 추적이 같은 축을 쓰게 만들겠습니다.",
-    "event_timestamp": "2026-03-09T09:43:37.752Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/09/rollout-2026-03-09T12-29-14-019cd0a4-4ded-7bd3-b7ae-a9832dc22d45.jsonl",
-    "session_line": 2037,
-    "provider": "codex"
-  }
+{
+  "key": "assistant CLI subprocess 실행부도 같이 정리합니다 clipy는 이제 preparefinalize 훅을 호출하고 AgentRunner가 run_id를 넘겨서 continuity 파일 이름과 세션 추",
+  "value": "[assistant] CLI subprocess 실행부도 같이 정리합니다. `cli.py`는 이제 `prepare/finalize` 훅을 호출하고, `AgentRunner`가 `run_id`를 넘겨서 continuity 파일 이름과 세션 추적이 같은 축을 쓰게 만들겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T09:49:23.090030+00:00",
+  "updated_at": "2026-03-09T09:49:23.090030+00:00",
+  "details": {
+    "text": "[assistant] CLI subprocess 실행부도 같이 정리합니다. `cli.py`는 이제 `prepare/finalize` 훅을 호출하고, `AgentRunner`가 `run_id`를 넘겨서 continuity 파일 이름과 세션 추적이 같은 축을 쓰게 만들겠습니다.",
+    "event_timestamp": "2026-03-09T09:43:37.752Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/09/rollout-2026-03-09T12-29-14-019cd0a4-4ded-7bd3-b7ae-a9832dc22d45.jsonl",
+    "session_line": 2037,
+    "provider": "codex"
+  }
 }

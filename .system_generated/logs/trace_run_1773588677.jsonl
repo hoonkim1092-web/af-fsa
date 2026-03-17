@@ -1,0 +1,3 @@
+{"timestamp": "2026-03-16T00:31:17", "event_type": "run_start", "run_id": "run_1773588677", "agent_name": "cli-agent", "task_input": "implement a small feature"}
+{"timestamp": "2026-03-16T00:31:17", "event_type": "run_end", "run_id": "run_1773588677", "ok": false, "reason": "hook_event_bus_blocked_pre", "duration_ms": 0}
+{"timestamp": "2026-03-16T00:31:17", "event_type": "captured_output", "run_id": "run_1773588677", "content": "\n[TodoContinuationEnforcer] ERROR: complex tasks require a structured plan.\n[TodoContinuationEnforcer] Add `.todo.md` or a project board state first.\n\n"}

@@ -1,18 +1,18 @@
-{
-  "key": "assistant start_db agent-factory 실행됐습니다 정상 완료됐고 오류는 없었습니다동기화 결과- project scope project_agent_factory 79개 반영 0개 스킵 원본 시각 ",
-  "value": "[assistant] `start_db agent-factory` 실행됐습니다. 정상 완료됐고 오류는 없었습니다.  동기화 결과: - project scope `project_agent_factory`: `79`개 반영, `0`개 스킵, 원본 시각 `2026-03-10 10:45:11 UTC` - global scope `user:hoon_main`: `942`개 반영, `0`개 스킵, 원본 시각 `2026-03-10 10:45:14 UTC`  원하면 이어...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T14:45:45.381052+00:00",
-  "updated_at": "2026-03-10T14:45:45.381052+00:00",
-  "details": {
-    "text": "[assistant] `start_db agent-factory` 실행됐습니다. 정상 완료됐고 오류는 없었습니다.\n\n동기화 결과:\n- project scope `project_agent_factory`: `79`개 반영, `0`개 스킵, 원본 시각 `2026-03-10 10:45:11 UTC`\n- global scope `user:hoon_main`: `942`개 반영, `0`개 스킵, 원본 시각 `2026-03-10 10:45:14 UTC`\n\n원하면 이어서 `git status`나 프로젝트 상태도 바로 확인하겠습니다.",
-    "event_timestamp": "2026-03-10T13:48:41.938Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
-    "session_line": 162,
-    "provider": "codex"
-  }
+{
+  "key": "assistant start_db agent-factory 실행됐습니다 정상 완료됐고 오류는 없었습니다동기화 결과- project scope project_agent_factory 79개 반영 0개 스킵 원본 시각 ",
+  "value": "[assistant] `start_db agent-factory` 실행됐습니다. 정상 완료됐고 오류는 없었습니다.  동기화 결과: - project scope `project_agent_factory`: `79`개 반영, `0`개 스킵, 원본 시각 `2026-03-10 10:45:11 UTC` - global scope `user:hoon_main`: `942`개 반영, `0`개 스킵, 원본 시각 `2026-03-10 10:45:14 UTC`  원하면 이어...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T14:45:45.381052+00:00",
+  "updated_at": "2026-03-10T14:45:45.381052+00:00",
+  "details": {
+    "text": "[assistant] `start_db agent-factory` 실행됐습니다. 정상 완료됐고 오류는 없었습니다.\n\n동기화 결과:\n- project scope `project_agent_factory`: `79`개 반영, `0`개 스킵, 원본 시각 `2026-03-10 10:45:11 UTC`\n- global scope `user:hoon_main`: `942`개 반영, `0`개 스킵, 원본 시각 `2026-03-10 10:45:14 UTC`\n\n원하면 이어서 `git status`나 프로젝트 상태도 바로 확인하겠습니다.",
+    "event_timestamp": "2026-03-10T13:48:41.938Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
+    "session_line": 162,
+    "provider": "codex"
+  }
 }

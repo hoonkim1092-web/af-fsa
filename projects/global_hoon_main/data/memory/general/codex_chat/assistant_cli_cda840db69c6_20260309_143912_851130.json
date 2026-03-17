@@ -1,18 +1,18 @@
-{
-  "key": "assistant 아직 CLI가 로그인 상태로 바뀌지 않았습니다 백그라운드 로그인 프로세스가 완료 메시지를 남겼는지 출력 파일을 다시 보겠습니다",
-  "value": "[assistant] 아직 CLI가 로그인 상태로 바뀌지 않았습니다. 백그라운드 로그인 프로세스가 완료 메시지를 남겼는지 출력 파일을 다시 보겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T14:39:12.851197+00:00",
-  "updated_at": "2026-03-09T14:39:12.851197+00:00",
-  "details": {
-    "text": "[assistant] 아직 CLI가 로그인 상태로 바뀌지 않았습니다. 백그라운드 로그인 프로세스가 완료 메시지를 남겼는지 출력 파일을 다시 보겠습니다.",
-    "event_timestamp": "2026-03-07T17:38:53.302Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/07/rollout-2026-03-07T23-57-50-019cc8ce-02f3-7c92-a357-f51576977b23.jsonl",
-    "session_line": 1811,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 아직 CLI가 로그인 상태로 바뀌지 않았습니다 백그라운드 로그인 프로세스가 완료 메시지를 남겼는지 출력 파일을 다시 보겠습니다",
+  "value": "[assistant] 아직 CLI가 로그인 상태로 바뀌지 않았습니다. 백그라운드 로그인 프로세스가 완료 메시지를 남겼는지 출력 파일을 다시 보겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T14:39:12.851197+00:00",
+  "updated_at": "2026-03-09T14:39:12.851197+00:00",
+  "details": {
+    "text": "[assistant] 아직 CLI가 로그인 상태로 바뀌지 않았습니다. 백그라운드 로그인 프로세스가 완료 메시지를 남겼는지 출력 파일을 다시 보겠습니다.",
+    "event_timestamp": "2026-03-07T17:38:53.302Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/07/rollout-2026-03-07T23-57-50-019cc8ce-02f3-7c92-a357-f51576977b23.jsonl",
+    "session_line": 1811,
+    "provider": "codex"
+  }
 }

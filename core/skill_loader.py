@@ -1,5 +1,5 @@
 import logging
-from typing import Dict, List, Set, Tuple
+from typing import Dict, List, Optional, Set, Tuple
 from collections import defaultdict, deque
 from core.skill_metadata import SkillMetadata, SkillCategory
 from core.skill_registry import get_global_registry, ensure_skills_loaded
@@ -317,23 +317,38 @@ class DynamicSkillLoader:
             최종 스킬 ID 목록 (의존성 일관성 유지)
         """
         result = list(skill_ids)
+        logger.debug("[의존성 주입 시작] 초기: %d개", len(result))
 
         # 재귀적 의존성 주입 (최대 5단계)
         for iteration in range(5):
             missing = dep_graph.get_required_deps(result)
             if not missing:
+                logger.debug("✓ 필수 의존성 모두 충족")
                 break
 
             added = False
             for dep_id in missing:
                 if dep_id in all_skills and dep_id not in result:
                     result.append(dep_id)
+                    logger.debug("  [+] 의존성 추가: %s", dep_id)
                     if dep_id not in scores:
                         scores[dep_id] = 0.01
                     added = True
 
-            if not added:
+            if added:
+                logger.debug("  반복 %d: %d개", iteration + 1, len(result))
+            else:
+                unregistered = [d for d in missing if d not in all_skills]
+                if unregistered:
+                    logger.warning(
+                        "미등록 의존성 스킬 발견 (레지스트리에 없음): %s",
+                        unregistered,
+                    )
+                else:
+                    logger.warning("의존성이 이미 포함되어 추가 불가")
                 break
+
+        logger.debug("[의존성 주입 완료] 최종: %d개", len(result))
 
         # max_skills 초과 처리 (의존성 우선 보존)
         if len(result) > max_skills:
@@ -385,7 +400,7 @@ class DynamicSkillLoader:
         """레지스트리 변경 시 의존성 그래프 캐시 무효화."""
         self._dep_graph = None
 
-    def build_routing_prompt(self, selected_skills, scores: Dict[str, float] = None):
+    def build_routing_prompt(self, selected_skills, scores: Optional[Dict[str, float]] = None):
         """
         라우터용 스킬 프롬프트 생성 (Decision Tree 포함).
 

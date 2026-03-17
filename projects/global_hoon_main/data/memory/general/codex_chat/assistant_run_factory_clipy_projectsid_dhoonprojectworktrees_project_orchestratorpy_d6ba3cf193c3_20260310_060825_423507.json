@@ -1,18 +1,18 @@
-{
-  "key": "assistant run_factory_clipy는 내부 projectsid로 고정입니다 DhoonProJectworktrees 바로 아래에 만들려면 외부 경로를 받는 project_orchestratorpy나 다른",
-  "value": "[assistant] `run_factory_cli.py`는 내부 `projects/<id>`로 고정입니다. `D:\\hoonProJect\\worktrees\\...` 바로 아래에 만들려면 외부 경로를 받는 `project_orchestrator.py`나 다른 진입점을 써야 해서 그쪽을 확인합니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T06:08:25.423574+00:00",
-  "updated_at": "2026-03-10T06:08:25.423574+00:00",
-  "details": {
-    "text": "[assistant] `run_factory_cli.py`는 내부 `projects/<id>`로 고정입니다. `D:\\hoonProJect\\worktrees\\...` 바로 아래에 만들려면 외부 경로를 받는 `project_orchestrator.py`나 다른 진입점을 써야 해서 그쪽을 확인합니다.",
-    "event_timestamp": "2026-03-10T03:32:27.628Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
-    "session_line": 297,
-    "provider": "codex"
-  }
+{
+  "key": "assistant run_factory_clipy는 내부 projectsid로 고정입니다 DhoonProJectworktrees 바로 아래에 만들려면 외부 경로를 받는 project_orchestratorpy나 다른",
+  "value": "[assistant] `run_factory_cli.py`는 내부 `projects/<id>`로 고정입니다. `D:\\hoonProJect\\worktrees\\...` 바로 아래에 만들려면 외부 경로를 받는 `project_orchestrator.py`나 다른 진입점을 써야 해서 그쪽을 확인합니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T06:08:25.423574+00:00",
+  "updated_at": "2026-03-10T06:08:25.423574+00:00",
+  "details": {
+    "text": "[assistant] `run_factory_cli.py`는 내부 `projects/<id>`로 고정입니다. `D:\\hoonProJect\\worktrees\\...` 바로 아래에 만들려면 외부 경로를 받는 `project_orchestrator.py`나 다른 진입점을 써야 해서 그쪽을 확인합니다.",
+    "event_timestamp": "2026-03-10T03:32:27.628Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 297,
+    "provider": "codex"
+  }
 }

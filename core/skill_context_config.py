@@ -13,8 +13,11 @@ core/skill_context_config.py
     )
   )
 """
+import logging
 from dataclasses import dataclass
 from typing import Dict
+
+logger = logging.getLogger(__name__)
 
 # ========== 전역 설정 상수 ==========
 SKILL_SIGNATURE_TOKENS_AVG: int = 600      # 평균 스킬 메타데이터 크기
@@ -24,14 +27,15 @@ MIN_SKILLS: int = 3                        # 최소 3개 (필수)
 MAX_SKILLS_ABSOLUTE: int = 200             # 최대 200개 (오버헤드 방지)
 
 # ========== 모델별 컨텍스트 토큰 ==========
+# 실제 모델 컨텍스트 윈도우 기준 (2026-03 업데이트)
 MODEL_CONTEXT_TOKENS: Dict[str, int] = {
-    "claude-haiku": 8_000,
+    "claude-haiku": 200_000,
     "claude-sonnet": 200_000,
     "claude-opus": 200_000,
-    "gemini-2.0-flash": 100_000,
-    "gemini-1.5": 100_000,
+    "gemini-2.0-flash": 1_000_000,
+    "gemini-1.5": 1_000_000,
     "gpt-4": 128_000,
-    "gpt-3.5": 4_096,
+    "gpt-3.5": 16_385,
     "default": 8_000,
 }
 
@@ -46,9 +50,13 @@ def get_context_tokens(model_name: str) -> int:
     Returns:
         컨텍스트 토큰 수
     """
-    name = (model_name or "").lower()
+    if not model_name or not isinstance(model_name, str):
+        logger.warning("Invalid model_name: %s, using default", model_name)
+        return MODEL_CONTEXT_TOKENS["default"]
+
+    name = model_name.lower()
     for prefix, tokens in MODEL_CONTEXT_TOKENS.items():
-        if prefix in name:
+        if prefix != "default" and prefix in name:
             return tokens
     return MODEL_CONTEXT_TOKENS["default"]
 
@@ -65,9 +73,9 @@ def get_max_skills_for_model(model_name: str) -> int:
 
     Example:
         >>> get_max_skills_for_model("claude-haiku-4-5")
-        3
+        200
         >>> get_max_skills_for_model("claude-sonnet-4-6")
-        200  # ✅ MIN-2 수정: MAX_SKILLS_ABSOLUTE(200) 제한
+        200
     """
     context = get_context_tokens(model_name)
     # ✅ MIN-1 수정: available이 음수가 되는 경우 처리

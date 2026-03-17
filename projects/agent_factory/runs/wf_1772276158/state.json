@@ -1,30 +1,30 @@
-{
-  "run_id": "wf_1772276158",
-  "project_id": "agent_factory",
-  "workflow_path": "tests/_tmp/af-test-5f0df517/wf.yaml",
-  "status": "completed",
-  "created_at": "2026-02-28T19:55:58",
-  "updated_at": "2026-02-28T19:55:58",
-  "base_roles": [
-    "Lilith",
-    "Himari"
-  ],
-  "stages": [
-    {
-      "id": "D0",
-      "name": "Decision Lock",
-      "status": "completed",
-      "attempts": 1,
-      "last_error": "",
-      "updated_at": "2026-02-28T19:55:58"
-    },
-    {
-      "id": "D1",
-      "name": "Risks First",
-      "status": "completed",
-      "attempts": 1,
-      "last_error": "",
-      "updated_at": "2026-02-28T19:55:58"
-    }
-  ]
-}
+{
+  "run_id": "wf_1772276158",
+  "project_id": "agent_factory",
+  "workflow_path": "tests/_tmp/af-test-5f0df517/wf.yaml",
+  "status": "completed",
+  "created_at": "2026-02-28T19:55:58",
+  "updated_at": "2026-02-28T19:55:58",
+  "base_roles": [
+    "Lilith",
+    "Himari"
+  ],
+  "stages": [
+    {
+      "id": "D0",
+      "name": "Decision Lock",
+      "status": "completed",
+      "attempts": 1,
+      "last_error": "",
+      "updated_at": "2026-02-28T19:55:58"
+    },
+    {
+      "id": "D1",
+      "name": "Risks First",
+      "status": "completed",
+      "attempts": 1,
+      "last_error": "",
+      "updated_at": "2026-02-28T19:55:58"
+    }
+  ]
+}

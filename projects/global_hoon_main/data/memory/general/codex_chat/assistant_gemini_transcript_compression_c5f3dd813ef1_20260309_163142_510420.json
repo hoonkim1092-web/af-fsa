@@ -1,18 +1,18 @@
-{
-  "key": "assistant 프로세스 커맨드라인은 안 나왔습니다 대신 Gemini가 쓰는 실제 transcript를 보면 응답이 나왔는지 아니면 compression 단계에서 멈췄는지 바로 알 수 있습니다",
-  "value": "[assistant] 프로세스 커맨드라인은 안 나왔습니다. 대신 Gemini가 쓰는 실제 transcript를 보면 응답이 나왔는지, 아니면 compression 단계에서 멈췄는지 바로 알 수 있습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T16:31:42.510498+00:00",
-  "updated_at": "2026-03-09T16:31:42.510498+00:00",
-  "details": {
-    "text": "[assistant] 프로세스 커맨드라인은 안 나왔습니다. 대신 Gemini가 쓰는 실제 transcript를 보면 응답이 나왔는지, 아니면 compression 단계에서 멈췄는지 바로 알 수 있습니다.",
-    "event_timestamp": "2026-03-09T16:22:42.375Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
-    "session_line": 1200,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 프로세스 커맨드라인은 안 나왔습니다 대신 Gemini가 쓰는 실제 transcript를 보면 응답이 나왔는지 아니면 compression 단계에서 멈췄는지 바로 알 수 있습니다",
+  "value": "[assistant] 프로세스 커맨드라인은 안 나왔습니다. 대신 Gemini가 쓰는 실제 transcript를 보면 응답이 나왔는지, 아니면 compression 단계에서 멈췄는지 바로 알 수 있습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T16:31:42.510498+00:00",
+  "updated_at": "2026-03-09T16:31:42.510498+00:00",
+  "details": {
+    "text": "[assistant] 프로세스 커맨드라인은 안 나왔습니다. 대신 Gemini가 쓰는 실제 transcript를 보면 응답이 나왔는지, 아니면 compression 단계에서 멈췄는지 바로 알 수 있습니다.",
+    "event_timestamp": "2026-03-09T16:22:42.375Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 1200,
+    "provider": "codex"
+  }
 }

@@ -12,6 +12,7 @@ import sys
 import urllib.error
 import urllib.request
 from datetime import datetime
+from typing import Dict
 
 try:
     from openai import OpenAI
@@ -86,7 +87,7 @@ class AgentRunner:
     def __init__(self, model_router: ModelRouter | None = None):
         self.mr = model_router or ModelRouter()
         self._knowledge_skills = []
-        self._skill_loader_cache: dict = {}  # 모델별 로더 캐싱
+        self._skill_loader_cache: Dict[str, "AdaptiveSkillLoader"] = {}  # 모델별 로더 캐싱
         self._current_model_name: str = "default"  # 현재 모델 이름
 
     def _resolve_system_prompt(self, agent: dict) -> str:

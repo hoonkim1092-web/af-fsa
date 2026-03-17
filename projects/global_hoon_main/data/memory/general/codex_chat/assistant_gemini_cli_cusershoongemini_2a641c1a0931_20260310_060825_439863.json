@@ -1,18 +1,18 @@
-{
-  "key": "assistant Gemini CLI는 실행 시 CUsersHOONgemini에 상태 파일을 쓰는데 지금은 그 경로 쓰기가 막혀 있습니다 설정 경로를 우회할 수 있는 환경변수가 있는지 먼저 확인하고 없으면 그때 권한",
-  "value": "[assistant] Gemini CLI는 실행 시 `C:\\Users\\HOON\\.gemini`에 상태 파일을 쓰는데, 지금은 그 경로 쓰기가 막혀 있습니다. 설정 경로를 우회할 수 있는 환경변수가 있는지 먼저 확인하고, 없으면 그때 권한 상승으로 실행하겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T06:08:25.439923+00:00",
-  "updated_at": "2026-03-10T06:08:25.439923+00:00",
-  "details": {
-    "text": "[assistant] Gemini CLI는 실행 시 `C:\\Users\\HOON\\.gemini`에 상태 파일을 쓰는데, 지금은 그 경로 쓰기가 막혀 있습니다. 설정 경로를 우회할 수 있는 환경변수가 있는지 먼저 확인하고, 없으면 그때 권한 상승으로 실행하겠습니다.",
-    "event_timestamp": "2026-03-10T04:19:57.488Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
-    "session_line": 358,
-    "provider": "codex"
-  }
+{
+  "key": "assistant Gemini CLI는 실행 시 CUsersHOONgemini에 상태 파일을 쓰는데 지금은 그 경로 쓰기가 막혀 있습니다 설정 경로를 우회할 수 있는 환경변수가 있는지 먼저 확인하고 없으면 그때 권한",
+  "value": "[assistant] Gemini CLI는 실행 시 `C:\\Users\\HOON\\.gemini`에 상태 파일을 쓰는데, 지금은 그 경로 쓰기가 막혀 있습니다. 설정 경로를 우회할 수 있는 환경변수가 있는지 먼저 확인하고, 없으면 그때 권한 상승으로 실행하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T06:08:25.439923+00:00",
+  "updated_at": "2026-03-10T06:08:25.439923+00:00",
+  "details": {
+    "text": "[assistant] Gemini CLI는 실행 시 `C:\\Users\\HOON\\.gemini`에 상태 파일을 쓰는데, 지금은 그 경로 쓰기가 막혀 있습니다. 설정 경로를 우회할 수 있는 환경변수가 있는지 먼저 확인하고, 없으면 그때 권한 상승으로 실행하겠습니다.",
+    "event_timestamp": "2026-03-10T04:19:57.488Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 358,
+    "provider": "codex"
+  }
 }

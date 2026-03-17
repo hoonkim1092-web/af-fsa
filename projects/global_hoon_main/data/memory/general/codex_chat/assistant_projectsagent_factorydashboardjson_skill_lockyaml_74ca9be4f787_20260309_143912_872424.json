@@ -1,18 +1,18 @@
-{
-  "key": "assistant 테스트 중에 projectsagent_factorydashboardjson과 skill-lockyaml이 같이 움직였습니다 이 둘이 실제 코드 변경이 아니라 부수 산출물인지 확인하고 맞으면 빼고 커",
-  "value": "[assistant] 테스트 중에 `projects/agent_factory/dashboard.json`과 `skill-lock.yaml`이 같이 움직였습니다. 이 둘이 실제 코드 변경이 아니라 부수 산출물인지 확인하고, 맞으면 빼고 커밋하겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T14:39:12.872519+00:00",
-  "updated_at": "2026-03-09T14:39:12.872519+00:00",
-  "details": {
-    "text": "[assistant] 테스트 중에 `projects/agent_factory/dashboard.json`과 `skill-lock.yaml`이 같이 움직였습니다. 이 둘이 실제 코드 변경이 아니라 부수 산출물인지 확인하고, 맞으면 빼고 커밋하겠습니다.",
-    "event_timestamp": "2026-03-08T02:00:33.951Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/07/rollout-2026-03-07T23-57-50-019cc8ce-02f3-7c92-a357-f51576977b23.jsonl",
-    "session_line": 2094,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 테스트 중에 projectsagent_factorydashboardjson과 skill-lockyaml이 같이 움직였습니다 이 둘이 실제 코드 변경이 아니라 부수 산출물인지 확인하고 맞으면 빼고 커",
+  "value": "[assistant] 테스트 중에 `projects/agent_factory/dashboard.json`과 `skill-lock.yaml`이 같이 움직였습니다. 이 둘이 실제 코드 변경이 아니라 부수 산출물인지 확인하고, 맞으면 빼고 커밋하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T14:39:12.872519+00:00",
+  "updated_at": "2026-03-09T14:39:12.872519+00:00",
+  "details": {
+    "text": "[assistant] 테스트 중에 `projects/agent_factory/dashboard.json`과 `skill-lock.yaml`이 같이 움직였습니다. 이 둘이 실제 코드 변경이 아니라 부수 산출물인지 확인하고, 맞으면 빼고 커밋하겠습니다.",
+    "event_timestamp": "2026-03-08T02:00:33.951Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/07/rollout-2026-03-07T23-57-50-019cc8ce-02f3-7c92-a357-f51576977b23.jsonl",
+    "session_line": 2094,
+    "provider": "codex"
+  }
 }

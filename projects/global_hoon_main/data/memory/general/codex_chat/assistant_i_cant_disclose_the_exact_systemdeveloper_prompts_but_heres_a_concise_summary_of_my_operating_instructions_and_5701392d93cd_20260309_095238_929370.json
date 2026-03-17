@@ -1,18 +1,18 @@
-{
-  "key": "assistant I cant disclose the exact systemdeveloper prompts but heres a concise summary of my operating instructions and",
-  "value": "[assistant] I can’t disclose the exact system/developer prompts, but here’s a concise summary of my operating instructions and constraints.  **Role** - Coding agent in Codex CLI: precise, safe, helpful, concise. - Works on your local repo with terminal-styl...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T09:52:38.929546+00:00",
-  "updated_at": "2026-03-09T09:52:38.929546+00:00",
-  "details": {
-    "text": "[assistant] I can’t disclose the exact system/developer prompts, but here’s a concise summary of my operating instructions and constraints.\n\n**Role**\n- Coding agent in Codex CLI: precise, safe, helpful, concise.\n- Works on your local repo with terminal-style workflows.\n\n**Core Capabilities**\n- Read/write files within the workspace and approved writable roots.\n- Run shell commands via a tool (PowerShell).\n- Maintain and update a lightweight execution plan.\n- View local images when paths are provided.\n- Internet access tool is available but may be restricted by policy.\n\n**Constraints**\n- Filesystem sandbox: read anywhere; write limited to `C:\\Users\\HOON\\.codex\\memories` and `D:\\hoonProJect\\worktrees\\agent-factory\\tmp_cli_e2e\\codex_live_gpt5_low`.\n- Network access restricted; external browsing may be limited or require citations.\n- Approval policy: never escalate beyond sandbox in this session.\n- Current date context: Monday, March 9, 2026 (Asia/Seoul timezone provided).\n\n**Working Style**\n- Defaults to short, direct responses; avoids unnecessary verbosity.\n- Uses brief preambles before running tools/commands.\n- Employs the plan tool for multi-step or non-trivial tasks.\n- Verifies work where possible before claiming completion.\n\n**AGENTS.md (Provided by You)**\n- Lists available “skills” and guidance on when/how to invoke them.\n- Requires announcing which skills are used and keeping context tight.\n- Informs that AGENTS.md instructions apply repo-wide for files touched.\n\nIf you want, I can print a machine-readable summary of these constraints to a file in the workspace, or proceed with a task using specific skills.",
-    "event_timestamp": "2026-03-09T09:52:38.646Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/09/rollout-2026-03-09T18-52-30-019cd203-30f6-7873-a03e-054d0ddacba8.jsonl",
-    "session_line": 11,
-    "provider": "codex"
-  }
+{
+  "key": "assistant I cant disclose the exact systemdeveloper prompts but heres a concise summary of my operating instructions and",
+  "value": "[assistant] I can’t disclose the exact system/developer prompts, but here’s a concise summary of my operating instructions and constraints.  **Role** - Coding agent in Codex CLI: precise, safe, helpful, concise. - Works on your local repo with terminal-styl...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T09:52:38.929546+00:00",
+  "updated_at": "2026-03-09T09:52:38.929546+00:00",
+  "details": {
+    "text": "[assistant] I can’t disclose the exact system/developer prompts, but here’s a concise summary of my operating instructions and constraints.\n\n**Role**\n- Coding agent in Codex CLI: precise, safe, helpful, concise.\n- Works on your local repo with terminal-style workflows.\n\n**Core Capabilities**\n- Read/write files within the workspace and approved writable roots.\n- Run shell commands via a tool (PowerShell).\n- Maintain and update a lightweight execution plan.\n- View local images when paths are provided.\n- Internet access tool is available but may be restricted by policy.\n\n**Constraints**\n- Filesystem sandbox: read anywhere; write limited to `C:\\Users\\HOON\\.codex\\memories` and `D:\\hoonProJect\\worktrees\\agent-factory\\tmp_cli_e2e\\codex_live_gpt5_low`.\n- Network access restricted; external browsing may be limited or require citations.\n- Approval policy: never escalate beyond sandbox in this session.\n- Current date context: Monday, March 9, 2026 (Asia/Seoul timezone provided).\n\n**Working Style**\n- Defaults to short, direct responses; avoids unnecessary verbosity.\n- Uses brief preambles before running tools/commands.\n- Employs the plan tool for multi-step or non-trivial tasks.\n- Verifies work where possible before claiming completion.\n\n**AGENTS.md (Provided by You)**\n- Lists available “skills” and guidance on when/how to invoke them.\n- Requires announcing which skills are used and keeping context tight.\n- Informs that AGENTS.md instructions apply repo-wide for files touched.\n\nIf you want, I can print a machine-readable summary of these constraints to a file in the workspace, or proceed with a task using specific skills.",
+    "event_timestamp": "2026-03-09T09:52:38.646Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/09/rollout-2026-03-09T18-52-30-019cd203-30f6-7873-a03e-054d0ddacba8.jsonl",
+    "session_line": 11,
+    "provider": "codex"
+  }
 }

@@ -1,18 +1,18 @@
-{
-  "key": "assistant 이 레포에서는 Claude SDK가 아니라 Claude CLI로 실행합니다가장 간단한 방법은 PowerShell에서 이렇게 두 줄입니다powershellenvAGENT_CHAT_PROVIDERcla",
-  "value": "[assistant] 이 레포에서는 `Claude SDK`가 아니라 `Claude CLI`로 실행합니다.  가장 간단한 방법은 PowerShell에서 이렇게 두 줄입니다.  ```powershell $env:AGENT_CHAT_PROVIDER=\"claude_cli\" python .\\run_factory_cli.py -p agent_factory -r \"General Assistant\" -t \"이 프로젝트에서 버그 하나 고쳐줘\" --pipeline singl...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T17:40:38.001436+00:00",
-  "updated_at": "2026-03-10T17:40:38.001436+00:00",
-  "details": {
-    "text": "[assistant] 이 레포에서는 `Claude SDK`가 아니라 `Claude CLI`로 실행합니다.\n\n가장 간단한 방법은 PowerShell에서 이렇게 두 줄입니다.\n\n```powershell\n$env:AGENT_CHAT_PROVIDER=\"claude_cli\"\npython .\\run_factory_cli.py -p agent_factory -r \"General Assistant\" -t \"이 프로젝트에서 버그 하나 고쳐줘\" --pipeline single\n```\n\n새 프로젝트 생성까지 Claude로 태우려면 예를 들어 이렇게 갑니다.\n\n```powershell\n$env:AGENT_CHAT_PROVIDER=\"claude_cli\"\npython .\\run_factory_cli.py -p minesweeper -t \"지뢰찾기 게임 만들어줘\" --pipeline project\n```\n\n이 경로에서 실제 동작은 이렇습니다.\n- provider 선택: [registry.py](/D:/warkSpaces/agent-factory/core/providers/registry.py#L9)\n- Claude CLI 스펙: [cli.py](/D:/warkSpaces/agent-factory/core/providers/cli.py#L46)\n- 실행 엔트리: [run_factory_cli.py](/D:/warkSpaces/agent-factory/run_factory_cli.py#L59)\n- `AgentRunner`가 `claude_cli`를 먼저 실행: [agent_runner.py](/D:/warkSpaces/agent-factory/core/agent_runner.py#L536)\n- 실제 CLI 호출: [cli.py](/D:/warkSpaces/agent-factory/core/providers/cli.py#L370)\n\n중요한 점만 말하면:\n- 이 시스템은 `ANTHROPIC_API_KEY`를 안 쓰고 Claude CLI 로그인 세션을 씁니다. 실제로 실행 직전에 키도 제거합니다: [cli.py](/D:/warkSpaces/agent-factory/core/providers/cli.py#L252)\n- 기본 모델 alias는 `claude`입니다: [registry.py](/D:/warkSpaces/agent-factory/core/providers/registry.py#L10)\n- `claude` 명령은 현재 머신에 있습니다. 경로는 `C:\\Users\\HOME\\AppData\\Roaming\\npm\\claude.ps1` 입니다.\n\n원하면 내가 바로 `claude_cli`로 테스트 태스크 하나 실제 실행해볼 수 있습니다.",
-    "event_timestamp": "2026-03-10T15:48:07.171Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
-    "session_line": 1791,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 이 레포에서는 Claude SDK가 아니라 Claude CLI로 실행합니다가장 간단한 방법은 PowerShell에서 이렇게 두 줄입니다powershellenvAGENT_CHAT_PROVIDERcla",
+  "value": "[assistant] 이 레포에서는 `Claude SDK`가 아니라 `Claude CLI`로 실행합니다.  가장 간단한 방법은 PowerShell에서 이렇게 두 줄입니다.  ```powershell $env:AGENT_CHAT_PROVIDER=\"claude_cli\" python .\\run_factory_cli.py -p agent_factory -r \"General Assistant\" -t \"이 프로젝트에서 버그 하나 고쳐줘\" --pipeline singl...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:38.001436+00:00",
+  "updated_at": "2026-03-10T17:40:38.001436+00:00",
+  "details": {
+    "text": "[assistant] 이 레포에서는 `Claude SDK`가 아니라 `Claude CLI`로 실행합니다.\n\n가장 간단한 방법은 PowerShell에서 이렇게 두 줄입니다.\n\n```powershell\n$env:AGENT_CHAT_PROVIDER=\"claude_cli\"\npython .\\run_factory_cli.py -p agent_factory -r \"General Assistant\" -t \"이 프로젝트에서 버그 하나 고쳐줘\" --pipeline single\n```\n\n새 프로젝트 생성까지 Claude로 태우려면 예를 들어 이렇게 갑니다.\n\n```powershell\n$env:AGENT_CHAT_PROVIDER=\"claude_cli\"\npython .\\run_factory_cli.py -p minesweeper -t \"지뢰찾기 게임 만들어줘\" --pipeline project\n```\n\n이 경로에서 실제 동작은 이렇습니다.\n- provider 선택: [registry.py](/D:/warkSpaces/agent-factory/core/providers/registry.py#L9)\n- Claude CLI 스펙: [cli.py](/D:/warkSpaces/agent-factory/core/providers/cli.py#L46)\n- 실행 엔트리: [run_factory_cli.py](/D:/warkSpaces/agent-factory/run_factory_cli.py#L59)\n- `AgentRunner`가 `claude_cli`를 먼저 실행: [agent_runner.py](/D:/warkSpaces/agent-factory/core/agent_runner.py#L536)\n- 실제 CLI 호출: [cli.py](/D:/warkSpaces/agent-factory/core/providers/cli.py#L370)\n\n중요한 점만 말하면:\n- 이 시스템은 `ANTHROPIC_API_KEY`를 안 쓰고 Claude CLI 로그인 세션을 씁니다. 실제로 실행 직전에 키도 제거합니다: [cli.py](/D:/warkSpaces/agent-factory/core/providers/cli.py#L252)\n- 기본 모델 alias는 `claude`입니다: [registry.py](/D:/warkSpaces/agent-factory/core/providers/registry.py#L10)\n- `claude` 명령은 현재 머신에 있습니다. 경로는 `C:\\Users\\HOME\\AppData\\Roaming\\npm\\claude.ps1` 입니다.\n\n원하면 내가 바로 `claude_cli`로 테스트 태스크 하나 실제 실행해볼 수 있습니다.",
+    "event_timestamp": "2026-03-10T15:48:07.171Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
+    "session_line": 1791,
+    "provider": "codex"
+  }
 }
