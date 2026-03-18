@@ -1,4 +1,4 @@
-approval_policy:
+﻿approval_policy:
   default_require_approval: false
   require_skill_change_approval: false
 autonomy:
@@ -10,7 +10,11 @@ quality_gate:
   auto_promote_sequence:
   - canary
   - active
-  default_stage_on_build: candidate
+  default_stage_on_build: draft
+  active_runtime_min_events: 3
+  active_runtime_min_success_rate: 0.8
+  demote_runtime_min_events: 3
+  demote_runtime_below_success_rate: 0.5
 workflow:
   default_template: workflows/two_week_webapp_delivery.yaml
   role_map: {}

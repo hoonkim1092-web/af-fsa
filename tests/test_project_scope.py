@@ -44,7 +44,7 @@ def test_register_built_updates_skill_lock(monkeypatch, tmp_path):
     )
     lock = al.read_skill_lock()
     assert "abc" in lock["skills"]
-    assert lock["skills"]["abc"]["status"] in ("active", "canary", "candidate")
+    assert lock["skills"]["abc"]["status"] in ("active", "canary", "candidate", "draft")
 
 
 def test_context_schema_validation_blocks_run(monkeypatch, tmp_path):
@@ -54,3 +54,4 @@ def test_context_schema_validation_blocks_run(monkeypatch, tmp_path):
     res = runner.run({"name": "a", "role": "r", "skills": []}, "do task")
     assert res["ok"] is False
     assert str(res["reason"]).startswith("context_schema:")
+

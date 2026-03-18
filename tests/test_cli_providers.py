@@ -744,3 +744,59 @@ def test_execute_cli_chat_runs_claude_auth_preflight_and_auto_login(monkeypatch,
     assert "-p" in calls[2]
 
 
+
+
+def test_agent_runner_writes_skill_runtime_feedback(monkeypatch, tmp_path):
+    project_root = tmp_path / "proj"
+    project_root.mkdir(parents=True, exist_ok=True)
+    (project_root / ".todo.md").write_text("- execute task\n", encoding="utf-8")
+    monkeypatch.delenv("GOOGLE_API_KEY", raising=False)
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.setenv("AGENT_CHAT_PROVIDER", "codex_cli")
+    monkeypatch.setenv("AGENT_PROJECT_ROOT", str(project_root))
+    monkeypatch.setenv("AGENT_PROJECT_ID", "proj_cli_runtime_feedback")
+
+    import core.config_paths
+    import core.utils
+    import core.agent_runner as ar
+
+    importlib.reload(core.config_paths)
+    importlib.reload(core.utils)
+    ar = importlib.reload(ar)
+
+    def fake_execute_cli_chat(request, run_command=None):
+        del run_command
+        return {
+            "ok": True,
+            "provider_id": request.provider_id,
+            "text": "cli output",
+            "stdout": "cli output",
+            "stderr": "",
+            "returncode": 0,
+        }
+
+    monkeypatch.setattr(ar, "execute_cli_chat", fake_execute_cli_chat)
+
+    runner = ar.AgentRunner(ar.ModelRouter())
+    monkeypatch.setattr(runner, "load_skills", lambda agent, **kw: [types.SimpleNamespace(__skill_id__="runtime_skill")])
+    monkeypatch.setattr(
+        runner,
+        "build_tool_registry",
+        lambda modules, ctx, policy: types.SimpleNamespace(get_active_tools=lambda: []),
+    )
+
+    result = runner.run(
+        {"name": "cli-agent", "role": "architect", "skills": ["runtime_skill"]},
+        "execute task",
+        workspace=str(project_root),
+    )
+
+    events_path = project_root / "data" / "skill-usage.jsonl"
+    events = [json.loads(line) for line in events_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    runtime_events = [event for event in events if event["event_type"] == "skill_runtime"]
+
+    assert result["ok"] is True
+    assert runtime_events
+    assert runtime_events[0]["skill_id"] == "runtime_skill"
+    assert runtime_events[0]["status"] == "succeeded"
+    assert runtime_events[0]["payload"]["reason"] == "codex_cli"

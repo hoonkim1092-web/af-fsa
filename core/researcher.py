@@ -1,4 +1,4 @@
-import os
+﻿import os
 import json
 import subprocess
 import sys
@@ -10,6 +10,8 @@ from core.utils import (
 from core.config_paths import AGENTS_DIR, REGISTRY_PATH
 from core.research_engine import query_notebooklm
 from core.retrieval_router import RetrievalRouter, RetrievalStrategy
+from core.skill_feedback import SkillFeedbackLoop
+from core.skill_retrieval_engine import SkillRetrievalEngine
 
 class HimariResearchAgent:
     """Specialized research agent utilizing local and external knowledge (NotebookLM)."""
@@ -18,10 +20,11 @@ class HimariResearchAgent:
         self._router = RetrievalRouter()
         self._embedder = None
         self._embedder_checked = False
+        self._skill_retrieval_engine = SkillRetrievalEngine()
 
     @property
     def embedder(self):
-        """SemanticEmbedder 지연 초기화."""
+        """SemanticEmbedder 吏??珥덇린??"""
         if not self._embedder_checked:
             self._embedder_checked = True
             try:
@@ -38,19 +41,19 @@ class HimariResearchAgent:
             data = {}
         data.setdefault("name", "Himari")
         data.setdefault("role", "Project Research Director")
-        data.setdefault("signature_lines", ["근거를 먼저 고정합니다."])
+        data.setdefault("signature_lines", ["洹쇨굅瑜?癒쇱? 怨좎젙?⑸땲??"])
         return data
 
     def _approve_notebooklm_insight(self, insight: str) -> bool:
         preview = (insight or "").strip()
         if not preview:
             return False
-        print("\n[Himari][디버그] NotebookLM 응답 미리보기")
+        print("\n[Himari][?붾쾭洹? NotebookLM ?묐떟 誘몃━蹂닿린")
         print("-" * 50)
         print(preview[:1200])
         print("-" * 50)
         try:
-            ans = input("[Himari] 위 응답을 리서치 근거로 반영할까요? (yes/no): ").strip().lower()
+            ans = input("[Himari] ???묐떟??由ъ꽌移?洹쇨굅濡?諛섏쁺?좉퉴?? (yes/no): ").strip().lower()
             return ans in ("y", "yes")
         except Exception:
             return False
@@ -95,7 +98,7 @@ class HimariResearchAgent:
         exists_meta = bool(resolve_existing_path(meta_path)) if meta_path else bool(resolved_meta)
         last_test_ok = bool(meta.get("last_test_ok", False))
 
-        # --- 시맨틱 유사도 (Phase 1: SemanticEmbedder 통합) ---
+        # --- ?쒕㎤???좎궗??(Phase 1: SemanticEmbedder ?듯빀) ---
         semantic_score = 0.0
         if self.embedder and self.embedder.is_available:
             try:
@@ -107,10 +110,10 @@ class HimariResearchAgent:
             except Exception:
                 pass
 
-        # 점수 계산: 토큰(25) + 시맨틱(35) + 파일존재(20) + 메타존재(10) + 테스트(10)
+        # ?먯닔 怨꾩궛: ?좏겙(25) + ?쒕㎤??35) + ?뚯씪議댁옱(20) + 硫뷀?議댁옱(10) + ?뚯뒪??10)
         score = 0
-        score += min(len(overlap) * 5, 25)                  # 토큰 오버랩 (25점)
-        score += int(semantic_score * 35)                    # 시맨틱 유사도 (35점)
+        score += min(len(overlap) * 5, 25)                  # ?좏겙 ?ㅻ쾭??(25??
+        score += int(semantic_score * 35)                    # ?쒕㎤???좎궗??(35??
         if exists_py:
             score += 20
         if exists_meta:
@@ -128,7 +131,7 @@ class HimariResearchAgent:
         return score, verify
 
     def _build_rationale(self, need: str, best: dict) -> str:
-        """최상위 후보의 매칭 근거를 1줄 문자열로 생성."""
+        """理쒖긽???꾨낫??留ㅼ묶 洹쇨굅瑜?1以?臾몄옄?대줈 ?앹꽦."""
         parts = []
         v = best.get("verification", {})
         overlap = v.get("token_overlap", [])
@@ -143,6 +146,49 @@ class HimariResearchAgent:
             parts.append("test_passed")
         return f"score={best.get('score', 0)}: {' + '.join(parts)}" if parts else ""
 
+    def _rank_candidates_for_need(
+        self,
+        need: str,
+        candidate_skill_ids: list[str],
+        idx: dict,
+        *,
+        feedback_loop: SkillFeedbackLoop | None,
+        feedback_summaries: dict | None = None,
+    ) -> dict:
+        ranked = []
+        for sid in candidate_skill_ids:
+            item = idx.get(sid)
+            if not item:
+                continue
+            score, verify = self._score_candidate(need, item)
+            ranked.append({
+                "candidate_skill_id": sid,
+                "candidate_name": item.get("name", sid),
+                "score": score,
+                "verification": verify,
+                "capabilities": item.get("capabilities", []),
+                "matching_rationale": self._build_rationale(need, {"score": score, "verification": verify}),
+            })
+        ranked.sort(key=lambda x: x["score"], reverse=True)
+        best = ranked[0] if ranked else {}
+        target = {
+            "need_skill_id": need,
+            "top_candidate": (best or {}).get("candidate_skill_id", ""),
+            "top_score": (best or {}).get("score", 0),
+            "verified": bool(best and best["verification"].get("exists_skill_py")),
+            "candidates": ranked,
+            "matching_rationale": str((best or {}).get("matching_rationale") or ""),
+            "source_type": "local_registry",
+            "feedback_history": [],
+        }
+        self._skill_retrieval_engine.decide_reuse(
+            need,
+            target,
+            feedback_loop=feedback_loop,
+            feedback_summaries=feedback_summaries,
+        )
+        return target
+
     def _fallback_project_brief(self, task_input: str) -> dict:
         text = (task_input or "").lower()
         required_skills: list[str] = []
@@ -150,7 +196,7 @@ class HimariResearchAgent:
         deliverables: list[str] = []
         risks: list[str] = []
 
-        if any(token in text for token in ("game", "게임", "poker", "포커")):
+        if any(token in text for token in ("game", "寃뚯엫", "poker", "?ъ빱")):
             required_skills.extend([
                 "gameplay_core",
                 "state_machine",
@@ -158,12 +204,12 @@ class HimariResearchAgent:
                 "integration_test_guard",
             ])
             role_hints.extend(["game_logic_dev", "frontend_dev", "qa_engineer"])
-            deliverables.extend(["게임 규칙 구현", "플레이 UI", "회귀 테스트"])
-            risks.extend(["상태 전이 복잡도", "룰 판정 오류"])
-        if any(token in text for token in ("web", "ui", "페이지", "screen", "frontend")):
+            deliverables.extend(["게임 규칙 구현", "플레이 UI", "통합 테스트"])
+            risks.extend(["상태 전이 복잡도", "룰 고정 오류"])
+        if any(token in text for token in ("web", "ui", "?섏씠吏", "screen", "frontend")):
             required_skills.append("frontend_game_ui")
             role_hints.append("frontend_dev")
-        if any(token in text for token in ("api", "db", "backend", "서버")):
+        if any(token in text for token in ("api", "db", "backend", "?쒕쾭")):
             required_skills.append("backend_service")
             role_hints.append("backend_dev")
             risks.append("데이터 모델 정합성")
@@ -172,7 +218,7 @@ class HimariResearchAgent:
         if not role_hints:
             role_hints.extend(["general_dev", "qa_engineer"])
         if not deliverables:
-            deliverables.append("작동하는 구현 결과")
+            deliverables.append("?묐룞?섎뒗 援ы쁽 寃곌낵")
 
         return {
             "goal": task_input,
@@ -188,7 +234,7 @@ class HimariResearchAgent:
     def research_project_brief(self, agent: dict, task_input: str, workspace: str | None = None) -> dict:
         identity = agent if isinstance(agent, dict) and agent else self._himari_identity()
         sig = get_random_signature(identity)
-        print_agent_msg(identity.get("name", "Himari"), f"프로젝트 착수 리서치를 시작합니다: {task_input}", sig)
+        print_agent_msg(identity.get("name", "Himari"), f"?꾨줈?앺듃 李⑹닔 由ъ꽌移섎? ?쒖옉?⑸땲?? {task_input}", sig)
 
         target_workspace = workspace or os.getenv("AGENT_PROJECT_ROOT") or os.getcwd()
         workspace_notes = []
@@ -247,7 +293,7 @@ Rules:
         if not missing:
             return {"suggestions": {}, "all_candidates": [], "evidence_pack": {"targets": {}}}
 
-        # Phase 1: 검색 전략 분류 및 로깅
+        # Phase 1: 寃???꾨왂 遺꾨쪟 諛?濡쒓퉭
         plan = self._router.classify(
             reqs.get("goal", ""),
             context={"phase": "research", "role": agent.get("role", "")},
@@ -255,7 +301,7 @@ Rules:
         print(f"[Retrieval] strategy={plan.primary.value}, confidence={plan.confidence:.2f}, "
               f"semantic={'ON' if self.embedder and self.embedder.is_available else 'OFF'}")
 
-        # SemanticEmbedder: 스킬 임베딩 사전 계산
+        # SemanticEmbedder: ?ㅽ궗 ?꾨쿋???ъ쟾 怨꾩궛
         if self.embedder and self.embedder.is_available:
             try:
                 from core.skill_registry import get_global_registry, ensure_skills_loaded
@@ -280,33 +326,33 @@ Rules:
         if missing:
             himari_cfg = self._himari_identity()
             sig = get_random_signature(himari_cfg)
-            # [MISMATCH-3 FIX] 모든 미싱 스킬에 대해 리서치 (최대 3개)
+            # [MISMATCH-3 FIX] 紐⑤뱺 誘몄떛 ?ㅽ궗?????由ъ꽌移?(理쒕? 3媛?
             research_targets = missing[:3]
             skills_label = ", ".join(research_targets)
-            print_agent_msg("Himari", f"비밀 서고(NotebookLM)에서 '{skills_label}' 관련 지식을 탐색합니다...", sig)
+            print_agent_msg("Himari", f"鍮꾨? ?쒓퀬(NotebookLM)?먯꽌 '{skills_label}' 愿??吏?앹쓣 ?먯깋?⑸땲??..", sig)
             
             from core.research_engine import generate_deep_research_prompt, ResearchMode, classify_research_depth
             query = generate_deep_research_prompt(
-                f"다음 스킬들에 대한 설계 지침: {skills_label}. 프로젝트 목표: {reqs.get('goal')}"
+                f"?ㅼ쓬 ?ㅽ궗?ㅼ뿉 ????ㅺ퀎 吏移? {skills_label}. ?꾨줈?앺듃 紐⑺몴: {reqs.get('goal')}"
             )
-            # 미싱 스킬 수를 기반으로 리서치 모드 자율 판정
+            # 誘몄떛 ?ㅽ궗 ?섎? 湲곕컲?쇰줈 由ъ꽌移?紐⑤뱶 ?먯쑉 ?먯젙
             target_mode = classify_research_depth(query, missing_skills_count=len(missing))
             insight = query_notebooklm(query, mode=target_mode)
             
             if insight and self._approve_notebooklm_insight(insight):
                 notebook_insight = f"\n[NotebookLM Secret Archive Insight]: {insight[:2000]}"
-                print("💡 [Himari] 승인된 NotebookLM 근거를 반영합니다.")
+                print("?뮕 [Himari] ?뱀씤??NotebookLM 洹쇨굅瑜?諛섏쁺?⑸땲??")
             elif insight:
-                print("⏭️ [Himari] NotebookLM 근거 반영이 보류되었습니다.")
+                print("??툘 [Himari] NotebookLM 洹쇨굅 諛섏쁺??蹂대쪟?섏뿀?듬땲??")
 
-        # [New SDK] Client 기반 리서치 (Triad: requirement = Gemini Pro)
+        # [New SDK] Client 湲곕컲 由ъ꽌移?(Triad: requirement = Gemini Pro)
         prompt = f"""
-너는 리서치 에이전트 Himari다.
-목표: missing_skills에 대해 설치 가능한 로컬 스킬 후보를 추천한다.
+?덈뒗 由ъ꽌移??먯씠?꾪듃 Himari??
+紐⑺몴: missing_skills??????ㅼ튂 媛?ν븳 濡쒖뺄 ?ㅽ궗 ?꾨낫瑜?異붿쿇?쒕떎.
 
 [Architectural Rule]
-보스의 토큰 비용 절감 및 코드 무결성을 위해, 복잡한 상태 머신이나 다단계 로직이 포함된 경우 반드시 '원자적 모듈화(Atomic Modularization)'를 제안하라. 
-기능을 하나의 거대한 파일이 아닌, 독립된 파일 단위로 쪼개어 설계하도록 유도해야 한다.
+蹂댁뒪???좏겙 鍮꾩슜 ?덇컧 諛?肄붾뱶 臾닿껐?깆쓣 ?꾪빐, 蹂듭옟???곹깭 癒몄떊?대굹 ?ㅻ떒怨?濡쒖쭅???ы븿??寃쎌슦 諛섎뱶??'?먯옄??紐⑤뱢??Atomic Modularization)'瑜??쒖븞?섎씪. 
+湲곕뒫???섎굹??嫄곕????뚯씪???꾨땶, ?낅┰???뚯씪 ?⑥쐞濡?履쇨컻???ㅺ퀎?섎룄濡??좊룄?댁빞 ?쒕떎.
 
 AgentRole: {agent.get("role")}
 Goal: {reqs.get("goal")}
@@ -314,7 +360,7 @@ MissingSkills: {missing}
 LocalSkillCatalog(JSON): {json.dumps(skill_catalog, ensure_ascii=False)}
 {notebook_insight}
 
-출력은 JSON만:
+異쒕젰? JSON留?
 {{
   "suggestions": {{
     "missing_skill_id": ["candidate_skill_id_1", "candidate_skill_id_2"]
@@ -325,7 +371,7 @@ LocalSkillCatalog(JSON): {json.dumps(skill_catalog, ensure_ascii=False)}
         try:
             result = execute_requirement_prompt(prompt)
             if not result.get("ok"):
-                print("⚠️ [Himari] requirement-stage LLM unavailable — fallback 매칭만 수행합니다.")
+                print("?좑툘 [Himari] requirement-stage LLM unavailable ??fallback 留ㅼ묶留??섑뻾?⑸땲??")
                 raise RuntimeError("research_llm_unavailable")
             payload = safe_json_load(result.get("text") or "{}")
             raw = payload.get("suggestions", {}) if isinstance(payload, dict) else {}
@@ -336,7 +382,7 @@ LocalSkillCatalog(JSON): {json.dumps(skill_catalog, ensure_ascii=False)}
                     if values:
                         suggestions[k] = list(dict.fromkeys(values))
         except Exception as e:
-            print(f"⚠️ [Himari] LLM 리서치 실패: {type(e).__name__}: {e}")
+            print(f"?좑툘 [Himari] LLM 由ъ꽌移??ㅽ뙣: {type(e).__name__}: {e}")
             suggestions = {}
 
         for need in missing:
@@ -351,36 +397,30 @@ LocalSkillCatalog(JSON): {json.dumps(skill_catalog, ensure_ascii=False)}
                 if sid not in all_candidates:
                     all_candidates.append(sid)
 
+        feedback_loop = SkillFeedbackLoop.for_workspace(os.getenv("AGENT_PROJECT_ROOT") or os.getcwd())
+        feedback_summaries = feedback_loop.summarize_skills(all_candidates) if all_candidates else {}
+        feedback_history: list[dict] = []
+        feedback_history_skill_ids: set[str] = set()
+
         targets: dict = {}
         for need in missing:
-            ranked = []
-            for sid in suggestions.get(need, []):
-                item = idx.get(sid)
-                if not item:
+            target = self._rank_candidates_for_need(
+                need,
+                suggestions.get(need, []),
+                idx,
+                feedback_loop=feedback_loop,
+                feedback_summaries=feedback_summaries,
+            )
+            targets[need] = target
+            for entry in target.get("feedback_history", []):
+                if not isinstance(entry, dict):
                     continue
-                score, verify = self._score_candidate(need, item)
-                ranked.append({
-                    "candidate_skill_id": sid,
-                    "candidate_name": item.get("name", sid),
-                    "score": score,
-                    "verification": verify,
-                    "capabilities": item.get("capabilities", []),
-                })
-            ranked.sort(key=lambda x: x["score"], reverse=True)
-            best = ranked[0] if ranked else None
-            targets[need] = {
-                "need_skill_id": need,
-                "top_candidate": (best or {}).get("candidate_skill_id"),
-                "top_score": (best or {}).get("score", 0),
-                "verified": bool(best and best["verification"]["exists_skill_py"]),
-                "candidates": ranked,
-                # Phase 1: provenance
-                "matching_rationale": self._build_rationale(need, best) if best else "",
-                "source_type": "local_registry",
-                "feedback_history": [],
-            }
+                feedback_skill_id = safe_id(str(entry.get("skill_id") or ""))
+                if feedback_skill_id and feedback_skill_id not in feedback_history_skill_ids:
+                    feedback_history_skill_ids.add(feedback_skill_id)
+                    feedback_history.append(entry)
 
-        # 검색 전략 분류
+        # 寃???꾨왂 遺꾨쪟
         retrieval_plan = self._router.classify(
             reqs.get("goal", ""),
             context={"phase": "research", "role": agent.get("role", "")},
@@ -392,11 +432,11 @@ LocalSkillCatalog(JSON): {json.dumps(skill_catalog, ensure_ascii=False)}
             "goal": reqs.get("goal"),
             "targets": targets,
             "notebook_insight": notebook_insight,
-            # Phase 1 확장 필드
+            # Phase 1 ?뺤옣 ?꾨뱶
             "retrieval_strategy": retrieval_plan.primary.value,
             "retrieval_confidence": round(retrieval_plan.confidence, 3),
             "semantic_available": bool(self.embedder and self.embedder.is_available),
-            "feedback_history": [],
+            "feedback_history": feedback_history,
         }
         return {"suggestions": suggestions, "all_candidates": all_candidates, "evidence_pack": evidence_pack}
 
@@ -406,10 +446,10 @@ LocalSkillCatalog(JSON): {json.dumps(skill_catalog, ensure_ascii=False)}
             return {}
         himari_cfg = self._himari_identity()
         sig = get_random_signature(himari_cfg)
-        print_agent_msg("Himari", f"외부 스킬 소스에서 설치 가능한 후보를 탐색합니다: {needs}", sig)
+        print_agent_msg("Himari", f"?몃? ?ㅽ궗 ?뚯뒪?먯꽌 ?ㅼ튂 媛?ν븳 ?꾨낫瑜??먯깋?⑸땲?? {needs}", sig)
         installed = registry.resolve_and_install_external(needs, reqs=reqs)
         if installed:
-            print(f"💡 [Himari] 외부 소스 설치 성공: {list(installed.keys())}")
+            print(f"?뮕 [Himari] ?몃? ?뚯뒪 ?ㅼ튂 ?깃났: {list(installed.keys())}")
         else:
-            print("⏭️ [Himari] 외부 소스에서 설치 가능한 후보를 찾지 못했습니다.")
+            print("??툘 [Himari] ?몃? ?뚯뒪?먯꽌 ?ㅼ튂 媛?ν븳 ?꾨낫瑜?李얠? 紐삵뻽?듬땲??")
         return installed

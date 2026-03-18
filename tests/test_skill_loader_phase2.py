@@ -1,4 +1,4 @@
-
+﻿
 import pytest
 from core.skill_metadata import SkillMetadata, SkillCategory
 from core.skill_registry import SkillRegistry
@@ -81,5 +81,41 @@ def test_keyword_matching():
     selected_bad, _ = loader.load_skills_for_task(task_bad, min_score=0.2)
     assert len(selected_bad) == 0
 
+
+def test_auto_invocable_skips_archived_and_manual_skills():
+    registry = SkillRegistry()
+    registry.clear()
+
+    manual_only = SkillMetadata(
+        skill_id="manual-only",
+        category=SkillCategory.CODING,
+        when_to_use_keywords=["python"],
+        auto_invocable=False,
+    )
+    archived = SkillMetadata(
+        skill_id="archived-skill",
+        category=SkillCategory.CODING,
+        when_to_use_keywords=["python"],
+        lifecycle_stage="archived",
+    )
+    active = SkillMetadata(
+        skill_id="active-skill",
+        category=SkillCategory.CODING,
+        when_to_use_keywords=["python"],
+    )
+
+    registry.register(manual_only)
+    registry.register(archived)
+    registry.register(active)
+
+    loader = DynamicSkillLoader()
+    selected, _ = loader.load_skills_for_task("python code", min_score=0.1)
+    selected_ids = {skill.skill_id for skill in selected}
+
+    assert "active-skill" in selected_ids
+    assert "manual-only" not in selected_ids
+    assert "archived-skill" not in selected_ids
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
+

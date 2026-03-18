@@ -45,7 +45,7 @@ def ensure_project_files() -> None:
                 {
                     'project_id': project_id,
                     'workflow': {'default_template': 'workflows/two_week_webapp_delivery.yaml', 'role_map': {}},
-                    'quality_gate': {'default_stage_on_build': 'candidate', 'auto_promote_sequence': ['canary', 'active']},
+                    'quality_gate': {'default_stage_on_build': 'draft', 'auto_promote_sequence': ['canary', 'active']},
                     'approval_policy': {'default_require_approval': False, 'require_skill_change_approval': False},
                     'external_skill_source_priority': ['claude_repo', 'codex_repo', 'registry', 'external_cache'],
                     'external_skill_sources': [],

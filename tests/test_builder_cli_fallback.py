@@ -2,6 +2,8 @@ import importlib
 import types
 from pathlib import Path
 
+import yaml
+
 
 def _load_builder(monkeypatch, tmp_path, provider: str | None):
     monkeypatch.delenv("GOOGLE_API_KEY", raising=False)
@@ -64,11 +66,24 @@ def test_builder_uses_cli_provider_when_google_key_missing(monkeypatch, tmp_path
     assert ok is True
     assert code_path
     assert Path(code_path).exists()
+    assert meta["status"] == "draft"
     assert meta["last_test_ok"] is True
+    assert meta["has_spec"] is True
+    assert meta["has_evals"] is True
+    skill_dir = Path(code_path).parent
+    assert (skill_dir / "skill-spec.yaml").exists()
+    assert (skill_dir / "evals.yml").exists()
+    spec = yaml.safe_load((skill_dir / "skill-spec.yaml").read_text(encoding="utf-8"))
+    evals = yaml.safe_load((skill_dir / "evals.yml").read_text(encoding="utf-8"))
+    assert spec["id"] == "demo_skill"
+    assert spec["distribution"]["maturity"] == "draft"
+    assert evals["contract"][0]["expect_ok"] is True
     assert requests
     assert requests[0].provider_id == "gemini_cli"
     assert requests[0].model == "gemini"
+    assert "SkillSpec(JSON)" in requests[0].task_input
     assert "Return only raw Python code" in requests[0].system_prompt
+
 
 
 def test_builder_without_cli_or_google_key_returns_no_api_key(monkeypatch, tmp_path):
@@ -89,3 +104,5 @@ def test_builder_without_cli_or_google_key_returns_no_api_key(monkeypatch, tmp_p
     assert code_path is None
     assert meta["status"] == "disabled"
     assert meta["last_test_detail"]["reason"] == "no_api_key"
+    assert meta["has_spec"] is True
+    assert meta["has_evals"] is True

@@ -1,29 +1,17 @@
-"""
-core/skill_procurer.py
-======================
-스킬 조달 + 제작(포징) 전담 모듈.
-factory_manager.py 에서 추출.
+﻿from __future__ import annotations
 
-주요 함수:
-  - procure_skill(skill_name, role): 기존 스킬 검색 → 없으면 제작
-  - forge_new_skill(skill_name, role): LLM으로 새 스킬 코드/지식 생성
-  - sync_warehouse(): 코어 스킬 저장소 Git 동기화
-"""
-
+import datetime
+import glob
+import inspect
 import os
 import re
-import glob
 import shutil
-import datetime
-import inspect
 import subprocess
 
+from core.skill_feedback import SkillFeedbackLoop
 from core.skill_registry import check_skill_exists, register_skill
+from core.skill_retrieval_engine import SkillRetrievalEngine
 from core.utils import resolve_knowledge_skill_path, resolve_skill_paths, safe_id, skill_markdown_filenames
-
-
-def log(step, msg):
-    print(f"[{step}] {msg}")
 
 
 FACTORY_ROOT = os.getcwd()
@@ -40,42 +28,45 @@ WAREHOUSE_DIR = os.path.join(FACTORY_ROOT, "skills", "warehouse")
 ANTIGRAVITY_REPO_URL = "https://github.com/guanyang/antigravity-skills.git"
 
 
-# =============================================================================
-# Warehouse Sync
-# =============================================================================
+
+def log(step, msg):
+    print(f"[{step}] {msg}")
+
+
+
 def sync_warehouse():
     log("WAREHOUSE", "Syncing...")
     if not os.path.exists(WAREHOUSE_DIR):
         try:
             subprocess.run(["git", "clone", ANTIGRAVITY_REPO_URL, WAREHOUSE_DIR], check=True)
             log("WAREHOUSE", "Download complete")
-        except Exception as e:
-            log("WAREHOUSE", f"Download failed: {e}")
+        except Exception as exc:
+            log("WAREHOUSE", f"Download failed: {exc}")
     else:
         try:
             subprocess.run(["git", "-C", WAREHOUSE_DIR, "pull"], check=True)
             log("WAREHOUSE", "Update complete")
-        except Exception as e:
-            log("WAREHOUSE", f"Update failed (local mode): {e}")
+        except Exception as exc:
+            log("WAREHOUSE", f"Update failed (local mode): {exc}")
+
 
 
 def snapshot_registry():
     registry_path = os.path.join(FACTORY_ROOT, "registry.yaml")
-    if os.path.exists(registry_path):
-        backup_dir = os.path.join(FACTORY_ROOT, "backup_registry")
-        os.makedirs(backup_dir, exist_ok=True)
-        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-        backup_path = os.path.join(backup_dir, f"registry_{timestamp}.yaml")
-        try:
-            shutil.copy2(registry_path, backup_path)
-            log("BACKUP", f"Registry snapshot created: {backup_path}")
-        except Exception as e:
-            log("BACKUP", f"Snapshot failed: {e}")
+    if not os.path.exists(registry_path):
+        return
+    backup_dir = os.path.join(FACTORY_ROOT, "backup_registry")
+    os.makedirs(backup_dir, exist_ok=True)
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    backup_path = os.path.join(backup_dir, f"registry_{timestamp}.yaml")
+    try:
+        shutil.copy2(registry_path, backup_path)
+        log("BACKUP", f"Registry snapshot created: {backup_path}")
+    except Exception as exc:
+        log("BACKUP", f"Snapshot failed: {exc}")
 
 
-# =============================================================================
-# Skill ID Helpers
-# =============================================================================
+
 def normalize_skill_id(value):
     base = os.path.splitext(os.path.basename(str(value)))[0].strip().lower()
     base = re.sub(r"[^a-z0-9_]+", "_", base)
@@ -83,11 +74,13 @@ def normalize_skill_id(value):
     return base
 
 
+
 def _resolve_available_skill_path(skill_id: str) -> str | None:
     skill_py, _skill_meta = resolve_skill_paths(skill_id)
     if skill_py:
         return skill_py
     return resolve_knowledge_skill_path(skill_id)
+
 
 
 def get_installed_skill_ids(agent_name):
@@ -100,6 +93,7 @@ def get_installed_skill_ids(agent_name):
         if sid:
             installed.add(sid)
     return installed
+
 
 
 def get_missing_skills(agent_name, required_skills):
@@ -118,11 +112,9 @@ def get_missing_skills(agent_name, required_skills):
     return missing
 
 
-# =============================================================================
-# Procurement & Forging
-# =============================================================================
+
 def procure_skill(skill_name, role, skill_type="action"):
-    """기존 스킬 검색 → warehouse → forge 순서로 스킬 조달"""
+    """Find an existing skill or forge a new one."""
     purpose_desc = f"Skill intended for {role} to handle {skill_name}"
     existing_skill_path = check_skill_exists(skill_name, purpose_desc)
 
@@ -141,7 +133,6 @@ def procure_skill(skill_name, role, skill_type="action"):
             register_skill(skill_name, purpose_desc, forge_path, stype="action")
             return forge_path
     else:
-        # Knowledge: 디렉토리 기반 탐색
         for base in [WAREHOUSE_DIR, FORGE_DIR]:
             for filename in skill_markdown_filenames():
                 md_path = os.path.join(base, skill_name, filename)
@@ -152,14 +143,15 @@ def procure_skill(skill_name, role, skill_type="action"):
     return forge_new_skill(skill_name, role, skill_type=skill_type)
 
 
+
 def forge_new_skill(skill_name, role, coding_engine=None, skill_type="action"):
-    """LLM으로 새 스킬(코드 또는 지식 문서)을 생성(포징)"""
+    """Forge a new skill via the legacy dynamic path."""
     from model_utils import get_best_model, resolve_dynamic_model
     from core.llm_engine import LLMEngine
 
     if coding_engine is None:
-        sel = resolve_dynamic_model("codex")
-        coding_engine = sel.model if hasattr(sel, "model") else str(sel)
+        selected = resolve_dynamic_model("codex")
+        coding_engine = selected.model if hasattr(selected, "model") else str(selected)
     elif hasattr(coding_engine, "model"):
         coding_engine = coding_engine.model
 
@@ -178,47 +170,55 @@ def forge_new_skill(skill_name, role, coding_engine=None, skill_type="action"):
         try:
             code = llm.generate(prompt)
             code = code.replace("```python", "").replace("```", "").strip()
-            with open(output_path, "w", encoding="utf-8") as f:
-                f.write(code)
+            with open(output_path, "w", encoding="utf-8") as handle:
+                handle.write(code)
             log("FORGE", f"Action forge complete: {output_path}")
             register_skill(skill_name, f"Dynamically forged action skill for {role}", output_path, stype="action")
             return output_path
-        except Exception as e:
-            log("FORGE", f"Action forge failed: {e}")
+        except Exception as exc:
+            log("FORGE", f"Action forge failed: {exc}")
             return None
-    else:
-        # Knowledge skill — skill_creator 모듈로 SKILL.md 기반 생성
-        from core.skill_creator import create_skill as creator_create
-        skill_dir = creator_create(
-            name=skill_name,
-            output_dir=FORGE_DIR,
-            skill_type="knowledge",
-            role=role,
-            context=f"Dynamically forged knowledge skill for role '{role}'",
-            use_llm=True,
-            coding_engine=coding_engine,
-        )
-        if skill_dir:
-            # SKILL.md 또는 skill.md 경로 탐색
-            for fname in ("SKILL.md", "skill.md"):
-                output_path = os.path.join(skill_dir, fname)
-                if os.path.exists(output_path):
-                    log("FORGE", f"Knowledge forge complete (skill_creator): {output_path}")
-                    register_skill(skill_name, f"Dynamically forged knowledge skill for {role}", output_path, stype="knowledge")
-                    return output_path
-        log("FORGE", f"Knowledge forge failed via skill_creator")
-        return None
+
+    from core.skill_creator import create_skill as creator_create
+
+    skill_dir = creator_create(
+        name=skill_name,
+        output_dir=FORGE_DIR,
+        skill_type="knowledge",
+        role=role,
+        context=f"Dynamically forged knowledge skill for role '{role}'",
+        use_llm=True,
+        coding_engine=coding_engine,
+    )
+    if skill_dir:
+        for fname in ("SKILL.md", "skill.md"):
+            output_path = os.path.join(skill_dir, fname)
+            if os.path.exists(output_path):
+                log("FORGE", f"Knowledge forge complete (skill_creator): {output_path}")
+                register_skill(skill_name, f"Dynamically forged knowledge skill for {role}", output_path, stype="knowledge")
+                return output_path
+    log("FORGE", "Knowledge forge failed via skill_creator")
+    return None
 
 
-# =============================================================================
-# SkillOrchestrator — 대량 조달 + 빌더 연동
-# =============================================================================
 class SkillOrchestrator:
     def __init__(self, registry, research_agent, builder, agent_mgr):
         self.registry = registry
         self.research = research_agent
         self.builder = builder
         self.agent_mgr = agent_mgr
+        self.retrieval_engine = SkillRetrievalEngine()
+
+    @staticmethod
+    def _feedback_loop(workspace: str | None) -> SkillFeedbackLoop:
+        return SkillFeedbackLoop.for_workspace(workspace)
+
+    @staticmethod
+    def _record_feedback(callback, *, context: str):
+        try:
+            callback()
+        except Exception as exc:
+            log("FEEDBACK", f"{context} failed: {exc}")
 
     @staticmethod
     def _record_external_attempts(need_id: str, evidence_pack: dict, result: dict):
@@ -338,11 +338,9 @@ class SkillOrchestrator:
     def _build_failure_info(meta):
         if not isinstance(meta, dict):
             return "unknown", ""
-
         detail_meta = meta.get("last_test_detail")
         if not isinstance(detail_meta, dict):
             detail_meta = {}
-
         reason = str(detail_meta.get("reason") or meta.get("reason") or "unknown")
         detail = str(
             detail_meta.get("detail")
@@ -351,6 +349,18 @@ class SkillOrchestrator:
             or ""
         )[:240]
         return reason, detail
+
+    @staticmethod
+    def _log_reuse_decision(skill_name: str, decision, candidate_path: str | None = None, outcome: str = "decision"):
+        candidate = decision.candidate_skill_id or "none"
+        suffix = f", path={candidate_path}" if candidate_path else ""
+        log(
+            "REUSE",
+            (
+                f"{outcome} for '{skill_name}': mode={decision.mode}, candidate={candidate}, "
+                f"confidence={decision.confidence:.2f}, score={decision.score}{suffix}"
+            ),
+        )
 
     def _log_build_outcome(self, skill_name, ok, code_path, meta):
         if ok and code_path and isinstance(meta, dict):
@@ -390,6 +400,93 @@ class SkillOrchestrator:
         suffix = f" ({detail})" if detail else ""
         log("BUILD", f"Skill build failed for '{skill_name}': {reason}{suffix}")
 
+    def _record_selection_feedback(
+        self,
+        feedback_loop: SkillFeedbackLoop,
+        *,
+        skill_id: str,
+        decision_mode: str,
+        status: str,
+        run_id: str,
+        agent_role: str,
+        decision=None,
+        payload: dict | None = None,
+    ):
+        decision_confidence = float(getattr(decision, "confidence", 0.0) or 0.0)
+        decision_score = float(getattr(decision, "score", 0.0) or 0.0)
+        decision_candidate = str(getattr(decision, "candidate_skill_id", "") or "")
+        self._record_feedback(
+            lambda: feedback_loop.record_selection(
+                skill_id=skill_id,
+                decision_mode=decision_mode,
+                status=status,
+                run_id=run_id,
+                agent_role=agent_role,
+                candidate_skill_id=decision_candidate,
+                confidence=decision_confidence,
+                score=decision_score,
+                payload=payload or {},
+            ),
+            context=f"selection:{skill_id}:{decision_mode}",
+        )
+
+    def _maybe_install_skill(self, agent: dict, skill_id: str, approval_gate, auto_approve: bool) -> bool:
+        if approval_gate and not approval_gate(agent.get("role"), [skill_id], "install", auto_approve):
+            return False
+        if hasattr(self.registry, "ensure_lock_for_existing_skill"):
+            self.registry.ensure_lock_for_existing_skill(skill_id)
+        installable = True
+        if hasattr(self.registry, "is_installable"):
+            installable = bool(self.registry.is_installable(skill_id))
+        return installable
+
+    def _build_and_register(
+        self,
+        *,
+        agent: dict,
+        skill_name: str,
+        reqs: dict,
+        run_id: str,
+        evidence_pack: dict,
+        built_metas: list[dict],
+        feedback_loop: SkillFeedbackLoop,
+    ) -> str | None:
+        ok, code_path, meta = self.builder.build_skill(
+            agent=agent,
+            skill_name=skill_name,
+            reqs=reqs,
+            run_id=run_id,
+            evidence_pack=evidence_pack,
+        )
+        self._log_build_outcome(skill_name, ok, code_path, meta)
+
+        stage = ""
+        if isinstance(meta, dict):
+            stage = str(meta.get("lifecycle_stage") or meta.get("status") or "")
+        reason, detail = self._build_failure_info(meta)
+        self._record_feedback(
+            lambda: feedback_loop.record_build(
+                skill_id=str(meta.get("id") or skill_name) if isinstance(meta, dict) else skill_name,
+                ok=ok,
+                run_id=run_id,
+                agent_role=str(agent.get("role") or ""),
+                lifecycle_stage=stage,
+                payload={
+                    "requested_skill_id": safe_id(skill_name),
+                    "code_path": code_path or "",
+                    "reason": reason,
+                    "detail": detail,
+                },
+            ),
+            context=f"build:{skill_name}",
+        )
+
+        if not ok or not code_path or not isinstance(meta, dict):
+            return None
+        self.registry.register_built(meta, os.path.dirname(code_path))
+        built_metas.append(meta)
+        return safe_id(str(meta.get("id") or skill_name))
+
     def procure_multiple(
         self,
         agent,
@@ -406,6 +503,9 @@ class SkillOrchestrator:
         if not targets:
             return installed
 
+        feedback_loop = self._feedback_loop(workspace)
+        agent_role = str(agent.get("role") or "")
+
         exact_matches: dict[str, str] = {}
         unresolved_targets: list[str] = []
         for name in targets:
@@ -417,8 +517,8 @@ class SkillOrchestrator:
 
         try:
             research_bundle = self.research.research(agent, reqs, build_targets=unresolved_targets) if (self.research and unresolved_targets) else {}
-        except Exception as e:
-            log("RESEARCH", f"Research failed: {e}")
+        except Exception as exc:
+            log("RESEARCH", f"Research failed: {exc}")
             research_bundle = {}
 
         evidence_pack = research_bundle.get("evidence_pack", {}) if isinstance(research_bundle, dict) else {}
@@ -427,34 +527,85 @@ class SkillOrchestrator:
 
         for name in targets:
             if name in exact_matches:
-                if approval_gate and not approval_gate(agent.get("role"), [name], "install", auto_approve):
-                    continue
-                if hasattr(self.registry, "ensure_lock_for_existing_skill"):
-                    self.registry.ensure_lock_for_existing_skill(name)
-                installable = True
-                if hasattr(self.registry, "is_installable"):
-                    installable = bool(self.registry.is_installable(name))
-                if installable:
+                install_ok = self._maybe_install_skill(agent, name, approval_gate, auto_approve)
+                if install_ok:
                     installed.append(name)
-                    continue
+                self._record_selection_feedback(
+                    feedback_loop,
+                    skill_id=name,
+                    decision_mode="exact_match",
+                    status="installed" if install_ok else "skipped",
+                    run_id=run_id,
+                    agent_role=agent_role,
+                    payload={"path": exact_matches[name]},
+                )
+                continue
 
             evidence = evidence_targets.get(name, {}) if isinstance(evidence_targets, dict) else {}
-            raw_candidate = evidence.get("top_candidate")
-            candidate_id = normalize_skill_id(raw_candidate) if raw_candidate else ""
+            if not isinstance(evidence, dict):
+                evidence = {}
+            decision = self.retrieval_engine.decide_reuse(name, evidence, feedback_loop=feedback_loop)
+            evidence["reuse_decision"] = decision.to_dict()
+            candidate_id = decision.candidate_skill_id
             candidate_path = _resolve_available_skill_path(candidate_id) if candidate_id else None
-            verified_candidate = bool(candidate_id and evidence.get("verified") and candidate_path)
 
-            if verified_candidate:
-                if approval_gate and not approval_gate(agent.get("role"), [candidate_id], "install", auto_approve):
-                    continue
-                if hasattr(self.registry, "ensure_lock_for_existing_skill"):
-                    self.registry.ensure_lock_for_existing_skill(candidate_id)
-                installable = True
-                if hasattr(self.registry, "is_installable"):
-                    installable = bool(self.registry.is_installable(candidate_id))
-                if installable:
+            if decision.mode == "ranked_reuse" and candidate_id and candidate_path:
+                self._log_reuse_decision(name, decision, candidate_path, outcome="reuse")
+                install_ok = self._maybe_install_skill(agent, candidate_id, approval_gate, auto_approve)
+                self._record_selection_feedback(
+                    feedback_loop,
+                    skill_id=name,
+                    decision_mode=decision.mode,
+                    status="installed" if install_ok else "skipped",
+                    run_id=run_id,
+                    agent_role=agent_role,
+                    decision=decision,
+                    payload={"candidate_path": candidate_path, "installed_skill_id": candidate_id},
+                )
+                if install_ok:
                     installed.append(candidate_id)
                     continue
+
+            if decision.mode == "shadow_reuse" and candidate_id and candidate_path:
+                self._log_reuse_decision(name, decision, candidate_path, outcome="adapt")
+                self._record_selection_feedback(
+                    feedback_loop,
+                    skill_id=name,
+                    decision_mode=decision.mode,
+                    status="selected_for_build",
+                    run_id=run_id,
+                    agent_role=agent_role,
+                    decision=decision,
+                    payload={"candidate_path": candidate_path},
+                )
+                if approval_gate and not approval_gate(agent.get("role"), [name], "build", auto_approve):
+                    self._record_selection_feedback(
+                        feedback_loop,
+                        skill_id=name,
+                        decision_mode=decision.mode,
+                        status="approval_denied",
+                        run_id=run_id,
+                        agent_role=agent_role,
+                        decision=decision,
+                        payload={"candidate_path": candidate_path},
+                    )
+                    continue
+                built_id = self._build_and_register(
+                    agent=agent,
+                    skill_name=name,
+                    reqs=reqs,
+                    run_id=run_id,
+                    evidence_pack=evidence_pack,
+                    built_metas=built_metas,
+                    feedback_loop=feedback_loop,
+                )
+                if built_id:
+                    installable = True
+                    if hasattr(self.registry, "is_installable"):
+                        installable = bool(self.registry.is_installable(built_id))
+                    if installable:
+                        installed.append(built_id)
+                continue
 
             external_skill_id = ""
             external_result = {}
@@ -480,6 +631,19 @@ class SkillOrchestrator:
                 }
 
             self._log_external_outcome(name, external_result)
+            self._record_selection_feedback(
+                feedback_loop,
+                skill_id=name,
+                decision_mode="external_install",
+                status="installed" if external_skill_id else "miss",
+                run_id=run_id,
+                agent_role=agent_role,
+                payload={
+                    "installed_skill_id": external_skill_id,
+                    "installed_from": str(external_result.get("installed_from") or ""),
+                    "attempts": list(external_result.get("attempts") or []),
+                },
+            )
             if external_skill_id:
                 installable = True
                 if hasattr(self.registry, "is_installable"):
@@ -489,30 +653,39 @@ class SkillOrchestrator:
                     continue
 
             if approval_gate and not approval_gate(agent.get("role"), [name], "build", auto_approve):
+                self._record_selection_feedback(
+                    feedback_loop,
+                    skill_id=name,
+                    decision_mode="forge",
+                    status="approval_denied",
+                    run_id=run_id,
+                    agent_role=agent_role,
+                )
                 continue
 
-            ok, code_path, meta = self.builder.build_skill(
+            self._record_selection_feedback(
+                feedback_loop,
+                skill_id=name,
+                decision_mode="forge",
+                status="selected_for_build",
+                run_id=run_id,
+                agent_role=agent_role,
+            )
+            built_id = self._build_and_register(
                 agent=agent,
                 skill_name=name,
                 reqs=reqs,
                 run_id=run_id,
                 evidence_pack=evidence_pack,
+                built_metas=built_metas,
+                feedback_loop=feedback_loop,
             )
-
-            self._log_build_outcome(name, ok, code_path, meta)
-
-            if not ok or not code_path or not isinstance(meta, dict):
-                continue
-
-            self.registry.register_built(meta, os.path.dirname(code_path))
-            built_metas.append(meta)
-
-            built_id = safe_id(str(meta.get("id") or name))
-            installable = True
-            if hasattr(self.registry, "is_installable"):
-                installable = bool(self.registry.is_installable(built_id))
-            if installable:
-                installed.append(built_id)
+            if built_id:
+                installable = True
+                if hasattr(self.registry, "is_installable"):
+                    installable = bool(self.registry.is_installable(built_id))
+                if installable:
+                    installed.append(built_id)
 
         if built_metas and hasattr(self.registry, "workflow_apply"):
             self.registry.workflow_apply(built_metas)
@@ -524,3 +697,4 @@ class SkillOrchestrator:
             else:
                 self.agent_mgr.install_skills(*install_args)
         return list(dict.fromkeys(installed))
+

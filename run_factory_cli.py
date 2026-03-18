@@ -1,4 +1,4 @@
-﻿import argparse
+import argparse
 import os
 import re
 import sys
@@ -19,11 +19,13 @@ if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
 
 
+
 def _safe_project_id(text: str) -> str:
     t = (text or "").strip().lower()
-    t = re.sub(r"[^a-z0-9_\\-]+", "_", t)
+    t = re.sub(r"[^a-z0-9_\-]+", "_", t)
     t = re.sub(r"_+", "_", t).strip("_")
     return t
+
 
 
 def _resolve_projects_root(override: str | None = None) -> str:
@@ -33,43 +35,80 @@ def _resolve_projects_root(override: str | None = None) -> str:
     return os.path.abspath(os.path.expanduser(raw))
 
 
+
 def _run_skill_creator(argv: list[str] | None = None):
-    """skill-create 서브커맨드 — Claude Code 스타일 스킬 생성기"""
+    """skill-create subcommand."""
     from core.skill_creator import cli_main
+
     cli_main(argv)
+
+
+
+def _run_skill_spec(argv: list[str] | None = None):
+    """skill-spec subcommand."""
+    from core.skill_spec_synthesizer import cli_main
+
+    cli_main(argv)
+
 
 
 def _run_preflight(argv: list[str] | None = None):
-    """preflight 서브커맨드 — 스킬 사전 신뢰도 검증"""
+    """preflight subcommand."""
     from core.skill_preflight import cli_main
+
     cli_main(argv)
 
 
+
+def _run_skill_eval(argv: list[str] | None = None):
+    """skill-eval subcommand."""
+    from core.skill_eval_harness import cli_main
+
+    cli_main(argv)
+
+
+
+def _run_skill_promote(argv: list[str] | None = None):
+    """skill-promote subcommand."""
+    from core.skill_promotion import cli_main
+
+    cli_main(argv)
+
+
+
 def main(argv: list[str] | None = None):
-    # skill-create 서브커맨드 감지: 첫 인자가 "skill-create" 이면 스킬 생성기로 분기
     effective_argv = argv if argv is not None else sys.argv[1:]
     if effective_argv and effective_argv[0] == "skill-create":
         _run_skill_creator(effective_argv[1:])
         return
+    if effective_argv and effective_argv[0] == "skill-spec":
+        _run_skill_spec(effective_argv[1:])
+        return
     if effective_argv and effective_argv[0] == "preflight":
         _run_preflight(effective_argv[1:])
         return
+    if effective_argv and effective_argv[0] == "skill-eval":
+        _run_skill_eval(effective_argv[1:])
+        return
+    if effective_argv and effective_argv[0] == "skill-promote":
+        _run_skill_promote(effective_argv[1:])
+        return
 
     parser = argparse.ArgumentParser(description="Agent Factory CLI")
-    parser.add_argument("--project", "-p", type=str, required=True, help="프로젝트 ID (필수)")
-    parser.add_argument("--role", "-r", type=str, help="에이전트 역할 (예: 'Saiba Midori', 'Backend Dev')")
-    parser.add_argument("--task", "-t", type=str, help="에이전트에게 요청할 작업 내용")
-    parser.add_argument("--model", "-m", type=str, default=None, help="사용할 AI 모델")
-    parser.add_argument("--provider", choices=CLI_PROVIDER_CHOICES, help="CLI provider 강제 지정")
-    parser.add_argument("--provider-command", type=str, help="선택한 CLI provider 실행 경로/명령")
-    parser.add_argument("--projects-root", type=str, help="프로젝트 루트 상위 디렉터리 override")
-    parser.add_argument("--workflow", "-w", type=str, help="워크플로우 YAML 경로")
-    parser.add_argument("--agents", "-a", type=str, help="워크플로우 실행 에이전트 목록(쉼표 구분)")
-    parser.add_argument("--mode", choices=["approval", "fsa"], default="approval", help="실행 모드 (기본: approval, 자율: fsa)")
-    parser.add_argument("--fsa", action="store_true", help="풀 셀프 자동화(Full Self Automation) 모드 활성화 단축키")
+    parser.add_argument("--project", "-p", type=str, required=True, help="Project id")
+    parser.add_argument("--role", "-r", type=str, help="Agent role")
+    parser.add_argument("--task", "-t", type=str, help="Task input")
+    parser.add_argument("--model", "-m", type=str, default=None, help="Model override")
+    parser.add_argument("--provider", choices=CLI_PROVIDER_CHOICES, help="Force CLI provider")
+    parser.add_argument("--provider-command", type=str, help="CLI provider command path")
+    parser.add_argument("--projects-root", type=str, help="Projects root override")
+    parser.add_argument("--workflow", "-w", type=str, help="Workflow YAML path")
+    parser.add_argument("--agents", "-a", type=str, help="Comma-separated workflow roles")
+    parser.add_argument("--mode", choices=["approval", "fsa"], default="approval", help="Execution mode")
+    parser.add_argument("--fsa", action="store_true", help="Shortcut for full self automation mode")
     parser.add_argument("--build", action="store_true", help="Build missing skills before run")
-    parser.add_argument("--no-cli-auto-install", action="store_true", help="누락된 Claude/Gemini/Codex CLI 자동 설치 비활성화")
-    parser.add_argument("--pipeline", choices=["auto", "single", "project"], default="auto", help="실행 파이프라인 선택")
+    parser.add_argument("--no-cli-auto-install", action="store_true", help="Disable missing CLI auto install")
+    parser.add_argument("--pipeline", choices=["auto", "single", "project"], default="auto", help="Pipeline mode")
     args = parser.parse_args(argv)
     execution_mode = "fsa" if (args.fsa or args.mode == "fsa") else "approval"
 
@@ -78,16 +117,16 @@ def main(argv: list[str] | None = None):
 
     project_id = _safe_project_id(args.project)
     if not project_id:
-        print("유효한 프로젝트 ID를 입력하세요.")
+        print("Enter a valid project id.")
         return
 
     task = args.task
     if not task:
         print("\n[Task Input]")
-        task = input("  요청할 작업 내용을 입력하세요: ").strip()
+        task = input("  Enter the task: ").strip()
 
     if not task:
-        print("작업 내용이 비어 있어 종료합니다.")
+        print("Task input is empty. Exiting.")
         return
 
     role = (args.role or "").strip() or "General Assistant"
@@ -111,7 +150,7 @@ def main(argv: list[str] | None = None):
 
     from agent_launcher import AgentFactory
 
-    print("\n[Logi-Mind Agent Factory] 시작")
+    print("\n[Logi-Mind Agent Factory] start")
     print(f"Project ID: {project_id}")
     print(f"Projects Root: {projects_root}")
     print(f"Project Root: {project_root}")
@@ -121,7 +160,7 @@ def main(argv: list[str] | None = None):
     try:
         factory = AgentFactory()
         if args.workflow:
-            roles = [x.strip() for x in (args.agents or "").split(",") if x.strip()]
+            roles = [item.strip() for item in (args.agents or "").split(",") if item.strip()]
             factory.run_workflow(task_input=task, workflow_path=args.workflow, role_specs=roles)
         else:
             factory.run(
@@ -132,9 +171,9 @@ def main(argv: list[str] | None = None):
                 pipeline_mode=args.pipeline,
             )
     except KeyboardInterrupt:
-        print("\n사용자가 실행을 중단했습니다.")
-    except Exception as e:
-        print(f"\n오류 발생: {e}")
+        print("\nExecution interrupted by user.")
+    except Exception as exc:
+        print(f"\nError: {exc}")
 
 
 if __name__ == "__main__":

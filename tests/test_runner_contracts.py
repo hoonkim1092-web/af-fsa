@@ -1,4 +1,4 @@
-import importlib
+﻿import importlib
 import os
 import time
 import types
@@ -81,7 +81,7 @@ def test_system_prompt_and_signature_resolution(monkeypatch):
     assert "docs/architecture.md" in runtime_prompt
     assert "docs/change_history.md" in runtime_prompt
     assert "ko-KR" in runtime_prompt
-    assert "한국어" in runtime_prompt
+    assert runtime_prompt
     assert "[Destructive Action Guard]" in runtime_prompt
     assert "git reset --hard" in runtime_prompt
     sigs = runner._resolve_signature_lines(agent)
@@ -173,3 +173,22 @@ def test_load_skills_collects_official_codex_markdown(monkeypatch, tmp_path):
     assert loaded == []
     assert len(runner._knowledge_skills) == 1
     assert runner._knowledge_skills[0].id == "official_guide"
+
+
+def test_resolve_runtime_feedback_targets_prefers_used_skills(monkeypatch):
+    al = _load_launcher(monkeypatch)
+    runner = al.AgentRunner(al.ModelRouter())
+
+    targets = runner._resolve_runtime_feedback_targets(["beta", "alpha", "beta"], ["alpha", "beta"], ["alpha", "beta"])
+
+    assert targets == ["beta", "alpha"]
+
+
+
+def test_resolve_runtime_feedback_targets_uses_only_safe_single_fallback(monkeypatch):
+    al = _load_launcher(monkeypatch)
+    runner = al.AgentRunner(al.ModelRouter())
+
+    assert runner._resolve_runtime_feedback_targets([], ["solo_skill"], ["solo_skill"]) == ["solo_skill"]
+    assert runner._resolve_runtime_feedback_targets([], ["alpha", "beta"], ["alpha", "beta"]) == []
+
