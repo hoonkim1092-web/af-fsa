@@ -12,6 +12,11 @@ import os
 from datetime import datetime, timezone
 from typing import Any
 
+try:
+    import requests
+except ImportError:
+    requests = None  # type: ignore[assignment]
+
 from core.memory_system.adapters.base import MemoryBackendAdapter
 from core.memory_system.models import (
     MemoryRecord,
@@ -48,6 +53,7 @@ class CortexVectorAdapter(MemoryBackendAdapter):
         CortexClient = _try_import_cortex()
         if CortexClient is None:
             logger.warning("CortexClient unavailable — adapter disabled")
+            self._available = False
             return
         try:
             self._client = CortexClient()
@@ -55,14 +61,14 @@ class CortexVectorAdapter(MemoryBackendAdapter):
             logger.info("CortexVectorAdapter initialised")
         except Exception as exc:
             logger.warning("CortexClient init failed: %s", exc)
+            self._available = False
 
     # ── CRUD ───────────────────────────────────────────────────────────
 
     async def read(self, record_id: str) -> MemoryRecord | None:
-        if not self._available:
+        if not self._available or requests is None:
             return None
         try:
-            import requests
             url = f"{self._client.sb_url}/rest/v1/cortex_memory"
             params = {
                 "metadata->>record_id": f"eq.{record_id}",
@@ -109,10 +115,9 @@ class CortexVectorAdapter(MemoryBackendAdapter):
         return await self.write(record)
 
     async def delete(self, record_id: str) -> bool:
-        if not self._available:
+        if not self._available or requests is None:
             return False
         try:
-            import requests
             url = f"{self._client.sb_url}/rest/v1/cortex_memory"
             params = {"metadata->>record_id": f"eq.{record_id}"}
             resp = requests.delete(url, headers=self._client.headers, params=params, timeout=10)

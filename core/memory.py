@@ -5,8 +5,10 @@ core/memory.py
 core/utils.py 에서 추출.
 """
 
+import heapq
 import os
 import json
+import time
 from datetime import datetime
 
 
@@ -21,22 +23,63 @@ def _to_epoch(ts: object, fallback: float = 0.0) -> float:
         return fallback
 
 
+# ── File scan cache ────────────────────────────────────────────────────
+# Avoids rescanning the same directory within a short window.
+_scan_cache: dict[str, tuple[float, list[tuple[float, str]]]] = {}
+_SCAN_CACHE_TTL = 5.0  # seconds
+
+
 def _iter_recent_json_files(root: str, max_files: int) -> list[str]:
+    """Return the *max_files* most-recently-modified JSON files under *root*.
+
+    Optimisations vs the original implementation:
+    1. ``os.scandir()`` — mtime comes from the DirEntry without an extra
+       stat syscall on most operating systems.
+    2. ``heapq.nlargest`` — O(N log K) instead of O(N log N) full sort.
+    3. Module-level TTL cache — repeated calls within 5 s reuse the
+       previous result and skip the filesystem walk entirely.
+    """
     if not root or not os.path.isdir(root):
         return []
+
+    n = max(1, int(max_files or 300))
+
+    # Check cache
+    now = time.monotonic()
+    cache_key = root
+    cached = _scan_cache.get(cache_key)
+    if cached is not None:
+        cached_ts, cached_rows = cached
+        if now - cached_ts < _SCAN_CACHE_TTL:
+            top = heapq.nlargest(n, cached_rows, key=lambda x: x[0])
+            return [p for _mt, p in top]
+
+    # Full scan with os.scandir (stat-free mtime on most OS)
     rows: list[tuple[float, str]] = []
-    for dirpath, _dirnames, filenames in os.walk(root):
-        for name in filenames:
-            if not str(name).lower().endswith(".json"):
-                continue
-            p = os.path.join(dirpath, name)
-            try:
-                mt = float(os.path.getmtime(p))
-            except Exception:
-                mt = 0.0
-            rows.append((mt, p))
-    rows.sort(key=lambda x: x[0], reverse=True)
-    return [p for _mt, p in rows[: max(1, int(max_files or 300))]]
+    _scan_dir_recursive(root, rows)
+
+    # Persist in cache
+    _scan_cache[cache_key] = (now, rows)
+
+    top = heapq.nlargest(n, rows, key=lambda x: x[0])
+    return [p for _mt, p in top]
+
+
+def _scan_dir_recursive(directory: str, out: list[tuple[float, str]]) -> None:
+    """Walk *directory* recursively using os.scandir for efficient stat."""
+    try:
+        with os.scandir(directory) as it:
+            for entry in it:
+                if entry.is_dir(follow_symlinks=False):
+                    _scan_dir_recursive(entry.path, out)
+                elif entry.name.lower().endswith(".json"):
+                    try:
+                        mt = entry.stat().st_mtime
+                    except OSError:
+                        mt = 0.0
+                    out.append((mt, entry.path))
+    except PermissionError:
+        pass
 
 
 def _memory_value_to_text(value: object) -> str:

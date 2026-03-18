@@ -1,5 +1,5 @@
-owner_agent: General
-stages:
-- id: MAIN
-  name: Main
-  objective: 기본 워크플로우
+owner_agent: General
+stages:
+- id: MAIN
+  name: Main
+  objective: 기본 워크플로우

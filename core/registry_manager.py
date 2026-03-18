@@ -1,4 +1,4 @@
-﻿import os
+import os
 import shutil
 from core.utils import (
     safe_id, read_yaml, write_yaml, now_iso, resolve_skill_paths,
@@ -254,14 +254,14 @@ class RegistryManager:
     def _quality_gate_policy(self) -> dict:
         qg = resolve_quality_gate_policy(read_project_policies())
         return {
-            "default_stage_on_build": str(qg.get("default_stage_on_build", "candidate")),
+            "default_stage_on_build": str(qg.get("default_stage_on_build", "draft")),
             "auto_promote_sequence": [safe_id(str(s)) for s in (qg.get("auto_promote_sequence") or ["canary", "active"])],
             "installable_statuses": [safe_id(str(s)) for s in (qg.get("installable_statuses") or ["active"])],
         }
 
     def apply_quality_gate(self, meta: dict) -> dict:
         qg = self._quality_gate_policy()
-        stage = safe_id(qg.get("default_stage_on_build", "candidate"))
+        stage = safe_id(qg.get("default_stage_on_build", "draft"))
         patched = dict(meta or {})
         patched["status"] = stage
         patched["quality_stage"] = stage
@@ -308,6 +308,7 @@ class RegistryManager:
                 if sid not in mapping[k]: mapping[k].append(sid)
         wf["updated_at"] = now_iso()
         write_yaml(WORKFLOW_PATH, wf)
+
 
 
 

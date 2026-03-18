@@ -12,6 +12,7 @@ from typing import Any
 
 from core.memory_system.adapters.base import MemoryBackendAdapter
 from core.memory_system.config import get_config
+from core.memory_system.decay import MemoryDecayManager
 from core.memory_system.models import (
     EpisodeRecord,
     MemoryRecord,
@@ -151,21 +152,30 @@ class UnifiedMemoryFacade:
         memory_type: MemoryType | None = None,
         scope: MemoryScope | None = None,
     ) -> list[MemoryRecord]:
-        """Search across all backends, deduplicate, return merged results."""
+        """Search across all backends, deduplicate, return merged results ranked by relevance."""
         self._ensure_initialised()
         timeout = get_config().timeouts.search_timeout
+
+        # Parallel search across all adapters
+        tasks = [
+            asyncio.wait_for(
+                adapter.search(query, limit=limit, project_id=self.project_id),
+                timeout=timeout,
+            )
+            for adapter in self._adapters.values()
+        ]
+
         all_records: list[MemoryRecord] = []
-        for adapter in self._adapters.values():
-            try:
-                results = await asyncio.wait_for(
-                    adapter.search(query, limit=limit, project_id=self.project_id),
-                    timeout=timeout,
-                )
-                all_records.extend(results)
-            except asyncio.TimeoutError:
-                logger.error("Search on '%s' timed out", adapter.backend_name)
-            except Exception as exc:
-                logger.error("Search on '%s' failed: %s", adapter.backend_name, exc)
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+        for i, res in enumerate(results):
+            if isinstance(res, BaseException):
+                adapter_name = list(self._adapters.values())[i].backend_name
+                if isinstance(res, asyncio.TimeoutError):
+                    logger.error("Search on '%s' timed out", adapter_name)
+                else:
+                    logger.error("Search on '%s' failed: %s", adapter_name, res)
+            else:
+                all_records.extend(res)  # type: ignore[union-attr]
 
         # Filter by type/scope
         if memory_type:
@@ -176,9 +186,12 @@ class UnifiedMemoryFacade:
         # Deduplicate by content_hash
         deduped = _deduplicate(all_records)
 
-        # Sort by updated_at descending, take top-N
-        deduped.sort(key=lambda r: r.updated_at, reverse=True)
-        return deduped[:limit]
+        # Rank by relevance score (Phase 14)
+        decay_mgr = MemoryDecayManager()
+        scored = decay_mgr.rank_by_relevance(deduped)
+
+        # Return top-N by relevance score
+        return [rec for rec, _ in scored[:limit]]
 
     async def list_recent(self, *, limit: int = 10) -> list[MemoryRecord]:
         """List most-recent records from all backends."""
@@ -205,17 +218,33 @@ class UnifiedMemoryFacade:
         *,
         limit: int = 10,
     ) -> list[MemoryRecord]:
-        """Search across all backends WITHOUT project_id filter."""
+        """Search across all backends WITHOUT project_id filter (cross-project recall)."""
         self._ensure_initialised()
+        timeout = get_config().timeouts.search_timeout
+
+        # Parallel search across all adapters, no project_id filter
+        tasks = [
+            asyncio.wait_for(
+                adapter.search(query, limit=limit, project_id=None),
+                timeout=timeout,
+            )
+            for adapter in self._adapters.values()
+        ]
+
         all_records: list[MemoryRecord] = []
-        for adapter in self._adapters.values():
-            try:
-                results = await adapter.search(query, limit=limit, project_id=None)
-                all_records.extend(results)
-            except Exception as exc:
-                logger.error("search_all on '%s' failed: %s", adapter.backend_name, exc)
-        all_records.sort(key=lambda r: r.updated_at, reverse=True)
-        return all_records[:limit]
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+        for i, res in enumerate(results):
+            if isinstance(res, BaseException):
+                adapter_name = list(self._adapters.values())[i].backend_name
+                logger.error("search_all on '%s' failed: %s", adapter_name, res)
+            else:
+                all_records.extend(res)  # type: ignore[union-attr]
+
+        # Rank by relevance and deduplicate
+        deduped = _deduplicate(all_records)
+        decay_mgr = MemoryDecayManager()
+        scored = decay_mgr.rank_by_relevance(deduped)
+        return [rec for rec, _ in scored[:limit]]
 
     # ── Episode recording ──────────────────────────────────────────────
 

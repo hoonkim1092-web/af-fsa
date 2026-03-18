@@ -8,6 +8,7 @@ Memory System 중앙 설정.
 from __future__ import annotations
 
 import os
+import threading
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -76,15 +77,21 @@ class MemorySystemConfig:
 
 # 모듈 레벨 싱글톤 — 필요 시 교체 가능
 _config: MemorySystemConfig | None = None
+_config_lock = threading.Lock()
 
 
 def get_config() -> MemorySystemConfig:
+    """Thread-safe singleton getter with double-check locking."""
     global _config
     if _config is None:
-        _config = MemorySystemConfig()
+        with _config_lock:
+            if _config is None:
+                _config = MemorySystemConfig()
     return _config
 
 
 def set_config(config: MemorySystemConfig) -> None:
+    """Thread-safe singleton setter."""
     global _config
-    _config = config
+    with _config_lock:
+        _config = config

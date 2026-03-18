@@ -54,32 +54,43 @@ def _events_to_episode(events: list[dict]) -> EpisodeRecord:
     start_ev = next((e for e in events if e.get("event_type") == "run_start"), {})
     end_ev = next((e for e in events if e.get("event_type") == "run_end"), {})
 
-    # Collect skill calls as actions (stack-based FIFO matching per skill)
+    # Collect skill calls as actions (stack-based FIFO matching per skill with depth tracking)
     actions: list[dict[str, Any]] = []
-    # pending_stacks[skill_name] = [action_index, ...] — oldest first
-    pending_stacks: dict[str, list[int]] = {}
+    # pending_stacks[skill_name] = [(action_index, depth), ...] — oldest first
+    pending_stacks: dict[str, list[tuple[int, int]]] = {}
+    skill_depths: dict[str, int] = {}  # Track current depth per skill
 
     for ev in events:
         etype = ev.get("event_type", "")
         if etype == "skill_call_start":
             sname = ev.get("skill_name", "?")
+            depth = skill_depths.get(sname, 0) + 1
+            skill_depths[sname] = depth
             idx = len(actions)
             actions.append({
                 "skill_name": sname,
                 "args": ev.get("skill_args", {}),
                 "result": None,
+                "result_full": None,
+                "depth": depth,
             })
-            pending_stacks.setdefault(sname, []).append(idx)
+            pending_stacks.setdefault(sname, []).append((idx, depth))
         elif etype == "skill_call_end":
             sname = ev.get("skill_name", "?")
             result_val = ev.get("skill_result", "")
+            skill_depths[sname] = max(0, skill_depths.get(sname, 1) - 1)
+
+            # Store both truncated and full result
+            result_display = result_val
             if isinstance(result_val, str) and len(result_val) > 500:
-                result_val = result_val[:500] + "..."
-            # Match oldest pending action for this skill (FIFO)
+                result_display = result_val[:500] + "..."
+
+            # Match oldest pending action for this skill (FIFO with depth)
             stack = pending_stacks.get(sname, [])
             if stack:
-                matched_idx = stack.pop(0)
-                actions[matched_idx]["result"] = result_val
+                matched_idx, _ = stack.pop(0)
+                actions[matched_idx]["result"] = result_display
+                actions[matched_idx]["result_full"] = result_val
 
     ok = end_ev.get("ok")
     outcome = "success" if ok else ("failure" if ok is False else "partial")
@@ -100,8 +111,15 @@ def _events_to_episode(events: list[dict]) -> EpisodeRecord:
             if err_lines:
                 error_info = "\n".join(err_lines[:5])
 
+    # Parse timestamp with fallback handling
     ts = start_ev.get("timestamp")
-    created = datetime.fromisoformat(ts) if ts else datetime.now(timezone.utc)
+    created = datetime.now(timezone.utc)
+    if ts:
+        try:
+            created = datetime.fromisoformat(ts)
+        except (ValueError, TypeError):
+            logger.warning("Invalid timestamp format in run_start event: %s", ts)
+            created = datetime.now(timezone.utc)
 
     return EpisodeRecord(
         run_id=start_ev.get("run_id", end_ev.get("run_id", "")),

@@ -31,11 +31,13 @@ def extract_triple(
     Returns (problem_node, cause_node, solution_node, edges).
     """
     # Problem node: what was the task?
+    # Use failure's project_id if set, otherwise None (will be promoted to global later)
+    problem_project_id = failure.project_id if failure.project_id else None
     problem = KnowledgeNode(
         node_type=NodeType.PROBLEM,
         label=_truncate(failure.task_input, 150),
         description=failure.task_input,
-        project_id=failure.project_id or None,
+        project_id=problem_project_id,
         metadata={
             "source_episode": failure.episode_id,
             "agent": failure.agent_name,
@@ -44,11 +46,12 @@ def extract_triple(
 
     # Cause node: why did it fail?
     cause_desc = failure.error_info or "Unknown error"
+    cause_project_id = failure.project_id if failure.project_id else None
     cause = KnowledgeNode(
         node_type=NodeType.CAUSE,
         label=_truncate(cause_desc, 150),
         description=cause_desc,
-        project_id=failure.project_id or None,
+        project_id=cause_project_id,
         metadata={
             "source_episode": failure.episode_id,
             "failed_actions": [a.get("skill_name", "?") for a in failure.actions[:10]],
@@ -57,11 +60,12 @@ def extract_triple(
 
     # Solution node: what changed between failure and success?
     diff = _diff_actions(failure.actions, success.actions)
+    solution_project_id = success.project_id if success.project_id else None
     solution = KnowledgeNode(
         node_type=NodeType.SOLUTION,
         label=_truncate(diff, 150),
         description=diff,
-        project_id=success.project_id or None,
+        project_id=solution_project_id,
         metadata={
             "source_episode_fail": failure.episode_id,
             "source_episode_success": success.episode_id,

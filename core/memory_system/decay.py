@@ -102,8 +102,9 @@ class MemoryDecayManager:
         frequency = math.log(1 + record.access_count) / max_log
 
         # Confidence (from metadata or default 1.0)
+        # Expected range: 0.0-2.0 (KnowledgeNode defaults to 1.0, boosts up to 2.0 via boost_confidence)
         confidence = record.metadata.get("confidence", 1.0)
-        # Normalize: confidence is typically 0-2, map to 0-1
+        # Normalize: map 0-2 range to 0-1 for scoring
         confidence_norm = min(max(confidence, 0.0) / 2.0, 1.0)
 
         w = get_config().weights

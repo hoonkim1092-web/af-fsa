@@ -82,15 +82,20 @@ class MemoryRouter:
             MemoryQueryType.SEMANTIC_RECALL: _match_score(query, _SEMANTIC_PATTERNS),
         }
 
-        best_type = max(scores, key=scores.get)  # type: ignore[arg-type]
-        best_score = scores[best_type]
+        # Find best type with explicit handling for ties
+        best_type: MemoryQueryType | None = None
+        best_score = 0.0
+        for query_type, score in scores.items():
+            if score > best_score:
+                best_score = score
+                best_type = query_type
 
-        # Default to semantic recall if no pattern matches
-        if best_score < 0.1:
+        # Default to semantic recall if no clear winner
+        if best_type is None or best_score < 0.1:
             best_type = MemoryQueryType.SEMANTIC_RECALL
-            best_score = 0.3
+            best_score = 0.1
+            logger.debug("No pattern matched, defaulting to SEMANTIC_RECALL")
 
-        # Confidence = raw pattern score, no artificial inflation
         return MemoryQueryPlan(
             query_type=best_type,
             confidence=min(best_score, 1.0),
@@ -113,19 +118,39 @@ class MemoryRouter:
             return await self._recall_semantic(query, limit)
 
     async def _recall_episodic(self, query: str, limit: int) -> list[MemoryRecord]:
-        return await self._facade.search_semantic(
+        """Recall past episodes (timeline-based, most recent first)."""
+        results = await self._facade.search_semantic(
             query, limit=limit, memory_type=MemoryType.EPISODIC,
         )
+        # Sort by created_at descending (most recent first)
+        results.sort(key=lambda r: r.created_at, reverse=True)
+        return results[:limit]
 
     async def _recall_graph(self, query: str, limit: int) -> list[MemoryRecord]:
-        return await self._facade.search_semantic(
+        """Traverse Knowledge Graph (Problem→Cause→Solution patterns)."""
+        results = await self._facade.search_semantic(
             query, limit=limit, memory_type=MemoryType.GRAPH,
         )
+        # Graph results are already ranked by graph traversal score
+        # Prefer higher confidence (learned patterns)
+        results.sort(
+            key=lambda r: (
+                r.metadata.get("confidence", 1.0),
+                r.updated_at,
+            ),
+            reverse=True,
+        )
+        return results[:limit]
 
     async def _recall_working(self, query: str, limit: int) -> list[MemoryRecord]:
-        return await self._facade.search_semantic(
+        """Recall current working context (session-scoped, recent first)."""
+        results = await self._facade.search_semantic(
             query, limit=limit, memory_type=MemoryType.WORKING,
         )
+        # Working memory: most recent is most relevant
+        results.sort(key=lambda r: r.accessed_at, reverse=True)
+        return results[:limit]
 
     async def _recall_semantic(self, query: str, limit: int) -> list[MemoryRecord]:
+        """Semantic search across all memory types (relevance-ranked)."""
         return await self._facade.search_semantic(query, limit=limit)
