@@ -8,10 +8,13 @@ import re
 import shutil
 import subprocess
 
+from core.policy import resolve_quality_gate_policy
+from core.skill_eval_harness import SkillEvalHarness
 from core.skill_feedback import SkillFeedbackLoop
+from core.skill_promotion import SkillPromotionManager
 from core.skill_registry import check_skill_exists, register_skill
 from core.skill_retrieval_engine import SkillRetrievalEngine
-from core.utils import resolve_knowledge_skill_path, resolve_skill_paths, safe_id, skill_markdown_filenames
+from core.utils import now_iso, resolve_knowledge_skill_path, resolve_skill_paths, safe_id, skill_markdown_filenames
 
 
 FACTORY_ROOT = os.getcwd()
@@ -400,6 +403,91 @@ class SkillOrchestrator:
         suffix = f" ({detail})" if detail else ""
         log("BUILD", f"Skill build failed for '{skill_name}': {reason}{suffix}")
 
+    def _default_build_stage(self, meta: dict) -> str:
+        stage = safe_id(str((meta or {}).get("lifecycle_stage") or (meta or {}).get("status") or ""))
+        if stage and stage != "draft":
+            return stage
+
+        if hasattr(self.registry, "apply_quality_gate"):
+            try:
+                gated = self.registry.apply_quality_gate(meta or {})
+            except Exception:
+                gated = {}
+            if isinstance(gated, dict):
+                gated_stage = safe_id(str(gated.get("lifecycle_stage") or gated.get("status") or ""))
+                if gated_stage:
+                    return gated_stage
+
+        try:
+            from core.registry_manager import read_project_policies as _read_project_policies
+
+            quality_gate = resolve_quality_gate_policy(_read_project_policies())
+        except Exception:
+            quality_gate = resolve_quality_gate_policy({})
+        return safe_id(str(quality_gate.get("default_stage_on_build") or "draft")) or "draft"
+
+    def _evaluate_and_promote_built_skill(
+        self,
+        *,
+        skill_name: str,
+        code_path: str,
+        meta: dict,
+        feedback_loop: SkillFeedbackLoop,
+        workspace: str | None,
+    ) -> dict:
+        if not code_path or not isinstance(meta, dict):
+            return meta
+
+        skill_id = safe_id(str(meta.get("id") or skill_name))
+        evals_path = str(meta.get("evals_path") or "").strip()
+        if evals_path and not os.path.exists(evals_path):
+            evals_path = ""
+
+        baseline_skill_path = ""
+        reference_candidate_id = safe_id(str(meta.get("reference_candidate_id") or ""))
+        if reference_candidate_id:
+            baseline_skill_path, _meta_path = resolve_skill_paths(reference_candidate_id)
+            baseline_skill_path = baseline_skill_path or ""
+
+        feedback_path = str(getattr(feedback_loop, "feedback_path", "") or "")
+        runs_dir = os.path.join(os.path.abspath(workspace), "runs") if workspace else None
+        current_stage = self._default_build_stage(meta)
+
+        try:
+            eval_report = SkillEvalHarness().evaluate(
+                code_path,
+                evals_path=evals_path or None,
+                baseline_skill_path=baseline_skill_path or None,
+                feedback_path=feedback_path or None,
+                runs_dir=runs_dir,
+            )
+            decision = SkillPromotionManager().apply(
+                skill_id,
+                eval_report,
+                current_stage=current_stage,
+                feedback_loop=feedback_loop,
+            )
+        except Exception as exc:
+            log("EVAL", f"Post-build eval/promotion skipped for '{skill_name}': {exc}")
+            fallback = dict(meta)
+            fallback["status"] = current_stage
+            fallback["lifecycle_stage"] = current_stage
+            fallback["quality_stage"] = current_stage
+            return fallback
+
+        promoted = dict(meta)
+        next_stage = safe_id(str(getattr(decision, "next_stage", "") or current_stage)) or current_stage
+        promoted["status"] = next_stage
+        promoted["lifecycle_stage"] = next_stage
+        promoted["quality_stage"] = next_stage
+        promoted["installable"] = bool(getattr(decision, "installable", False))
+        promoted["last_eval_report"] = str(getattr(eval_report, "report_path", "") or "")
+        promoted["last_promotion_report"] = str(getattr(decision, "promotion_path", "") or "")
+        promoted["promotion_reason"] = str(getattr(decision, "reason", "") or "")
+        promoted["promotion_updated_at"] = now_iso()
+        log("EVAL", f"Promoted built skill '{skill_name}' to '{next_stage}' (installable={bool(getattr(decision, 'installable', False))})")
+        return promoted
+
     def _record_selection_feedback(
         self,
         feedback_loop: SkillFeedbackLoop,
@@ -450,6 +538,7 @@ class SkillOrchestrator:
         evidence_pack: dict,
         built_metas: list[dict],
         feedback_loop: SkillFeedbackLoop,
+        workspace: str | None,
     ) -> str | None:
         ok, code_path, meta = self.builder.build_skill(
             agent=agent,
@@ -458,6 +547,14 @@ class SkillOrchestrator:
             run_id=run_id,
             evidence_pack=evidence_pack,
         )
+        if ok and code_path and isinstance(meta, dict):
+            meta = self._evaluate_and_promote_built_skill(
+                skill_name=skill_name,
+                code_path=code_path,
+                meta=meta,
+                feedback_loop=feedback_loop,
+                workspace=workspace,
+            )
         self._log_build_outcome(skill_name, ok, code_path, meta)
 
         stage = ""
@@ -598,6 +695,7 @@ class SkillOrchestrator:
                     evidence_pack=evidence_pack,
                     built_metas=built_metas,
                     feedback_loop=feedback_loop,
+                    workspace=workspace,
                 )
                 if built_id:
                     installable = True
@@ -679,6 +777,7 @@ class SkillOrchestrator:
                 evidence_pack=evidence_pack,
                 built_metas=built_metas,
                 feedback_loop=feedback_loop,
+                workspace=workspace,
             )
             if built_id:
                 installable = True
@@ -697,4 +796,5 @@ class SkillOrchestrator:
             else:
                 self.agent_mgr.install_skills(*install_args)
         return list(dict.fromkeys(installed))
+
 

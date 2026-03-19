@@ -261,9 +261,14 @@ class RegistryManager:
 
     def apply_quality_gate(self, meta: dict) -> dict:
         qg = self._quality_gate_policy()
-        stage = safe_id(qg.get("default_stage_on_build", "draft"))
         patched = dict(meta or {})
+        explicit_stage = safe_id(str(patched.get("lifecycle_stage") or patched.get("status") or ""))
+        if explicit_stage and explicit_stage != "draft":
+            stage = explicit_stage
+        else:
+            stage = safe_id(qg.get("default_stage_on_build", "draft"))
         patched["status"] = stage
+        patched["lifecycle_stage"] = stage
         patched["quality_stage"] = stage
         patched["quality_updated_at"] = now_iso()
         return patched
