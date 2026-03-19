@@ -8,7 +8,7 @@ failure→success 쌍을 찾고, graph_builder.extract_triple()을 호출할
 매칭 전략:
   1. causal_links 기반 (FSALoop 재시도 → 가장 정확)
   2. task_input 키워드 유사도 (같은 task 표현)
-  3. SemanticEmbedder 유사도 (의미적으로 유사한 task)
+  3. (미구현) SemanticEmbedder 유사도 — 향후 확장 예정
 """
 
 from __future__ import annotations
@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 _KEYWORD_THRESHOLD = 0.4
 
 
-def _keyword_similarity(a: str, b: str) -> float:
+def keyword_similarity(a: str, b: str) -> float:
     """Jaccard similarity on whitespace-split tokens."""
     if not a or not b:
         return 0.0
@@ -82,7 +82,7 @@ class EpisodeMatcher:
                 continue
 
             # 키워드 유사도
-            sim = _keyword_similarity(
+            sim = keyword_similarity(
                 recent_success.task_input,
                 failure_ep.task_input,
             )
@@ -106,7 +106,7 @@ class EpisodeMatcher:
 
     async def _search_failures(
         self,
-        project_id: str,  # noqa: ARG002 — reserved for future project-scoped filtering
+        project_id: str,
         limit: int,
     ) -> list[MemoryRecord]:
         """Search for recent failure episodes in the same project."""
@@ -115,11 +115,14 @@ class EpisodeMatcher:
             limit=limit,
             memory_type=MemoryType.EPISODIC,
         )
-        # Filter to actual failures
+        # Filter to actual failures, scoped to the given project
         return [
             r for r in records
-            if r.metadata.get("outcome") == "failure"
-            or "failure" in r.content.lower()
+            if (r.metadata.get("project_id", project_id) == project_id)
+            and (
+                r.metadata.get("outcome") == "failure"
+                or "failure" in r.content.lower()
+            )
         ]
 
     @staticmethod

@@ -13,6 +13,8 @@ from __future__ import annotations
 import logging
 from typing import Any
 
+from core.memory_system.episode_matcher import keyword_similarity as _jaccard_similarity
+
 logger = logging.getLogger(__name__)
 
 # 주입할 최대 트리플 수 (컨텍스트 오염 방지)
@@ -34,6 +36,8 @@ class KnowledgeInjectionHook:
     def __init__(self) -> None:
         self._graph_adapter: Any = None
         self._graph_query: Any = None
+        # Simple one-shot cache: (task_input → triples) for the current agent run
+        self._cache: dict[str, list[dict[str, Any]]] = {}
 
     def set_graph_adapter(self, adapter: Any) -> None:
         """Inject KnowledgeGraphAdapter after construction."""
@@ -88,6 +92,9 @@ class KnowledgeInjectionHook:
         task_input: str,
     ) -> list[dict[str, Any]]:
         """Find P→C→S triples relevant to the current task."""
+        if task_input in self._cache:
+            return self._cache[task_input]
+
         from core.memory_system.models import NodeType
 
         # Search for similar problem nodes
@@ -113,6 +120,7 @@ class KnowledgeInjectionHook:
                 triple["_score"] = score
                 triples.append(triple)
 
+        self._cache[task_input] = triples
         return triples
 
     @staticmethod
@@ -146,14 +154,3 @@ class KnowledgeInjectionHook:
         return "\n".join(lines)
 
 
-def _jaccard_similarity(a: str, b: str) -> float:
-    """Jaccard similarity on whitespace-split tokens."""
-    if not a or not b:
-        return 0.0
-    tokens_a = set(a.lower().split())
-    tokens_b = set(b.lower().split())
-    if not tokens_a or not tokens_b:
-        return 0.0
-    intersection = tokens_a & tokens_b
-    union = tokens_a | tokens_b
-    return len(intersection) / len(union)

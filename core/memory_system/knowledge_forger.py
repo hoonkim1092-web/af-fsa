@@ -12,6 +12,7 @@ LLM 호출이 불가능하면 rule-based fallback으로 동작.
 from __future__ import annotations
 
 import logging
+import re
 from typing import Any
 
 from core.memory_system.graph_builder import extract_triple
@@ -66,6 +67,7 @@ class KnowledgeForger:
             graph_adapter: KnowledgeGraphAdapter instance for storing results.
         """
         self._graph = graph_adapter
+        self._llm_client: Any = None  # cached genai.Client
 
     async def forge(
         self,
@@ -87,7 +89,7 @@ class KnowledgeForger:
         # Step 3: Enrich nodes with insight
         if insight_data:
             insight_text = insight_data.get("insight", "")
-            llm_confidence = insight_data.get("confidence", 0.7)
+            llm_confidence = max(0.0, min(1.0, float(insight_data.get("confidence", 0.7))))
             tags = insight_data.get("tags", [])
 
             if insight_text:
@@ -95,7 +97,7 @@ class KnowledgeForger:
                 solution.metadata["tags"] = tags
                 # Blend LLM confidence with structural confidence
                 solution.confidence = min(
-                    solution.confidence * 0.5 + llm_confidence * 0.5, 2.0,
+                    solution.confidence * 0.5 + llm_confidence * 0.5, 1.0,
                 )
 
         # Step 4: Store in Knowledge Graph
@@ -180,7 +182,9 @@ class KnowledgeForger:
             solution_label=solution.label,
         )
 
-        client = genai.Client(api_key=api_key)
+        if self._llm_client is None:
+            self._llm_client = genai.Client(api_key=api_key)
+        client = self._llm_client
         response = client.models.generate_content(
             model="gemini-2.0-flash",
             contents=prompt,
@@ -237,6 +241,6 @@ def _extract_tags(
     }
     tags = []
     for tag, keywords in tag_patterns.items():
-        if any(kw in all_text for kw in keywords):
+        if any(re.search(r"\b" + re.escape(kw) + r"\b", all_text) for kw in keywords):
             tags.append(tag)
     return tags[:5] if tags else ["general"]

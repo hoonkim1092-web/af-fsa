@@ -76,7 +76,13 @@ class MemoryConsolidationHook:
                 episode.causal_links.append(previous_episode_id)
 
             # Run episode recording safely — handle both async and sync contexts
-            self._run_record(episode)
+            # Stage 4-6 forge pipeline starts only after record completes
+            should_forge = (
+                episode.outcome == "success"
+                and bool(episode.causal_links)
+                and self._graph_adapter is not None
+            )
+            self._run_record(episode, forge_after=should_forge)
 
             # Store episode_id in result for FSALoop linking
             if isinstance(result, dict):
@@ -87,15 +93,6 @@ class MemoryConsolidationHook:
                 episode.episode_id[:12],
                 episode.outcome,
             )
-
-            # ── Stage 4-6: Knowledge Forging Pipeline ──────────────
-            # Trigger when a success episode has causal_links (retry success)
-            if (
-                episode.outcome == "success"
-                and episode.causal_links
-                and self._graph_adapter
-            ):
-                self._run_forge_pipeline(episode)
         except Exception as exc:
             logger.error("MemoryConsolidationHook failed: %s", exc)
 
@@ -146,21 +143,36 @@ class MemoryConsolidationHook:
 
     # ── Async bridge ───────────────────────────────────────────────────
 
-    def _run_record(self, episode: Any) -> None:
-        """Run record_episode in the most appropriate async context."""
+    def _run_record(self, episode: Any, *, forge_after: bool = False) -> None:
+        """Run record_episode in the most appropriate async context.
+
+        When forge_after=True, the knowledge-forging pipeline is chained to
+        run only after the record task completes, guaranteeing ordering.
+        """
         coro = self._facade.record_episode(episode)
         try:
             loop = asyncio.get_running_loop()
-            # Already in async context — schedule and track the task
             task = loop.create_task(coro)
-            task.add_done_callback(self._on_record_done)
+
+            if forge_after:
+                def _chain_forge(t: asyncio.Task) -> None:
+                    self._on_record_done(t)
+                    if not t.cancelled() and t.exception() is None:
+                        self._run_forge_pipeline(episode)
+                task.add_done_callback(_chain_forge)
+            else:
+                task.add_done_callback(self._on_record_done)
+
             self._pending_tasks.append(task)
         except RuntimeError:
-            # No running loop — create one to run the coroutine synchronously
+            # No running loop — run synchronously then forge synchronously
             try:
                 asyncio.run(coro)
             except Exception as exc:
                 logger.error("MemoryConsolidation record failed: %s", exc)
+                return
+            if forge_after:
+                self._run_forge_pipeline(episode)
 
     def _on_record_done(self, task: asyncio.Task) -> None:
         """Callback for async task — log errors and remove from pending."""
