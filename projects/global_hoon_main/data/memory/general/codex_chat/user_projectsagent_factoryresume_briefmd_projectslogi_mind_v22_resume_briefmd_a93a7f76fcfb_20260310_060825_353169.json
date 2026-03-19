@@ -1,18 +1,18 @@
-{
-  "key": "user 그럼  projectsagent_factoryresume_briefmd projectslogi-mind-v22 resume_briefmd 이파일은 뭐야",
-  "value": "[user] 그럼  projects/agent_factory/resume_brief.md, projects/logi-mind-v22/, resume_brief.md. 이파일은 뭐야",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T06:08:25.353215+00:00",
-  "updated_at": "2026-03-10T06:08:25.353215+00:00",
-  "details": {
-    "text": "[user] 그럼  projects/agent_factory/resume_brief.md, projects/logi-mind-v22/, resume_brief.md. 이파일은 뭐야",
-    "event_timestamp": "2026-03-10T01:22:19.785Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
-    "session_line": 87,
-    "provider": "codex"
-  }
+{
+  "key": "user 그럼  projectsagent_factoryresume_briefmd projectslogi-mind-v22 resume_briefmd 이파일은 뭐야",
+  "value": "[user] 그럼  projects/agent_factory/resume_brief.md, projects/logi-mind-v22/, resume_brief.md. 이파일은 뭐야",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T06:08:25.353215+00:00",
+  "updated_at": "2026-03-10T06:08:25.353215+00:00",
+  "details": {
+    "text": "[user] 그럼  projects/agent_factory/resume_brief.md, projects/logi-mind-v22/, resume_brief.md. 이파일은 뭐야",
+    "event_timestamp": "2026-03-10T01:22:19.785Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 87,
+    "provider": "codex"
+  }
 }

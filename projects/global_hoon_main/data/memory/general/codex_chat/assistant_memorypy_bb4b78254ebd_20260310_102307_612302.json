@@ -1,18 +1,18 @@
-{
-  "key": "assistant 리스트에 적힌 모듈명 자체도 현재 트리와 정확히 맞는지 확인하겠습니다 특히 memorypy 같은 항목은 실제 파일 존재 여부가 중요합니다",
-  "value": "[assistant] 리스트에 적힌 모듈명 자체도 현재 트리와 정확히 맞는지 확인하겠습니다. 특히 `memory.py` 같은 항목은 실제 파일 존재 여부가 중요합니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T10:23:07.612382+00:00",
-  "updated_at": "2026-03-10T10:23:07.612382+00:00",
-  "details": {
-    "text": "[assistant] 리스트에 적힌 모듈명 자체도 현재 트리와 정확히 맞는지 확인하겠습니다. 특히 `memory.py` 같은 항목은 실제 파일 존재 여부가 중요합니다.",
-    "event_timestamp": "2026-03-10T08:30:01.590Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
-    "session_line": 1592,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 리스트에 적힌 모듈명 자체도 현재 트리와 정확히 맞는지 확인하겠습니다 특히 memorypy 같은 항목은 실제 파일 존재 여부가 중요합니다",
+  "value": "[assistant] 리스트에 적힌 모듈명 자체도 현재 트리와 정확히 맞는지 확인하겠습니다. 특히 `memory.py` 같은 항목은 실제 파일 존재 여부가 중요합니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T10:23:07.612382+00:00",
+  "updated_at": "2026-03-10T10:23:07.612382+00:00",
+  "details": {
+    "text": "[assistant] 리스트에 적힌 모듈명 자체도 현재 트리와 정확히 맞는지 확인하겠습니다. 특히 `memory.py` 같은 항목은 실제 파일 존재 여부가 중요합니다.",
+    "event_timestamp": "2026-03-10T08:30:01.590Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 1592,
+    "provider": "codex"
+  }
 }

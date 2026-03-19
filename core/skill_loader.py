@@ -157,6 +157,7 @@ class DynamicSkillLoader:
         ensure_skills_loaded()
         self._precompute_embeddings()
         self._dep_graph: SkillDependencyGraph | None = None
+        self._dep_graph_skill_count: int = 0  # 크기 변경 감지용
 
     def _precompute_embeddings(self) -> None:
         if self.relevance.embedder and self.relevance.embedder.is_available:
@@ -168,12 +169,15 @@ class DynamicSkillLoader:
                 pass
 
     def _get_dep_graph(self, all_skills: Dict[str, SkillMetadata]) -> SkillDependencyGraph:
-        if self._dep_graph is None:
+        # 스킬 수가 바뀌면 그래프 재생성 (BUG-3 수정)
+        if self._dep_graph is None or len(all_skills) != self._dep_graph_skill_count:
             self._dep_graph = SkillDependencyGraph(all_skills)
+            self._dep_graph_skill_count = len(all_skills)
         return self._dep_graph
 
     def invalidate_dep_graph(self) -> None:
         self._dep_graph = None
+        self._dep_graph_skill_count = 0
 
     def _resolve_conflicts(self, skill_ids: List[str], all_skills: Dict[str, SkillMetadata]) -> List[str]:
         resolved: List[str] = []

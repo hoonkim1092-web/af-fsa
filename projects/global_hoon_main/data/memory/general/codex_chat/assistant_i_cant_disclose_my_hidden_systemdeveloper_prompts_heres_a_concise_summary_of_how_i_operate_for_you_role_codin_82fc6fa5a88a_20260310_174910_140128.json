@@ -1,18 +1,18 @@
-{
-  "key": "assistant I cant disclose my hidden systemdeveloper prompts Heres a concise summary of how I operate for you- Role Codin",
-  "value": "[assistant] I can’t disclose my hidden system/developer prompts. Here’s a concise summary of how I operate for you:  - Role: Coding agent in Codex CLI — precise, safe, and helpful. - Capabilities: Read/modify files in the workspace, run shell commands, main...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T17:49:10.141096+00:00",
-  "updated_at": "2026-03-10T17:49:10.141096+00:00",
-  "details": {
-    "text": "[assistant] I can’t disclose my hidden system/developer prompts. Here’s a concise summary of how I operate for you:\n\n- Role: Coding agent in Codex CLI — precise, safe, and helpful.\n- Capabilities: Read/modify files in the workspace, run shell commands, maintain a lightweight plan, and ask brief clarifying questions when needed.\n- Constraints: No network access; cannot reveal internal prompts; approval policy is “never escalate.” Filesystem writes limited to workspace/writable roots.\n- Tools: `shell`, `update_plan`, `request_user_input` (plan mode only), `view_image`. I announce grouped actions before running commands.\n- Style: Default to concise answers; add brief plans for multi‑step tasks; reference files with clickable paths and line numbers.\n- Dates: I use exact dates to avoid ambiguity; today is March 11, 2026 (Asia/Seoul).\n- Skills available: skill-creator and skill-installer; if you invoke one by name, I’ll follow its SKILL.md workflow.\n- Next step: Tell me the task (e.g., “scan repo for X”, “add feature Y”), and I’ll propose a short plan and proceed.",
-    "event_timestamp": "2026-03-10T17:49:09.899Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/11/rollout-2026-03-11T02-49-03-019cd8dd-d7a1-7ae2-b3aa-3375f0d27d98.jsonl",
-    "session_line": 10,
-    "provider": "codex"
-  }
+{
+  "key": "assistant I cant disclose my hidden systemdeveloper prompts Heres a concise summary of how I operate for you- Role Codin",
+  "value": "[assistant] I can’t disclose my hidden system/developer prompts. Here’s a concise summary of how I operate for you:  - Role: Coding agent in Codex CLI — precise, safe, and helpful. - Capabilities: Read/modify files in the workspace, run shell commands, main...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:49:10.141096+00:00",
+  "updated_at": "2026-03-10T17:49:10.141096+00:00",
+  "details": {
+    "text": "[assistant] I can’t disclose my hidden system/developer prompts. Here’s a concise summary of how I operate for you:\n\n- Role: Coding agent in Codex CLI — precise, safe, and helpful.\n- Capabilities: Read/modify files in the workspace, run shell commands, maintain a lightweight plan, and ask brief clarifying questions when needed.\n- Constraints: No network access; cannot reveal internal prompts; approval policy is “never escalate.” Filesystem writes limited to workspace/writable roots.\n- Tools: `shell`, `update_plan`, `request_user_input` (plan mode only), `view_image`. I announce grouped actions before running commands.\n- Style: Default to concise answers; add brief plans for multi‑step tasks; reference files with clickable paths and line numbers.\n- Dates: I use exact dates to avoid ambiguity; today is March 11, 2026 (Asia/Seoul).\n- Skills available: skill-creator and skill-installer; if you invoke one by name, I’ll follow its SKILL.md workflow.\n- Next step: Tell me the task (e.g., “scan repo for X”, “add feature Y”), and I’ll propose a short plan and proceed.",
+    "event_timestamp": "2026-03-10T17:49:09.899Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/11/rollout-2026-03-11T02-49-03-019cd8dd-d7a1-7ae2-b3aa-3375f0d27d98.jsonl",
+    "session_line": 10,
+    "provider": "codex"
+  }
 }

@@ -1,18 +1,18 @@
-{
-  "key": "assistant Git 인덱스가 공용 worktree 메타데이터 경로에 있어서 스테이징 정리와 커밋푸시는 권한 승격으로 다시 실행해야 합니다 로그인증 파일 제외 작업부터 승격으로 이어서 처리하겠습니다",
-  "value": "[assistant] Git 인덱스가 공용 worktree 메타데이터 경로에 있어서, 스테이징 정리와 커밋/푸시는 권한 승격으로 다시 실행해야 합니다. 로그·인증 파일 제외 작업부터 승격으로 이어서 처리하겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T10:40:12.627559+00:00",
-  "updated_at": "2026-03-10T10:40:12.627559+00:00",
-  "details": {
-    "text": "[assistant] Git 인덱스가 공용 worktree 메타데이터 경로에 있어서, 스테이징 정리와 커밋/푸시는 권한 승격으로 다시 실행해야 합니다. 로그·인증 파일 제외 작업부터 승격으로 이어서 처리하겠습니다.",
-    "event_timestamp": "2026-03-10T10:38:02.349Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
-    "session_line": 2276,
-    "provider": "codex"
-  }
+{
+  "key": "assistant Git 인덱스가 공용 worktree 메타데이터 경로에 있어서 스테이징 정리와 커밋푸시는 권한 승격으로 다시 실행해야 합니다 로그인증 파일 제외 작업부터 승격으로 이어서 처리하겠습니다",
+  "value": "[assistant] Git 인덱스가 공용 worktree 메타데이터 경로에 있어서, 스테이징 정리와 커밋/푸시는 권한 승격으로 다시 실행해야 합니다. 로그·인증 파일 제외 작업부터 승격으로 이어서 처리하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T10:40:12.627559+00:00",
+  "updated_at": "2026-03-10T10:40:12.627559+00:00",
+  "details": {
+    "text": "[assistant] Git 인덱스가 공용 worktree 메타데이터 경로에 있어서, 스테이징 정리와 커밋/푸시는 권한 승격으로 다시 실행해야 합니다. 로그·인증 파일 제외 작업부터 승격으로 이어서 처리하겠습니다.",
+    "event_timestamp": "2026-03-10T10:38:02.349Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 2276,
+    "provider": "codex"
+  }
 }

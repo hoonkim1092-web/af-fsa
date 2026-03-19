@@ -1,18 +1,18 @@
-{
-  "key": "assistant 남은 경고는 corebuilder - model_utils - googlegenai 체인입니다 builder도 SDK fallback 때만 model_utils를 읽도록 바꾸면 이 경고까지 정리할 ",
-  "value": "[assistant] 남은 경고는 `core.builder -> model_utils -> google.genai` 체인입니다. builder도 SDK fallback 때만 model_utils를 읽도록 바꾸면 이 경고까지 정리할 수 있습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T17:40:37.972166+00:00",
-  "updated_at": "2026-03-10T17:40:37.972166+00:00",
-  "details": {
-    "text": "[assistant] 남은 경고는 `core.builder -> model_utils -> google.genai` 체인입니다. builder도 SDK fallback 때만 model_utils를 읽도록 바꾸면 이 경고까지 정리할 수 있습니다.",
-    "event_timestamp": "2026-03-10T15:34:36.600Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
-    "session_line": 1424,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 남은 경고는 corebuilder - model_utils - googlegenai 체인입니다 builder도 SDK fallback 때만 model_utils를 읽도록 바꾸면 이 경고까지 정리할 ",
+  "value": "[assistant] 남은 경고는 `core.builder -> model_utils -> google.genai` 체인입니다. builder도 SDK fallback 때만 model_utils를 읽도록 바꾸면 이 경고까지 정리할 수 있습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:37.972166+00:00",
+  "updated_at": "2026-03-10T17:40:37.972166+00:00",
+  "details": {
+    "text": "[assistant] 남은 경고는 `core.builder -> model_utils -> google.genai` 체인입니다. builder도 SDK fallback 때만 model_utils를 읽도록 바꾸면 이 경고까지 정리할 수 있습니다.",
+    "event_timestamp": "2026-03-10T15:34:36.600Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
+    "session_line": 1424,
+    "provider": "codex"
+  }
 }

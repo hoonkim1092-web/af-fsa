@@ -1,0 +1,46 @@
+{
+  "skill_id": "agent_factory",
+  "skill_path": "D:\\warkSpaces\\agent-factory\\dummy",
+  "evals_path": "",
+  "static_gate": {
+    "ok": false,
+    "entrypoint": "",
+    "error": "missing_skill_path"
+  },
+  "contract_eval": {
+    "name": "contract",
+    "total_cases": 0,
+    "passed": 0,
+    "failed": 0,
+    "errors": 0,
+    "pass_rate": 0.0,
+    "avg_duration_ms": 0.0,
+    "details": []
+  },
+  "hidden_eval": {
+    "name": "hidden",
+    "total_cases": 0,
+    "passed": 0,
+    "failed": 0,
+    "errors": 0,
+    "pass_rate": 0.0,
+    "avg_duration_ms": 0.0,
+    "details": []
+  },
+  "shadow_eval": {
+    "baseline_skill_path": "",
+    "total_cases": 0,
+    "candidate_passed": 0,
+    "baseline_passed": 0,
+    "wins": 0,
+    "losses": 0,
+    "ties": 0,
+    "delta": 0.0,
+    "replay_cases": 0,
+    "replay_human_overrides": 0,
+    "details": []
+  },
+  "recommended_stage": "draft",
+  "report_path": "D:\\warkSpaces\\agent-factory\\skill-eval-report.json",
+  "written_at": "2026-03-20T01:34:31"
+}

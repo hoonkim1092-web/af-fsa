@@ -37,6 +37,9 @@ def keyword_similarity(a: str, b: str) -> float:
     return len(intersection) / len(union)
 
 
+_keyword_similarity = keyword_similarity
+
+
 class EpisodeMatcher:
     """Find failure→success episode pairs for knowledge extraction."""
 

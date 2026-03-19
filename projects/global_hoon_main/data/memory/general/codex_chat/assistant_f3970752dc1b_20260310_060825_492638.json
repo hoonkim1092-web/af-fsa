@@ -1,18 +1,18 @@
-{
-  "key": "assistant 이건 동작 규칙 변경이라 먼저 현재 문서화 강제 지점과 프롬프트정책 경로를 확인하겠습니다 관련 훅과 시스템 프롬프트를 찾은 뒤 설계 변경 시 문서와 히스토리 문서를 남기도록 실제로 고정하겠습니다",
-  "value": "[assistant] 이건 동작 규칙 변경이라 먼저 현재 문서화 강제 지점과 프롬프트/정책 경로를 확인하겠습니다. 관련 훅과 시스템 프롬프트를 찾은 뒤, 설계 변경 시 문서와 히스토리 문서를 남기도록 실제로 고정하겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T06:08:25.492690+00:00",
-  "updated_at": "2026-03-10T06:08:25.492690+00:00",
-  "details": {
-    "text": "[assistant] 이건 동작 규칙 변경이라 먼저 현재 문서화 강제 지점과 프롬프트/정책 경로를 확인하겠습니다. 관련 훅과 시스템 프롬프트를 찾은 뒤, 설계 변경 시 문서와 히스토리 문서를 남기도록 실제로 고정하겠습니다.",
-    "event_timestamp": "2026-03-10T05:19:30.096Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
-    "session_line": 639,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 이건 동작 규칙 변경이라 먼저 현재 문서화 강제 지점과 프롬프트정책 경로를 확인하겠습니다 관련 훅과 시스템 프롬프트를 찾은 뒤 설계 변경 시 문서와 히스토리 문서를 남기도록 실제로 고정하겠습니다",
+  "value": "[assistant] 이건 동작 규칙 변경이라 먼저 현재 문서화 강제 지점과 프롬프트/정책 경로를 확인하겠습니다. 관련 훅과 시스템 프롬프트를 찾은 뒤, 설계 변경 시 문서와 히스토리 문서를 남기도록 실제로 고정하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T06:08:25.492690+00:00",
+  "updated_at": "2026-03-10T06:08:25.492690+00:00",
+  "details": {
+    "text": "[assistant] 이건 동작 규칙 변경이라 먼저 현재 문서화 강제 지점과 프롬프트/정책 경로를 확인하겠습니다. 관련 훅과 시스템 프롬프트를 찾은 뒤, 설계 변경 시 문서와 히스토리 문서를 남기도록 실제로 고정하겠습니다.",
+    "event_timestamp": "2026-03-10T05:19:30.096Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 639,
+    "provider": "codex"
+  }
 }

@@ -1,18 +1,18 @@
-{
-  "key": "assistant 맞습니다 그 프롬프트가 뜨면 자동 실행 설계가 아닙니다원인은 Codex CLI 쪽이었습니다 설치된 버전 기준으로 --full-auto는 진짜 무승인이 아니라 on-request라서 편집이나 명령 실",
-  "value": "[assistant] 맞습니다. 그 프롬프트가 뜨면 자동 실행 설계가 아닙니다.  원인은 Codex CLI 쪽이었습니다. 설치된 버전 기준으로 `--full-auto`는 진짜 무승인이 아니라 `on-request`라서, 편집이나 명령 실행 시 `1. Yes, proceed (y)` 프롬프트를 띄울 수 있습니다. 그래서 [core/providers/cli.py](D:/hoonProJect/worktrees/agent-factory/core/providers/...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T06:58:54.378667+00:00",
-  "updated_at": "2026-03-10T06:58:54.378667+00:00",
-  "details": {
-    "text": "[assistant] 맞습니다. 그 프롬프트가 뜨면 자동 실행 설계가 아닙니다.\n\n원인은 Codex CLI 쪽이었습니다. 설치된 버전 기준으로 `--full-auto`는 진짜 무승인이 아니라 `on-request`라서, 편집이나 명령 실행 시 `1. Yes, proceed (y)` 프롬프트를 띄울 수 있습니다. 그래서 [core/providers/cli.py](D:/hoonProJect/worktrees/agent-factory/core/providers/cli.py)에서 `codex_cli` 기본 명령을 `codex --ask-for-approval never --sandbox workspace-write exec ...`로 바꿨고, `--full-auto`는 제거했습니다.\n\n같이 반영한 파일:\n- [core/providers/cli.py](D:/hoonProJect/worktrees/agent-factory/core/providers/cli.py)\n- [tests/test_cli_providers.py](D:/hoonProJect/worktrees/agent-factory/tests/test_cli_providers.py)\n- [docs/architecture.md](D:/hoonProJect/worktrees/agent-factory/docs/architecture.md)\n- [docs/change_history.md](D:/hoonProJect/worktrees/agent-factory/docs/change_history.md)\n\n검증도 했습니다.\n- `python -m pytest tests/test_cli_providers.py -q`\n- 결과: `21 passed`\n\n만약 아직도 같은 프롬프트가 뜨면 두 경우입니다.\n- factory 경로가 아니라 Codex를 직접 interactive로 띄운 경우\n- `AGENT_CODEX_CLI_COMMAND` override가 있어서 새 기본 명령을 우회하는 경우\n\n그 경우엔 실제 실행 명령도 `codex --ask-for-approval never --sandbox workspace-write exec ...` 형태로 맞춰야 합니다. 원하면 다음으로 실제 현재 실행 경로가 override를 타는지까지 바로 확인해드리겠습니다.",
-    "event_timestamp": "2026-03-10T06:08:42.779Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
-    "session_line": 1011,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 맞습니다 그 프롬프트가 뜨면 자동 실행 설계가 아닙니다원인은 Codex CLI 쪽이었습니다 설치된 버전 기준으로 --full-auto는 진짜 무승인이 아니라 on-request라서 편집이나 명령 실",
+  "value": "[assistant] 맞습니다. 그 프롬프트가 뜨면 자동 실행 설계가 아닙니다.  원인은 Codex CLI 쪽이었습니다. 설치된 버전 기준으로 `--full-auto`는 진짜 무승인이 아니라 `on-request`라서, 편집이나 명령 실행 시 `1. Yes, proceed (y)` 프롬프트를 띄울 수 있습니다. 그래서 [core/providers/cli.py](D:/hoonProJect/worktrees/agent-factory/core/providers/...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T06:58:54.378667+00:00",
+  "updated_at": "2026-03-10T06:58:54.378667+00:00",
+  "details": {
+    "text": "[assistant] 맞습니다. 그 프롬프트가 뜨면 자동 실행 설계가 아닙니다.\n\n원인은 Codex CLI 쪽이었습니다. 설치된 버전 기준으로 `--full-auto`는 진짜 무승인이 아니라 `on-request`라서, 편집이나 명령 실행 시 `1. Yes, proceed (y)` 프롬프트를 띄울 수 있습니다. 그래서 [core/providers/cli.py](D:/hoonProJect/worktrees/agent-factory/core/providers/cli.py)에서 `codex_cli` 기본 명령을 `codex --ask-for-approval never --sandbox workspace-write exec ...`로 바꿨고, `--full-auto`는 제거했습니다.\n\n같이 반영한 파일:\n- [core/providers/cli.py](D:/hoonProJect/worktrees/agent-factory/core/providers/cli.py)\n- [tests/test_cli_providers.py](D:/hoonProJect/worktrees/agent-factory/tests/test_cli_providers.py)\n- [docs/architecture.md](D:/hoonProJect/worktrees/agent-factory/docs/architecture.md)\n- [docs/change_history.md](D:/hoonProJect/worktrees/agent-factory/docs/change_history.md)\n\n검증도 했습니다.\n- `python -m pytest tests/test_cli_providers.py -q`\n- 결과: `21 passed`\n\n만약 아직도 같은 프롬프트가 뜨면 두 경우입니다.\n- factory 경로가 아니라 Codex를 직접 interactive로 띄운 경우\n- `AGENT_CODEX_CLI_COMMAND` override가 있어서 새 기본 명령을 우회하는 경우\n\n그 경우엔 실제 실행 명령도 `codex --ask-for-approval never --sandbox workspace-write exec ...` 형태로 맞춰야 합니다. 원하면 다음으로 실제 현재 실행 경로가 override를 타는지까지 바로 확인해드리겠습니다.",
+    "event_timestamp": "2026-03-10T06:08:42.779Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 1011,
+    "provider": "codex"
+  }
 }

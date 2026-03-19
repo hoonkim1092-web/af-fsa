@@ -1,18 +1,18 @@
-{
-  "key": "assistant 터미널에서 직접 실행은 보통 이겁니다powershellclaude프롬프트 한 번으로 실행하려면powershellclaude -p 이 프로젝트 구조 설명해줘모델 지정powershellclaude --",
-  "value": "[assistant] 터미널에서 직접 실행은 보통 이겁니다.  ```powershell claude ```  프롬프트 한 번으로 실행하려면:  ```powershell claude -p \"이 프로젝트 구조 설명해줘\" ```  모델 지정:  ```powershell claude --model claude -p \"버그 원인 찾아줘\" ```  이 레포처럼 시스템 프롬프트를 덧붙이는 형태는:  ```powershell claude --append-system-pr...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T17:40:38.002953+00:00",
-  "updated_at": "2026-03-10T17:40:38.002953+00:00",
-  "details": {
-    "text": "[assistant] 터미널에서 직접 실행은 보통 이겁니다.\n\n```powershell\nclaude\n```\n\n프롬프트 한 번으로 실행하려면:\n\n```powershell\nclaude -p \"이 프로젝트 구조 설명해줘\"\n```\n\n모델 지정:\n\n```powershell\nclaude --model claude -p \"버그 원인 찾아줘\"\n```\n\n이 레포처럼 시스템 프롬프트를 덧붙이는 형태는:\n\n```powershell\nclaude --append-system-prompt \"You are a coding agent.\" -p \"파일 수정해줘\"\n```\n\n현재 PC에서는 실행 파일이 여기로 잡힙니다.\n\n```powershell\nC:\\Users\\HOME\\AppData\\Roaming\\npm\\claude.ps1\n```\n\n즉 정확히 치고 싶으면 이것도 됩니다.\n\n```powershell\n& \"C:\\Users\\HOME\\AppData\\Roaming\\npm\\claude.ps1\" -p \"안녕\"\n```\n\n도움말은:\n\n```powershell\nclaude --help\n```",
-    "event_timestamp": "2026-03-10T15:48:39.846Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
-    "session_line": 1799,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 터미널에서 직접 실행은 보통 이겁니다powershellclaude프롬프트 한 번으로 실행하려면powershellclaude -p 이 프로젝트 구조 설명해줘모델 지정powershellclaude --",
+  "value": "[assistant] 터미널에서 직접 실행은 보통 이겁니다.  ```powershell claude ```  프롬프트 한 번으로 실행하려면:  ```powershell claude -p \"이 프로젝트 구조 설명해줘\" ```  모델 지정:  ```powershell claude --model claude -p \"버그 원인 찾아줘\" ```  이 레포처럼 시스템 프롬프트를 덧붙이는 형태는:  ```powershell claude --append-system-pr...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:38.002953+00:00",
+  "updated_at": "2026-03-10T17:40:38.002953+00:00",
+  "details": {
+    "text": "[assistant] 터미널에서 직접 실행은 보통 이겁니다.\n\n```powershell\nclaude\n```\n\n프롬프트 한 번으로 실행하려면:\n\n```powershell\nclaude -p \"이 프로젝트 구조 설명해줘\"\n```\n\n모델 지정:\n\n```powershell\nclaude --model claude -p \"버그 원인 찾아줘\"\n```\n\n이 레포처럼 시스템 프롬프트를 덧붙이는 형태는:\n\n```powershell\nclaude --append-system-prompt \"You are a coding agent.\" -p \"파일 수정해줘\"\n```\n\n현재 PC에서는 실행 파일이 여기로 잡힙니다.\n\n```powershell\nC:\\Users\\HOME\\AppData\\Roaming\\npm\\claude.ps1\n```\n\n즉 정확히 치고 싶으면 이것도 됩니다.\n\n```powershell\n& \"C:\\Users\\HOME\\AppData\\Roaming\\npm\\claude.ps1\" -p \"안녕\"\n```\n\n도움말은:\n\n```powershell\nclaude --help\n```",
+    "event_timestamp": "2026-03-10T15:48:39.846Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
+    "session_line": 1799,
+    "provider": "codex"
+  }
 }

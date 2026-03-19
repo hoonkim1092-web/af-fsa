@@ -1,18 +1,18 @@
-{
-  "key": "assistant 외부 repo fallback 쪽은 구조 호환성 회귀가 있는지 추가로 봤습니다 이전엔 manifest 없을 때 거의 모든 py를 후보로 삼았는데 지금은 조건이 훨씬 좁아져서 기존 bucket 구조 ",
-  "value": "[assistant] 외부 repo fallback 쪽은 구조 호환성 회귀가 있는지 추가로 봤습니다. 이전엔 manifest 없을 때 거의 모든 `.py`를 후보로 삼았는데, 지금은 조건이 훨씬 좁아져서 기존 bucket 구조 일부를 놓칠 수 있습니다. 라인 근거만 더 잡겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T17:40:38.074227+00:00",
-  "updated_at": "2026-03-10T17:40:38.074227+00:00",
-  "details": {
-    "text": "[assistant] 외부 repo fallback 쪽은 구조 호환성 회귀가 있는지 추가로 봤습니다. 이전엔 manifest 없을 때 거의 모든 `.py`를 후보로 삼았는데, 지금은 조건이 훨씬 좁아져서 기존 bucket 구조 일부를 놓칠 수 있습니다. 라인 근거만 더 잡겠습니다.",
-    "event_timestamp": "2026-03-10T17:00:10.016Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/11/rollout-2026-03-11T01-30-46-019cd896-2cfb-7692-a889-53fc50ef1599.jsonl",
-    "session_line": 403,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 외부 repo fallback 쪽은 구조 호환성 회귀가 있는지 추가로 봤습니다 이전엔 manifest 없을 때 거의 모든 py를 후보로 삼았는데 지금은 조건이 훨씬 좁아져서 기존 bucket 구조 ",
+  "value": "[assistant] 외부 repo fallback 쪽은 구조 호환성 회귀가 있는지 추가로 봤습니다. 이전엔 manifest 없을 때 거의 모든 `.py`를 후보로 삼았는데, 지금은 조건이 훨씬 좁아져서 기존 bucket 구조 일부를 놓칠 수 있습니다. 라인 근거만 더 잡겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:38.074227+00:00",
+  "updated_at": "2026-03-10T17:40:38.074227+00:00",
+  "details": {
+    "text": "[assistant] 외부 repo fallback 쪽은 구조 호환성 회귀가 있는지 추가로 봤습니다. 이전엔 manifest 없을 때 거의 모든 `.py`를 후보로 삼았는데, 지금은 조건이 훨씬 좁아져서 기존 bucket 구조 일부를 놓칠 수 있습니다. 라인 근거만 더 잡겠습니다.",
+    "event_timestamp": "2026-03-10T17:00:10.016Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/11/rollout-2026-03-11T01-30-46-019cd896-2cfb-7692-a889-53fc50ef1599.jsonl",
+    "session_line": 403,
+    "provider": "codex"
+  }
 }

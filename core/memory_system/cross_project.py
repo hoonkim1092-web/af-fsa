@@ -56,8 +56,9 @@ class CrossProjectRecall:
         limit: int = 3,
     ) -> list[MemoryRecord]:
         """Find graph-type solution nodes matching an error description."""
-        return await self._facade.search_semantic(
+        results = await self._facade.search_all_backends(
             error_description,
-            limit=limit,
-            memory_type=MemoryType.GRAPH,
+            limit=limit * 3,
         )
+        graph_results = [r for r in results if r.memory_type == MemoryType.GRAPH]
+        return graph_results[:limit]

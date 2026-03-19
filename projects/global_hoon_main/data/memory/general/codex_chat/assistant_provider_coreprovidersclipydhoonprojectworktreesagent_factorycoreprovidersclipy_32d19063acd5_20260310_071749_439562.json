@@ -1,18 +1,18 @@
-{
-  "key": "assistant 세 provider 모두 무프롬프트 기본값으로 바꿨습니다변경 내용- coreprovidersclipyDhoonProJectworktreesagent-factorycoreprovidersclipy  ",
-  "value": "[assistant] 세 provider 모두 무프롬프트 기본값으로 바꿨습니다.  변경 내용: - [core/providers/cli.py](D:/hoonProJect/worktrees/agent-factory/core/providers/cli.py)   - `claude_cli`: `--permission-mode bypassPermissions`   - `gemini_cli`: `--sandbox --approval-mode yolo`   - `code...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T07:17:49.439809+00:00",
-  "updated_at": "2026-03-10T07:17:49.439809+00:00",
-  "details": {
-    "text": "[assistant] 세 provider 모두 무프롬프트 기본값으로 바꿨습니다.\n\n변경 내용:\n- [core/providers/cli.py](D:/hoonProJect/worktrees/agent-factory/core/providers/cli.py)\n  - `claude_cli`: `--permission-mode bypassPermissions`\n  - `gemini_cli`: `--sandbox --approval-mode yolo`\n  - `codex_cli`: `--ask-for-approval never --sandbox workspace-write exec`\n- [tests/test_cli_providers.py](D:/hoonProJect/worktrees/agent-factory/tests/test_cli_providers.py)도 같이 갱신\n- [docs/architecture.md](D:/hoonProJect/worktrees/agent-factory/docs/architecture.md), [docs/change_history.md](D:/hoonProJect/worktrees/agent-factory/docs/change_history.md) 반영\n\n검증:\n- `python -m pytest tests/test_cli_providers.py -q`\n- 결과: `21 passed`\n\n주의:\n- 이제 세 CLI 모두 승인창을 띄우지 않는 방향입니다.\n- 대신 파괴적 작업 차단은 별도 정책입니다. 무프롬프트와 안전장치는 다른 문제라, 삭제/리셋 금지 가드는 따로 넣어야 합니다.\n\n참고한 공식 문서:\n- Claude Code: https://docs.anthropic.com/en/docs/claude-code/team\n- Gemini CLI: https://geminicli.com/docs/cli/cli-reference/\n- Gemini CLI config: https://geminicli.com/docs/get-started/configuration/\n\n원하면 다음으로 바로 “삭제/리셋 계열 금지 가드”도 세 provider 공통 정책으로 넣겠습니다.",
-    "event_timestamp": "2026-03-10T06:59:06.528Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
-    "session_line": 1135,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 세 provider 모두 무프롬프트 기본값으로 바꿨습니다변경 내용- coreprovidersclipyDhoonProJectworktreesagent-factorycoreprovidersclipy  ",
+  "value": "[assistant] 세 provider 모두 무프롬프트 기본값으로 바꿨습니다.  변경 내용: - [core/providers/cli.py](D:/hoonProJect/worktrees/agent-factory/core/providers/cli.py)   - `claude_cli`: `--permission-mode bypassPermissions`   - `gemini_cli`: `--sandbox --approval-mode yolo`   - `code...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T07:17:49.439809+00:00",
+  "updated_at": "2026-03-10T07:17:49.439809+00:00",
+  "details": {
+    "text": "[assistant] 세 provider 모두 무프롬프트 기본값으로 바꿨습니다.\n\n변경 내용:\n- [core/providers/cli.py](D:/hoonProJect/worktrees/agent-factory/core/providers/cli.py)\n  - `claude_cli`: `--permission-mode bypassPermissions`\n  - `gemini_cli`: `--sandbox --approval-mode yolo`\n  - `codex_cli`: `--ask-for-approval never --sandbox workspace-write exec`\n- [tests/test_cli_providers.py](D:/hoonProJect/worktrees/agent-factory/tests/test_cli_providers.py)도 같이 갱신\n- [docs/architecture.md](D:/hoonProJect/worktrees/agent-factory/docs/architecture.md), [docs/change_history.md](D:/hoonProJect/worktrees/agent-factory/docs/change_history.md) 반영\n\n검증:\n- `python -m pytest tests/test_cli_providers.py -q`\n- 결과: `21 passed`\n\n주의:\n- 이제 세 CLI 모두 승인창을 띄우지 않는 방향입니다.\n- 대신 파괴적 작업 차단은 별도 정책입니다. 무프롬프트와 안전장치는 다른 문제라, 삭제/리셋 금지 가드는 따로 넣어야 합니다.\n\n참고한 공식 문서:\n- Claude Code: https://docs.anthropic.com/en/docs/claude-code/team\n- Gemini CLI: https://geminicli.com/docs/cli/cli-reference/\n- Gemini CLI config: https://geminicli.com/docs/get-started/configuration/\n\n원하면 다음으로 바로 “삭제/리셋 계열 금지 가드”도 세 provider 공통 정책으로 넣겠습니다.",
+    "event_timestamp": "2026-03-10T06:59:06.528Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 1135,
+    "provider": "codex"
+  }
 }

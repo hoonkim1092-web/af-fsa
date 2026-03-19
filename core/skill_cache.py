@@ -155,6 +155,13 @@ class OptimizedSkillRelevance:
         self._category_cache.put(cache_key, score)
         return score
 
+    def clear_all_caches(self) -> None:
+        """3종 관련성 캐시를 모두 비웁니다 (스킬 진화/보강 후 호출)."""
+        self._keyword_cache.clear()
+        self._semantic_cache.clear()
+        self._category_cache.clear()
+        self._embeddings_cache.clear()
+
     def get_cache_stats(self) -> Dict[str, int]:
         return {
             "keyword_cache": self._keyword_cache.size(),

@@ -188,12 +188,14 @@ class LangSmithTracingHook(ContinuationHook):
             self._stdout_capturer = _StdoutCapturer(stdout_log)
             self._stdout_capturer.__enter__()
 
-            # 초기 이벤트 기록
+            # 초기 이벤트 기록 (episode_extractor가 읽을 필드 포함)
             self._write_jsonl_entry({
                 "event_type": "run_start",
                 "run_id": self._run_id,
-                "agent_name": agent_state.get("agent", {}).get("name", "unknown"),
-                "task_input": agent_state.get("task_input", "")[:500],  # 처음 500자만
+                "project_id": agent_state.get("project_id", ""),
+                "agent_name": agent_state.get("agent_name", "")
+                    or agent_state.get("agent", {}).get("name", "unknown"),
+                "task_input": agent_state.get("task_input", "")[:500],
             })
 
             # LangSmith 트레이싱 (기존)

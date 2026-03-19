@@ -512,8 +512,10 @@ def register_skill(
     data = _load_registry()
     skills = data.get("skills", {})
 
-    # skill_id 생성 (기존 구조에서는 정수 또는 문자열)
-    skill_id = str(len(skills) + 1) if skills else "1"
+    # skill_id는 이름 기반 정규화 (숫자 ID는 check_skill_exists() 등에서 찾을 수 없음)
+    from core.utils import safe_id as _safe_id
+    stype = kwargs.pop("stype", kwargs.pop("type", "action"))
+    skill_id = _safe_id(skill_name) or skill_name.lower().replace(" ", "_")
 
     # 새 스킬 엔트리
     skill_entry = {
@@ -522,7 +524,7 @@ def register_skill(
         "purpose": purpose,
         "path": path,
         "dependencies": dependencies or [],
-        "type": "action",  # 기본값
+        "type": stype,
     }
     skill_entry.update(kwargs)
 

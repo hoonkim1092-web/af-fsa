@@ -1,18 +1,18 @@
-{
-  "key": "assistant AGENT_DISABLE_ENGINE_API_KEYS가 정말 어떤 영향을 주는지도 문서에 써야 해서 인증 분기 파일만 짧게 더 확인하겠습니다 보고서의 보안 항목을 과장 없이 쓰려면 이 부분이 필요합",
-  "value": "[assistant] `AGENT_DISABLE_ENGINE_API_KEYS`가 정말 어떤 영향을 주는지도 문서에 써야 해서, 인증 분기 파일만 짧게 더 확인하겠습니다. 보고서의 보안 항목을 과장 없이 쓰려면 이 부분이 필요합니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T10:23:07.629714+00:00",
-  "updated_at": "2026-03-10T10:23:07.629714+00:00",
-  "details": {
-    "text": "[assistant] `AGENT_DISABLE_ENGINE_API_KEYS`가 정말 어떤 영향을 주는지도 문서에 써야 해서, 인증 분기 파일만 짧게 더 확인하겠습니다. 보고서의 보안 항목을 과장 없이 쓰려면 이 부분이 필요합니다.",
-    "event_timestamp": "2026-03-10T08:45:51.694Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
-    "session_line": 1722,
-    "provider": "codex"
-  }
+{
+  "key": "assistant AGENT_DISABLE_ENGINE_API_KEYS가 정말 어떤 영향을 주는지도 문서에 써야 해서 인증 분기 파일만 짧게 더 확인하겠습니다 보고서의 보안 항목을 과장 없이 쓰려면 이 부분이 필요합",
+  "value": "[assistant] `AGENT_DISABLE_ENGINE_API_KEYS`가 정말 어떤 영향을 주는지도 문서에 써야 해서, 인증 분기 파일만 짧게 더 확인하겠습니다. 보고서의 보안 항목을 과장 없이 쓰려면 이 부분이 필요합니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T10:23:07.629714+00:00",
+  "updated_at": "2026-03-10T10:23:07.629714+00:00",
+  "details": {
+    "text": "[assistant] `AGENT_DISABLE_ENGINE_API_KEYS`가 정말 어떤 영향을 주는지도 문서에 써야 해서, 인증 분기 파일만 짧게 더 확인하겠습니다. 보고서의 보안 항목을 과장 없이 쓰려면 이 부분이 필요합니다.",
+    "event_timestamp": "2026-03-10T08:45:51.694Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 1722,
+    "provider": "codex"
+  }
 }

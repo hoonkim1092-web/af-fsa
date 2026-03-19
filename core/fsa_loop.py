@@ -1,5 +1,6 @@
 import os
 import json
+import re
 import time
 from core.agent_runner import AgentRunner
 from core.git_manager import GitManager
@@ -131,10 +132,15 @@ class FSALoop:
 
         try:
             from core.skill_creator import evolve_skill
+            from core.skill_enricher import enrich_skill_metadata
+            from core.skill_evolution_bus import SkillEvolutionBus
 
             coding_engine = None
             if hasattr(self.runner, 'mr') and hasattr(self.runner.mr, 'pick'):
                 coding_engine = self.runner.mr.pick('coding')
+
+            # 진화 전 버전 기록
+            old_version = self._read_skill_version(skill_dir)
 
             success = evolve_skill(
                 skill_dir=skill_dir,
@@ -147,6 +153,9 @@ class FSALoop:
                 print_agent_msg("SkillEvolve", f"진화 실패, 기존 코드 유지: {skill_name}", "⚠️")
                 return
 
+            # 메타데이터도 함께 보강 (키워드/태그/설명 최신화)
+            enrich_skill_metadata(skill_dir, coding_engine=coding_engine, force=True)
+
             # 샌드박스 검증 (action 스킬만)
             skill_py = os.path.join(skill_dir, "skill.py")
             if os.path.exists(skill_py):
@@ -155,10 +164,20 @@ class FSALoop:
                     self._rollback_skill(skill_dir, skill_name)
                     return
 
-            # 핫리로딩: 레지스트리 갱신
-            self._hot_reload_registry(skill_name)
+            new_version = self._read_skill_version(skill_dir)
 
-            print_agent_msg("SkillEvolve", f"스킬 진화 성공 + 핫리로딩 완료: {skill_name}", "✅")
+            # EvolutionBus: 전체 캐시 체인 무효화 + 이벤트 브로드캐스트
+            evo_bus = SkillEvolutionBus.get_instance()
+            evo_bus.bind_runner(self.runner)
+            evo_bus.on_skill_evolved(
+                skill_id=skill_name,
+                skill_dir=skill_dir,
+                old_version=old_version,
+                new_version=new_version,
+                trigger="fsa_failure",
+            )
+
+            print_agent_msg("SkillEvolve", f"스킬 진화 성공 + 전체 캐시 무효화: {skill_name}", "✅")
 
         except Exception as e:
             print_agent_msg("SkillEvolve", f"진화 프로세스 예외: {e}", "⚠️")
@@ -174,17 +193,22 @@ class FSALoop:
         if os.path.isdir(SKILLS_DIR):
             search_dirs.append(SKILLS_DIR)
 
+        _SKIP = {"forge", "_external_cache", "__pycache__", "warehouse"}
         for base_dir in search_dirs:
             try:
                 for item in os.listdir(base_dir):
                     skill_dir = os.path.join(base_dir, item)
                     if not os.path.isdir(skill_dir):
                         continue
-                    if item.startswith(".") or item in ("forge", "_external_cache"):
+                    if item.startswith(".") or item in _SKIP:
                         continue
-                    # 스킬 이름이 에러 메시지에 포함되어 있는지 확인
-                    skill_name_lower = item.lower().replace("-", "_").replace(" ", "_")
-                    if skill_name_lower in combined or item.lower() in combined:
+                    # 단어 경계 매칭으로 오탐 방지 (BUG-6 수정)
+                    # \b는 _를 단어 문자로 취급해 오작동 → lookaround 방식으로 교체
+                    skill_name_lower = item.lower().replace("-", "_")
+                    pattern = rf"(?<![a-zA-Z0-9_]){re.escape(skill_name_lower)}(?![a-zA-Z0-9_])"
+                    if re.search(pattern, combined) or re.search(
+                        rf"(?<![a-zA-Z0-9_]){re.escape(item.lower())}(?![a-zA-Z0-9_])", combined
+                    ):
                         return skill_dir
             except Exception:
                 continue
@@ -238,7 +262,7 @@ class FSALoop:
             print_agent_msg("SkillEvolve", f"롤백 대상 .bak 파일 없음: {skill_name}", "⚠️")
 
     def _hot_reload_registry(self, skill_name: str):
-        """레지스트리를 강제 리로딩하여 진화된 스킬을 반영합니다."""
+        """레지스트리를 강제 리로딩하여 진화된 스킬을 반영합니다 (하위 호환용)."""
         try:
             from core.skill_registry import get_global_registry
             registry = get_global_registry()
@@ -246,6 +270,19 @@ class FSALoop:
             print_agent_msg("SkillEvolve", f"레지스트리 핫리로딩 완료 ({registry.count()}개 스킬)", "🔄")
         except Exception as e:
             print_agent_msg("SkillEvolve", f"핫리로딩 실패: {e}", "⚠️")
+
+    def _read_skill_version(self, skill_dir: str) -> str:
+        """meta.yaml에서 현재 스킬 버전을 읽어옵니다."""
+        meta_path = os.path.join(skill_dir, "meta.yaml")
+        if not os.path.exists(meta_path):
+            return "0.1.0"
+        try:
+            import yaml
+            with open(meta_path, "r", encoding="utf-8") as f:
+                meta = yaml.safe_load(f) or {}
+            return str(meta.get("version", "0.1.0"))
+        except Exception:
+            return "0.1.0"
 
     def _run_evaluator(self, agent: dict, current_task: str, result: dict, run_id: str, cycle: int) -> dict:
         """Try evaluator agent first, fall back to StrategyEvaluator."""

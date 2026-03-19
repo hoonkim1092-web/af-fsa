@@ -26,11 +26,28 @@ logger = logging.getLogger(__name__)
 class UnifiedMemoryFacade:
     """Unified read/write/search across all memory backends."""
 
+    # Module-level singleton — set via set_instance() from agent_runner bootstrap
+    _shared_instance: "UnifiedMemoryFacade | None" = None
+
     def __init__(self, project_id: str = "") -> None:
         self.project_id = project_id
         self._adapters: dict[str, MemoryBackendAdapter] = {}
         self._healthy: set[str] = set()
         self._initialised = False
+
+    @classmethod
+    def get_instance(cls) -> "UnifiedMemoryFacade":
+        """Return the shared singleton (set via set_instance).
+        Returns an uninitialised stub if no instance has been registered yet.
+        """
+        if cls._shared_instance is None:
+            cls._shared_instance = cls()
+        return cls._shared_instance
+
+    @classmethod
+    def set_instance(cls, instance: "UnifiedMemoryFacade") -> None:
+        """Register the process-wide shared facade (called from agent_runner bootstrap)."""
+        cls._shared_instance = instance
 
     # ── Registration ───────────────────────────────────────────────────
 
@@ -183,11 +200,18 @@ class UnifiedMemoryFacade:
         if scope:
             all_records = [r for r in all_records if r.scope == scope]
 
+        # Evict expired records before ranking (TTL enforcement at read time)
+        decay_mgr = MemoryDecayManager()
+        active, expired = decay_mgr.collect_expired(all_records)
+        if expired:
+            logger.debug(
+                "search_semantic: filtered %d expired records", len(expired)
+            )
+
         # Deduplicate by content_hash
-        deduped = _deduplicate(all_records)
+        deduped = _deduplicate(active)
 
         # Rank by relevance score (Phase 14)
-        decay_mgr = MemoryDecayManager()
         scored = decay_mgr.rank_by_relevance(deduped)
 
         # Return top-N by relevance score
@@ -261,8 +285,14 @@ class UnifiedMemoryFacade:
             ttl_hours=90 * 24,  # 90 days default
             causal_links=episode.causal_links,
         )
+        # knowledge_graph adapter must never receive raw episodes — it stores
+        # only structured P→C→S nodes extracted by KnowledgeForger.  Broadcasting
+        # episodes there converts them to KnowledgeNode objects and corrupts the
+        # graph with unstructured episodic content.
         any_ok = False
-        for adapter in self._adapters.values():
+        for name, adapter in self._adapters.items():
+            if name == "knowledge_graph":
+                continue  # episodes must not pollute graph memory
             try:
                 if await adapter.write(record):
                     any_ok = True

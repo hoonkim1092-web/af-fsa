@@ -1,18 +1,18 @@
-{
-  "key": "assistant 공용 모듈은 들어갔습니다 이제 테스트를 늘려서 세 가지를 잡겠습니다 프롬프트 계약 주입 Claude deny 설정 병합 Gemini policy 파일 생성",
-  "value": "[assistant] 공용 모듈은 들어갔습니다. 이제 테스트를 늘려서 세 가지를 잡겠습니다: 프롬프트 계약 주입, Claude deny 설정 병합, Gemini policy 파일 생성.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T07:17:49.456307+00:00",
-  "updated_at": "2026-03-10T07:17:49.456307+00:00",
-  "details": {
-    "text": "[assistant] 공용 모듈은 들어갔습니다. 이제 테스트를 늘려서 세 가지를 잡겠습니다: 프롬프트 계약 주입, Claude deny 설정 병합, Gemini policy 파일 생성.",
-    "event_timestamp": "2026-03-10T07:17:10.425Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
-    "session_line": 1318,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 공용 모듈은 들어갔습니다 이제 테스트를 늘려서 세 가지를 잡겠습니다 프롬프트 계약 주입 Claude deny 설정 병합 Gemini policy 파일 생성",
+  "value": "[assistant] 공용 모듈은 들어갔습니다. 이제 테스트를 늘려서 세 가지를 잡겠습니다: 프롬프트 계약 주입, Claude deny 설정 병합, Gemini policy 파일 생성.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T07:17:49.456307+00:00",
+  "updated_at": "2026-03-10T07:17:49.456307+00:00",
+  "details": {
+    "text": "[assistant] 공용 모듈은 들어갔습니다. 이제 테스트를 늘려서 세 가지를 잡겠습니다: 프롬프트 계약 주입, Claude deny 설정 병합, Gemini policy 파일 생성.",
+    "event_timestamp": "2026-03-10T07:17:10.425Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 1318,
+    "provider": "codex"
+  }
 }

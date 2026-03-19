@@ -101,6 +101,25 @@ class TestEpisodeExtractor:
         assert ep is not None
         assert len(ep.actions[0]["result"]) <= 504  # 500 + "..."
 
+    def test_nested_same_skill_calls_match_lifo(self):
+        events = [
+            {"event_type": "run_start", "timestamp": "2026-03-17T10:00:00+00:00",
+             "run_id": "r1", "agent_name": "A", "task_input": "t"},
+            {"event_type": "skill_call_start", "run_id": "r1",
+             "skill_name": "retryable_tool", "skill_args": {"depth": 1}},
+            {"event_type": "skill_call_start", "run_id": "r1",
+             "skill_name": "retryable_tool", "skill_args": {"depth": 2}},
+            {"event_type": "skill_call_end", "run_id": "r1",
+             "skill_name": "retryable_tool", "skill_result": "inner result"},
+            {"event_type": "skill_call_end", "run_id": "r1",
+             "skill_name": "retryable_tool", "skill_result": "outer result"},
+            {"event_type": "run_end", "run_id": "r1", "ok": True, "duration_ms": 100},
+        ]
+        ep = extract_episode_from_events(events)
+        assert ep is not None
+        assert ep.actions[0]["result"] == "outer result"
+        assert ep.actions[1]["result"] == "inner result"
+
     def test_partial_outcome(self):
         events = [
             {"event_type": "run_start", "timestamp": "2026-03-17T10:00:00+00:00",

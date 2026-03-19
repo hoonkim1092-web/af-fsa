@@ -1,18 +1,18 @@
-{
-  "key": "assistant 코드 편집은 기존처럼 worktree에서 하겠습니다 지금 경로를 잘못 잡았으니 Dagent-factoryw 기준으로 파일을 열고 수정한 뒤 끝나면 clone으로 다시 동기화하겠습니다",
-  "value": "[assistant] 코드 편집은 기존처럼 worktree에서 하겠습니다. 지금 경로를 잘못 잡았으니 `D:\\agent-factory\\w` 기준으로 파일을 열고 수정한 뒤, 끝나면 clone으로 다시 동기화하겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T17:22:13.131038+00:00",
-  "updated_at": "2026-03-09T17:22:13.131038+00:00",
-  "details": {
-    "text": "[assistant] 코드 편집은 기존처럼 worktree에서 하겠습니다. 지금 경로를 잘못 잡았으니 `D:\\agent-factory\\w` 기준으로 파일을 열고 수정한 뒤, 끝나면 clone으로 다시 동기화하겠습니다.",
-    "event_timestamp": "2026-03-09T17:18:09.605Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
-    "session_line": 2335,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 코드 편집은 기존처럼 worktree에서 하겠습니다 지금 경로를 잘못 잡았으니 Dagent-factoryw 기준으로 파일을 열고 수정한 뒤 끝나면 clone으로 다시 동기화하겠습니다",
+  "value": "[assistant] 코드 편집은 기존처럼 worktree에서 하겠습니다. 지금 경로를 잘못 잡았으니 `D:\\agent-factory\\w` 기준으로 파일을 열고 수정한 뒤, 끝나면 clone으로 다시 동기화하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T17:22:13.131038+00:00",
+  "updated_at": "2026-03-09T17:22:13.131038+00:00",
+  "details": {
+    "text": "[assistant] 코드 편집은 기존처럼 worktree에서 하겠습니다. 지금 경로를 잘못 잡았으니 `D:\\agent-factory\\w` 기준으로 파일을 열고 수정한 뒤, 끝나면 clone으로 다시 동기화하겠습니다.",
+    "event_timestamp": "2026-03-09T17:18:09.605Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 2335,
+    "provider": "codex"
+  }
 }

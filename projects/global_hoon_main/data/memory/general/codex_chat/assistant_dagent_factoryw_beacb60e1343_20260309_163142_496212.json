@@ -1,18 +1,18 @@
-{
-  "key": "assistant Dagent-factoryw 쪽은 샌드박스에서 바로 들어가는 데 문제가 있어서 루트에서 파일을 직접 읽는 방식으로 우회하겠습니다 지금은 수정 포인트만 좁혀서 확인 중입니다",
-  "value": "[assistant] `D:\\agent-factory\\w` 쪽은 샌드박스에서 바로 들어가는 데 문제가 있어서, 루트에서 파일을 직접 읽는 방식으로 우회하겠습니다. 지금은 수정 포인트만 좁혀서 확인 중입니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T16:31:42.496280+00:00",
-  "updated_at": "2026-03-09T16:31:42.496280+00:00",
-  "details": {
-    "text": "[assistant] `D:\\agent-factory\\w` 쪽은 샌드박스에서 바로 들어가는 데 문제가 있어서, 루트에서 파일을 직접 읽는 방식으로 우회하겠습니다. 지금은 수정 포인트만 좁혀서 확인 중입니다.",
-    "event_timestamp": "2026-03-09T16:14:27.454Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
-    "session_line": 973,
-    "provider": "codex"
-  }
+{
+  "key": "assistant Dagent-factoryw 쪽은 샌드박스에서 바로 들어가는 데 문제가 있어서 루트에서 파일을 직접 읽는 방식으로 우회하겠습니다 지금은 수정 포인트만 좁혀서 확인 중입니다",
+  "value": "[assistant] `D:\\agent-factory\\w` 쪽은 샌드박스에서 바로 들어가는 데 문제가 있어서, 루트에서 파일을 직접 읽는 방식으로 우회하겠습니다. 지금은 수정 포인트만 좁혀서 확인 중입니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T16:31:42.496280+00:00",
+  "updated_at": "2026-03-09T16:31:42.496280+00:00",
+  "details": {
+    "text": "[assistant] `D:\\agent-factory\\w` 쪽은 샌드박스에서 바로 들어가는 데 문제가 있어서, 루트에서 파일을 직접 읽는 방식으로 우회하겠습니다. 지금은 수정 포인트만 좁혀서 확인 중입니다.",
+    "event_timestamp": "2026-03-09T16:14:27.454Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 973,
+    "provider": "codex"
+  }
 }

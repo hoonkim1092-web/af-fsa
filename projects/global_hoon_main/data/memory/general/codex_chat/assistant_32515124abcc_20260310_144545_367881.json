@@ -1,18 +1,18 @@
-{
-  "key": "assistant 현재 셸의 작업 디렉터리를 확인하겠습니다",
-  "value": "[assistant] 현재 셸의 작업 디렉터리를 확인하겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T14:45:45.367937+00:00",
-  "updated_at": "2026-03-10T14:45:45.367937+00:00",
-  "details": {
-    "text": "[assistant] 현재 셸의 작업 디렉터리를 확인하겠습니다.",
-    "event_timestamp": "2026-03-10T12:33:12.993Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-26-38-019cd7b6-a943-76b0-a5ca-ea4ca0db60e7.jsonl",
-    "session_line": 104,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 현재 셸의 작업 디렉터리를 확인하겠습니다",
+  "value": "[assistant] 현재 셸의 작업 디렉터리를 확인하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T14:45:45.367937+00:00",
+  "updated_at": "2026-03-10T14:45:45.367937+00:00",
+  "details": {
+    "text": "[assistant] 현재 셸의 작업 디렉터리를 확인하겠습니다.",
+    "event_timestamp": "2026-03-10T12:33:12.993Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-26-38-019cd7b6-a943-76b0-a5ca-ea4ca0db60e7.jsonl",
+    "session_line": 104,
+    "provider": "codex"
+  }
 }

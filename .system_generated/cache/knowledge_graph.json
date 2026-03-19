@@ -1,0 +1,30 @@
+{
+  "nodes": [
+    {
+      "node_id": "c1329cfbca3b44ec80eb836647eaff3e",
+      "node_type": "fact",
+      "label": "Agent: a | Task: task | Outcome: success",
+      "description": "Agent: a | Task: task | Outcome: success",
+      "project_id": "p",
+      "confidence": 1.0,
+      "embedding": null,
+      "created_at": "2026-03-19T13:27:42.385654+00:00",
+      "updated_at": "2026-03-19T13:27:42.385656+00:00",
+      "metadata": {
+        "episode_id": "c1329cfbca3b44ec80eb836647eaff3e",
+        "run_id": "r1",
+        "project_id": "p",
+        "agent_name": "a",
+        "task_input": "task",
+        "actions": [],
+        "outcome": "success",
+        "error_info": "",
+        "duration_ms": 0,
+        "created_at": "2026-03-19T13:27:42.385491+00:00",
+        "causal_links": [],
+        "metadata": {}
+      }
+    }
+  ],
+  "edges": []
+}

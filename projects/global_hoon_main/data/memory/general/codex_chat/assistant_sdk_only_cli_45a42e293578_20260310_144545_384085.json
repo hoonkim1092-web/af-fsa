@@ -1,18 +1,18 @@
-{
-  "key": "assistant 라인 기준 근거만 몇 군데 잡고 마무리하겠습니다 핵심은 지금 코드도 이미 SDK-only가 아니라 CLI 우선 구조라는 점입니다",
-  "value": "[assistant] 라인 기준 근거만 몇 군데 잡고 마무리하겠습니다. 핵심은 “지금 코드도 이미 SDK-only가 아니라 CLI 우선 구조”라는 점입니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T14:45:45.384152+00:00",
-  "updated_at": "2026-03-10T14:45:45.384152+00:00",
-  "details": {
-    "text": "[assistant] 라인 기준 근거만 몇 군데 잡고 마무리하겠습니다. 핵심은 “지금 코드도 이미 SDK-only가 아니라 CLI 우선 구조”라는 점입니다.",
-    "event_timestamp": "2026-03-10T13:51:17.138Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
-    "session_line": 205,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 라인 기준 근거만 몇 군데 잡고 마무리하겠습니다 핵심은 지금 코드도 이미 SDK-only가 아니라 CLI 우선 구조라는 점입니다",
+  "value": "[assistant] 라인 기준 근거만 몇 군데 잡고 마무리하겠습니다. 핵심은 “지금 코드도 이미 SDK-only가 아니라 CLI 우선 구조”라는 점입니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T14:45:45.384152+00:00",
+  "updated_at": "2026-03-10T14:45:45.384152+00:00",
+  "details": {
+    "text": "[assistant] 라인 기준 근거만 몇 군데 잡고 마무리하겠습니다. 핵심은 “지금 코드도 이미 SDK-only가 아니라 CLI 우선 구조”라는 점입니다.",
+    "event_timestamp": "2026-03-10T13:51:17.138Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
+    "session_line": 205,
+    "provider": "codex"
+  }
 }

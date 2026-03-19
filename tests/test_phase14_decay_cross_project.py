@@ -167,6 +167,26 @@ class TestCrossProjectRecall:
         assert len(results) == 1
         assert results[0].memory_type == MemoryType.GRAPH
 
+    def test_find_similar_solutions_across_projects(self):
+        a = InMemoryAdapter("mem")
+        f = UnifiedMemoryFacade(project_id="proj_b")
+        f.register_adapter(a)
+        run(f.initialise())
+
+        rec = MemoryRecord(
+            content="import error solution: add missing dependency",
+            memory_type=MemoryType.GRAPH,
+            scope=MemoryScope.LOCAL,
+            project_id="proj_a",
+        )
+        run(a.write(rec))
+
+        xp = CrossProjectRecall(f)
+        results = run(xp.find_similar_solutions("import error"))
+        assert len(results) == 1
+        assert results[0].project_id == "proj_a"
+        assert results[0].memory_type == MemoryType.GRAPH
+
     def test_empty_results(self):
         f, _ = self._make_facade()
         xp = CrossProjectRecall(f)

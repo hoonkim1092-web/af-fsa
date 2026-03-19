@@ -1,18 +1,18 @@
-{
-  "key": "assistant 같은 source 내부 중복을 importer 단계에서 차단하겠습니다 기준은 source_id  skill_id로 보고 첫 후보만 유지하고 나머지는 충돌로 기록하는 방식으로 넣겠습니다",
-  "value": "[assistant] 같은 source 내부 중복을 importer 단계에서 차단하겠습니다. 기준은 `source_id + skill_id`로 보고, 첫 후보만 유지하고 나머지는 충돌로 기록하는 방식으로 넣겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T17:40:37.948546+00:00",
-  "updated_at": "2026-03-10T17:40:37.948546+00:00",
-  "details": {
-    "text": "[assistant] 같은 source 내부 중복을 importer 단계에서 차단하겠습니다. 기준은 `source_id + skill_id`로 보고, 첫 후보만 유지하고 나머지는 충돌로 기록하는 방식으로 넣겠습니다.",
-    "event_timestamp": "2026-03-10T15:22:46.742Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
-    "session_line": 1174,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 같은 source 내부 중복을 importer 단계에서 차단하겠습니다 기준은 source_id  skill_id로 보고 첫 후보만 유지하고 나머지는 충돌로 기록하는 방식으로 넣겠습니다",
+  "value": "[assistant] 같은 source 내부 중복을 importer 단계에서 차단하겠습니다. 기준은 `source_id + skill_id`로 보고, 첫 후보만 유지하고 나머지는 충돌로 기록하는 방식으로 넣겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:37.948546+00:00",
+  "updated_at": "2026-03-10T17:40:37.948546+00:00",
+  "details": {
+    "text": "[assistant] 같은 source 내부 중복을 importer 단계에서 차단하겠습니다. 기준은 `source_id + skill_id`로 보고, 첫 후보만 유지하고 나머지는 충돌로 기록하는 방식으로 넣겠습니다.",
+    "event_timestamp": "2026-03-10T15:22:46.742Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
+    "session_line": 1174,
+    "provider": "codex"
+  }
 }

@@ -19,7 +19,7 @@ from enum import Enum
 from typing import Any
 
 from core.memory_system.facade import UnifiedMemoryFacade
-from core.memory_system.models import MemoryRecord, MemoryScope, MemoryType
+from core.memory_system.models import MemoryRecord, MemoryScope, MemoryType, NodeType
 
 logger = logging.getLogger(__name__)
 
@@ -127,20 +127,79 @@ class MemoryRouter:
         return results[:limit]
 
     async def _recall_graph(self, query: str, limit: int) -> list[MemoryRecord]:
-        """Traverse Knowledge Graph (Problem→Cause→Solution patterns)."""
-        results = await self._facade.search_semantic(
-            query, limit=limit, memory_type=MemoryType.GRAPH,
-        )
-        # Graph results are already ranked by graph traversal score
-        # Prefer higher confidence (learned patterns)
-        results.sort(
-            key=lambda r: (
-                r.metadata.get("confidence", 1.0),
-                r.updated_at,
-            ),
-            reverse=True,
-        )
-        return results[:limit]
+        """Traverse Knowledge Graph using BFS from matching problem nodes.
+
+        Searches for Problem nodes matching the query keyword, then does a
+        BFS traversal to collect connected Cause and Solution nodes.
+        Falls back to semantic search if the knowledge_graph adapter is absent.
+        """
+        raw_adapter = self._facade.get_adapter("knowledge_graph")
+        if raw_adapter is None:
+            # Graceful fallback — no graph adapter registered
+            return await self._facade.search_semantic(
+                query, limit=limit, memory_type=MemoryType.GRAPH,
+            )
+
+        try:
+            from core.memory_system.adapters.knowledge_graph import KnowledgeGraphAdapter
+            from core.memory_system.graph_query import GraphQuery
+            from core.memory_system.episode_matcher import keyword_similarity
+
+            graph_adapter = raw_adapter  # type: KnowledgeGraphAdapter
+            gq = GraphQuery(graph_adapter)  # type: ignore[arg-type]
+
+            # 1. Score all problem nodes against query
+            problem_nodes = graph_adapter.list_nodes(node_type=NodeType.PROBLEM)
+            scored = [
+                (n, keyword_similarity(query, f"{n.label} {n.description}"))
+                for n in problem_nodes
+            ]
+            scored = [(n, s) for n, s in scored if s > 0.15]
+            scored.sort(key=lambda x: x[1] * x[0].confidence, reverse=True)
+
+            # 2. BFS from top matching problems → collect full subgraphs
+            results: list[MemoryRecord] = []
+            seen_ids: set[str] = set()
+
+            for problem_node, match_score in scored[:3]:  # top 3 seeds
+                traversed = gq.bfs(problem_node.node_id, max_depth=2)
+                for node in traversed:
+                    if node.node_id in seen_ids:
+                        continue
+                    seen_ids.add(node.node_id)
+                    meta = dict(node.metadata)
+                    meta.update({
+                        "node_type": node.node_type.value,
+                        "label": node.label,
+                        "confidence": node.confidence,
+                        "graph_match_score": round(match_score, 4),
+                    })
+                    results.append(MemoryRecord(
+                        record_id=node.node_id,
+                        memory_type=MemoryType.GRAPH,
+                        scope=MemoryScope.LOCAL,
+                        project_id=node.project_id or "",
+                        content=node.description,
+                        metadata=meta,
+                    ))
+                if len(results) >= limit:
+                    break
+
+            # 3. Sort: highest-confidence solutions / causes first
+            results.sort(
+                key=lambda r: (
+                    r.metadata.get("confidence", 1.0),
+                    r.metadata.get("graph_match_score", 0.0),
+                ),
+                reverse=True,
+            )
+            return results[:limit]
+
+        except Exception as exc:
+            logger.error("_recall_graph BFS failed, falling back: %s", exc)
+            return await self._facade.search_semantic(
+                query, limit=limit, memory_type=MemoryType.GRAPH,
+            )
 
     async def _recall_working(self, query: str, limit: int) -> list[MemoryRecord]:
         """Recall current working context (session-scoped, recent first)."""

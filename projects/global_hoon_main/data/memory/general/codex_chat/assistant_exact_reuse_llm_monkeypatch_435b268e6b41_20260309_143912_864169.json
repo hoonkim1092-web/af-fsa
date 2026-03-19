@@ -1,18 +1,18 @@
-{
-  "key": "assistant 핵심 구현은 새 파이프라인 추가  메인 진입점 라우팅  exact reuse 보강 세 축으로 갑니다 테스트는 LLM 호출 없이 monkeypatch로 고정해서 라우팅과 스킬 조달 순서만 검증하는 방",
-  "value": "[assistant] 핵심 구현은 `새 파이프라인 추가 + 메인 진입점 라우팅 + exact reuse 보강` 세 축으로 갑니다. 테스트는 LLM 호출 없이 monkeypatch로 고정해서, 라우팅과 스킬 조달 순서만 검증하는 방식으로 붙이겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T14:39:12.864284+00:00",
-  "updated_at": "2026-03-09T14:39:12.864284+00:00",
-  "details": {
-    "text": "[assistant] 핵심 구현은 `새 파이프라인 추가 + 메인 진입점 라우팅 + exact reuse 보강` 세 축으로 갑니다. 테스트는 LLM 호출 없이 monkeypatch로 고정해서, 라우팅과 스킬 조달 순서만 검증하는 방식으로 붙이겠습니다.",
-    "event_timestamp": "2026-03-08T01:49:55.191Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/07/rollout-2026-03-07T23-57-50-019cc8ce-02f3-7c92-a357-f51576977b23.jsonl",
-    "session_line": 1973,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 핵심 구현은 새 파이프라인 추가  메인 진입점 라우팅  exact reuse 보강 세 축으로 갑니다 테스트는 LLM 호출 없이 monkeypatch로 고정해서 라우팅과 스킬 조달 순서만 검증하는 방",
+  "value": "[assistant] 핵심 구현은 `새 파이프라인 추가 + 메인 진입점 라우팅 + exact reuse 보강` 세 축으로 갑니다. 테스트는 LLM 호출 없이 monkeypatch로 고정해서, 라우팅과 스킬 조달 순서만 검증하는 방식으로 붙이겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T14:39:12.864284+00:00",
+  "updated_at": "2026-03-09T14:39:12.864284+00:00",
+  "details": {
+    "text": "[assistant] 핵심 구현은 `새 파이프라인 추가 + 메인 진입점 라우팅 + exact reuse 보강` 세 축으로 갑니다. 테스트는 LLM 호출 없이 monkeypatch로 고정해서, 라우팅과 스킬 조달 순서만 검증하는 방식으로 붙이겠습니다.",
+    "event_timestamp": "2026-03-08T01:49:55.191Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/07/rollout-2026-03-07T23-57-50-019cc8ce-02f3-7c92-a357-f51576977b23.jsonl",
+    "session_line": 1973,
+    "provider": "codex"
+  }
 }

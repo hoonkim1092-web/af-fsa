@@ -1,18 +1,18 @@
-{
-  "key": "assistant CLI 우회는 CLI가 파일을 직접 수정하게 할지보다 코드 텍스트만 받게 할지가 중요합니다 현재 빌더의 테스트가드 구조를 살리려면 CLI는 코드만 반환하고 저장검증은 기존 builder 루프가 계속",
-  "value": "[assistant] CLI 우회는 “CLI가 파일을 직접 수정하게 할지”보다 “코드 텍스트만 받게 할지”가 중요합니다. 현재 빌더의 테스트/가드 구조를 살리려면, CLI는 코드만 반환하고 저장·검증은 기존 builder 루프가 계속 맡기는 쪽으로 가겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T14:45:45.418603+00:00",
-  "updated_at": "2026-03-10T14:45:45.418603+00:00",
-  "details": {
-    "text": "[assistant] CLI 우회는 “CLI가 파일을 직접 수정하게 할지”보다 “코드 텍스트만 받게 할지”가 중요합니다. 현재 빌더의 테스트/가드 구조를 살리려면, CLI는 코드만 반환하고 저장·검증은 기존 builder 루프가 계속 맡기는 쪽으로 가겠습니다.",
-    "event_timestamp": "2026-03-10T14:39:58.835Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
-    "session_line": 517,
-    "provider": "codex"
-  }
+{
+  "key": "assistant CLI 우회는 CLI가 파일을 직접 수정하게 할지보다 코드 텍스트만 받게 할지가 중요합니다 현재 빌더의 테스트가드 구조를 살리려면 CLI는 코드만 반환하고 저장검증은 기존 builder 루프가 계속",
+  "value": "[assistant] CLI 우회는 “CLI가 파일을 직접 수정하게 할지”보다 “코드 텍스트만 받게 할지”가 중요합니다. 현재 빌더의 테스트/가드 구조를 살리려면, CLI는 코드만 반환하고 저장·검증은 기존 builder 루프가 계속 맡기는 쪽으로 가겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T14:45:45.418603+00:00",
+  "updated_at": "2026-03-10T14:45:45.418603+00:00",
+  "details": {
+    "text": "[assistant] CLI 우회는 “CLI가 파일을 직접 수정하게 할지”보다 “코드 텍스트만 받게 할지”가 중요합니다. 현재 빌더의 테스트/가드 구조를 살리려면, CLI는 코드만 반환하고 저장·검증은 기존 builder 루프가 계속 맡기는 쪽으로 가겠습니다.",
+    "event_timestamp": "2026-03-10T14:39:58.835Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
+    "session_line": 517,
+    "provider": "codex"
+  }
 }

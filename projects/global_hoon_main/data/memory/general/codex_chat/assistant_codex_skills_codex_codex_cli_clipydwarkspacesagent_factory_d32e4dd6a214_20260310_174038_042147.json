@@ -1,18 +1,18 @@
-{
-  "key": "assistant 아니요 지금 코드는 그 공식 Codex Skills 경로를 타지 않습니다구현을 보면 codex는 두 가지로만 쓰입니다- codex_cli 실행기 clipyDwarkSpacesagent-factory",
-  "value": "[assistant] 아니요. 지금 코드는 그 공식 Codex Skills 경로를 타지 않습니다.  구현을 보면 `codex`는 두 가지로만 쓰입니다. - `codex_cli` 실행기: [cli.py](/D:/warkSpaces/agent-factory/core/providers/cli.py#L72) 에서 그냥 `codex ... exec` CLI를 호출합니다. 여기엔 Skills 검색/설치/API 호출 로직이 없습니다. - 외부 스킬 source 라벨:...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T17:40:38.042446+00:00",
-  "updated_at": "2026-03-10T17:40:38.042446+00:00",
-  "details": {
-    "text": "[assistant] 아니요. 지금 코드는 그 공식 Codex Skills 경로를 타지 않습니다.\n\n구현을 보면 `codex`는 두 가지로만 쓰입니다.\n- `codex_cli` 실행기: [cli.py](/D:/warkSpaces/agent-factory/core/providers/cli.py#L72) 에서 그냥 `codex ... exec` CLI를 호출합니다. 여기엔 Skills 검색/설치/API 호출 로직이 없습니다.\n- 외부 스킬 source 라벨: [external_skill_sources.py](/D:/warkSpaces/agent-factory/core/external_skill_sources.py#L105) 에서 `AGENT_EXTERNAL_SKILL_CODEX_REPOS` 값을 읽고, [external_skill_sources.py](/D:/warkSpaces/agent-factory/core/external_skill_sources.py#L153) 에서 해당 repo를 `git clone/pull` 한 뒤, [external_skill_candidate_importer.py](/D:/warkSpaces/agent-factory/core/external_skill_candidate_importer.py#L149) 와 [external_skill_candidate_importer.py](/D:/warkSpaces/agent-factory/core/external_skill_candidate_importer.py#L268) 에서 `skill_candidates.yaml`이나 로컬 `.py` 파일을 스캔합니다.\n\n즉 현재 구조는:\n- OpenAI 공식 Codex Skills API/라이브러리/앱 내 skill catalog 연동: 없음\n- 우리가 지정한 외부 repo/cache를 `codex_repo`라는 이름으로 읽기: 있음\n- Codex CLI로 채팅/코드 실행: 있음\n\n내 판단으로는 지금 `codex_repo`는 “OpenAI 공식 Codex Skills 소스”가 아니라 그냥 “Codex 계열 외부 스킬 저장소용 버킷 이름”입니다. 공식 Codex Skills를 진짜 붙이려면 별도 adapter를 추가해서 공식 list/search/download 또는 upload/manage API를 호출하고, 그 응답을 현재 `install_candidates` 포맷으로 매핑해야 합니다. 원하면 그 연동 설계까지 바로 뽑아드리겠습니다.",
-    "event_timestamp": "2026-03-10T16:25:22.416Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
-    "session_line": 2253,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 아니요 지금 코드는 그 공식 Codex Skills 경로를 타지 않습니다구현을 보면 codex는 두 가지로만 쓰입니다- codex_cli 실행기 clipyDwarkSpacesagent-factory",
+  "value": "[assistant] 아니요. 지금 코드는 그 공식 Codex Skills 경로를 타지 않습니다.  구현을 보면 `codex`는 두 가지로만 쓰입니다. - `codex_cli` 실행기: [cli.py](/D:/warkSpaces/agent-factory/core/providers/cli.py#L72) 에서 그냥 `codex ... exec` CLI를 호출합니다. 여기엔 Skills 검색/설치/API 호출 로직이 없습니다. - 외부 스킬 source 라벨:...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:38.042446+00:00",
+  "updated_at": "2026-03-10T17:40:38.042446+00:00",
+  "details": {
+    "text": "[assistant] 아니요. 지금 코드는 그 공식 Codex Skills 경로를 타지 않습니다.\n\n구현을 보면 `codex`는 두 가지로만 쓰입니다.\n- `codex_cli` 실행기: [cli.py](/D:/warkSpaces/agent-factory/core/providers/cli.py#L72) 에서 그냥 `codex ... exec` CLI를 호출합니다. 여기엔 Skills 검색/설치/API 호출 로직이 없습니다.\n- 외부 스킬 source 라벨: [external_skill_sources.py](/D:/warkSpaces/agent-factory/core/external_skill_sources.py#L105) 에서 `AGENT_EXTERNAL_SKILL_CODEX_REPOS` 값을 읽고, [external_skill_sources.py](/D:/warkSpaces/agent-factory/core/external_skill_sources.py#L153) 에서 해당 repo를 `git clone/pull` 한 뒤, [external_skill_candidate_importer.py](/D:/warkSpaces/agent-factory/core/external_skill_candidate_importer.py#L149) 와 [external_skill_candidate_importer.py](/D:/warkSpaces/agent-factory/core/external_skill_candidate_importer.py#L268) 에서 `skill_candidates.yaml`이나 로컬 `.py` 파일을 스캔합니다.\n\n즉 현재 구조는:\n- OpenAI 공식 Codex Skills API/라이브러리/앱 내 skill catalog 연동: 없음\n- 우리가 지정한 외부 repo/cache를 `codex_repo`라는 이름으로 읽기: 있음\n- Codex CLI로 채팅/코드 실행: 있음\n\n내 판단으로는 지금 `codex_repo`는 “OpenAI 공식 Codex Skills 소스”가 아니라 그냥 “Codex 계열 외부 스킬 저장소용 버킷 이름”입니다. 공식 Codex Skills를 진짜 붙이려면 별도 adapter를 추가해서 공식 list/search/download 또는 upload/manage API를 호출하고, 그 응답을 현재 `install_candidates` 포맷으로 매핑해야 합니다. 원하면 그 연동 설계까지 바로 뽑아드리겠습니다.",
+    "event_timestamp": "2026-03-10T16:25:22.416Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
+    "session_line": 2253,
+    "provider": "codex"
+  }
 }

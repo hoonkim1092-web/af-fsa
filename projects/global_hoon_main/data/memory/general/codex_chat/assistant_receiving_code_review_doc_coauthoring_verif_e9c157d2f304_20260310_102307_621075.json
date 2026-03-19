@@ -1,18 +1,18 @@
-{
-  "key": "assistant 코드리뷰 보고서의 주장들을 현재 코드 기준으로 대조해서 맞는 문제와 이미 달라진 문제를 분리한 뒤 문서로 정리하겠습니다 receiving-code-review doc-coauthoring verif",
-  "value": "[assistant] 코드리뷰 보고서의 주장들을 현재 코드 기준으로 대조해서, 맞는 문제와 이미 달라진 문제를 분리한 뒤 문서로 정리하겠습니다. `receiving-code-review`, `doc-coauthoring`, `verification-before-completion` 흐름으로 남은 핵심 파일과 테스트 근거를 더 확인하겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T10:23:07.621158+00:00",
-  "updated_at": "2026-03-10T10:23:07.621158+00:00",
-  "details": {
-    "text": "[assistant] 코드리뷰 보고서의 주장들을 현재 코드 기준으로 대조해서, 맞는 문제와 이미 달라진 문제를 분리한 뒤 문서로 정리하겠습니다. `receiving-code-review`, `doc-coauthoring`, `verification-before-completion` 흐름으로 남은 핵심 파일과 테스트 근거를 더 확인하겠습니다.",
-    "event_timestamp": "2026-03-10T08:43:34.663Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
-    "session_line": 1650,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 코드리뷰 보고서의 주장들을 현재 코드 기준으로 대조해서 맞는 문제와 이미 달라진 문제를 분리한 뒤 문서로 정리하겠습니다 receiving-code-review doc-coauthoring verif",
+  "value": "[assistant] 코드리뷰 보고서의 주장들을 현재 코드 기준으로 대조해서, 맞는 문제와 이미 달라진 문제를 분리한 뒤 문서로 정리하겠습니다. `receiving-code-review`, `doc-coauthoring`, `verification-before-completion` 흐름으로 남은 핵심 파일과 테스트 근거를 더 확인하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T10:23:07.621158+00:00",
+  "updated_at": "2026-03-10T10:23:07.621158+00:00",
+  "details": {
+    "text": "[assistant] 코드리뷰 보고서의 주장들을 현재 코드 기준으로 대조해서, 맞는 문제와 이미 달라진 문제를 분리한 뒤 문서로 정리하겠습니다. `receiving-code-review`, `doc-coauthoring`, `verification-before-completion` 흐름으로 남은 핵심 파일과 테스트 근거를 더 확인하겠습니다.",
+    "event_timestamp": "2026-03-10T08:43:34.663Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 1650,
+    "provider": "codex"
+  }
 }

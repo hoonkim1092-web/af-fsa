@@ -1,4 +1,4 @@
-﻿import os
+import os
 import time
 import json
 import ast
@@ -807,6 +807,60 @@ class AgentRunner:
         from core.hooks.context_fork import ContextForkHook
         bus.register(ContextForkHook())
 
+        # 스킬 자가 진화 훅 (PRIORITY=80, 10회 실행마다 품질 감사 트리거)
+        try:
+            from core.hooks.skill_self_evolution import SkillSelfEvolutionHook
+            from core.skill_evolution_bus import SkillEvolutionBus
+            _sse_hook = SkillSelfEvolutionHook(check_interval=10)
+            bus.register(_sse_hook)
+            # EvolutionBus에 현재 runner와 event_bus 바인딩
+            _evo_bus = SkillEvolutionBus.get_instance()
+            _evo_bus.bind_runner(self)
+            _evo_bus.bind_event_bus(bus)
+        except Exception as _sse_err:
+            _safe_print(f"[Runner] SkillSelfEvolutionHook 등록 스킵: {_sse_err}")
+
+        # 메모리 훅: KnowledgeInjectionHook(PRIORITY=10) + MemoryConsolidationHook(PRIORITY=95)
+        # KnowledgeInjectionHook은 pre_execute에서 Knowledge Graph를 검색해 agent_state에
+        # _knowledge_context를 주입하고, MemoryConsolidationHook은 post_execute에서 실행
+        # 에피소드를 파싱해 UnifiedMemoryFacade에 기록한다.
+        _mem_ki_hook = None
+        _mem_mc_hook = None
+        try:
+            import asyncio as _asyncio
+            from core.memory_system.knowledge_injection import KnowledgeInjectionHook
+            from core.hooks.memory_consolidation import MemoryConsolidationHook
+            from core.memory_system.facade import UnifiedMemoryFacade
+            from core.memory_system.adapters.knowledge_graph import KnowledgeGraphAdapter
+            from core.memory_system.adapters.core_memory import CoreMemoryAdapter
+
+            _mem_ki_hook = KnowledgeInjectionHook()
+            _mem_mc_hook = MemoryConsolidationHook()
+
+            _agent_name = str(agent.get("name", ""))
+            _mem_facade = UnifiedMemoryFacade(project_id=str(project_id or "agent_factory"))
+            _mem_graph_adapter = KnowledgeGraphAdapter(workspace=str(target_workspace))
+            _mem_facade.register_adapter(CoreMemoryAdapter(agent_id=_agent_name or None))
+            _mem_facade.register_adapter(_mem_graph_adapter)
+            try:
+                _asyncio.run(_mem_facade.initialise())
+            except RuntimeError:
+                # Already inside a running event loop — skip async init (hooks degrade gracefully)
+                pass
+
+            # Wire adapters into hooks
+            _mem_mc_hook.set_facade(_mem_facade)
+            _mem_ki_hook.set_graph_adapter(_mem_graph_adapter)
+            _mem_mc_hook.set_graph_adapter(_mem_graph_adapter)
+
+            # Register shared singleton so skill_self_evolution can also record
+            UnifiedMemoryFacade.set_instance(_mem_facade)
+
+            bus.register(_mem_ki_hook)
+            bus.register(_mem_mc_hook)
+        except Exception as _mem_err:
+            _safe_print(f"[Runner] Memory hooks 등록 스킵: {_mem_err}")
+
         # ?쒖옉 ???쇱슦???곹깭 ?명떚 (?몄뀡 ??1??
         from core.model_router import print_startup_routing_notice
         print_startup_routing_notice()
@@ -827,10 +881,12 @@ class AgentRunner:
 
         agent_state = {
             "run_id": run_id,
+            "project_id": project_id,
+            "agent_name": str(agent.get("name", "")),
             "agent": agent,
             "task_input": task_input,
             "intent": "complex_feature" if is_complex else "trivial",
-            "workspace": target_workspace
+            "workspace": target_workspace,
         }
 
         if not bus.run_pre_execute(agent_state):
@@ -859,13 +915,14 @@ class AgentRunner:
         # System Prompt construction
         sys_prompt = self._build_runtime_system_prompt(agent)
 
-        # Knowledge Skill Injection (Progressive Disclosure)
-        if hasattr(self, '_knowledge_skills') and self._knowledge_skills:
-            from core.knowledge_skill import filter_relevant_knowledge, build_knowledge_prompt
-            rel_knowledge = filter_relevant_knowledge(self._knowledge_skills, task_input)
-            if rel_knowledge:
-                sys_prompt += build_knowledge_prompt(rel_knowledge)
-                _safe_print(f"??[Runner] ???굿??Knowledge ???袁る???낆뒩?????ш끽維??({len(rel_knowledge)}癲?")
+        # KnowledgeInjectionHook이 pre_execute 중 agent_state에 쓴 컨텍스트를 sys_prompt에 반영
+        # (훅이 미등록이거나 그래프가 비어 있으면 빈 문자열 — 안전하게 no-op)
+        _knowledge_ctx = agent_state.get("_knowledge_context", "")
+        if _knowledge_ctx:
+            sys_prompt += f"\n\n{_knowledge_ctx}"
+
+        # Knowledge Skill Injection -> CWM handles on-demand (legacy fallback preserved)
+        _knowledge_for_cwm = getattr(self, '_knowledge_skills', []) or []
 
         # Proactive Memory Instruction
         skill_ids = [safe_id(str(s)) for s in agent.get("skills", [])]
@@ -1031,21 +1088,37 @@ class AgentRunner:
             _flush_trace(result)
             return result
         try:
-            # [???ル㎦??SDK] genai.Client ??れ삀??뫢?癲?????嶺뚮ㅎ?????獄쏅똻??
+            # [Gemini SDK + CWM] ContextWindowManager 기반 직접 턴 관리
             from google import genai
             from google.genai import types as genai_types
+            from core.context_window_manager import ContextWindowManager
+
             gemini_client = genai.Client(api_key=GOOGLE_API_KEY)
-            chat = create_chat_with_self_heal(
-                gemini_client,
-                gemini_model,
-                config=genai_types.GenerateContentConfig(
-                    system_instruction=sys_prompt,
-                    tools=tool_functions,
-                ),
+
+            # FIX #7: get_knowledge tool 등록 (LLM이 Knowledge 스킬 내용 요청 가능)
+            _cwm_placeholder: list = []  # 참조용 (아래에서 _cwm 생성 후 채워짐)
+
+            def get_knowledge(skill_id: str) -> str:
+                """Load the full content of a knowledge skill by its ID or name.
+                Use this when you need detailed procedures from an available knowledge skill."""
+                return _cwm.get_knowledge_content(skill_id)
+
+            _tool_functions_with_knowledge = list(tool_functions) + [get_knowledge]
+
+            # CWM 초기화: Knowledge 스킬 온디맨드 주입, tool evict 활성화
+            _cwm = ContextWindowManager(
+                model_name=str(gemini_model),
+                system_prompt=sys_prompt,
+                all_tools=_tool_functions_with_knowledge,
+                knowledge_skills=_knowledge_for_cwm,
+                evict_after_turns=3,
+                recent_window=4,
             )
+            # get_knowledge는 항상 active 유지 (tracker에 미리 등록)
+            _cwm.tool_tracker.record_use("get_knowledge", turn=0)
         except Exception as e:
             import traceback
-            print(f"??[Runner] SDK Chat Session Create ????됰꽡: {str(e)}")
+            print(f"[Runner] SDK/CWM Init Error: {str(e)}")
             traceback.print_exc()
             result = {"ok": False, "reason": "sdk_init_failed", "latency_ms": int((time.time() - started) * 1000), "approval_rejects": approval_rejects}
             _append_trace("error", {"stage": "sdk_init", "message": str(e)})
@@ -1054,60 +1127,84 @@ class AgentRunner:
 
         _append_trace("user", {"text": f"Task: {task_input}"})
         _append_trace("system", {"model": str(gemini_model), "skills": [str(s) for s in skill_ids]})
-        
-        # ???源놁벁??癲ル슢??????? ??ш끽維뽬땻?????(429 Quota ???筌??????
-        def safe_send(msg):
+
+        # 429 Quota 재시도 래퍼 (generate_content용)
+        # FIX #5: last_error로 예외 컨텍스트 보존
+        def safe_generate(contents, config):
+            if not contents:
+                raise ValueError("Empty contents list passed to generate_content()")  # FIX #12
             max_retries = 3
+            last_error: Exception | None = None
             for i in range(max_retries):
                 try:
-                    return chat.send_message(msg)
-                except Exception as e:
-                    if "429" in str(e) or "quota" in str(e).lower() or "resource exhausted" in str(e).lower():
+                    return gemini_client.models.generate_content(
+                        model=gemini_model,
+                        contents=contents,
+                        config=config,
+                    )
+                except Exception as exc:
+                    last_error = exc
+                    if "429" in str(exc) or "quota" in str(exc).lower() or "resource exhausted" in str(exc).lower():
                         wait = 5 * (i + 1)
-                        print(f"??[Quota] API ??????縕???(429). {wait}??????濚?.. ({i+1}/{max_retries})")
+                        print(f"[Quota] API Rate Limit (429). {wait}s wait... ({i+1}/{max_retries})")
                         time.sleep(wait)
                         continue
-                    raise e
-            raise Exception("API ?嶺뚮ㅎ???????됰꽡 (Quota Exceeded)")
+                    raise  # 429 외 에러는 즉시 재발생
+            raise last_error or Exception("API Rate Limit Exceeded (Quota)")
 
         try:
-            # [???ル㎦??SDK] 癲?癲ル슢??????? ??ш끽維뽬땻?
-            response = safe_send(f"Task: {task_input}")
-            
-            # Basic ReAct Loop
-            for turn in range(10): # Max 10 turns
+            # 초기 사용자 메시지 등록
+            _cwm.add_user_message(f"Task: {task_input}", turn=0)
+
+            # CWM 기반 ReAct Loop (직접 턴 관리)
+            for turn in range(10):
+                # 매 턴 컨텍스트 최적화
+                gen_config = _cwm.get_generate_config(turn, genai_types=genai_types)
+                response = safe_generate(
+                    contents=gen_config["contents"],
+                    config=genai_types.GenerateContentConfig(
+                        system_instruction=gen_config["system_instruction"],
+                        tools=gen_config["tools"],
+                    ),
+                )
+
                 if not response.parts:
                     if not response.candidates:
-                        pass # No debug print here
+                        pass
                     break
+
+                # 모델 응답 히스토리에 기록
+                _cwm.record_model_response(response, turn)
 
                 has_action = False
                 for part in response.parts:
                     # 1. Output Text
                     if hasattr(part, "text") and part.text:
-                        print(f"?勇?{part.text}", flush=True)
+                        print(f"{part.text}", flush=True)
                         _append_trace("assistant", {"text": str(part.text)})
-                    
+
                     # 2. Function Call
                     if hasattr(part, "function_call") and part.function_call:
                         has_action = True
                         fc = part.function_call
                         fname = fc.name
                         fargs = dict(fc.args)
-                        print(f"??疫뀀챶??[Tool] {fname}({fargs})", flush=True)
+                        print(f"[Tool] {fname}({fargs})", flush=True)
                         _append_trace("tool_call", {"name": str(fname), "args": fargs})
-                    
-                        # Find tool wrapper
-                        tool_func = next((t for t in tool_functions if t.__name__ == fname), None)
+
+                        # Tool lookup: knowledge tool 포함 전체 목록에서 검색
+                        tool_func = next((t for t in _tool_functions_with_knowledge if t.__name__ == fname), None)
                         if tool_func:
                             try:
                                 skill_id = safe_id(str(getattr(tool_func, "_skill_id", "")))
                                 if self._requires_tool_approval(policy, skill_id, fname):
                                     if not self._ask_tool_approval(fname, skill_id):
-                                        print(f"????[Policy] ?????雅?퍔瑗띰㎖??嶺뚮ㅎ?댐쭗?쒖뒙???ш낄猷??????덈틖??癲꾧퀗??????ㅿ폍??? {fname}", flush=True)
+                                        print(f"[Policy] Approval rejected: {fname}", flush=True)
                                         approval_rejects += 1
                                         _append_trace("tool_reject", {"name": str(fname), "skill_id": str(skill_id)})
-                                        response = safe_send("???????ш낄猷??????????? ????⒱봼?????? ????렺??袁⑸젻泳?쉬????⑥??癲ル슣???몄춿??筌뚯뼚???")
+                                        # FIX #4: function_response로 기록 (연속 user role 방지)
+                                        _cwm.record_tool_call(fname, turn)
+                                        _cwm.record_tool_result(fname, "[rejected: approval denied]", turn)
                                         continue
                                 tool_decision = bus.run_pre_tool_call(agent_state, fname, fargs)
                                 if not tool_decision.allowed:
@@ -1120,8 +1217,12 @@ class AgentRunner:
                                             "reason": str(tool_decision.reason or "blocked_by_hook"),
                                         },
                                     )
-                                    response = safe_send(
-                                        f"Tool call blocked by runtime hook: {tool_decision.reason or 'blocked_by_hook'}"
+                                    # FIX #4: function_response로 기록 (연속 user role 방지)
+                                    _cwm.record_tool_call(fname, turn)
+                                    _cwm.record_tool_result(
+                                        fname,
+                                        f"[blocked: {tool_decision.reason or 'blocked_by_hook'}]",
+                                        turn,
                                     )
                                     continue
 
@@ -1130,49 +1231,50 @@ class AgentRunner:
                                     used_skill_ids_runtime.add(skill_id)
                                 res_obj = tool_func(**dict(tool_decision.tool_args or fargs))
                                 res_obj = bus.run_post_tool_call(agent_state, fname, res_obj)
-                                
+
                                 print(f"  -> Result: {str(res_obj)[:100]}...", flush=True)
                                 _append_trace("tool_result", {"name": str(fname), "result": str(res_obj)[:800]})
-                                
-                                # Send result back
-                                # [???ル㎦??SDK] ??ш낄猷??????덈틖 ?濡ろ뜏???醫듽걫?癲ル슢?꾤땟?????袁⑸즵???
-                                response = safe_send(
-                                    genai_types.Part.from_function_response(
-                                        name=fname,
-                                        response={'result': res_obj}
-                                    )
-                                )
+
+                                # CWM에 tool 호출 + 결과 기록
+                                _cwm.record_tool_call(fname, turn)
+                                _cwm.record_tool_result(fname, res_obj, turn)
                             except Exception as e:
-                                print(f"??[Tool Error] {fname}: {e}", flush=True)
+                                print(f"[Tool Error] {fname}: {e}", flush=True)
                                 _append_trace("tool_error", {"name": str(fname), "message": str(e)})
-                                response = safe_send(f"??ш낄猷??????덈틖 濚?????곸씔??좊읈? ?袁⑸즵獒뺣뎾????怨?????덊렡: {e}")
+                                # FIX #4: function_response로 기록 (연속 user role 방지)
+                                _cwm.record_tool_result(fname, f"[error: {e}]", turn)
                         else:
-                            print(f"???レ탴??[Runner] ????????몄툗 ??ш낄猷???嶺뚮ㅎ??? {fname}", flush=True)
-                            response = safe_send(f"????????몄툗 ??ш낄猷?????낇돲?? {fname}")
+                            print(f"[Runner] Unknown tool: {fname}", flush=True)
+                            # FIX #4: function_response로 기록 (연속 user role 방지)
+                            _cwm.record_tool_result(fname, f"[error: unknown tool '{fname}']", turn)
 
                 if not has_action:
-                    # 癲ル슢??節됰쑏?????몄릇?嶺뚮ㅎ?붺빊?????뫢?????력?????⑤챶?뺧┼???룸Ŧ爾?????ろ꼤嶺?(癲ル슣??袁ｋ즵???????ㅺ컼????????源낆쓱)
                     break
-            
-            print("??Agent Execution Finished.")
+
+            # CWM 통계 로깅
+            _cwm_stats = _cwm.get_stats()
+            _safe_print(f"[CWM] history={_cwm_stats['history']['total_tokens']}tok "
+                        f"compressed={_cwm_stats['history']['compressed_entries']} "
+                        f"saved={_cwm_stats['history']['saved_tokens']}tok")
+            print("Agent Execution Finished.")
             result = {"ok": True, "reason": "gemini", "latency_ms": int((time.time() - started) * 1000), "approval_rejects": approval_rejects}
-            # Phase 3: ??post-execute ?몄텧 (濡쒓퉭)
+            # Phase 3: post-execute hook
             result = bus.run_post_execute(agent_state, result)
             _flush_trace(result)
             return result
 
         except Exception as e:
             import traceback
-            print(f"???レ탴??[Runner] ????덈틖 濚?????곸씔: {e}")
+            print(f"[Runner] Execution error: {e}")
             traceback.print_exc()
-            # Fallback output
-            print("??????ш낄援θキ?뤿쨬??쎛 ???쑩?젆????獄쏅똻???? 癲ル슢履뉑쾮?彛??????")
+            print("Execution failed. Check logs for details.")
             result = {"ok": False, "reason": f"runner_error:{type(e).__name__}", "latency_ms": int((time.time() - started) * 1000), "approval_rejects": approval_rejects}
             _append_trace("error", {"stage": "runner", "message": str(e)})
-            # Phase 3: ??post-execute ?몄텧 (濡쒓퉭)
+            # Phase 3: post-execute hook
             result = bus.run_post_execute(agent_state, result)
             _flush_trace(result)
             return result
+
 
 # =============================================================================
 # 7) Factory

@@ -78,19 +78,29 @@ def _events_to_episode(events: list[dict]) -> EpisodeRecord:
         elif etype == "skill_call_end":
             sname = ev.get("skill_name", "?")
             result_val = ev.get("skill_result", "")
-            skill_depths[sname] = max(0, skill_depths.get(sname, 1) - 1)
+            current_depth = skill_depths.get(sname, 1)
 
             # Store both truncated and full result
             result_display = result_val
             if isinstance(result_val, str) and len(result_val) > 500:
                 result_display = result_val[:500] + "..."
 
-            # Match oldest pending action for this skill (FIFO with depth)
+            # Match the most recent pending action for this skill.
+            # Prefer an exact depth match to keep nested calls aligned.
             stack = pending_stacks.get(sname, [])
             if stack:
-                matched_idx, _ = stack.pop(0)
+                match_pos = None
+                for pos in range(len(stack) - 1, -1, -1):
+                    if stack[pos][1] == current_depth:
+                        match_pos = pos
+                        break
+                if match_pos is None:
+                    match_pos = len(stack) - 1
+                matched_idx, _ = stack.pop(match_pos)
                 actions[matched_idx]["result"] = result_display
                 actions[matched_idx]["result_full"] = result_val
+
+            skill_depths[sname] = max(0, current_depth - 1)
 
     ok = end_ev.get("ok")
     outcome = "success" if ok else ("failure" if ok is False else "partial")

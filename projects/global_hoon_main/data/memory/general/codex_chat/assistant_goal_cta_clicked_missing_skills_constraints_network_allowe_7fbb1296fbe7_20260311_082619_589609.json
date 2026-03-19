@@ -1,18 +1,18 @@
-{
-  "key": "assistant   goal 정적 파일만으로 제목 CTA 버튼 클릭 시 상태 텍스트를 clicked로 바꾸는 최소 웹 페이지를 만든다  missing_skills   constraints network_allowe",
-  "value": "[assistant] {   \"goal\": \"정적 파일만으로 제목, CTA 버튼, 클릭 시 상태 텍스트를 'clicked'로 바꾸는 최소 웹 페이지를 만든다.\",   \"missing_skills\": [],   \"constraints\": [\"network_allowed\", \"no_system_tools\", \"data_io_allowed\"],   \"risk_level\": \"normal\" }",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-11T08:26:19.589682+00:00",
-  "updated_at": "2026-03-11T08:26:19.589682+00:00",
-  "details": {
-    "text": "[assistant] {\n  \"goal\": \"정적 파일만으로 제목, CTA 버튼, 클릭 시 상태 텍스트를 'clicked'로 바꾸는 최소 웹 페이지를 만든다.\",\n  \"missing_skills\": [],\n  \"constraints\": [\"network_allowed\", \"no_system_tools\", \"data_io_allowed\"],\n  \"risk_level\": \"normal\"\n}",
-    "event_timestamp": "2026-03-11T08:26:19.335Z",
-    "session_file": "D:/hoonProJect/worktrees/af_web_smoke_20260311_v2/.af_runtime/codex_home/sessions/2026/03/11/rollout-2026-03-11T17-26-13-019cdc00-ea23-7081-ace6-f34521c73e55.jsonl",
-    "session_line": 9,
-    "provider": "codex"
-  }
+{
+  "key": "assistant   goal 정적 파일만으로 제목 CTA 버튼 클릭 시 상태 텍스트를 clicked로 바꾸는 최소 웹 페이지를 만든다  missing_skills   constraints network_allowe",
+  "value": "[assistant] {   \"goal\": \"정적 파일만으로 제목, CTA 버튼, 클릭 시 상태 텍스트를 'clicked'로 바꾸는 최소 웹 페이지를 만든다.\",   \"missing_skills\": [],   \"constraints\": [\"network_allowed\", \"no_system_tools\", \"data_io_allowed\"],   \"risk_level\": \"normal\" }",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-11T08:26:19.589682+00:00",
+  "updated_at": "2026-03-11T08:26:19.589682+00:00",
+  "details": {
+    "text": "[assistant] {\n  \"goal\": \"정적 파일만으로 제목, CTA 버튼, 클릭 시 상태 텍스트를 'clicked'로 바꾸는 최소 웹 페이지를 만든다.\",\n  \"missing_skills\": [],\n  \"constraints\": [\"network_allowed\", \"no_system_tools\", \"data_io_allowed\"],\n  \"risk_level\": \"normal\"\n}",
+    "event_timestamp": "2026-03-11T08:26:19.335Z",
+    "session_file": "D:/hoonProJect/worktrees/af_web_smoke_20260311_v2/.af_runtime/codex_home/sessions/2026/03/11/rollout-2026-03-11T17-26-13-019cdc00-ea23-7081-ace6-f34521c73e55.jsonl",
+    "session_line": 9,
+    "provider": "codex"
+  }
 }

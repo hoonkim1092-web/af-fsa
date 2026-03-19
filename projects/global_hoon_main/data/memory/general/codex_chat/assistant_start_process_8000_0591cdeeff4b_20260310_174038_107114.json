@@ -1,18 +1,18 @@
-{
-  "key": "assistant 이번에는 제일 단순한 방식으로 다시 띄우겠습니다 Start-Process 자체는 한 번 성공한 적이 있어서 리다이렉션 없이 기본 포트 8000에 올리고 응답만 확인하겠습니다",
-  "value": "[assistant] 이번에는 제일 단순한 방식으로 다시 띄우겠습니다. `Start-Process` 자체는 한 번 성공한 적이 있어서, 리다이렉션 없이 기본 포트 `8000`에 올리고 응답만 확인하겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T17:40:38.107192+00:00",
-  "updated_at": "2026-03-10T17:40:38.107192+00:00",
-  "details": {
-    "text": "[assistant] 이번에는 제일 단순한 방식으로 다시 띄우겠습니다. `Start-Process` 자체는 한 번 성공한 적이 있어서, 리다이렉션 없이 기본 포트 `8000`에 올리고 응답만 확인하겠습니다.",
-    "event_timestamp": "2026-03-10T17:30:28.771Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/11/rollout-2026-03-11T01-30-46-019cd896-2cfb-7692-a889-53fc50ef1599.jsonl",
-    "session_line": 671,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 이번에는 제일 단순한 방식으로 다시 띄우겠습니다 Start-Process 자체는 한 번 성공한 적이 있어서 리다이렉션 없이 기본 포트 8000에 올리고 응답만 확인하겠습니다",
+  "value": "[assistant] 이번에는 제일 단순한 방식으로 다시 띄우겠습니다. `Start-Process` 자체는 한 번 성공한 적이 있어서, 리다이렉션 없이 기본 포트 `8000`에 올리고 응답만 확인하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:38.107192+00:00",
+  "updated_at": "2026-03-10T17:40:38.107192+00:00",
+  "details": {
+    "text": "[assistant] 이번에는 제일 단순한 방식으로 다시 띄우겠습니다. `Start-Process` 자체는 한 번 성공한 적이 있어서, 리다이렉션 없이 기본 포트 `8000`에 올리고 응답만 확인하겠습니다.",
+    "event_timestamp": "2026-03-10T17:30:28.771Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/11/rollout-2026-03-11T01-30-46-019cd896-2cfb-7692-a889-53fc50ef1599.jsonl",
+    "session_line": 671,
+    "provider": "codex"
+  }
 }

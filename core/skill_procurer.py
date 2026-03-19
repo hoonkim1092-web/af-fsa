@@ -119,11 +119,12 @@ def get_missing_skills(agent_name, required_skills):
 def procure_skill(skill_name, role, skill_type="action"):
     """Find an existing skill or forge a new one."""
     purpose_desc = f"Skill intended for {role} to handle {skill_name}"
-    existing_skill_path = check_skill_exists(skill_name, purpose_desc)
-
-    if existing_skill_path and os.path.exists(existing_skill_path):
-        log("REGISTRY", f"Reusing existing skill: {existing_skill_path}")
-        return existing_skill_path
+    # check_skill_exists() returns bool (not a path) — look up the actual path separately
+    if check_skill_exists(skill_name):
+        existing_skill_path, _ = resolve_skill_paths(skill_name)
+        if existing_skill_path and os.path.exists(existing_skill_path):
+            log("REGISTRY", f"Reusing existing skill: {existing_skill_path}")
+            return existing_skill_path
 
     if skill_type == "action":
         found = glob.glob(os.path.join(WAREHOUSE_DIR, "**", f"{skill_name}.py"), recursive=True)

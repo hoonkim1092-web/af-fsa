@@ -50,15 +50,20 @@ class SkillAutoDiscovery:
         finally:
             self._scan_in_progress = False
     
-    def _scan_directory(self, base_dir: str, registry, verbose: bool) -> int:
+    # SkillRegistry._SKIP_DIRS와 동일하게 유지 (BUG-1 수정)
+    _SKIP_DIRS = {"forge", "_external_cache", "__pycache__", "warehouse"}
+
+    def _scan_directory(self, base_dir: str, registry, verbose: bool, _depth: int = 0) -> int:
+        if _depth > 3:
+            return 0
         count = 0
         try:
             for item in os.listdir(base_dir):
                 skill_dir = os.path.join(base_dir, item)
                 if not os.path.isdir(skill_dir):
                     continue
-                
-                if item.startswith(".") or item in ("forge", "_external_cache"):
+
+                if item.startswith(".") or item in self._SKIP_DIRS:
                     continue
                 
                 metadata = auto_detect_and_convert(skill_dir, item)
@@ -66,10 +71,12 @@ class SkillAutoDiscovery:
                     registry.register(metadata)
                     self._cache_skill(item, metadata)
                     count += 1
+                # BUG-2 수정: 재귀 탐색으로 중첩 스킬 발견
+                count += self._scan_directory(skill_dir, registry, verbose, _depth + 1)
         except Exception as e:
             if verbose:
                 print(f"[WARN] 디렉토리 스캔 실패 ({base_dir}): {e}")
-        
+
         return count
     
     def _cache_skill(self, skill_id: str, metadata: SkillMetadata):

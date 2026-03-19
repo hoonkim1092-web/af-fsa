@@ -1,18 +1,18 @@
-{
-  "key": "assistant 맞습니다 메모리를 안 올리면 회사 PC에서 git pull만으로는 대화 연속성이 복원되지 않습니다 그래서 메모리도 별도 커밋으로 추가해서 푸시했습니다추가 반영된 커밋- aa397aa chore sy",
-  "value": "[assistant] 맞습니다. 메모리를 안 올리면 회사 PC에서 `git pull`만으로는 대화 연속성이 복원되지 않습니다. 그래서 메모리도 별도 커밋으로 추가해서 푸시했습니다.  추가 반영된 커밋: - `aa397aa` `chore: sync global memory continuity state`  지금 원격 `origin/feat/unified-project-pipeline-subscription`에는 둘 다 올라가 있습니다. - `8c70b21`...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T14:45:45.352499+00:00",
-  "updated_at": "2026-03-10T14:45:45.352499+00:00",
-  "details": {
-    "text": "[assistant] 맞습니다. 메모리를 안 올리면 회사 PC에서 `git pull`만으로는 대화 연속성이 복원되지 않습니다. 그래서 메모리도 별도 커밋으로 추가해서 푸시했습니다.\n\n추가 반영된 커밋:\n- `aa397aa` `chore: sync global memory continuity state`\n\n지금 원격 `origin/feat/unified-project-pipeline-subscription`에는 둘 다 올라가 있습니다.\n- `8c70b21` `feat: harden keyless cli project pipeline`\n- `aa397aa` `chore: sync global memory continuity state`\n\n이번에 올린 메모리 범위는 `projects/global_hoon_main/data/memory/...`이고, 회사에서 브랜치 pull 받으면 이 연속성 파일도 같이 내려옵니다. 아직 워크트리에 남아 있는 건 `projects/gemini_live_edit/...` 쪽 런타임 산출물뿐입니다.",
-    "event_timestamp": "2026-03-09T18:22:08.787Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
-    "session_line": 3562,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 맞습니다 메모리를 안 올리면 회사 PC에서 git pull만으로는 대화 연속성이 복원되지 않습니다 그래서 메모리도 별도 커밋으로 추가해서 푸시했습니다추가 반영된 커밋- aa397aa chore sy",
+  "value": "[assistant] 맞습니다. 메모리를 안 올리면 회사 PC에서 `git pull`만으로는 대화 연속성이 복원되지 않습니다. 그래서 메모리도 별도 커밋으로 추가해서 푸시했습니다.  추가 반영된 커밋: - `aa397aa` `chore: sync global memory continuity state`  지금 원격 `origin/feat/unified-project-pipeline-subscription`에는 둘 다 올라가 있습니다. - `8c70b21`...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T14:45:45.352499+00:00",
+  "updated_at": "2026-03-10T14:45:45.352499+00:00",
+  "details": {
+    "text": "[assistant] 맞습니다. 메모리를 안 올리면 회사 PC에서 `git pull`만으로는 대화 연속성이 복원되지 않습니다. 그래서 메모리도 별도 커밋으로 추가해서 푸시했습니다.\n\n추가 반영된 커밋:\n- `aa397aa` `chore: sync global memory continuity state`\n\n지금 원격 `origin/feat/unified-project-pipeline-subscription`에는 둘 다 올라가 있습니다.\n- `8c70b21` `feat: harden keyless cli project pipeline`\n- `aa397aa` `chore: sync global memory continuity state`\n\n이번에 올린 메모리 범위는 `projects/global_hoon_main/data/memory/...`이고, 회사에서 브랜치 pull 받으면 이 연속성 파일도 같이 내려옵니다. 아직 워크트리에 남아 있는 건 `projects/gemini_live_edit/...` 쪽 런타임 산출물뿐입니다.",
+    "event_timestamp": "2026-03-09T18:22:08.787Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 3562,
+    "provider": "codex"
+  }
 }

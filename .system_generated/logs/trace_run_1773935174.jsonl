@@ -1,0 +1,3 @@
+{"timestamp": "2026-03-20T00:46:14", "event_type": "run_start", "run_id": "run_1773935174", "agent_name": "cli-agent", "task_input": "Return AGENT_FACTORY_OK"}
+{"timestamp": "2026-03-20T00:46:14", "event_type": "run_end", "run_id": "run_1773935174", "ok": true, "reason": "codex_cli", "duration_ms": 1}
+{"timestamp": "2026-03-20T00:46:14", "event_type": "captured_output", "run_id": "run_1773935174", "content": "AGENT_FACTORY_OK\n"}

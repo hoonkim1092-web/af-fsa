@@ -148,7 +148,11 @@
       "Bash(ls:*)",
       "Read(//d D:/warkSpaces/**)",
       "Bash(python3 -c \"import core.memory_system; print\\(''''Import OK''''\\)\")",
-      "Bash(cd:*)"
+      "Bash(cd:*)",
+      "Bash(for file:*)",
+      "Bash(__NEW_LINE_9841f77a89f4dea9__ for:*)",
+      "Bash(sed 's/^\\\\s*//')",
+      "Bash(git stash:*)"
     ]
   }
 }

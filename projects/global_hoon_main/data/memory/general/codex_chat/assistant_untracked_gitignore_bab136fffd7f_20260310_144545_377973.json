@@ -1,18 +1,18 @@
-{
-  "key": "assistant 상태창을 어지럽히는 untracked 런타임 산출물만 gitignore에 추가하겠습니다 추적 중인 파일은 건드리지 않고 실험 세션 부산물만 숨기는 쪽입니다",
-  "value": "[assistant] 상태창을 어지럽히는 untracked 런타임 산출물만 `.gitignore`에 추가하겠습니다. 추적 중인 파일은 건드리지 않고, 실험 세션 부산물만 숨기는 쪽입니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T14:45:45.378015+00:00",
-  "updated_at": "2026-03-10T14:45:45.378015+00:00",
-  "details": {
-    "text": "[assistant] 상태창을 어지럽히는 untracked 런타임 산출물만 `.gitignore`에 추가하겠습니다. 추적 중인 파일은 건드리지 않고, 실험 세션 부산물만 숨기는 쪽입니다.",
-    "event_timestamp": "2026-03-10T12:37:09.513Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
-    "session_line": 124,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 상태창을 어지럽히는 untracked 런타임 산출물만 gitignore에 추가하겠습니다 추적 중인 파일은 건드리지 않고 실험 세션 부산물만 숨기는 쪽입니다",
+  "value": "[assistant] 상태창을 어지럽히는 untracked 런타임 산출물만 `.gitignore`에 추가하겠습니다. 추적 중인 파일은 건드리지 않고, 실험 세션 부산물만 숨기는 쪽입니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T14:45:45.378015+00:00",
+  "updated_at": "2026-03-10T14:45:45.378015+00:00",
+  "details": {
+    "text": "[assistant] 상태창을 어지럽히는 untracked 런타임 산출물만 `.gitignore`에 추가하겠습니다. 추적 중인 파일은 건드리지 않고, 실험 세션 부산물만 숨기는 쪽입니다.",
+    "event_timestamp": "2026-03-10T12:37:09.513Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
+    "session_line": 124,
+    "provider": "codex"
+  }
 }

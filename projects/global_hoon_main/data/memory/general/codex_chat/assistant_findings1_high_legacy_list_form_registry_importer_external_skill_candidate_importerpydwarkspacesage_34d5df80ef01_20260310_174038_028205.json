@@ -1,18 +1,18 @@
-{
-  "key": "assistant Findings1 High legacy list-form registry를 importer가 그대로 날립니다 external_skill_candidate_importerpyDwarkSpacesage",
-  "value": "[assistant] **Findings** 1. High: legacy list-form registry를 importer가 그대로 날립니다. [external_skill_candidate_importer.py](/D:/warkSpaces/agent-factory/core/external_skill_candidate_importer.py#L321) 에서 현재 `install_candidates`가 `dict`가 아니면 바로 `{}`로 바꾸고, [exter...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T17:40:38.028571+00:00",
-  "updated_at": "2026-03-10T17:40:38.028571+00:00",
-  "details": {
-    "text": "[assistant] **Findings**\n1. High: legacy list-form registry를 importer가 그대로 날립니다. [external_skill_candidate_importer.py](/D:/warkSpaces/agent-factory/core/external_skill_candidate_importer.py#L321) 에서 현재 `install_candidates`가 `dict`가 아니면 바로 `{}`로 바꾸고, [external_skill_candidate_importer.py](/D:/warkSpaces/agent-factory/core/external_skill_candidate_importer.py#L330) 에서 그 상태로 덮어씁니다. 반면 loader는 list-form legacy registry를 여전히 지원하므로, 오래된 registry에 importer를 한 번만 돌려도 기존 후보가 소실됩니다.\n\n2. High: `sync_skill_registry`도 legacy list-form `install_candidates`를 전부 삭제합니다. [sync_skill_registry.py](/D:/warkSpaces/agent-factory/scripts/sync_skill_registry.py#L116) 의 `normalize_install_candidates()`는 입력이 `dict`가 아니면 빈 dict를 반환하고, 그 결과를 [sync_skill_registry.py](/D:/warkSpaces/agent-factory/scripts/sync_skill_registry.py#L168) 에서 그대로 저장합니다. 즉 sync 한 번으로 legacy 후보 풀을 비워버릴 수 있습니다.\n\n3. Medium: canonical rename이 `sync_skill_registry` 경로에서는 다시 깨집니다. [sync_skill_registry.py](/D:/warkSpaces/agent-factory/scripts/sync_skill_registry.py#L142) 에서 `source_id`를 `normalize_external_source_id()`가 아니라 `safe_id()`로 정규화해서 `Claude`를 `claude`로 남깁니다. 게다가 key도 [sync_skill_registry.py](/D:/warkSpaces/agent-factory/scripts/sync_skill_registry.py#L120) 의 기존 raw key를 그대로 `safe_id`만 해서 유지하므로 `claude_issue_tracker` 같은 legacy key 포맷이 계속 살아남습니다. 지금 importer/tests는 `claude_repo_issue_tracker` 기준으로 가고 있어서 sync 경로가 포맷을 다시 뒤섞습니다.\n\n**Residual Risk**\n- 현재 테스트는 importer/resolver 쪽은 덮고 있지만 `scripts/sync_skill_registry.py` 경로는 직접 커버하지 않습니다. 그래서 위 두 destructive case는 회귀 테스트가 없는 상태입니다.\n\n가정: 이번 리뷰는 방금 진행한 external skill source rename/importer/sync 범위를 기준으로 봤습니다.",
-    "event_timestamp": "2026-03-10T16:15:10.737Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
-    "session_line": 2111,
-    "provider": "codex"
-  }
+{
+  "key": "assistant Findings1 High legacy list-form registry를 importer가 그대로 날립니다 external_skill_candidate_importerpyDwarkSpacesage",
+  "value": "[assistant] **Findings** 1. High: legacy list-form registry를 importer가 그대로 날립니다. [external_skill_candidate_importer.py](/D:/warkSpaces/agent-factory/core/external_skill_candidate_importer.py#L321) 에서 현재 `install_candidates`가 `dict`가 아니면 바로 `{}`로 바꾸고, [exter...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:38.028571+00:00",
+  "updated_at": "2026-03-10T17:40:38.028571+00:00",
+  "details": {
+    "text": "[assistant] **Findings**\n1. High: legacy list-form registry를 importer가 그대로 날립니다. [external_skill_candidate_importer.py](/D:/warkSpaces/agent-factory/core/external_skill_candidate_importer.py#L321) 에서 현재 `install_candidates`가 `dict`가 아니면 바로 `{}`로 바꾸고, [external_skill_candidate_importer.py](/D:/warkSpaces/agent-factory/core/external_skill_candidate_importer.py#L330) 에서 그 상태로 덮어씁니다. 반면 loader는 list-form legacy registry를 여전히 지원하므로, 오래된 registry에 importer를 한 번만 돌려도 기존 후보가 소실됩니다.\n\n2. High: `sync_skill_registry`도 legacy list-form `install_candidates`를 전부 삭제합니다. [sync_skill_registry.py](/D:/warkSpaces/agent-factory/scripts/sync_skill_registry.py#L116) 의 `normalize_install_candidates()`는 입력이 `dict`가 아니면 빈 dict를 반환하고, 그 결과를 [sync_skill_registry.py](/D:/warkSpaces/agent-factory/scripts/sync_skill_registry.py#L168) 에서 그대로 저장합니다. 즉 sync 한 번으로 legacy 후보 풀을 비워버릴 수 있습니다.\n\n3. Medium: canonical rename이 `sync_skill_registry` 경로에서는 다시 깨집니다. [sync_skill_registry.py](/D:/warkSpaces/agent-factory/scripts/sync_skill_registry.py#L142) 에서 `source_id`를 `normalize_external_source_id()`가 아니라 `safe_id()`로 정규화해서 `Claude`를 `claude`로 남깁니다. 게다가 key도 [sync_skill_registry.py](/D:/warkSpaces/agent-factory/scripts/sync_skill_registry.py#L120) 의 기존 raw key를 그대로 `safe_id`만 해서 유지하므로 `claude_issue_tracker` 같은 legacy key 포맷이 계속 살아남습니다. 지금 importer/tests는 `claude_repo_issue_tracker` 기준으로 가고 있어서 sync 경로가 포맷을 다시 뒤섞습니다.\n\n**Residual Risk**\n- 현재 테스트는 importer/resolver 쪽은 덮고 있지만 `scripts/sync_skill_registry.py` 경로는 직접 커버하지 않습니다. 그래서 위 두 destructive case는 회귀 테스트가 없는 상태입니다.\n\n가정: 이번 리뷰는 방금 진행한 external skill source rename/importer/sync 범위를 기준으로 봤습니다.",
+    "event_timestamp": "2026-03-10T16:15:10.737Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
+    "session_line": 2111,
+    "provider": "codex"
+  }
 }

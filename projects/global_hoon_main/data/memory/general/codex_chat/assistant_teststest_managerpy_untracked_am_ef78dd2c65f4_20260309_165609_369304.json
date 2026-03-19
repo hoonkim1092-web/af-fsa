@@ -1,18 +1,18 @@
-{
-  "key": "assistant 커밋은 만들었지만 teststest_managerpy가 untracked로 남아 있어서 이게 이번 변경에 속하는 테스트인지 한 번만 확인하겠습니다 관련이면 이어서 같은 브랜치에 추가 커밋하거나 am",
-  "value": "[assistant] 커밋은 만들었지만 `tests/test_manager.py`가 untracked로 남아 있어서, 이게 이번 변경에 속하는 테스트인지 한 번만 확인하겠습니다. 관련이면 이어서 같은 브랜치에 추가 커밋하거나 amend 없이 후속 커밋으로 묶겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T16:56:09.369395+00:00",
-  "updated_at": "2026-03-09T16:56:09.369395+00:00",
-  "details": {
-    "text": "[assistant] 커밋은 만들었지만 `tests/test_manager.py`가 untracked로 남아 있어서, 이게 이번 변경에 속하는 테스트인지 한 번만 확인하겠습니다. 관련이면 이어서 같은 브랜치에 추가 커밋하거나 amend 없이 후속 커밋으로 묶겠습니다.",
-    "event_timestamp": "2026-03-09T16:50:28.947Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
-    "session_line": 1801,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 커밋은 만들었지만 teststest_managerpy가 untracked로 남아 있어서 이게 이번 변경에 속하는 테스트인지 한 번만 확인하겠습니다 관련이면 이어서 같은 브랜치에 추가 커밋하거나 am",
+  "value": "[assistant] 커밋은 만들었지만 `tests/test_manager.py`가 untracked로 남아 있어서, 이게 이번 변경에 속하는 테스트인지 한 번만 확인하겠습니다. 관련이면 이어서 같은 브랜치에 추가 커밋하거나 amend 없이 후속 커밋으로 묶겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T16:56:09.369395+00:00",
+  "updated_at": "2026-03-09T16:56:09.369395+00:00",
+  "details": {
+    "text": "[assistant] 커밋은 만들었지만 `tests/test_manager.py`가 untracked로 남아 있어서, 이게 이번 변경에 속하는 테스트인지 한 번만 확인하겠습니다. 관련이면 이어서 같은 브랜치에 추가 커밋하거나 amend 없이 후속 커밋으로 묶겠습니다.",
+    "event_timestamp": "2026-03-09T16:50:28.947Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 1801,
+    "provider": "codex"
+  }
 }

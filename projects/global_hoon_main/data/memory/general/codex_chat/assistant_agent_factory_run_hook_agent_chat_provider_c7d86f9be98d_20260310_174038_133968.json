@@ -1,18 +1,18 @@
-{
-  "key": "assistant 지금까지 보면 agent-factory는 프로젝트 생성 에이전트 생성 run 생성 hook 집행까지는 분명히 작동합니다 다만 권한 상승 컨텍스트에서 AGENT_CHAT_PROVIDER가 런타임에 안",
-  "value": "[assistant] 지금까지 보면 `agent-factory`는 프로젝트 생성, 에이전트 생성, run 생성, hook 집행까지는 분명히 작동합니다. 다만 권한 상승 컨텍스트에서 `AGENT_CHAT_PROVIDER`가 런타임에 안 살아남아서 `codex_cli` 분기까지는 못 들어가고 있습니다. 그걸 코드 기준으로 확인하겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T17:40:38.134090+00:00",
-  "updated_at": "2026-03-10T17:40:38.134090+00:00",
-  "details": {
-    "text": "[assistant] 지금까지 보면 `agent-factory`는 프로젝트 생성, 에이전트 생성, run 생성, hook 집행까지는 분명히 작동합니다. 다만 권한 상승 컨텍스트에서 `AGENT_CHAT_PROVIDER`가 런타임에 안 살아남아서 `codex_cli` 분기까지는 못 들어가고 있습니다. 그걸 코드 기준으로 확인하겠습니다.",
-    "event_timestamp": "2026-03-10T17:39:47.985Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/11/rollout-2026-03-11T01-30-46-019cd896-2cfb-7692-a889-53fc50ef1599.jsonl",
-    "session_line": 905,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 지금까지 보면 agent-factory는 프로젝트 생성 에이전트 생성 run 생성 hook 집행까지는 분명히 작동합니다 다만 권한 상승 컨텍스트에서 AGENT_CHAT_PROVIDER가 런타임에 안",
+  "value": "[assistant] 지금까지 보면 `agent-factory`는 프로젝트 생성, 에이전트 생성, run 생성, hook 집행까지는 분명히 작동합니다. 다만 권한 상승 컨텍스트에서 `AGENT_CHAT_PROVIDER`가 런타임에 안 살아남아서 `codex_cli` 분기까지는 못 들어가고 있습니다. 그걸 코드 기준으로 확인하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:38.134090+00:00",
+  "updated_at": "2026-03-10T17:40:38.134090+00:00",
+  "details": {
+    "text": "[assistant] 지금까지 보면 `agent-factory`는 프로젝트 생성, 에이전트 생성, run 생성, hook 집행까지는 분명히 작동합니다. 다만 권한 상승 컨텍스트에서 `AGENT_CHAT_PROVIDER`가 런타임에 안 살아남아서 `codex_cli` 분기까지는 못 들어가고 있습니다. 그걸 코드 기준으로 확인하겠습니다.",
+    "event_timestamp": "2026-03-10T17:39:47.985Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/11/rollout-2026-03-11T01-30-46-019cd896-2cfb-7692-a889-53fc50ef1599.jsonl",
+    "session_line": 905,
+    "provider": "codex"
+  }
 }

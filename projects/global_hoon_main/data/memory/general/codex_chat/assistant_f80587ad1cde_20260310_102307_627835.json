@@ -1,18 +1,18 @@
-{
-  "key": "assistant 문서 첫 장에 현재 구조를 넣으려면 엔트리포인트에서 라우팅과 오케스트레이션 진입점만 짧게 못 박아야 합니다 그 경로의 실제 라인만 더 확인하겠습니다",
-  "value": "[assistant] 문서 첫 장에 현재 구조를 넣으려면, 엔트리포인트에서 라우팅과 오케스트레이션 진입점만 짧게 못 박아야 합니다. 그 경로의 실제 라인만 더 확인하겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T10:23:07.627898+00:00",
-  "updated_at": "2026-03-10T10:23:07.627898+00:00",
-  "details": {
-    "text": "[assistant] 문서 첫 장에 현재 구조를 넣으려면, 엔트리포인트에서 라우팅과 오케스트레이션 진입점만 짧게 못 박아야 합니다. 그 경로의 실제 라인만 더 확인하겠습니다.",
-    "event_timestamp": "2026-03-10T08:45:16.461Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
-    "session_line": 1712,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 문서 첫 장에 현재 구조를 넣으려면 엔트리포인트에서 라우팅과 오케스트레이션 진입점만 짧게 못 박아야 합니다 그 경로의 실제 라인만 더 확인하겠습니다",
+  "value": "[assistant] 문서 첫 장에 현재 구조를 넣으려면, 엔트리포인트에서 라우팅과 오케스트레이션 진입점만 짧게 못 박아야 합니다. 그 경로의 실제 라인만 더 확인하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T10:23:07.627898+00:00",
+  "updated_at": "2026-03-10T10:23:07.627898+00:00",
+  "details": {
+    "text": "[assistant] 문서 첫 장에 현재 구조를 넣으려면, 엔트리포인트에서 라우팅과 오케스트레이션 진입점만 짧게 못 박아야 합니다. 그 경로의 실제 라인만 더 확인하겠습니다.",
+    "event_timestamp": "2026-03-10T08:45:16.461Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 1712,
+    "provider": "codex"
+  }
 }

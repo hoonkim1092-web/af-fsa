@@ -1,18 +1,18 @@
-{
-  "key": "user Task",
-  "value": "[user] [Task]",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T18:21:08.793306+00:00",
-  "updated_at": "2026-03-10T18:21:08.793306+00:00",
-  "details": {
-    "text": "[user] [Task]",
-    "event_timestamp": "2026-03-10T18:21:00.426Z",
-    "session_file": "D:/warkSpaces/agent-factory/.tmp_smoke_projects/smoke_cli_args_auth_seed/.af_runtime/codex_home/sessions/2026/03/11/rollout-2026-03-11T03-20-59-019cd8fb-1685-7971-bd7c-db6f784f8776.jsonl",
-    "session_line": 6,
-    "provider": "codex"
-  }
+{
+  "key": "user Task",
+  "value": "[user] [Task]",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T18:21:08.793306+00:00",
+  "updated_at": "2026-03-10T18:21:08.793306+00:00",
+  "details": {
+    "text": "[user] [Task]",
+    "event_timestamp": "2026-03-10T18:21:00.426Z",
+    "session_file": "D:/warkSpaces/agent-factory/.tmp_smoke_projects/smoke_cli_args_auth_seed/.af_runtime/codex_home/sessions/2026/03/11/rollout-2026-03-11T03-20-59-019cd8fb-1685-7971-bd7c-db6f784f8776.jsonl",
+    "session_line": 6,
+    "provider": "codex"
+  }
 }

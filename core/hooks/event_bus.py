@@ -13,6 +13,12 @@ logger = logging.getLogger(__name__)
 class HookEventBus:
     """
     Priority-ordered dispatch for agent and tool lifecycle hooks.
+
+    라이프사이클:
+      pre_execute / post_execute       — 에이전트 실행 전후
+      pre_tool_call / post_tool_call   — 도구/스킬 호출 전후
+      on_skill_evolved                 — 스킬 코드/메타 변경 후 (자가 진화)
+      on_skill_quality_checked         — 품질 감사 결과
     """
 
     def __init__(self):
@@ -20,6 +26,10 @@ class HookEventBus:
         self._post_hooks: list[Any] = []
         self._pre_tool_hooks: list[Any] = []
         self._post_tool_hooks: list[Any] = []
+
+        # 스킬 라이프사이클 훅
+        self._skill_evolved_hooks: list[Any] = []
+        self._skill_quality_hooks: list[Any] = []
 
         # Always register tracing hook: JSONL local logging works without API key,
         # LangSmith API tracing activates only when LANGSMITH_API_KEY is set.
@@ -34,12 +44,18 @@ class HookEventBus:
             self._pre_tool_hooks.append(hook)
         if hasattr(hook, "post_tool_call"):
             self._post_tool_hooks.append(hook)
+        if hasattr(hook, "on_skill_evolved"):
+            self._skill_evolved_hooks.append(hook)
+        if hasattr(hook, "on_skill_quality_checked"):
+            self._skill_quality_hooks.append(hook)
 
         ordered = (
             self._pre_hooks,
             self._post_hooks,
             self._pre_tool_hooks,
             self._post_tool_hooks,
+            self._skill_evolved_hooks,
+            self._skill_quality_hooks,
         )
         for collection in ordered:
             collection.sort(key=lambda item: getattr(item, "PRIORITY", 50))
@@ -71,6 +87,34 @@ class HookEventBus:
         for hook in self._post_tool_hooks:
             current = hook.post_tool_call(agent_state, tool_name, current)
         return current
+
+    def run_skill_evolved(
+        self,
+        skill_id: str,
+        old_version: str = "",
+        new_version: str = "",
+        trigger: str = "manual",
+    ) -> None:
+        """스킬 진화 완료 이벤트 브로드캐스트."""
+        for hook in self._skill_evolved_hooks:
+            try:
+                hook.on_skill_evolved(skill_id, old_version, new_version, trigger)
+            except Exception as exc:
+                logger.error(
+                    "Hook %s.on_skill_evolved failed: %s",
+                    hook.__class__.__name__, exc,
+                )
+
+    def run_skill_quality_checked(self, skill_id: str, quality_report: dict) -> None:
+        """품질 감사 결과 이벤트 브로드캐스트."""
+        for hook in self._skill_quality_hooks:
+            try:
+                hook.on_skill_quality_checked(skill_id, quality_report)
+            except Exception as exc:
+                logger.error(
+                    "Hook %s.on_skill_quality_checked failed: %s",
+                    hook.__class__.__name__, exc,
+                )
 
     @staticmethod
     def _normalize_decision(raw: Any, tool_args: dict[str, Any]) -> ToolCallDecision:

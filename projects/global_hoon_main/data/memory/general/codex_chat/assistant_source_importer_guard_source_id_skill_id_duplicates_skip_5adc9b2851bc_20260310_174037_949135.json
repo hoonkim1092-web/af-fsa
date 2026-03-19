@@ -1,18 +1,18 @@
-{
-  "key": "assistant 같은 source 내부 중복을 importer에서 막는 guard를 넣겠습니다 기준은 source_id  skill_id이고 정렬상 먼저 발견된 후보를 유지하고 나머지는 duplicates_skip",
-  "value": "[assistant] 같은 source 내부 중복을 importer에서 막는 guard를 넣겠습니다. 기준은 `source_id + skill_id`이고, 정렬상 먼저 발견된 후보를 유지하고 나머지는 `duplicates_skipped`로 기록하겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T17:40:37.949244+00:00",
-  "updated_at": "2026-03-10T17:40:37.949244+00:00",
-  "details": {
-    "text": "[assistant] 같은 source 내부 중복을 importer에서 막는 guard를 넣겠습니다. 기준은 `source_id + skill_id`이고, 정렬상 먼저 발견된 후보를 유지하고 나머지는 `duplicates_skipped`로 기록하겠습니다.",
-    "event_timestamp": "2026-03-10T15:23:19.420Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
-    "session_line": 1185,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 같은 source 내부 중복을 importer에서 막는 guard를 넣겠습니다 기준은 source_id  skill_id이고 정렬상 먼저 발견된 후보를 유지하고 나머지는 duplicates_skip",
+  "value": "[assistant] 같은 source 내부 중복을 importer에서 막는 guard를 넣겠습니다. 기준은 `source_id + skill_id`이고, 정렬상 먼저 발견된 후보를 유지하고 나머지는 `duplicates_skipped`로 기록하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:37.949244+00:00",
+  "updated_at": "2026-03-10T17:40:37.949244+00:00",
+  "details": {
+    "text": "[assistant] 같은 source 내부 중복을 importer에서 막는 guard를 넣겠습니다. 기준은 `source_id + skill_id`이고, 정렬상 먼저 발견된 후보를 유지하고 나머지는 `duplicates_skipped`로 기록하겠습니다.",
+    "event_timestamp": "2026-03-10T15:23:19.420Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
+    "session_line": 1185,
+    "provider": "codex"
+  }
 }

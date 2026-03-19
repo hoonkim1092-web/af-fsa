@@ -1,18 +1,18 @@
-{
-  "key": "assistant Findings- High external source 준비 단계의 예외가 builder fallback까지 가지 못하고 전체 조달을 끊습니다 RepoCacheSkillSourceprepare는 o",
-  "value": "[assistant] **Findings** - High: external source 준비 단계의 예외가 builder fallback까지 가지 못하고 전체 조달을 끊습니다. `RepoCacheSkillSource.prepare()`는 `os.makedirs(...)`와 `git clone/pull`을 수행하는데, 호출부에서 `source.prepare()`를 감싸지 않아 권한/파일시스템 오류가 나면 `resolve_and_install()` 전체가 예외...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T17:40:37.943585+00:00",
-  "updated_at": "2026-03-10T17:40:37.943585+00:00",
-  "details": {
-    "text": "[assistant] **Findings**\n- High: external source 준비 단계의 예외가 builder fallback까지 가지 못하고 전체 조달을 끊습니다. `RepoCacheSkillSource.prepare()`는 `os.makedirs(...)`와 `git clone/pull`을 수행하는데, 호출부에서 `source.prepare()`를 감싸지 않아 권한/파일시스템 오류가 나면 `resolve_and_install()` 전체가 예외로 종료됩니다. 이 경로는 원래 miss 처리 후 다음 source나 builder로 내려가야 하는데 지금은 hard fail입니다. [external_skill_sources.py](/D:/warkSpaces/agent-factory/core/external_skill_sources.py#L139) [external_skill_sources.py](/D:/warkSpaces/agent-factory/core/external_skill_sources.py#L321)\n- Medium: approval gate 의미가 바뀌었습니다. 외부 reusable skill 설치는 사실상 `install`인데, 현재 approval은 external resolution 전에 `verified_candidate` 기준으로만 계산돼서 대부분 `build`로 분류됩니다. 그 결과 install-only 허용 정책에서는 외부 스킬 재사용이 불필요하게 막히거나, 반대로 감사 로그가 build로 남습니다. [skill_procurer.py](/D:/warkSpaces/agent-factory/core/skill_procurer.py#L419) [skill_procurer.py](/D:/warkSpaces/agent-factory/core/skill_procurer.py#L434)\n- Medium: importer가 후보 키를 `source_id + skill_id`만으로 만들고 merge도 dict overwrite로 처리해서, 같은 source 아래 여러 repo가 동일한 `skill_id`를 내놓으면 뒤에 읽힌 후보가 앞의 후보를 조용히 덮어씁니다. 설계상 multiple Claude/Codex repos를 허용하려는 방향이면 실제 후보 풀을 잃게 됩니다. [external_skill_candidate_importer.py](/D:/warkSpaces/agent-factory/core/external_skill_candidate_importer.py#L71) [external_skill_candidate_importer.py](/D:/warkSpaces/agent-factory/core/external_skill_candidate_importer.py#L221) [external_skill_candidate_importer.py](/D:/warkSpaces/agent-factory/core/external_skill_candidate_importer.py#L257)\n\n**Open Questions**\n- 같은 source 내 중복 `skill_id`를 의도적으로 금지할 생각인지가 중요합니다. 금지라면 importer에서 overwrite 대신 충돌을 명시적으로 로그/거부해야 하고, 허용이라면 candidate key에 repo identity까지 들어가야 합니다.\n- 호환 경로 `resolve_and_install_external()`를 유지할 계획이면, `installed_from=\"external\"`을 무조건 넣는 현재 adapter는 로그를 오도할 수 있습니다. 현 `RegistryManager`에는 직접 영향이 없지만 커스텀 registry 구현체에는 문제입니다. [skill_procurer.py](/D:/warkSpaces/agent-factory/core/skill_procurer.py#L261)\n\n요약하면 구조 방향은 맞는데, 예외 격리, approval semantics, candidate identity 세 부분은 수정이 필요합니다.",
-    "event_timestamp": "2026-03-10T15:18:14.966Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
-    "session_line": 1147,
-    "provider": "codex"
-  }
+{
+  "key": "assistant Findings- High external source 준비 단계의 예외가 builder fallback까지 가지 못하고 전체 조달을 끊습니다 RepoCacheSkillSourceprepare는 o",
+  "value": "[assistant] **Findings** - High: external source 준비 단계의 예외가 builder fallback까지 가지 못하고 전체 조달을 끊습니다. `RepoCacheSkillSource.prepare()`는 `os.makedirs(...)`와 `git clone/pull`을 수행하는데, 호출부에서 `source.prepare()`를 감싸지 않아 권한/파일시스템 오류가 나면 `resolve_and_install()` 전체가 예외...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:37.943585+00:00",
+  "updated_at": "2026-03-10T17:40:37.943585+00:00",
+  "details": {
+    "text": "[assistant] **Findings**\n- High: external source 준비 단계의 예외가 builder fallback까지 가지 못하고 전체 조달을 끊습니다. `RepoCacheSkillSource.prepare()`는 `os.makedirs(...)`와 `git clone/pull`을 수행하는데, 호출부에서 `source.prepare()`를 감싸지 않아 권한/파일시스템 오류가 나면 `resolve_and_install()` 전체가 예외로 종료됩니다. 이 경로는 원래 miss 처리 후 다음 source나 builder로 내려가야 하는데 지금은 hard fail입니다. [external_skill_sources.py](/D:/warkSpaces/agent-factory/core/external_skill_sources.py#L139) [external_skill_sources.py](/D:/warkSpaces/agent-factory/core/external_skill_sources.py#L321)\n- Medium: approval gate 의미가 바뀌었습니다. 외부 reusable skill 설치는 사실상 `install`인데, 현재 approval은 external resolution 전에 `verified_candidate` 기준으로만 계산돼서 대부분 `build`로 분류됩니다. 그 결과 install-only 허용 정책에서는 외부 스킬 재사용이 불필요하게 막히거나, 반대로 감사 로그가 build로 남습니다. [skill_procurer.py](/D:/warkSpaces/agent-factory/core/skill_procurer.py#L419) [skill_procurer.py](/D:/warkSpaces/agent-factory/core/skill_procurer.py#L434)\n- Medium: importer가 후보 키를 `source_id + skill_id`만으로 만들고 merge도 dict overwrite로 처리해서, 같은 source 아래 여러 repo가 동일한 `skill_id`를 내놓으면 뒤에 읽힌 후보가 앞의 후보를 조용히 덮어씁니다. 설계상 multiple Claude/Codex repos를 허용하려는 방향이면 실제 후보 풀을 잃게 됩니다. [external_skill_candidate_importer.py](/D:/warkSpaces/agent-factory/core/external_skill_candidate_importer.py#L71) [external_skill_candidate_importer.py](/D:/warkSpaces/agent-factory/core/external_skill_candidate_importer.py#L221) [external_skill_candidate_importer.py](/D:/warkSpaces/agent-factory/core/external_skill_candidate_importer.py#L257)\n\n**Open Questions**\n- 같은 source 내 중복 `skill_id`를 의도적으로 금지할 생각인지가 중요합니다. 금지라면 importer에서 overwrite 대신 충돌을 명시적으로 로그/거부해야 하고, 허용이라면 candidate key에 repo identity까지 들어가야 합니다.\n- 호환 경로 `resolve_and_install_external()`를 유지할 계획이면, `installed_from=\"external\"`을 무조건 넣는 현재 adapter는 로그를 오도할 수 있습니다. 현 `RegistryManager`에는 직접 영향이 없지만 커스텀 registry 구현체에는 문제입니다. [skill_procurer.py](/D:/warkSpaces/agent-factory/core/skill_procurer.py#L261)\n\n요약하면 구조 방향은 맞는데, 예외 격리, approval semantics, candidate identity 세 부분은 수정이 필요합니다.",
+    "event_timestamp": "2026-03-10T15:18:14.966Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
+    "session_line": 1147,
+    "provider": "codex"
+  }
 }
