@@ -1,4 +1,23 @@
 {
   "project_id": "realtest2",
-  "runs": []
+  "runs": [
+    {
+      "ts": "2026-03-23T17:31:21",
+      "type": "single_run",
+      "project_id": "realtest2",
+      "role": "General Assistant",
+      "task": "파이썬으로 피보나치 수열 10번째까지 출력하는 코드를 작성해줘",
+      "skills_loaded": [],
+      "ok": true,
+      "reason": "gemini",
+      "latency_ms": 17975,
+      "approval_rejects": 0,
+      "build_enabled": false,
+      "missing_skills_detected": [
+        "python_basics",
+        "python_loops",
+        "fibonacci_sequence_logic"
+      ]
+    }
+  ]
 }
