@@ -14,8 +14,10 @@ class IntentGateHook(ContinuationHook):
         if "Goal:\n" in task_input and "Constraints:\n" in task_input:
             return True
 
-        vague_keywords = ["아이디어", "해줘", "뭐할까", "아무거나", "대충", "알아서"]
-        is_vague = any(kw in task_input for kw in vague_keywords) or len(task_input) < 10
+        # "해줘"는 한국어 일반 요청 어미 — 단독 사용 시만 모호함으로 판단
+        vague_keywords = ["아이디어", "뭐할까", "아무거나", "대충", "알아서"]
+        sole_haejwo = task_input in {"해줘", "해 줘"}
+        is_vague = sole_haejwo or any(kw in task_input for kw in vague_keywords) or len(task_input) < 10
         if is_vague:
             print("\n[IntentGateHook] ERROR: task intent is too vague.")
             print("[IntentGateHook] Please clarify the scope or provide a structured task.\n")
