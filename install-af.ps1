@@ -28,7 +28,7 @@ param(
     [string]$ZipPath = "",
     [string]$InstallDir = "$env:LOCALAPPDATA\AgentFactory",
     [string]$Version = "latest",
-    [string]$Repo = "hoonkim1092-web/agent-factory"
+    [string]$Repo = "hoonkim1092-web/af-fsa"
 )
 
 Set-StrictMode -Version Latest
