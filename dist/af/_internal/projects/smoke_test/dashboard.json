@@ -32,6 +32,23 @@
       "missing_skills_detected": [
         "basic_arithmetic"
       ]
+    },
+    {
+      "ts": "2026-03-23T13:59:47",
+      "type": "single_run",
+      "project_id": "smoke_test",
+      "role": "General Assistant",
+      "task": "Goal: Calculate 2+2 and print the result to stdout. Constraints: Use Python, no external libraries.",
+      "skills_loaded": [],
+      "ok": true,
+      "reason": "gemini",
+      "latency_ms": 4966,
+      "approval_rejects": 0,
+      "build_enabled": false,
+      "missing_skills_detected": [
+        "write_python_code",
+        "execute_python_code"
+      ]
     }
   ]
 }
