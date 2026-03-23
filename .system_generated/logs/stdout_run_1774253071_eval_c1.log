@@ -1,0 +1,5 @@
+
+[IntentGateHook] ERROR: task intent is too vague.
+[IntentGateHook] Please clarify the scope or provide a structured task.
+
+Execution blocked by IntentGateHook

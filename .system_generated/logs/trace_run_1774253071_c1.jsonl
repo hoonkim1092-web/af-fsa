@@ -1,0 +1,3 @@
+{"timestamp": "2026-03-23T17:04:53", "event_type": "run_start", "run_id": "run_1774253071_c1", "project_id": "agent_factory", "agent_name": "지나", "task_input": "파이썬으로 피보나치 수열 10번째까지 출력하는 코드를 작성해줘"}
+{"timestamp": "2026-03-23T17:04:53", "event_type": "run_end", "run_id": "run_1774253071_c1", "ok": false, "reason": "hook_event_bus_blocked_pre", "duration_ms": 1}
+{"timestamp": "2026-03-23T17:04:53", "event_type": "captured_output", "run_id": "run_1774253071_c1", "content": "\n[IntentGateHook] ERROR: task intent is too vague.\n[IntentGateHook] Please clarify the scope or provide a structured task.\n\nExecution blocked by IntentGateHook\n"}
