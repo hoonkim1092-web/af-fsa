@@ -1,0 +1,40 @@
+{
+  "run_id": "run_1774245421_eval_c1",
+  "project_id": "smoke_test",
+  "agent_name": "정확한 심사관",
+  "agent_role": "evaluator",
+  "task": "[EVAL REQUEST] run_id=run_1774245421\nError: runner_error:OSError\nOriginal Task: Goal: Calculate 2+2 and print the result to stdout. Constraints: Use Python, no external libraries.",
+  "task_id": "skill",
+  "transcript": [
+    {
+      "ts": "2026-03-23T14:57:50",
+      "kind": "user",
+      "payload": {
+        "text": "Task: [EVAL REQUEST] run_id=run_1774245421\nError: runner_error:OSError\nOriginal Task: Goal: Calculate 2+2 and print the result to stdout. Constraints: Use Python, no external libraries."
+      }
+    },
+    {
+      "ts": "2026-03-23T14:57:50",
+      "kind": "system",
+      "payload": {
+        "model": "models/gemini-2.5-pro",
+        "skills": []
+      }
+    },
+    {
+      "ts": "2026-03-23T14:58:10",
+      "kind": "error",
+      "payload": {
+        "stage": "runner",
+        "message": "[Errno 22] Invalid argument"
+      }
+    }
+  ],
+  "result": {
+    "ok": false,
+    "reason": "runner_error:OSError",
+    "latency_ms": 20443,
+    "approval_rejects": 0
+  },
+  "updated_at": "2026-03-23T14:58:10"
+}
