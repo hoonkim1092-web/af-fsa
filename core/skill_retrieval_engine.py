@@ -8,6 +8,17 @@ from core.utils import safe_id
 
 
 @dataclass
+class CapabilityGap:
+    """기존 스킬과 요구 capabilities 간의 차이 분석 결과."""
+    missing_capabilities: list[str] = field(default_factory=list)
+    gap_ratio: float = 0.0
+    enhancement_feasible: bool = False
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass
 class ReuseDecision:
     need_skill_id: str
     candidate_skill_id: str = ""
@@ -15,6 +26,7 @@ class ReuseDecision:
     confidence: float = 0.0
     score: int = 0
     threshold_high: float = 0.85
+    threshold_enhance: float = 0.70
     threshold_medium: float = 0.60
     verified: bool = False
     rationale: str = ""
@@ -24,9 +36,13 @@ class ReuseDecision:
     historical_weight: float = 0.0
     used_historical_signal: bool = False
     ranked_candidates: list[dict[str, Any]] = field(default_factory=list)
+    capability_gap: CapabilityGap | None = None
 
     def to_dict(self) -> dict[str, Any]:
-        return asdict(self)
+        d = asdict(self)
+        if self.capability_gap:
+            d["capability_gap"] = self.capability_gap.to_dict()
+        return d
 
 
 class SkillRetrievalEngine:
@@ -36,10 +52,12 @@ class SkillRetrievalEngine:
         self,
         *,
         high_confidence: float = 0.85,
+        enhance_confidence: float = 0.70,
         medium_confidence: float = 0.60,
         historical_weight: float = 0.25,
     ):
         self.high_confidence = float(high_confidence)
+        self.enhance_confidence = float(enhance_confidence)
         self.medium_confidence = float(medium_confidence)
         self.historical_weight = max(0.0, min(0.5, float(historical_weight)))
 
@@ -80,9 +98,36 @@ class SkillRetrievalEngine:
                 payload["candidates"] = ranked_candidates
                 payload["feedback_history"] = [best.get("feedback_summary") or {}] if best.get("feedback_summary") else []
 
+        # capability gap 분석 (enhance 판단용)
+        required_capabilities = payload.get("required_capabilities", [])
+        if not isinstance(required_capabilities, list):
+            required_capabilities = []
+        candidate_meta = best.get("meta", {}) if best else {}
+        if not isinstance(candidate_meta, dict):
+            candidate_meta = {}
+        gap = self._analyze_capability_gap(candidate_meta, required_capabilities) if required_capabilities else None
+
         if candidate_skill_id and verified and confidence >= self.high_confidence:
             mode = "ranked_reuse"
             reason = rationale or f"confidence={confidence:.2f} verified candidate is safe to reuse"
+        elif candidate_skill_id and confidence >= self.enhance_confidence:
+            # enhance 판정: gap이 없거나 feasible하면 enhance, 아니면 shadow_reuse
+            if gap and gap.missing_capabilities and gap.enhancement_feasible and gap.gap_ratio <= 0.5:
+                mode = "enhance"
+                reason = rationale or (
+                    f"confidence={confidence:.2f} enhance feasible: "
+                    f"missing={gap.missing_capabilities}, gap_ratio={gap.gap_ratio:.2f}"
+                )
+            elif gap and gap.gap_ratio > 0.5:
+                mode = "forge"
+                reason = rationale or f"confidence={confidence:.2f} but gap_ratio={gap.gap_ratio:.2f} too large"
+            elif not required_capabilities:
+                # capabilities 정보 없으면 점수 기반으로 enhance 판정
+                mode = "enhance"
+                reason = rationale or f"confidence={confidence:.2f} in enhance range, no capability info"
+            else:
+                mode = "enhance"
+                reason = rationale or f"confidence={confidence:.2f} enhance candidate"
         elif candidate_skill_id and confidence >= self.medium_confidence:
             mode = "shadow_reuse"
             reason = rationale or f"confidence={confidence:.2f} candidate should be adapted via forge"
@@ -97,6 +142,7 @@ class SkillRetrievalEngine:
             confidence=confidence,
             score=combined_score,
             threshold_high=self.high_confidence,
+            threshold_enhance=self.enhance_confidence,
             threshold_medium=self.medium_confidence,
             verified=verified,
             rationale=reason,
@@ -106,6 +152,7 @@ class SkillRetrievalEngine:
             historical_weight=historical_weight,
             used_historical_signal=used_historical_signal,
             ranked_candidates=ranked_candidates,
+            capability_gap=gap,
         )
 
     def _rank_candidates(
@@ -256,6 +303,22 @@ class SkillRetrievalEngine:
             )
         )
         return "; ".join(parts)
+
+    @staticmethod
+    def _analyze_capability_gap(
+        skill_meta: dict[str, Any],
+        required_capabilities: list[str],
+    ) -> CapabilityGap:
+        """기존 스킬의 capabilities vs 요청된 capabilities 비교."""
+        existing = set(skill_meta.get("capabilities", []))
+        required = set(required_capabilities)
+        missing = required - existing
+        gap_ratio = len(missing) / max(len(required), 1)
+        return CapabilityGap(
+            missing_capabilities=sorted(missing),
+            gap_ratio=round(gap_ratio, 3),
+            enhancement_feasible=len(missing) <= 3,
+        )
 
     def _effective_historical_weight(self, summary: SkillFeedbackSummary) -> float:
         if summary.total_events <= 0:

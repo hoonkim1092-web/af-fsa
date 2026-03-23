@@ -1,65 +1,83 @@
-# 변경 이력
+﻿# 蹂寃??대젰
 
-설계, 아키텍처, 워크플로, 구현 전략이 바뀔 때마다 항목을 하나씩 추가한다.
+?ㅺ퀎, ?꾪궎?띿쿂, ?뚰겕?뚮줈, 援ы쁽 ?꾨왂??諛붾??뚮쭏????ぉ???섎굹??異붽??쒕떎.
 
-## 항목 템플릿
+## ??ぉ ?쒗뵆由?
 ### YYYY-MM-DD HH:MM:SS
-- 요약:
-- 이유:
-- 영향 파일:
-- 후속 작업:
+- ?붿빟:
+- ?댁쑀:
+- ?곹뼢 ?뚯씪:
+- ?꾩냽 ?묒뾽:
 
-## 이력
+## ?대젰
 ### 2026-03-10 18:40:00
-- 요약: `DynamicOrchestrator`의 manifest resume 복원과 workspace-local runtime 로그 저장을 실제 실행 경로에 다시 연결하고, Flash 자동 업그레이드 테스트를 환경변수 계약 기준으로 정렬했다.
-- 이유: Step 1~6 적용 뒤 import 검증은 `agent_runner.py`의 잘못된 상수 import 때문에 멈췄고, 이후에도 orchestrator가 manifest를 읽고 쓰지 않아 resume 회귀 테스트가 계속 실패했기 때문이다. 동시에 `llm_engine` 테스트는 이미 제거된 `minesweeper` 특례를 계속 기대하고 있었다.
-- 영향 파일: `core/agent_runner.py`, `core/dynamic_orchestrator.py`, `tests/test_llm_engine_auto_upgrade_scope.py`, `docs/change_history.md`
-- 후속 작업: 전체 `tests/` 풀런은 아직 하지 않았으므로, 다음 단계에서는 전체 회귀를 한 번 더 돌리고 Step 6 범위 파일들의 구조 정리와 남은 import 정리를 이어간다.
+- ?붿빟: `DynamicOrchestrator`??manifest resume 蹂듭썝怨?workspace-local runtime 濡쒓렇 ??μ쓣 ?ㅼ젣 ?ㅽ뻾 寃쎈줈???ㅼ떆 ?곌껐?섍퀬, Flash ?먮룞 ?낃렇?덉씠???뚯뒪?몃? ?섍꼍蹂??怨꾩빟 湲곗??쇰줈 ?뺣젹?덈떎.
+- ?댁쑀: Step 1~6 ?곸슜 ??import 寃利앹? `agent_runner.py`???섎せ???곸닔 import ?뚮Ц??硫덉톬怨? ?댄썑?먮룄 orchestrator媛 manifest瑜??쎄퀬 ?곗? ?딆븘 resume ?뚭? ?뚯뒪?멸? 怨꾩냽 ?ㅽ뙣?덇린 ?뚮Ц?대떎. ?숈떆??`llm_engine` ?뚯뒪?몃뒗 ?대? ?쒓굅??`minesweeper` ?밸?瑜?怨꾩냽 湲곕??섍퀬 ?덉뿀??
+- ?곹뼢 ?뚯씪: `core/agent_runner.py`, `core/dynamic_orchestrator.py`, `tests/test_llm_engine_auto_upgrade_scope.py`, `docs/change_history.md`
+- ?꾩냽 ?묒뾽: ?꾩껜 `tests/` ??곗? ?꾩쭅 ?섏? ?딆븯?쇰?濡? ?ㅼ쓬 ?④퀎?먯꽌???꾩껜 ?뚭?瑜???踰????뚮━怨?Step 6 踰붿쐞 ?뚯씪?ㅼ쓽 援ъ“ ?뺣━? ?⑥? import ?뺣━瑜??댁뼱媛꾨떎.
 
 ### 2026-03-10 18:05:00
-- 요약: 운영체제 언어 코드 기준 문서 언어 정책을 중앙 문서 정책과 자동 생성 문서 경로에 반영했다.
-- 이유: 앞으로 생성하거나 수정하는 모든 문서를 OS 언어 코드에 맞는 언어로 일관되게 작성하도록 런타임 규칙을 고정하기 위해.
-- 영향 파일: `core/documentation_policy.py`, `core/project_pipeline.py`, `core/continuity/resume_brief.py`, `tests/test_documentation_policy.py`, `tests/test_runner_contracts.py`, `tests/test_resume_brief.py`, `docs/architecture.md`, `docs/change_history.md`
-- 후속 작업: 남아 있는 기존 영문 문서는 필요 시 한국어로 순차 정리하되, 새로 생성되거나 수정되는 문서부터는 운영체제 언어 코드 규칙을 우선 적용한다.
+- ?붿빟: ?댁쁺泥댁젣 ?몄뼱 肄붾뱶 湲곗? 臾몄꽌 ?몄뼱 ?뺤콉??以묒븰 臾몄꽌 ?뺤콉怨??먮룞 ?앹꽦 臾몄꽌 寃쎈줈??諛섏쁺?덈떎.
+- ?댁쑀: ?욎쑝濡??앹꽦?섍굅???섏젙?섎뒗 紐⑤뱺 臾몄꽌瑜?OS ?몄뼱 肄붾뱶??留욌뒗 ?몄뼱濡??쇨??섍쾶 ?묒꽦?섎룄濡??고???洹쒖튃??怨좎젙?섍린 ?꾪빐.
+- ?곹뼢 ?뚯씪: `core/documentation_policy.py`, `core/project_pipeline.py`, `core/continuity/resume_brief.py`, `tests/test_documentation_policy.py`, `tests/test_runner_contracts.py`, `tests/test_resume_brief.py`, `docs/architecture.md`, `docs/change_history.md`
+- ?꾩냽 ?묒뾽: ?⑥븘 ?덈뒗 湲곗〈 ?곷Ц 臾몄꽌???꾩슂 ???쒓뎅?대줈 ?쒖감 ?뺣━?섎릺, ?덈줈 ?앹꽦?섍굅???섏젙?섎뒗 臾몄꽌遺?곕뒗 ?댁쁺泥댁젣 ?몄뼱 肄붾뱶 洹쒖튃???곗꽑 ?곸슜?쒕떎.
 
 ### 2026-03-10 17:46:45
-- 요약: `code_review_report.md`를 현재 브랜치 기준으로 재검증한 문서를 추가했고, 실제 런타임 구조와 항목별 판정, 단계별 수정 순서를 정리했다.
-- 이유: 기존 리뷰 리포트는 방향성은 유효하지만 현재 코드 상태를 완전히 반영하진 않아, 실제 실행용 계획을 현재 코드와 테스트 기준으로 다시 맞출 필요가 있었다.
-- 영향 파일: `docs/plans/2026-03-10-code-review-report-validation.md`, `docs/change_history.md`
-- 후속 작업: 새 검증 문서의 우선순위를 기준으로 작업하고, `code_review_report.md`를 그대로 패치 체크리스트처럼 적용하지 않는다. 오케스트레이터 resume 회귀도 활성 수정 큐에 포함한다.
+- ?붿빟: `code_review_report.md`瑜??꾩옱 釉뚮옖移?湲곗??쇰줈 ?ш?利앺븳 臾몄꽌瑜?異붽??덇퀬, ?ㅼ젣 ?고???援ъ“? ??ぉ蹂??먯젙, ?④퀎蹂??섏젙 ?쒖꽌瑜??뺣━?덈떎.
+- ?댁쑀: 湲곗〈 由щ럭 由ы룷?몃뒗 諛⑺뼢?깆? ?좏슚?섏?留??꾩옱 肄붾뱶 ?곹깭瑜??꾩쟾??諛섏쁺?섏쭊 ?딆븘, ?ㅼ젣 ?ㅽ뻾??怨꾪쉷???꾩옱 肄붾뱶? ?뚯뒪??湲곗??쇰줈 ?ㅼ떆 留욎텧 ?꾩슂媛 ?덉뿀??
+- ?곹뼢 ?뚯씪: `docs/plans/2026-03-10-code-review-report-validation.md`, `docs/change_history.md`
+- ?꾩냽 ?묒뾽: ??寃利?臾몄꽌???곗꽑?쒖쐞瑜?湲곗??쇰줈 ?묒뾽?섍퀬, `code_review_report.md`瑜?洹몃?濡??⑥튂 泥댄겕由ъ뒪?몄쿂???곸슜?섏? ?딅뒗?? ?ㅼ??ㅽ듃?덉씠??resume ?뚭????쒖꽦 ?섏젙 ?먯뿉 ?ы븿?쒕떎.
 
 ### 2026-03-10 17:30:00
-- 요약: Codex 보호 강화를 위해 destructive shell 명령과 PATH 해석 명령을 실행 전에 가로채는 런타임 shell proxy wrapper를 추가했다.
-- 이유: 프롬프트 계약만으로는 Claude/Gemini의 네이티브 deny 규칙보다 약했기 때문에, 승인 프롬프트를 되살리지 않으면서 delete/reset 명령을 막는 Codex 전용 런타임 가드가 필요했다.
-- 영향 파일: `core/destructive_guard.py`, `core/providers/session_adapter.py`, `scripts/destructive_guard_proxy.py`, `tests/test_destructive_guard.py`, `tests/test_cli_session_adapter.py`, `docs/architecture.md`, `docs/change_history.md`
-- 후속 작업: 향후 Codex 릴리스가 provider-native deny 규칙을 지원하면 shell-proxy 우회를 기본 방식에서 제외하고, wrapper는 defense in depth 용도로만 유지한다.
+- ?붿빟: Codex 蹂댄샇 媛뺥솕瑜??꾪빐 destructive shell 紐낅졊怨?PATH ?댁꽍 紐낅졊???ㅽ뻾 ?꾩뿉 媛濡쒖콈???고???shell proxy wrapper瑜?異붽??덈떎.
+- ?댁쑀: ?꾨＼?꾪듃 怨꾩빟留뚯쑝濡쒕뒗 Claude/Gemini???ㅼ씠?곕툕 deny 洹쒖튃蹂대떎 ?쏀뻽湲??뚮Ц?? ?뱀씤 ?꾨＼?꾪듃瑜??섏궡由ъ? ?딆쑝硫댁꽌 delete/reset 紐낅졊??留됰뒗 Codex ?꾩슜 ?고???媛?쒓? ?꾩슂?덈떎.
+- ?곹뼢 ?뚯씪: `core/destructive_guard.py`, `core/providers/session_adapter.py`, `scripts/destructive_guard_proxy.py`, `tests/test_destructive_guard.py`, `tests/test_cli_session_adapter.py`, `docs/architecture.md`, `docs/change_history.md`
+- ?꾩냽 ?묒뾽: ?ν썑 Codex 由대━?ㅺ? provider-native deny 洹쒖튃??吏?먰븯硫?shell-proxy ?고쉶瑜?湲곕낯 諛⑹떇?먯꽌 ?쒖쇅?섍퀬, wrapper??defense in depth ?⑸룄濡쒕쭔 ?좎??쒕떎.
 
 ### 2026-03-10 17:05:00
-- 요약: Claude와 Gemini에 대해 delete/reset shell 명령을 하드 차단하는 destructive action guard를 추가하고, 모든 런타임 경로에 공용 guard 계약을 주입했다.
-- 이유: 무프롬프트 자동 실행을 유지하면서도 delete/reset 명령을 막으려면 별도 안전 계층이 필요했다.
-- 영향 파일: `core/destructive_guard.py`, `core/agent_runner.py`, `core/providers/cli.py`, `core/providers/session_adapter.py`, `tests/test_destructive_guard.py`, `tests/test_runner_contracts.py`, `tests/test_cli_providers.py`, `tests/test_cli_session_adapter.py`, `docs/architecture.md`, `docs/change_history.md`
-- 후속 작업: 이후 Codex CLI가 provider-native deny 정책을 지원하는지 다시 확인하고, 가능해지면 prompt-only fallback보다 강한 기본 강제 방식으로 대체한다.
+- ?붿빟: Claude? Gemini?????delete/reset shell 紐낅졊???섎뱶 李⑤떒?섎뒗 destructive action guard瑜?異붽??섍퀬, 紐⑤뱺 ?고???寃쎈줈??怨듭슜 guard 怨꾩빟??二쇱엯?덈떎.
+- ?댁쑀: 臾댄봽濡ы봽???먮룞 ?ㅽ뻾???좎??섎㈃?쒕룄 delete/reset 紐낅졊??留됱쑝?ㅻ㈃ 蹂꾨룄 ?덉쟾 怨꾩링???꾩슂?덈떎.
+- ?곹뼢 ?뚯씪: `core/destructive_guard.py`, `core/agent_runner.py`, `core/providers/cli.py`, `core/providers/session_adapter.py`, `tests/test_destructive_guard.py`, `tests/test_runner_contracts.py`, `tests/test_cli_providers.py`, `tests/test_cli_session_adapter.py`, `docs/architecture.md`, `docs/change_history.md`
+- ?꾩냽 ?묒뾽: ?댄썑 Codex CLI媛 provider-native deny ?뺤콉??吏?먰븯?붿? ?ㅼ떆 ?뺤씤?섍퀬, 媛?ν빐吏硫?prompt-only fallback蹂대떎 媛뺥븳 湲곕낯 媛뺤젣 諛⑹떇?쇰줈 ?泥댄븳??
 
 ### 2026-03-10 16:20:00
-- 요약: Claude CLI와 Gemini CLI의 기본 실행 모드를 무프롬프트 자동 실행 쪽으로 바꿔, 세 CLI 프로바이더가 같은 자동 실행 의미를 따르도록 맞췄다.
-- 이유: `acceptEdits`와 `auto_edit`는 편집만 자동 승인할 뿐이라, 자동 실행 중에도 비편집 승인 프롬프트가 나타날 수 있었다.
-- 영향 파일: `core/providers/cli.py`, `tests/test_cli_providers.py`, `docs/architecture.md`, `docs/change_history.md`
-- 후속 작업: 프로바이더 기본값은 각 벤더 CLI 의미와 계속 맞추고, destructive action 차단은 승인 프롬프트를 부활시키지 않는 별도 정책으로 관리한다.
+- ?붿빟: Claude CLI? Gemini CLI??湲곕낯 ?ㅽ뻾 紐⑤뱶瑜?臾댄봽濡ы봽???먮룞 ?ㅽ뻾 履쎌쑝濡?諛붽퓭, ??CLI ?꾨줈諛붿씠?붽? 媛숈? ?먮룞 ?ㅽ뻾 ?섎?瑜??곕Ⅴ?꾨줉 留욎톬??
+- ?댁쑀: `acceptEdits`? `auto_edit`???몄쭛留??먮룞 ?뱀씤??肉먯씠?? ?먮룞 ?ㅽ뻾 以묒뿉??鍮꾪렪吏??뱀씤 ?꾨＼?꾪듃媛 ?섑??????덉뿀??
+- ?곹뼢 ?뚯씪: `core/providers/cli.py`, `tests/test_cli_providers.py`, `docs/architecture.md`, `docs/change_history.md`
+- ?꾩냽 ?묒뾽: ?꾨줈諛붿씠??湲곕낯媛믪? 媛?踰ㅻ뜑 CLI ?섎?? 怨꾩냽 留욎텛怨? destructive action 李⑤떒? ?뱀씤 ?꾨＼?꾪듃瑜?遺?쒖떆?ㅼ? ?딅뒗 蹂꾨룄 ?뺤콉?쇰줈 愿由ы븳??
 
 ### 2026-03-10 16:05:00
-- 요약: Codex CLI 자동 실행 기본값을 top-level `--ask-for-approval never --sandbox workspace-write` 뒤에 `exec`를 붙이는 형태로 변경했다.
-- 이유: 설치된 Codex CLI 기준으로 `--full-auto`는 여전히 `on-request` 성격이 있어 자동 실행 중 승인 프롬프트를 띄울 수 있었다.
-- 영향 파일: `core/providers/cli.py`, `tests/test_cli_providers.py`, `docs/architecture.md`, `docs/change_history.md`
-- 후속 작업: Codex CLI 플래그 계약이 다시 바뀌면 `codex --help`와 `codex exec --help`를 다시 확인한 뒤 provider 사양을 조정한다.
+- ?붿빟: Codex CLI ?먮룞 ?ㅽ뻾 湲곕낯媛믪쓣 top-level `--ask-for-approval never --sandbox workspace-write` ?ㅼ뿉 `exec`瑜?遺숈씠???뺥깭濡?蹂寃쏀뻽??
+- ?댁쑀: ?ㅼ튂??Codex CLI 湲곗??쇰줈 `--full-auto`???ъ쟾??`on-request` ?깃꺽???덉뼱 ?먮룞 ?ㅽ뻾 以??뱀씤 ?꾨＼?꾪듃瑜??꾩슱 ???덉뿀??
+- ?곹뼢 ?뚯씪: `core/providers/cli.py`, `tests/test_cli_providers.py`, `docs/architecture.md`, `docs/change_history.md`
+- ?꾩냽 ?묒뾽: Codex CLI ?뚮옒洹?怨꾩빟???ㅼ떆 諛붾뚮㈃ `codex --help`? `codex exec --help`瑜??ㅼ떆 ?뺤씤????provider ?ъ뼇??議곗젙?쒕떎.
 
 ### 2026-03-10 15:30:00
-- 요약: 아키텍처 문서를 훅, 세션, 프로젝트 생성, 프롬프트 흐름, 출력 흐름, 파일 수정 경로까지 따라갈 수 있는 실행 경로 수준 가이드로 확장했다.
-- 이유: 기존 문서는 상위 수준 placeholder에 가까워 현재 런타임 구조를 추적하기에 충분하지 않았다.
-- 영향 파일: `docs/architecture.md`, `docs/change_history.md`
-- 후속 작업: 러너, 프로바이더 브리지, 훅 모델, 프로젝트 파이프라인이 바뀔 때마다 실행 경로 섹션도 같이 맞춘다.
+- ?붿빟: ?꾪궎?띿쿂 臾몄꽌瑜??? ?몄뀡, ?꾨줈?앺듃 ?앹꽦, ?꾨＼?꾪듃 ?먮쫫, 異쒕젰 ?먮쫫, ?뚯씪 ?섏젙 寃쎈줈源뚯? ?곕씪媛????덈뒗 ?ㅽ뻾 寃쎈줈 ?섏? 媛?대뱶濡??뺤옣?덈떎.
+- ?댁쑀: 湲곗〈 臾몄꽌???곸쐞 ?섏? placeholder??媛源뚯썙 ?꾩옱 ?고???援ъ“瑜?異붿쟻?섍린??異⑸텇?섏? ?딆븯??
+- ?곹뼢 ?뚯씪: `docs/architecture.md`, `docs/change_history.md`
+- ?꾩냽 ?묒뾽: ?щ꼫, ?꾨줈諛붿씠??釉뚮━吏, ??紐⑤뜽, ?꾨줈?앺듃 ?뚯씠?꾨씪?몄씠 諛붾??뚮쭏???ㅽ뻾 寃쎈줈 ?뱀뀡??媛숈씠 留욎텣??
 
 ### 2026-03-10 00:00:00
-- 요약: 설계 변경 시 `docs/architecture.md`와 `docs/change_history.md`를 반드시 갱신하는 문서 계약을 도입했다.
-- 이유: 세션과 PC를 옮겨도 아키텍처/워크플로 변경 이력을 안정적으로 남기기 위해.
-- 영향 파일: `core/agent_runner.py`, `core/project_init.py`, `core/project_pipeline.py`, `core/documentation_policy.py`, `docs/architecture.md`, `docs/change_history.md`
-- 후속 작업: 앞으로 설계 수준 변경이 생기면 같은 작업 안에서 `docs/architecture.md`와 이 파일을 함께 갱신한다.
+- ?붿빟: ?ㅺ퀎 蹂寃???`docs/architecture.md`? `docs/change_history.md`瑜?諛섎뱶??媛깆떊?섎뒗 臾몄꽌 怨꾩빟???꾩엯?덈떎.
+- ?댁쑀: ?몄뀡怨?PC瑜???꺼???꾪궎?띿쿂/?뚰겕?뚮줈 蹂寃??대젰???덉젙?곸쑝濡??④린湲??꾪빐.
+- ?곹뼢 ?뚯씪: `core/agent_runner.py`, `core/project_init.py`, `core/project_pipeline.py`, `core/documentation_policy.py`, `docs/architecture.md`, `docs/change_history.md`
+- ?꾩냽 ?묒뾽: ?욎쑝濡??ㅺ퀎 ?섏? 蹂寃쎌씠 ?앷린硫?媛숈? ?묒뾽 ?덉뿉??`docs/architecture.md`? ???뚯씪???④퍡 媛깆떊?쒕떎.
+
+### 2026-03-21 13:30:00
+- ?붿빟: ?꾨줈?앺듃 ?뚯씠?꾨씪?몄뿉 紐⑤뱢???묒뾽 怨꾪쉷 蹂대뱶? ?ㅽ뻾 臾몄꽌 ?앹꽦??異붽??섍퀬, ?ㅼ??ㅽ듃?덉씠?곌? `project_board_state.json`???쎌뼱 ?섏〈???덈뒗 task瑜?諛곗젙?섎룄濡?諛붽엥??
+- ?댁쑀: ??븷 ?섏? TODO留뚯쑝濡쒕뒗 湲곕뒫???섍쾶 遺꾪빐??蹂묐젹 ?묒뾽怨??꾩냽 handoff瑜??덉젙?곸쑝濡??댁쁺?섍린 ?대젮?뚯꽌??
+- ?곹뼢 ?뚯씪: `core/project_task_board.py`, `core/project_pipeline.py`, `core/dynamic_orchestrator.py`, `tests/test_project_pipeline.py`, `tests/test_dynamic_orchestrator_workspace_scope.py`, `docs/work-items/modular_task_planning_workflow.md`, `docs/architecture.md`, `docs/change_history.md`
+- ?꾩냽 ?묒뾽: planner LLM prompt媛 `modules/tasks`瑜????띾??섍쾶 ?대룄濡?怨좊룄?뷀븯怨? ?댄썑 mailbox 湲곕컲 agent handoff瑜?board thread? ?곌껐?쒕떎.
+
+### 2026-03-21 14:00:00
+- ?붿빟: planner prompt瑜??뺤옣??`planning_steps`, `modules`, `tasks`瑜?吏곸젒 ?앹꽦?섎룄濡?諛붽씀怨? planner 異쒕젰 ?뺢퇋???뚯뒪?몃? 異붽??덈떎.
+- ?댁쑀: 蹂대뱶 fallback?먮쭔 ?섏〈?섏? ?딄퀬 理쒖큹 怨꾪쉷 ?④퀎?먯꽌遺?????띾???紐⑤뱢 遺꾪빐瑜??산린 ?꾪빐?쒕떎.
+- ?곹뼢 ?뚯씪: `core/bootstrap_roles.py`, `tests/test_bootstrap_roles.py`, `docs/architecture.md`, `docs/change_history.md`
+- ?꾩냽 ?묒뾽: planner媛 ?ㅼ젣 ?꾨줈?앺듃 ?좏삎蹂꾨줈 ???섏? 紐⑤뱢 遺꾪빐瑜??대룄濡??꾨찓?몃퀎 prompt ?쒗뵆由우쓣 異붽??쒕떎.
+
+## 2026-03-21 - Structured Agent Mailbox Handoff
+- Added `core/project_mailbox.py` with persistent workspace mailbox storage in `data/comm/messages.jsonl`.
+- Mounted built-in mailbox tools in `AgentRunner` and exposed mailbox digest context to both runtime prompts and Lilith orchestration cycles.
+- Added mailbox-focused tests plus generated-plan documentation for role handoff rules.
+

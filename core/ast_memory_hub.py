@@ -34,8 +34,10 @@ class AstMemoryHub:
             self.ast_state: Dict[str, Any] = {}
             # track file -> change history (timeline)
             self.ast_history: Dict[str, List[Dict[str, Any]]] = {}
-            self.lock = asyncio.Lock()
             self.initialized = True
+        # asyncio.Lock은 생성된 이벤트 루프에 바인딩된다.
+        # asyncio.run()이 매번 새 루프를 만들므로 __init__마다 재생성해야 한다.
+        self.lock = asyncio.Lock()
 
     def reset(self):
         """Reset the hub for a new project run."""
@@ -43,12 +45,27 @@ class AstMemoryHub:
         self.subscribers = {}
         self.ast_state = {}
         self.ast_history = {}
+        self.lock = asyncio.Lock()
 
     def subscribe(self, topic: str, callback: Callable):
         """Subscribe an agent callback to a topic (e.g. 'file_changes', 'ast_updates')"""
         if topic not in self.subscribers:
             self.subscribers[topic] = []
-        self.subscribers[topic].append(callback)
+        # 개선 5: 같은 콜백의 중복 등록 방지
+        if callback not in self.subscribers[topic]:
+            self.subscribers[topic].append(callback)
+
+    def unsubscribe(self, topic: str, callback: Callable) -> bool:
+        """Remove a previously subscribed callback from a topic.
+
+        Returns True if the callback was found and removed.
+        에이전트 완료 후 불필요한 콜백 호출을 방지한다.
+        """
+        if topic not in self.subscribers:
+            return False
+        before = len(self.subscribers[topic])
+        self.subscribers[topic] = [cb for cb in self.subscribers[topic] if cb is not callback]
+        return len(self.subscribers[topic]) < before
 
     async def publish(self, topic: str, payload: Any):
         """Broadcast an event to all subscribers of a topic (parallel)."""

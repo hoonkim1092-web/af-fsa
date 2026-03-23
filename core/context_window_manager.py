@@ -27,6 +27,10 @@ logger = logging.getLogger(__name__)
 # 평균 tool definition 크기 추정 (토큰)
 _TOOL_DEF_TOKEN_AVG = 150
 
+# 히스토리 항목 하드 상한 — 토큰 예산과 별개로 항목 수 자체를 제한
+# 매우 길게 실행되는 프로젝트에서 짧은 항목이 대량 누적되는 상황을 방지
+MAX_HISTORY_ENTRIES = 200
+
 
 # ──────────────────────────────────────────────
 # Token estimation
@@ -295,7 +299,8 @@ class HistoryManager:
 
     def _compress_old_entries(self) -> None:
         """recent_window 밖의 function_response를 압축합니다."""
-        cutoff_turn = self._max_turn - self.recent_window
+        # Bug fix: max(0, ...) — 초기 턴(0~recent_window)에서 음수 cutoff 방지
+        cutoff_turn = max(0, self._max_turn - self.recent_window)
         for entry in self._entries:
             if entry.turn >= cutoff_turn:
                 continue
@@ -323,10 +328,17 @@ class HistoryManager:
                 )
 
     def _enforce_budget(self) -> None:
-        """총 토큰이 budget을 초과하면 가장 오래된 엔트리부터 제거.
+        """총 토큰이 budget을 초과하거나 항목 수가 상한을 넘으면 오래된 엔트리 제거.
         FIX #1: build_contents()에서 호출됨.
         최소 2개 엔트리(최신 user+model)는 항상 유지.
+        항목 수 하드 상한(MAX_HISTORY_ENTRIES)을 초과해도 제거 — 토큰 예산과 별개.
         """
+        while len(self._entries) > MAX_HISTORY_ENTRIES and len(self._entries) > 2:
+            removed = self._entries.pop(0)
+            logger.debug(
+                "[CWM] Entry cap overflow: removed turn=%d role=%s (~%d tok)",
+                removed.turn, removed.role, removed.token_estimate,
+            )
         while self.total_tokens > self.budget_tokens and len(self._entries) > 2:
             removed = self._entries.pop(0)
             logger.debug(

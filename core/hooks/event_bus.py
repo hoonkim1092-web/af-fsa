@@ -36,6 +36,15 @@ class HookEventBus:
         self.register(LangSmithTracingHook())
 
     def register(self, hook: Any):
+        # 개선 6: 같은 인스턴스의 중복 등록 방지 (이중 실행 방어)
+        all_hooks = (
+            self._pre_hooks + self._post_hooks
+            + self._pre_tool_hooks + self._post_tool_hooks
+            + self._skill_evolved_hooks + self._skill_quality_hooks
+        )
+        if any(h is hook for h in all_hooks):
+            return
+
         if hasattr(hook, "pre_execute"):
             self._pre_hooks.append(hook)
         if hasattr(hook, "post_execute"):

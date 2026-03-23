@@ -46,6 +46,9 @@ def test_registry_manager_installs_codex_markdown_skill_directory(monkeypatch, t
     entry = registry["skills"]["review_guide"]
     assert entry["type"] == "knowledge"
     assert entry["path"].endswith("factory_skills/review_guide/skill.md")
+    # External skills must land as draft with last_test_ok=False (isolation policy)
+    assert entry["status"] == "draft"
+    assert entry["last_test_ok"] is False
 
 
 def test_registry_manager_iter_install_candidates_preserves_source_metadata(monkeypatch, tmp_path):

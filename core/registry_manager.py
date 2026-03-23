@@ -1,3 +1,4 @@
+import logging
 import os
 import shutil
 from core.utils import (
@@ -12,6 +13,8 @@ from core.config_paths import (
 )
 from core.external_skill_sources import ExternalSkillResolver
 from core.policy import resolve_quality_gate_policy
+
+logger = logging.getLogger(__name__)
 
 def read_project_policies():
     from core.config_paths import POLICIES_PATH
@@ -209,22 +212,88 @@ class RegistryManager:
         skill_type = "action" if skill_py else "knowledge"
         active_path = target_py if skill_py else target_md
 
-        meta = {
-            "id": sid, "name": sid, "version": "1.0.0", "capabilities": [sid],
-            "status": "active", "updated_at": now_iso(), "source": source_label, "source_path": src,
+        # Preserve upstream metadata if present, then overlay our isolation fields
+        upstream_meta = {}
+        if os.path.exists(target_meta):
+            upstream_meta = read_yaml(target_meta) or {}
+        meta = dict(upstream_meta)
+        meta.update({
+            "id": sid, "name": meta.get("name") or sid,
+            "version": meta.get("version") or "1.0.0",
+            "capabilities": meta.get("capabilities") or [sid],
+            "status": "draft", "updated_at": now_iso(),
+            "source": source_label, "source_path": src,
             "type": skill_type,
-        }
+        })
         write_yaml(target_meta, meta)
 
         reg = self._read_registry()
         reg["skills"][sid] = {
-            "id": sid, "name": sid, "status": "active", "version": "1.0.0",
+            "id": sid, "name": sid, "status": "draft", "version": "1.0.0",
             "capabilities": [sid], "type": skill_type, "path": to_portable_path(active_path),
-            "meta_path": to_portable_path(target_meta), "updated_at": now_iso(), "last_test_ok": True,
+            "meta_path": to_portable_path(target_meta), "updated_at": now_iso(), "last_test_ok": False,
         }
         self._write_registry(reg)
-        lock_skill_state(sid, {"version": "1.0.0", "status": "active"})
+        lock_skill_state(sid, {"version": "1.0.0", "status": "draft"})
         return True, sid
+
+    def _eval_and_promote_external(self, sid: str) -> str:
+        """Run eval+promotion for a freshly installed external skill (status=draft).
+
+        Returns the new lifecycle stage after promotion attempt.
+        Keeps skill as 'draft' on any eval failure so it never silently becomes active.
+        """
+        skill_dir = os.path.join(SKILLS_DIR, sid)
+        skill_py = os.path.join(skill_dir, "skill.py")
+        skill_md = os.path.join(skill_dir, "skill.md")
+        skill_path = skill_py if os.path.exists(skill_py) else skill_md if os.path.exists(skill_md) else None
+        if not skill_path:
+            return "draft"
+
+        try:
+            from core.skill_eval_harness import SkillEvalHarness
+            from core.skill_promotion import SkillPromotionManager
+
+            # Auto-discover evals.yaml if present in the skill directory
+            evals_path = None
+            for evals_name in ("evals.yaml", "evals.yml"):
+                candidate = os.path.join(skill_dir, evals_name)
+                if os.path.exists(candidate):
+                    evals_path = candidate
+                    break
+
+            eval_report = SkillEvalHarness().evaluate(
+                skill_path,
+                evals_path=evals_path,
+            )
+            decision = SkillPromotionManager().apply(sid, eval_report, current_stage="draft")
+            next_stage = decision.next_stage
+
+            # Sync registry entry with full promotion history (matches built-skill path)
+            reg = self._read_registry()
+            if sid in reg.get("skills", {}):
+                entry = reg["skills"][sid]
+                entry["status"] = next_stage
+                entry["lifecycle_stage"] = next_stage
+                entry["last_test_ok"] = decision.installable
+                entry["last_eval_report"] = str(getattr(eval_report, "report_path", "") or "")
+                entry["promotion_reason"] = str(getattr(decision, "reason", "") or "")
+                entry["promotion_updated_at"] = now_iso()
+                self._write_registry(reg)
+
+            meta_path = os.path.join(skill_dir, "meta.yaml")
+            if os.path.exists(meta_path):
+                meta = read_yaml(meta_path) or {}
+                meta["status"] = next_stage
+                meta["lifecycle_stage"] = next_stage
+                meta["last_test_ok"] = decision.installable
+                write_yaml(meta_path, meta)
+
+            logger.info("External skill '%s' promoted to '%s' (reason=%s)", sid, next_stage, decision.reason)
+            return next_stage
+        except Exception as exc:
+            logger.warning("External skill '%s' eval/promote failed: %s", sid, exc)
+            return "draft"
 
     def resolve_and_install_external_detailed(
         self,
@@ -239,7 +308,22 @@ class RegistryManager:
             path_resolver=self._resolve_path,
             match_fn=self._score_need_match,
         )
-        return resolver.resolve_and_install(needs, reqs=reqs, evidence_pack=evidence_pack)
+        result = resolver.resolve_and_install(needs, reqs=reqs, evidence_pack=evidence_pack)
+
+        # Eval and promote each installed external skill (installed as draft by _install_skill_file).
+        # Use a copy so we don't mutate the resolver's internal dict.
+        installed = dict(result.get("installed", {}))
+        result["installed"] = installed
+        if isinstance(installed, dict):
+            for need_id, installed_sid in list(installed.items()):
+                if installed_sid:
+                    # installed_sid is already safe_id-normalised by ExternalSkillResolver
+                    next_stage = self._eval_and_promote_external(installed_sid)
+                    if next_stage == "draft":
+                        # Did not pass eval — remove from installed so caller treats as uninstallable
+                        installed.pop(need_id, None)
+
+        return result
 
     def resolve_and_install_external(
         self,

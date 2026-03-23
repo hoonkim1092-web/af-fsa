@@ -80,8 +80,8 @@ class TestPhase12Integration:
         prompt = loader.build_routing_prompt(selected, scores)
         
         assert len(prompt) > 0
-        assert "이용 가능한 스킬" in prompt
-        assert "Decision Tree" in prompt
+        assert "Available Skills" in prompt
+        assert "description:" in prompt
     
     def test_memory_efficiency(self):
         import sys

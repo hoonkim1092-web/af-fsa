@@ -40,6 +40,10 @@ class TodoContinuationEnforcer(ContinuationHook):
         ] or is_complex
 
     def pre_execute(self, agent_state: dict) -> bool:
+        # 오케스트레이터 워커 서브프로세스: 이미 보드에서 배정된 태스크 → 훅 통과
+        if os.environ.get("AGENT_WORKER_SUBPROCESS"):
+            return True
+
         task_input = str(agent_state.get("task_input", ""))
         intent = agent_state.get("intent", "trivial")
         risk_level = agent_state.get("risk_level", "normal")
@@ -62,13 +66,17 @@ class ToolOutputTruncator(ContinuationHook):
     MAX_TRUNC_LENGTH = 16000
 
     def _truncate(self, result: Any) -> Any:
-        if isinstance(result, dict) and "stdout" in result:
-            output = str(result["stdout"])
-            if len(output) > self.MAX_TRUNC_LENGTH:
-                mutated = dict(result)
-                mutated["stdout"] = output[: self.MAX_TRUNC_LENGTH].rstrip() + "\n[...truncated...]"
-                return mutated
-        return result
+        if not isinstance(result, dict):
+            return result
+        mutated = None
+        for field in ("stdout", "stderr"):
+            if field in result:
+                output = str(result[field])
+                if len(output) > self.MAX_TRUNC_LENGTH:
+                    if mutated is None:
+                        mutated = dict(result)
+                    mutated[field] = output[: self.MAX_TRUNC_LENGTH].rstrip() + "\n[...truncated...]"
+        return mutated if mutated is not None else result
 
     def post_execute(self, agent_state: dict, result: Any) -> Any:
         return self._truncate(result)

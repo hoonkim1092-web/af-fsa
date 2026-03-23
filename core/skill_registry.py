@@ -517,6 +517,8 @@ def register_skill(
     stype = kwargs.pop("stype", kwargs.pop("type", "action"))
     skill_id = _safe_id(skill_name) or skill_name.lower().replace(" ", "_")
 
+    status = kwargs.pop("status", "draft")
+
     # 새 스킬 엔트리
     skill_entry = {
         "skill_id": skill_id,
@@ -525,6 +527,7 @@ def register_skill(
         "path": path,
         "dependencies": dependencies or [],
         "type": stype,
+        "status": status,
     }
     skill_entry.update(kwargs)
 

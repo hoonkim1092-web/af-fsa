@@ -244,6 +244,118 @@ class AgentFactory:
             return self.req.analyze(agent, task_input, workspace=workspace)
         return self.req.analyze(agent, task_input)
 
+    def _run_project_with_approval(
+        self,
+        task_input: str,
+        workspace: str,
+        execution_mode: str,
+        enable_build: bool,
+        requested_role: str,
+        route: dict,
+    ) -> dict:
+        """
+        프로젝트 파이프라인을 2-Phase 로 실행한다.
+
+        Phase 1 — prepare(): 문서 생성 + work-item 자동 채움
+        승인 게이트: 사용자가 문서를 검토하고 승인 또는 편집
+        Phase 2 — execute(): 승인 확인 → 에이전트 실행
+        """
+        # Phase 1: 문서 생성
+        print("\n[Pipeline] Phase 1: 프로젝트 문서 생성 중...")
+        try:
+            prepared = self.project_pipeline.prepare(
+                task_input=task_input,
+                workspace=workspace,
+                execution_mode=execution_mode,
+                enable_build=enable_build,
+                requested_role=requested_role,
+                route=route,
+            )
+        except Exception as exc:
+            print(f"\n  [오류] 프로젝트 문서 생성 실패: {exc}")
+            return {"ok": False, "reason": "prepare_failed", "message": str(exc)}
+
+        # 생성된 문서 목록 출력
+        print("\n" + "=" * 60)
+        print("  프로젝트 문서가 생성되었습니다.")
+        print("=" * 60)
+        for line in prepared.summary_lines():
+            print(line)
+        print("\n  생성된 파일:")
+        for path in prepared.planning_files:
+            print(f"    - {path}")
+
+        # 승인 루프
+        gate = prepared.gate()
+        while True:
+            print("\n" + "-" * 60)
+            print("  다음 중 선택하세요:")
+            print("  [1] 승인하고 에이전트 실행 시작 (approve)")
+            print("  [2] 문서를 편집한 후 다시 검토 (edit)")
+            print("  [3] 실행 취소 (cancel)")
+            print("-" * 60)
+
+            try:
+                choice = input("  선택 (1/2/3): ").strip().lower()
+            except (EOFError, KeyboardInterrupt):
+                print("\n\n  실행이 취소되었습니다.")
+                return {"ok": False, "reason": "cancelled_by_user"}
+
+            if choice in ("1", "approve", "a"):
+                approved = gate.approve(approver="user")
+                if not approved:
+                    print("  [오류] approval-gate.md 를 찾을 수 없습니다.")
+                    return {"ok": False, "reason": "gate_file_missing"}
+                print("\n  승인 완료. Phase 2: 에이전트 실행을 시작합니다...")
+                break
+
+            elif choice in ("2", "edit", "e"):
+                print(f"\n  문서 편집 위치: {prepared.work_item_dir()}")
+                print("  다음 파일을 편집하세요:")
+                for fname in ["feature-plan.md", "feature-spec.md",
+                              "implementation-design.md", "implementation-tasks.md"]:
+                    print(f"    - {fname}")
+                print("\n  편집이 완료되면 Enter 를 누르세요.")
+                try:
+                    input()
+                except (EOFError, KeyboardInterrupt):
+                    pass
+                print("  변경사항을 확인했습니다. 다시 검토 메뉴로 돌아갑니다.")
+                gate.invalidate(reason="사용자 편집으로 재검토 필요")
+                continue
+
+            elif choice in ("3", "cancel", "c", "q"):
+                print("\n  실행이 취소되었습니다.")
+                return {"ok": False, "reason": "cancelled_by_user"}
+
+            else:
+                print("  올바른 선택지를 입력하세요: 1, 2, 3")
+
+        # Phase 2: 실행
+        result = self.project_pipeline.execute(
+            prepared=prepared,
+            enable_build=enable_build,
+            execution_mode=execution_mode,
+        )
+
+        if result.get("ok"):
+            roles = result.get("roles", [])
+            board = result.get("board", {})
+            completed = len(board.get("completed_subtasks", []))
+            failed = len(board.get("failed_subtasks", []))
+            print("\n" + "=" * 60)
+            print("  프로젝트 실행 완료.")
+            print(f"  역할: {', '.join(roles) if roles else '-'}")
+            print(f"  완료 태스크: {completed}  실패 태스크: {failed}")
+            print("=" * 60)
+        else:
+            reason = result.get("reason", "unknown")
+            print(f"\n  [실패] {reason}: {result.get('message', '')}")
+            if result.get("changed_files"):
+                print(f"  변경된 파일: {result['changed_files']}")
+
+        return result
+
     def run(
         self,
         task_input: str,
@@ -263,7 +375,7 @@ class AgentFactory:
         if route.get("pipeline") == "project":
             target_workspace = workspace or PROJECT_ROOT
             print(f"\n[Router] project pipeline selected: {route.get('reasoning', '')}")
-            return self.project_pipeline.run(
+            return self._run_project_with_approval(
                 task_input=task_input,
                 workspace=target_workspace,
                 execution_mode=execution_mode,

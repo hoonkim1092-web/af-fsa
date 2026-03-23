@@ -1,4 +1,5 @@
-import importlib
+﻿import importlib
+import json
 import os
 
 
@@ -28,13 +29,14 @@ def test_factory_routes_complex_task_to_project_pipeline(monkeypatch, tmp_path):
         "confidence": 99,
         "reasoning": "forced-test",
     }
-    factory.project_pipeline.run = lambda **kwargs: routed.append(kwargs) or {
+    # 이제 _run_project_with_approval 가 호출된다
+    factory._run_project_with_approval = lambda **kwargs: routed.append(kwargs) or {
         "pipeline": "project",
         "ok": True,
         "reason": "completed",
     }
 
-    res = factory.run(task_input="포커 게임 만들어줘", role_spec="General", workspace=str(tmp_path))
+    res = factory.run(task_input="build a poker game", role_spec="General", workspace=str(tmp_path))
 
     assert res["pipeline"] == "project"
     assert routed and routed[0]["workspace"] == str(tmp_path)
@@ -47,12 +49,12 @@ def test_project_pipeline_writes_planning_artifacts_and_roles(monkeypatch, tmp_p
     pipeline = factory.project_pipeline
 
     pipeline.research.research_project_brief = lambda agent, task_input, workspace=None: {
-        "goal": "브라우저에서 실행되는 포커 게임 구현",
+        "goal": "Implement a browser poker game",
         "constraints": ["network_allowed"],
         "required_skills": ["frontend_game_ui", "gameplay_core", "integration_test_guard"],
         "role_hints": ["frontend_dev", "qa_engineer"],
-        "deliverables": ["게임 UI", "게임 규칙", "테스트"],
-        "risks": ["룰 판정 오류"],
+        "deliverables": ["game ui", "game rules", "test checklist"],
+        "risks": ["rule evaluation bug"],
         "research_notes": ["seed"],
         "tech_stack": ["vanilla_js"],
     }
@@ -62,19 +64,19 @@ def test_project_pipeline_writes_planning_artifacts_and_roles(monkeypatch, tmp_p
             {
                 "id": "frontend_dev",
                 "name": "Frontend Dev",
-                "objective": "게임 UI를 구현한다.",
+                "objective": "Implement the game UI.",
                 "required_skills": ["frontend_game_ui"],
             },
             {
                 "id": "qa_engineer",
                 "name": "QA Engineer",
-                "objective": "핵심 플레이 흐름을 검증한다.",
+                "objective": "Verify the core gameplay flow.",
                 "required_skills": ["integration_test_guard"],
             },
         ],
         "todo_items": [
-            "Frontend Dev: 게임 UI를 구현한다.",
-            "QA Engineer: 핵심 플레이 흐름을 검증한다.",
+            "Frontend Dev: Implement the game UI.",
+            "QA Engineer: Verify the core gameplay flow.",
         ],
     }
 
@@ -99,7 +101,7 @@ def test_project_pipeline_writes_planning_artifacts_and_roles(monkeypatch, tmp_p
     monkeypatch.setattr(pp, "DynamicOrchestrator", _DummyOrchestrator)
 
     res = pipeline.run(
-        task_input="포커 게임 만들어줘",
+        task_input="build a poker game",
         workspace=str(tmp_path),
         execution_mode="approval",
         enable_build=True,
@@ -111,14 +113,43 @@ def test_project_pipeline_writes_planning_artifacts_and_roles(monkeypatch, tmp_p
     assert sorted(res["roles"]) == ["frontend_dev", "qa_engineer"]
     assert os.path.exists(tmp_path / "planning" / "project_brief.json")
     assert os.path.exists(tmp_path / "planning" / "role_plan.json")
+    assert os.path.exists(tmp_path / "project_board_state.json")
     assert os.path.exists(tmp_path / ".todo.md")
+    assert os.path.exists(tmp_path / "docs" / "task_execution_plan.md")
     assert os.path.exists(tmp_path / "agents" / "frontend_dev.yaml")
     assert os.path.exists(tmp_path / "agents" / "qa_engineer.yaml")
+
     frontend_agent = al.read_yaml(tmp_path / "agents" / "frontend_dev.yaml")
     assert "file_handler" in frontend_agent["skills"]
     assert "core_memory" in frontend_agent["skills"]
     assert "file_handler" in frontend_agent["runtime_rules"]["allowed_skills"]
     assert "core_memory" in frontend_agent["runtime_rules"]["allowed_skills"]
+    assert frontend_agent["project_role"]["owned_modules"]
+    assert frontend_agent["project_role"]["planning_steps"]
+
+    role_plan_data = json.loads((tmp_path / "planning" / "role_plan.json").read_text(encoding="utf-8"))
+    assert role_plan_data["planning_steps"]
+    assert role_plan_data["modules"]
+    assert role_plan_data["plan_summary"]["task_count"] >= 2
+
+    board_data = json.loads((tmp_path / "project_board_state.json").read_text(encoding="utf-8"))
+    assert board_data["summary"]["total_tasks"] >= 2
+    assert board_data["modules"]
+    assert board_data["tasks"]
+
+    plan_doc = (tmp_path / "docs" / "task_execution_plan.md").read_text(encoding="utf-8")
+    assert "# 작업 실행 계획" in plan_doc
+    assert "## 단계별 진행 순서" in plan_doc
+    assert "## 역할별 모듈 분해" in plan_doc
+    assert "## 역할 간 handoff 규칙" in plan_doc
+
+    todo_text = (tmp_path / ".todo.md").read_text(encoding="utf-8")
+    assert "Frontend Dev:" in todo_text
+    assert "docs/architecture.md" in todo_text
+    assert "docs/change_history.md" in todo_text
+
+    assert res["task_board_path"].endswith("project_board_state.json")
+    assert res["task_execution_plan_path"].endswith("docs/task_execution_plan.md")
     assert procure_calls == [
         ("Frontend Dev", ["frontend_game_ui"], str(tmp_path)),
         ("QA Engineer", ["integration_test_guard"], str(tmp_path)),
@@ -207,3 +238,5 @@ def test_factory_single_run_keeps_existing_todo_file(monkeypatch, tmp_path):
     )
 
     assert todo_path.read_text(encoding="utf-8") == "# Existing TODO\n\n- [ ] keep original plan\n"
+
+

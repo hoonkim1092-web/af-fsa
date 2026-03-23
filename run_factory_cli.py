@@ -109,6 +109,7 @@ def main(argv: list[str] | None = None):
     parser.add_argument("--build", action="store_true", help="Build missing skills before run")
     parser.add_argument("--no-cli-auto-install", action="store_true", help="Disable missing CLI auto install")
     parser.add_argument("--pipeline", choices=["auto", "single", "project"], default="auto", help="Pipeline mode")
+    parser.add_argument("--chat", action="store_true", help="Interactive chat mode (continuous conversation)")
     args = parser.parse_args(argv)
     execution_mode = "fsa" if (args.fsa or args.mode == "fsa") else "approval"
 
@@ -118,15 +119,6 @@ def main(argv: list[str] | None = None):
     project_id = _safe_project_id(args.project)
     if not project_id:
         print("Enter a valid project id.")
-        return
-
-    task = args.task
-    if not task:
-        print("\n[Task Input]")
-        task = input("  Enter the task: ").strip()
-
-    if not task:
-        print("Task input is empty. Exiting.")
         return
 
     role = (args.role or "").strip() or "General Assistant"
@@ -147,6 +139,28 @@ def main(argv: list[str] | None = None):
         os.environ["AGENT_AUTO_INSTALL_CLI"] = "0"
     else:
         os.environ.setdefault("AGENT_AUTO_INSTALL_CLI", "1")
+
+    # ── 대화형 채팅 모드 ──
+    if args.chat:
+        from core.interactive_chat import run_interactive
+        run_interactive(
+            project_id=project_id,
+            workspace=project_root,
+            role=role,
+            model=args.model or "",
+            auto_approve=(execution_mode == "fsa"),
+        )
+        return
+
+    # ── 기존 태스크 실행 모드 ──
+    task = args.task
+    if not task:
+        print("\n[Task Input]")
+        task = input("  Enter the task: ").strip()
+
+    if not task:
+        print("Task input is empty. Exiting.")
+        return
 
     from agent_launcher import AgentFactory
 

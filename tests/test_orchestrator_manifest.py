@@ -1,4 +1,4 @@
-import importlib
+﻿import importlib
 import json
 
 from core.continuity.manifest_store import OrchestratorManifestStore
@@ -22,7 +22,7 @@ class _DummyRunner:
     def __init__(self, _mr):
         pass
 
-    def run(self, _agent_data, _subtask, _run_id, _auto_approve, workspace):
+    def run(self, _agent_data, _subtask, _run_id, _auto_approve, workspace, task_id=""):
         return {"ok": True, "workspace": workspace}
 
 
@@ -130,3 +130,4 @@ def test_dynamic_orchestrator_writes_manifest_and_restores_interruptions(monkeyp
     assert manifest_data["state_board"]["current_status"] == "completed"
     assert manifest_data["roles"] == ["dev"]
     assert workspace_runtime_file(workspace, "dynamic_log.txt").exists()
+

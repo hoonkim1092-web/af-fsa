@@ -289,6 +289,37 @@ def single_task_todo_items(task_input: str, role_spec: str = "") -> list[str]:
     return [task_text]
 
 
+_THINKING_MARKER = "[Structured Reasoning]"
+
+_THINKING_CONTRACT = """\
+[Structured Reasoning]
+When working on complex tasks (planning, design, debugging, or multi-step code changes),
+use the following format before giving your final answer or taking action:
+
+<thinking>
+[Reason through the problem step by step. Identify ambiguities, risks, and trade-offs.
+Do NOT skip this for non-trivial tasks.]
+</thinking>
+
+<action>
+[Your final answer, code, or plan goes here.]
+</action>
+
+For simple, clearly-scoped tasks you may omit the thinking block and respond directly."""
+
+
+def inject_thinking_contract(system_prompt: str) -> str:
+    """AGENT_THINKING_MODE=1 환경변수가 설정된 경우 구조적 추론 포맷을 주입한다.
+    기본적으로 비활성화 — 활성화 시 LLM의 추론 과정이 <thinking> 블록으로 명시된다.
+    """
+    if not os.getenv("AGENT_THINKING_MODE"):
+        return system_prompt
+    base = str(system_prompt or "").strip()
+    if _THINKING_MARKER in base:
+        return base
+    return f"{base}\n\n{_THINKING_CONTRACT}".strip()
+
+
 def inject_documentation_contract(system_prompt: str) -> str:
     base = str(system_prompt or "").strip()
     marker = "[Documentation Contract]"

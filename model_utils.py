@@ -117,7 +117,7 @@ def _build_gemini_retry_candidates(model_name: str) -> list[str]:
     candidates = [base]
 
     if "gemini" in base.lower():
-        fallback = "models/gemini-2.0-flash"
+        fallback = "models/gemini-2.5-flash"
         if fallback not in candidates:
             candidates.append(fallback)
         try:
@@ -307,16 +307,17 @@ def find_latest_model(tag: str, available_models: list) -> str:
                 priority = -2  # 실험용은 가장 낮게
             elif "preview" in m_name:
                 priority = -1  # 프리뷰도 가급적 회피
-            elif m_name.startswith("gemini-2.0"):
-                priority = 5   # 현재 가장 안정적인 2.0 계열 우대
-                
+            elif m_name.startswith("gemini-2.5") or m_name.startswith("gemini-2.0"):
+                # 2.5와 2.0 모두 안정 계열로 취급 — 버전 번호(version)로 최신 선택
+                priority = 5
+
             matches.append({"name": m, "version": version, "priority": priority})
-            
+
     if not matches:
         # 하드코딩 제거: 패턴에서 동적으로 기본 별칭을 추출
         fallback = tag.replace("-*", "").replace("*", "")
-        # fallback 시에도 gemini-2.0-flash 가급적 유도
-        if "flash" in fallback: return "models/gemini-2.0-flash"
+        if "flash" in fallback:
+            return "models/gemini-2.5-flash"
         return fallback
         
     # 우선순위(안정성) -> 버전 순으로 정렬 (안정된 모델 중 최신 버전)

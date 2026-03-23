@@ -36,8 +36,14 @@ from core.utils import _safe_write_json
 from core.registry import ToolRegistry
 from core.tool_runtime import ToolRuntimeWrapper
 from core.policy_runtime import PolicyRuntime
-from core.documentation_policy import inject_documentation_contract
+from core.documentation_policy import inject_documentation_contract, inject_thinking_contract
 from core.destructive_guard import inject_destructive_guard_contract
+from core.project_mailbox import (
+    ack_mailbox_message as project_ack_mailbox_message,
+    mailbox_prompt_digest as project_mailbox_prompt_digest,
+    read_inbox as project_read_mailbox_inbox,
+    send_agent_message as project_send_mailbox_message,
+)
 from core.hooks.event_bus import HookEventBus
 from core.hooks.guardrails import IntentGateHook, TodoContinuationEnforcer, ToolOutputTruncator
 from core.providers.cli import CliChatRequest, execute_cli_chat
@@ -79,8 +85,8 @@ def _safe_print(*args, **kwargs):
 class FallbackRejectedError(RuntimeError):
     pass
 
-# [濚욌꼬?댄꺇????癰귙끋源???ш끽維?? quick_guard, BANNED_*, build_child_env, run_isolated ->
-# core/security_guard.py???嶺뚮Ĳ?됭린? core/utils.py???????re-export??
+# [嚥싳쉶瑗??꾧틚?????곌퇈?뗦틦?????썹땟?? quick_guard, BANNED_*, build_child_env, run_isolated ->
+# core/security_guard.py???癲ル슢캉???┛? core/utils.py???????re-export??
 
 # 4) Agent / Requirements
 # =============================================================================
@@ -88,8 +94,8 @@ class AgentRunner:
     def __init__(self, model_router: ModelRouter | None = None):
         self.mr = model_router or ModelRouter()
         self._knowledge_skills = []
-        self._skill_loader_cache: Dict[str, "AdaptiveSkillLoader"] = {}  # 紐⑤뜽蹂?濡쒕뜑 罹먯떛
-        self._current_model_name: str = "default"  # ?꾩옱 紐⑤뜽 ?대쫫
+        self._skill_loader_cache: Dict[str, "AdaptiveSkillLoader"] = {}  # 筌뤴뫀?썼퉪?嚥≪뮆??筌?Ŋ??
+        self._current_model_name: str = "default"  # ?袁⑹삺 筌뤴뫀????已?
 
     def _resolve_system_prompt(self, agent: dict) -> str:
         direct = str(agent.get("system_ko", "")).strip()
@@ -102,7 +108,7 @@ class AgentRunner:
         legacy = str(agent.get("system_prompt", "")).strip()
         if legacy:
             return legacy
-        return "??????? ???モ???AI ???⑤８六???袁⑸룈?嶺뚮ㅎ?닺굢????덊렡."
+        return "??????? ????◈???AI ????ㅿ폍筌???熬곣뫖猷?癲ル슢???브덩?????딅젩."
 
     def _resolve_signature_lines(self, agent: dict) -> list[str]:
         lines = agent.get("signature_lines")
@@ -114,7 +120,8 @@ class AgentRunner:
 
     def _build_runtime_system_prompt(self, agent: dict) -> str:
         prompt = inject_documentation_contract(self._resolve_system_prompt(agent))
-        return inject_destructive_guard_contract(prompt)
+        prompt = inject_destructive_guard_contract(prompt)
+        return inject_thinking_contract(prompt)
 
     def _build_policy(self, agent: dict, loaded_skill_ids: list[str]) -> dict:
         rr = agent.get("runtime_rules", {}) if isinstance(agent, dict) else {}
@@ -207,10 +214,10 @@ class AgentRunner:
 
     def _ask_tool_approval(self, fname: str, skill_id: str) -> bool:
         try:
-            print("\n[????????釉먯뒜??")
-            print(f"- ??ш낄猷?? {fname}")
-            print(f"- ???袁る? {skill_id if skill_id else 'unknown'}")
-            ans = input("????ш낄猷??????덈틖?????源낅츛???ル㎦??? (yes/no): ").strip().lower()
+            print("\n[?????????됰Ŋ???")
+            print(f"- ????꾤뙴?? {fname}")
+            print(f"- ???熬곥굥?? {skill_id if skill_id else 'unknown'}")
+            ans = input("??????꾤뙴???????덊떀?????繹먮굝痢????ャ렑??? (yes/no): ").strip().lower()
             return ans in ("y", "yes")
         except Exception:
             return False
@@ -423,11 +430,20 @@ class AgentRunner:
 
         for candidate in candidates:
             for attempt in range(3):
+                # system 블록에 cache_control 추가 — Anthropic prompt caching 활용
+                # 변경되지 않는 시스템 프롬프트를 캐싱하여 비용 및 지연 절감
+                system_blocks = [
+                    {
+                        "type": "text",
+                        "text": sys_prompt,
+                        "cache_control": {"type": "ephemeral"},
+                    }
+                ]
                 payload = json.dumps(
                     {
                         "model": candidate,
                         "max_tokens": 4096,
-                        "system": sys_prompt,
+                        "system": system_blocks,
                         "messages": [{"role": "user", "content": task_input}],
                     }
                 ).encode("utf-8")
@@ -438,6 +454,7 @@ class AgentRunner:
                         "content-type": "application/json",
                         "x-api-key": api_key,
                         "anthropic-version": "2023-06-01",
+                        "anthropic-beta": "prompt-caching-2024-07-31",
                     },
                     method="POST",
                 )
@@ -471,7 +488,7 @@ class AgentRunner:
         if is_codex_model(model_name):
             return True
         if is_claude_model(model_name):
-            # Claude ???源놁젳 ??筌?諭??????덈틖 ??좊읈??濚왿몾??Codex ?濡ろ뜑?灌鍮?袁ⓦ걫????Β?띾쭡 ??筌먲퐣???筌먲퐢??
+            # Claude ???繹먮냱????嶺?獄???????덊떀 ??醫딆쓧??嚥싳쇎紐??Codex ?嚥▲굧???뚪뜮?熬곣벀嫄????????얠? ??嶺뚮㉡????嶺뚮㉡???
             return True
         engine = str(agent.get("engine", "")).strip().lower()
         if "codex" in engine:
@@ -484,10 +501,10 @@ class AgentRunner:
 
     def _run_with_codex(self, model_name: str, sys_prompt: str, task_input: str, tool_functions: list) -> bool:
         if not OPENAI_API_KEY:
-            print("???レ탴??[Runner] OPENAI_API_KEY??좊읈? ???⑤９苑?Codex ?濡ろ뜑?灌鍮?袁ⓦ걫???????????⑤８?????덊렡.")
+            print("????ы꺎??[Runner] OPENAI_API_KEY??醫딆쓧? ????ㅿ폎??Codex ?嚥▲굧???뚪뜮?熬곣벀嫄????????????ㅿ폍??????딅젩.")
             return False
         if OpenAI is None:
-            print("???レ탴??[Runner] openai ????類잛땡?堉온??좊읈? ???⑤９苑?Codex ?濡ろ뜑?灌鍮?袁ⓦ걫???????????⑤８?????덊렡.")
+            print("????ы꺎??[Runner] openai ????筌먯옕???됱삩???醫딆쓧? ????ㅿ폎??Codex ?嚥▲굧???뚪뜮?熬곣벀嫄????????????ㅿ폍??????딅젩.")
             return False
 
         codex_model = model_name if is_codex_model(model_name) else "codex-5.3"
@@ -496,7 +513,7 @@ class AgentRunner:
             f"{sys_prompt}\n\n"
             f"[Task]\n{task_input}\n\n"
             f"[Available Tools]\n{tools}\n"
-            "??ш낄猷???嶺뚮ㅎ???? ??ш끽維??Codex ?濡ろ뜑?灌鍮??????????濚밸Ŧ遊???筌뚯슦苑????源끹걬?? ????덈틖 ??좊읈??濚왿몾??癲ル슣????? ???됰텑????源낃도 ???Β?띾쭡 ??筌?六??筌뚯뼚???"
+            "????꾤뙴???癲ル슢????? ????썹땟??Codex ?嚥▲굧???뚪뜮??????????嚥싲갭큔????嶺뚮슣??땻????繹먮겧嫄?? ?????덊떀 ??醫딆쓧??嚥싳쇎紐???꿔꺂?????? ????고뀘????繹먮굛?????????얠? ??嶺?筌??嶺뚮슣堉???"
         )
 
         client = OpenAI(api_key=OPENAI_API_KEY)
@@ -519,17 +536,17 @@ class AgentRunner:
                         text = ""
 
                 if text.strip():
-                    print(f"?勇?{text.strip()}")
+                    print(f"???{text.strip()}")
                     return True
                 return False
             except Exception as e:
                 msg = str(e).lower()
                 if "429" in msg or "rate" in msg or "quota" in msg:
                     wait = 5 * (i + 1)
-                    print(f"??[Quota] Codex API ?????????モ뵲. {wait}??????濚?.. ({i+1}/3)")
+                    print(f"??[Quota] Codex API ???????????뎡. {wait}??????嚥?.. ({i+1}/3)")
                     time.sleep(wait)
                     continue
-                print(f"???レ탴??[Runner] Codex ????덈틖 ????곸씔: {e}")
+                print(f"????ы꺎??[Runner] Codex ?????덊떀 ????怨몄뵒: {e}")
                 return False
         return False
 
@@ -557,16 +574,16 @@ class AgentRunner:
 
     def _get_skill_loader(self, model_name: str):
         """
-        紐⑤뜽 ?대쫫蹂꾨줈 AdaptiveSkillLoader瑜?罹먯떛?섏뿬 諛섑솚.
+        筌뤴뫀????已ヨ퉪袁⑥쨮 AdaptiveSkillLoader??筌?Ŋ???뤿연 獄쏆꼹??
 
         Args:
-            model_name: 紐⑤뜽 ?대쫫
+            model_name: 筌뤴뫀????已?
 
         Returns:
-            AdaptiveSkillLoader ?몄뒪?댁뒪 (罹먯떆??
+            AdaptiveSkillLoader ?紐꾨뮞??곷뮞 (筌?Ŋ???
         """
         if model_name not in self._skill_loader_cache:
-            # ??MIN-4 ?섏젙: ?뚯씪 ?곷떒 import ?ъ슜
+            # ??MIN-4 ??륁젟: ???뵬 ?怨룸뼊 import ????
             self._skill_loader_cache[model_name] = AdaptiveSkillLoader.for_model(model_name)
         return self._skill_loader_cache[model_name]
 
@@ -579,10 +596,10 @@ class AgentRunner:
         loaded_skills = []
         skill_ids = agent.get("skills", [])
 
-        # ?ㅽ궗??紐낆떆?섏? ?딆븯?쇰㈃ AdaptiveSkillLoader濡??먮룞 ?좏깮
+        # ??쎄텢??筌뤿굞???? ??녿릭??겹늺 AdaptiveSkillLoader嚥??癒?짗 ?醫뤾문
         if not skill_ids and task_input:
             try:
-                # ??MIN-4 ?섏젙: ?뚯씪 ?곷떒 import ?ъ슜
+                # ??MIN-4 ??륁젟: ???뵬 ?怨룸뼊 import ????
                 loader = self._get_skill_loader(self._current_model_name)
                 selected, scores = loader.load_skills_for_task(task_input, verbose=True)
                 skill_ids = [s.skill_id for s in selected]
@@ -590,14 +607,14 @@ class AgentRunner:
                     _safe_print(f"[Runner] Task-based auto skill selection: {len(skill_ids)}")
                     for sid in skill_ids:
                         sc = scores.get(sid, 0.0)
-                        _safe_print(f"   - {sid} (愿?⑥꽦: {sc:.2f})")
+                        _safe_print(f"   - {sid} (?온??κ쉐: {sc:.2f})")
             except Exception as e:
-                _safe_print(f"?좑툘 [Runner] ?먮룞 ?ㅽ궗 ?좏깮 ?ㅽ뙣, ?ㅽ궗 ?놁씠 吏꾪뻾: {e}")
+                _safe_print(f"?醫묓닔 [Runner] ?癒?짗 ??쎄텢 ?醫뤾문 ??쎈솭, ??쎄텢 ??곸뵠 筌욊쑵六? {e}")
         for sid in skill_ids:
             sid = safe_id(str(sid))
             skill_py, skill_meta = resolve_skill_paths(sid)
             
-            # Action (Python) 癲ル슪?ｇ몭??
+            # Action (Python) ?꿔꺂??節뉖き??
             if skill_py and os.path.exists(skill_py):
                 try:
                     cur_mtime = os.path.getmtime(skill_py)
@@ -616,13 +633,13 @@ class AgentRunner:
                         
                         self._skill_module_cache[sid] = (skill_py, cur_mtime, module)
                         loaded_skills.append(module)
-                        _safe_print(f"??[Runner] Action ???袁る??棺??짆?삠궘??濚밸Þ?볠쾮? {sid}")
+                        _safe_print(f"??[Runner] Action ???熬곥굥???汝??吏??좉텣??嚥싲갭횧?蹂좎쒜? {sid}")
                 except Exception as e:
-                    _safe_print(f"???レ탴??[Runner] Action ???袁る??棺??짆?삠궘?????됰꽡 ({sid}): {e}")
+                    _safe_print(f"????ы꺎??[Runner] Action ???熬곥굥???汝??吏??좉텣??????곌숯 ({sid}): {e}")
                     
-            # Knowledge (Markdown) 癲ル슪?ｇ몭??
+            # Knowledge (Markdown) ?꿔꺂??節뉖き??
             else:
-                # WAREHOUSE_DIR / FORGE_DIR ??筌믨퀡???.md ????몃펽 (?怨뚮옖???WAREHOUSE/sid/skill.md)
+                # WAREHOUSE_DIR / FORGE_DIR ??嶺뚮?????.md ????紐껎렰 (??⑤슢????WAREHOUSE/sid/skill.md)
                 from core.skill_procurer import WAREHOUSE_DIR, FORGE_DIR
                 from core.knowledge_skill import parse_skill_md
                 
@@ -631,21 +648,21 @@ class AgentRunner:
                 if md_path:
                     try:
                         cur_mtime = os.path.getmtime(md_path)
-                        # 癲??????좊즲????嶺뚮Ĳ?됮?
+                        # ???????醫딆┣????癲ル슢캉????
                         existing_k = next((k for k in self._knowledge_skills if k.id == sid), None)
                         if existing_k and existing_k.updated_at == cur_mtime:
-                            pass # 癲???????
+                            pass # ????????
                         else:
                             k_skill = parse_skill_md(md_path)
                             if k_skill:
                                 if existing_k:
                                     self._knowledge_skills.remove(existing_k)
                                 self._knowledge_skills.append(k_skill)
-                                _safe_print(f"??[Runner] Knowledge ???袁る??棺??짆?삠궘??濚밸Þ?볠쾮? {sid}")
+                                _safe_print(f"??[Runner] Knowledge ???熬곥굥???汝??吏??좉텣??嚥싲갭횧?蹂좎쒜? {sid}")
                     except Exception as e:
-                        _safe_print(f"???レ탴??[Runner] Knowledge ???袁る??棺??짆?삠궘?????됰꽡 ({sid}): {e}")
+                        _safe_print(f"????ы꺎??[Runner] Knowledge ???熬곥굥???汝??吏??좉텣??????곌숯 ({sid}): {e}")
                 else:
-                    _safe_print(f"???レ탴??[Runner] ???袁る????獒?.py/.md)??癲ル슓??젆???????⑤챶苡? {sid}")
+                    _safe_print(f"????ы꺎??[Runner] ???熬곥굥???????.py/.md)???꿔꺂????????????ㅼ굡?? {sid}")
 
         # LangChain BaseTool detection & wrapping
         from core.langchain_adapter import LANGCHAIN_AVAILABLE, LangChainToolAdapter
@@ -662,10 +679,10 @@ class AgentRunner:
             except ImportError:
                 pass
 
-        # ??MAJ-3 ?섏젙: 以묐났 ?쒗븳 ?쒓굅
-        # ?ㅽ궗 媛쒖닔 ?쒗븳? ?대? ?곸슜??
-        # - ?먮룞 ?좏깮: AdaptiveSkillLoader?먯꽌 max_skills ?곸슜
-        # - 紐낆떆???좏깮: ?ъ슜?먭? 吏?뺥븳 由ъ뒪??議댁쨷 (?쒗븳 ?놁쓬)
+        # ??MAJ-3 ??륁젟: 餓λ쵎????쀫립 ??볤탢
+        # ??쎄텢 揶쏆뮇????쀫립?? ??? ?怨몄뒠??
+        # - ?癒?짗 ?醫뤾문: AdaptiveSkillLoader?癒?퐣 max_skills ?怨몄뒠
+        # - 筌뤿굞????醫뤾문: ????癒? 筌왖?類λ립 ?귐딅뮞??鈺곕똻夷?(??쀫립 ??곸벉)
         return loaded_skills
 
     def _collect_loaded_skill_ids(self, module_list: list) -> list[str]:
@@ -704,13 +721,96 @@ class AgentRunner:
             return combined
         return []
 
+    def _mailbox_actor_role(self, agent: dict) -> str:
+        return safe_id(agent.get("id") or agent.get("role") or agent.get("name") or "agent")
+
+    def _mount_builtin_tools(self, registry: ToolRegistry, ctx: dict) -> ToolRegistry:
+        workspace = str(ctx.get("workspace") or PROJECT_ROOT)
+        agent = ctx.get("agent") if isinstance(ctx.get("agent"), dict) else {}
+        actor_role = self._mailbox_actor_role(agent)
+        current_task_id = safe_id(str(ctx.get("task_id") or ""))
+
+        def _split_related_files(value: str) -> list[str]:
+            raw_items = str(value or "").replace("\r", "\n").replace(",", "\n").split("\n")
+            cleaned: list[str] = []
+            for item in raw_items:
+                text = str(item or "").strip().replace("\\", "/")
+                if not text or text in cleaned:
+                    continue
+                cleaned.append(text)
+            return cleaned
+
+        def read_mailbox(task_id: str = "") -> str:
+            """Read pending mailbox messages for this role. Optionally filter by task_id."""
+            inbox = project_read_mailbox_inbox(
+                workspace,
+                actor_role,
+                task_id=task_id or current_task_id,
+                limit=20,
+            )
+            if not inbox:
+                return "No pending mailbox messages."
+            lines = [f"Pending mailbox messages for {actor_role}: {len(inbox)}"]
+            for message in inbox:
+                related = ", ".join(message.get("related_files") or []) or "-"
+                ack_required = "yes" if bool(message.get("requires_ack")) else "no"
+                lines.append(
+                    f"- id={message.get('message_id')} [{message.get('type')}] from={message.get('from_role')} "
+                    f"ack={ack_required} task={message.get('task_id') or '-'} files={related} body={message.get('body')}"
+                )
+            return "\n".join(lines)
+
+        def send_mailbox_message(
+            to_role: str,
+            message_type: str,
+            body: str,
+            related_files: str = "",
+            requires_ack: bool = False,
+            task_id: str = "",
+        ) -> str:
+            """Send a structured mailbox message to another role."""
+            message = project_send_mailbox_message(
+                workspace=workspace,
+                from_role=actor_role,
+                to_role=to_role,
+                message_type=message_type,
+                body=body,
+                task_id=task_id or current_task_id,
+                related_files=_split_related_files(related_files),
+                requires_ack=requires_ack,
+            )
+            return json.dumps(
+                {
+                    "ok": True,
+                    "message_id": message.get("message_id"),
+                    "thread_id": message.get("thread_id"),
+                    "task_id": message.get("task_id"),
+                    "to_role": message.get("to_role"),
+                    "type": message.get("type"),
+                },
+                ensure_ascii=False,
+            )
+
+        def ack_mailbox_message(message_id: str) -> str:
+            """Acknowledge a mailbox message that was addressed to this role."""
+            ok = project_ack_mailbox_message(workspace, message_id, role=actor_role)
+            if not ok:
+                return json.dumps({"ok": False, "message_id": message_id}, ensure_ascii=False)
+            return json.dumps({"ok": True, "message_id": message_id, "status": "acknowledged"}, ensure_ascii=False)
+
+        registry.mount_tool("read_mailbox", read_mailbox)
+        registry.mount_tool("send_mailbox_message", send_mailbox_message)
+        registry.mount_tool("ack_mailbox_message", ack_mailbox_message)
+        return registry
+
     def build_tool_registry(self, module_list: list, ctx: dict, policy: dict) -> ToolRegistry:
         """Adapts legacy modules into the precise V2 Tool Registry using ToolRuntimeWrapper"""
         wrapper = ToolRuntimeWrapper(base_dir=BASE_DIR)
-        return wrapper.build_registry(module_list, ctx, policy, is_allowed_fn=self._is_tool_allowed)
+        registry = wrapper.build_registry(module_list, ctx, policy, is_allowed_fn=self._is_tool_allowed)
+        return self._mount_builtin_tools(registry, ctx)
 
-    def run(self, agent: dict, task_input: str, run_id: str | None = None, auto_approve: bool = False, workspace: str | None = None):
-        print(f"\n?? [Runner] ??????ш낄援θキ?????덈틖 ??筌믨퀣援? {agent.get('name')}")
+    def run(self, agent: dict, task_input: str, run_id: str | None = None, auto_approve: bool = False, workspace: str | None = None, task_id: str = ""):
+        print(f"\n?? [Runner] ????????꾣뤃罐???????덊떀 ??嶺뚮??ｆ뤃? {agent.get('name')}")
         started = time.time()
         run_id = run_id or f"run_{int(started)}"
         target_workspace = os.path.abspath(workspace) if workspace else PROJECT_ROOT
@@ -775,6 +875,7 @@ class AgentRunner:
                 "agent_name": str(agent.get("name", "")),
                 "agent_role": str(agent.get("role", "")),
                 "task": str(task_input or ""),
+                "task_id": safe_id(task_id),
                 "transcript": transcript,
                 "result": result,
                 "updated_at": now_iso(),
@@ -789,11 +890,13 @@ class AgentRunner:
             "artifacts_dir": artifacts_dir,
             "workspace": target_workspace,
             "project_id": project_id,
+            "task_input": task_input,
+            "task_id": safe_id(task_id),
         }
         ok_ctx, msg_ctx = validate_context_with_schema(ctx)
         if not ok_ctx:
-            _safe_print(f"???レ탴??[ContextSchema] ???爾?????덉쉐 ?濡ろ떟?癲?????됰꽡: {msg_ctx}")
-            print("??????ш낄援θキ?????덈틖??濚욌꼬?댄꺇???筌뤾퍓???")
+            _safe_print(f"????ы꺎??[ContextSchema] ??????????됱뎽 ?嚥▲굧?????????곌숯: {msg_ctx}")
+            print("????????꾣뤃罐???????덊떀??嚥싳쉶瑗??꾧틚???嶺뚮ㅎ????")
             result = {"ok": False, "reason": f"context_schema:{msg_ctx}", "latency_ms": int((time.time() - started) * 1000), "approval_rejects": approval_rejects}
             _append_trace("error", {"stage": "context_schema", "message": str(msg_ctx)})
             _flush_trace(result)
@@ -806,24 +909,30 @@ class AgentRunner:
         bus.register(ToolOutputTruncator())
         from core.hooks.context_fork import ContextForkHook
         bus.register(ContextForkHook())
+        # LSP 정적 분석 훅 (AGENT_LSP_CHECK=1 환경변수 설정 시 활성화)
+        try:
+            from core.hooks.lsp_check import LSPCheckHook
+            bus.register(LSPCheckHook())
+        except Exception as _lsp_err:
+            _safe_print(f"[Runner] LSPCheckHook 등록 실패: {_lsp_err}")
 
-        # 스킬 자가 진화 훅 (PRIORITY=80, 10회 실행마다 품질 감사 트리거)
+        # ?ㅽ궗 ?먭? 吏꾪솕 ??(PRIORITY=80, 10???ㅽ뻾留덈떎 ?덉쭏 媛먯궗 ?몃━嫄?
         try:
             from core.hooks.skill_self_evolution import SkillSelfEvolutionHook
             from core.skill_evolution_bus import SkillEvolutionBus
             _sse_hook = SkillSelfEvolutionHook(check_interval=10)
             bus.register(_sse_hook)
-            # EvolutionBus에 현재 runner와 event_bus 바인딩
+            # EvolutionBus???꾩옱 runner? event_bus 諛붿씤??
             _evo_bus = SkillEvolutionBus.get_instance()
             _evo_bus.bind_runner(self)
             _evo_bus.bind_event_bus(bus)
         except Exception as _sse_err:
-            _safe_print(f"[Runner] SkillSelfEvolutionHook 등록 스킵: {_sse_err}")
+            _safe_print(f"[Runner] SkillSelfEvolutionHook ?깅줉 ?ㅽ궢: {_sse_err}")
 
-        # 메모리 훅: KnowledgeInjectionHook(PRIORITY=10) + MemoryConsolidationHook(PRIORITY=95)
-        # KnowledgeInjectionHook은 pre_execute에서 Knowledge Graph를 검색해 agent_state에
-        # _knowledge_context를 주입하고, MemoryConsolidationHook은 post_execute에서 실행
-        # 에피소드를 파싱해 UnifiedMemoryFacade에 기록한다.
+        # 硫붾え由??? KnowledgeInjectionHook(PRIORITY=10) + MemoryConsolidationHook(PRIORITY=95)
+        # KnowledgeInjectionHook? pre_execute?먯꽌 Knowledge Graph瑜?寃?됲빐 agent_state??
+        # _knowledge_context瑜?二쇱엯?섍퀬, MemoryConsolidationHook? post_execute?먯꽌 ?ㅽ뻾
+        # ?먰뵾?뚮뱶瑜??뚯떛??UnifiedMemoryFacade??湲곕줉?쒕떎.
         _mem_ki_hook = None
         _mem_mc_hook = None
         try:
@@ -845,7 +954,7 @@ class AgentRunner:
             try:
                 _asyncio.run(_mem_facade.initialise())
             except RuntimeError:
-                # Already inside a running event loop — skip async init (hooks degrade gracefully)
+                # Already inside a running event loop ??skip async init (hooks degrade gracefully)
                 pass
 
             # Wire adapters into hooks
@@ -859,19 +968,19 @@ class AgentRunner:
             bus.register(_mem_ki_hook)
             bus.register(_mem_mc_hook)
         except Exception as _mem_err:
-            _safe_print(f"[Runner] Memory hooks 등록 스킵: {_mem_err}")
+            _safe_print(f"[Runner] Memory hooks ?깅줉 ?ㅽ궢: {_mem_err}")
 
-        # ?쒖옉 ???쇱슦???곹깭 ?명떚 (?몄뀡 ??1??
+        # ??뽰삂 ????깆뒭???怨밴묶 ?紐낅뼒 (?紐꾨???1??
         from core.model_router import print_startup_routing_notice
         print_startup_routing_notice()
 
-        # ??븷 湲곕컲 蹂듭옟???먮퀎 (API ?몄텧 ?놁씠 ?뺤쟻?쇰줈 寃곗젙)
+        # ??釉?疫꿸퀡而?癰귣벊????癒??(API ?紐꾪뀱 ??곸뵠 ?類ㅼ읅??곗쨮 野껉퀣??
         cli_providers = get_requested_cli_providers(os.getenv("AGENT_CHAT_PROVIDER"))
         role_summary = agent.get("role", "") or (agent.get("identity", {}) or {}).get("role_summary", "")
         agent_name = agent.get("name", "")
         engine_id = _infer_engine_id(role_summary or agent_name)
 
-        # ?꾪궎?띿쿂/由ъ꽌移?肄붾뜑/異붾줎 ??븷? ??긽 complex濡??먯젙
+        # ?袁り텕??우퓗/?귐딄퐣燁??꾨뗀???곕뗀以???釉?? ??湲?complex嚥??癒?젟
         is_complex = engine_id in ("architect_claude", "researcher_gemini", "coder_claude", "reasoner_o")
         if is_complex:
             _safe_print(f"[Router] '{engine_id}' -> complex task (role-based)")
@@ -885,24 +994,25 @@ class AgentRunner:
             "agent_name": str(agent.get("name", "")),
             "agent": agent,
             "task_input": task_input,
+            "task_id": safe_id(task_id),
             "intent": "complex_feature" if is_complex else "trivial",
             "workspace": target_workspace,
         }
 
         if not bus.run_pre_execute(agent_state):
             result = {"ok": False, "reason": "hook_event_bus_blocked_pre"}
-            # Phase 3: ??post-execute ?몄텧 (濡쒓퉭)
+            # Phase 3: ??post-execute ?紐꾪뀱 (嚥≪뮄??
             result = bus.run_post_execute(agent_state, result)
             _flush_trace(result)
             return result
 
-        # ??CR-1 ?섏젙: 紐⑤뜽 ?대쫫??癒쇱? 寃곗젙 (load_skills() ?몄텧 ??
+        # ??CR-1 ??륁젟: 筌뤴뫀????已???믪눘? 野껉퀣??(load_skills() ?紐꾪뀱 ??
         from model_utils import get_dynamic_default_model
         model_name = normalize_model_name(agent.get("preferred_model") or self.mr.pick("chat", agent_config=agent, is_complex=is_complex) or get_dynamic_default_model("flash"))
-        self._current_model_name = model_name  # ??load_skills()媛 ??媛믪쓣 ?ъ슜
+        self._current_model_name = model_name  # ??load_skills()揶쎛 ??揶쏅???????
 
-        # 1. Load Skills (task_input ?꾨떖 ???ㅽ궗 誘몄꽑?????먮룞 ?좏깮)
-        # ??load_skills() ?몄텧? model_name ?ㅼ젙 ?꾩뿉 吏꾪뻾
+        # 1. Load Skills (task_input ?袁⑤뼎 ????쎄텢 沃섎챷苑?????癒?짗 ?醫뤾문)
+        # ??load_skills() ?紐꾪뀱?? model_name ??쇱젟 ?袁⑸퓠 筌욊쑵六?
         modules = self.load_skills(agent, task_input=task_input)
         loaded_skill_ids_runtime = self._collect_loaded_skill_ids(modules)
         policy_runner = PolicyRuntime(base_dir=BASE_DIR)
@@ -915,11 +1025,27 @@ class AgentRunner:
         # System Prompt construction
         sys_prompt = self._build_runtime_system_prompt(agent)
 
-        # KnowledgeInjectionHook이 pre_execute 중 agent_state에 쓴 컨텍스트를 sys_prompt에 반영
-        # (훅이 미등록이거나 그래프가 비어 있으면 빈 문자열 — 안전하게 no-op)
+        # KnowledgeInjectionHook??pre_execute 以?agent_state????而⑦뀓?ㅽ듃瑜?sys_prompt??諛섏쁺
+        # (?낆씠 誘몃벑濡앹씠嫄곕굹 洹몃옒?꾧? 鍮꾩뼱 ?덉쑝硫?鍮?臾몄옄?????덉쟾?섍쾶 no-op)
         _knowledge_ctx = agent_state.get("_knowledge_context", "")
         if _knowledge_ctx:
             sys_prompt += f"\n\n{_knowledge_ctx}"
+
+        # 특화 에이전트는 이미 system_ko에 메일박스 컨텍스트가 포함되어 있으므로
+        # 프로토콜 안내만 추가하고 다이제스트 이중 주입을 방지한다.
+        _mailbox_protocol = (
+            "\n\n[Mailbox Protocol]\n"
+            "Use `read_mailbox` at the start of the task and whenever you are blocked.\n"
+            "Use `send_mailbox_message` for structured handoff, blockers, review requests, decisions, and results.\n"
+            "`read_mailbox` includes each message_id. After you consume a message, call `ack_mailbox_message(message_id)`.\n"
+            "Acknowledgement is required when requires_ack=true and recommended for all consumed messages so the inbox can clear."
+        )
+        sys_prompt += _mailbox_protocol
+        if not agent.get("_specialized"):
+            agent_role_id = self._mailbox_actor_role(agent)
+            mailbox_digest = project_mailbox_prompt_digest(target_workspace, role=agent_role_id, task_id=task_id)
+            if mailbox_digest != "No mailbox messages.":
+                sys_prompt += f"\n\n[Agent Mailbox]\n{mailbox_digest}"
 
         # Knowledge Skill Injection -> CWM handles on-demand (legacy fallback preserved)
         _knowledge_for_cwm = getattr(self, '_knowledge_skills', []) or []
@@ -929,10 +1055,10 @@ class AgentRunner:
         if "core_memory" in skill_ids:
             sys_prompt += (
                 "\n\n[Memory Instruction]\n"
-                "??????? `core_memory` ???袁る?????롮쾸???寃뗏????怨?????덊렡.\n"
-                "????濚?**濚욌꼬?댄꺍????嶺뚮㉡?€쾮?*(??ш끽維곩ㅇ???됰씭肄?癲ル슢?뤸뤃?녿빝? ????????レ챺繹? ??繹먮냱?? ?濡ろ뜏???????????좊읈? ?濚밸Ŧ????嚥??? "
-                "?????? 癲ル슢?뤸뤃????ㅼ굣筌뤿뱶??'??れ삀?節낆젂??????뫢?癲ル슢????壤? ????깅떋??`core_memory.store` ??ш낄猷????????筌뚯슦肉?**???怨뺤릇??????*??筌뚯뼚???\n"
-                "???濚왿몾?????獒?癲ル슢??????癲ル슢???????ㅼ굣?????key)?? ?怨멸텭??沃섅뀙??關履??category)????????筌뚯슦肉????濚왿몾??????덊렡."
+                "??????? `core_memory` ???熬곥굥??????濡?씀???野껊뿈????????????딅젩.\n"
+                "????嚥?**嚥싳쉶瑗??꾧틡????癲ル슢???ъ쒜?*(????썹땟怨⒲뀋????곗뵯???꿔꺂??琉몃쨨??용튉? ?????????ъ군濚? ??濚밸Ŧ??? ?嚥▲굧????????????醫딆쓧? ?嚥싲갭큔???????? "
+                "?????? ?꿔꺂??琉몃쨨?????쇨덫嶺뚮ㅏ諭??'???뚯??影?놁쟼??????維◈??꿔꺂?????鶯? ????源낅뼀??`core_memory.store` ????꾤뙴????????嶺뚮슣??굢?**????⑤벡由??????*??嶺뚮슣堉???\n"
+                "???嚥싳쇎紐????????꿔꺂?????????꿔꺂?????????쇨덫?????key)?? ??⑤㈇???亦껋꼨????쒙쭫??category)????????嶺뚮슣??굢????嚥싳쇎紐???????딅젩."
             )
 
         sigs = self._resolve_signature_lines(agent)
@@ -979,7 +1105,7 @@ class AgentRunner:
                             "command": cli_result.get("command", []),
                         },
                     )
-                    # Phase 5: CLI 寃쎈줈?먯꽌????post-execute ?몄텧 (?몃젅?댁떛/?듦퀎)
+                    # Phase 5: CLI 野껋럥以?癒?퐣????post-execute ?紐꾪뀱 (?紐껋쟿??곷뼓/????
                     result = bus.run_post_execute(agent_state, result)
                     _flush_trace(result)
                     return result
@@ -1001,7 +1127,7 @@ class AgentRunner:
                     "latency_ms": int((time.time() - started) * 1000),
                     "approval_rejects": approval_rejects,
                 }
-                # Phase 5: CLI ?ㅽ뙣 寃쎈줈?먯꽌????post-execute ?몄텧
+                # Phase 5: CLI ??쎈솭 野껋럥以?癒?퐣????post-execute ?紐꾪뀱
                 result = bus.run_post_execute(agent_state, result)
                 _flush_trace(result)
                 return result
@@ -1088,15 +1214,15 @@ class AgentRunner:
             _flush_trace(result)
             return result
         try:
-            # [Gemini SDK + CWM] ContextWindowManager 기반 직접 턴 관리
+            # [Gemini SDK + CWM] ContextWindowManager 湲곕컲 吏곸젒 ??愿由?
             from google import genai
             from google.genai import types as genai_types
             from core.context_window_manager import ContextWindowManager
 
             gemini_client = genai.Client(api_key=GOOGLE_API_KEY)
 
-            # FIX #7: get_knowledge tool 등록 (LLM이 Knowledge 스킬 내용 요청 가능)
-            _cwm_placeholder: list = []  # 참조용 (아래에서 _cwm 생성 후 채워짐)
+            # FIX #7: get_knowledge tool ?깅줉 (LLM??Knowledge ?ㅽ궗 ?댁슜 ?붿껌 媛??
+            _cwm_placeholder: list = []  # 李몄“??(?꾨옒?먯꽌 _cwm ?앹꽦 ??梨꾩썙吏?
 
             def get_knowledge(skill_id: str) -> str:
                 """Load the full content of a knowledge skill by its ID or name.
@@ -1105,7 +1231,7 @@ class AgentRunner:
 
             _tool_functions_with_knowledge = list(tool_functions) + [get_knowledge]
 
-            # CWM 초기화: Knowledge 스킬 온디맨드 주입, tool evict 활성화
+            # CWM 珥덇린?? Knowledge ?ㅽ궗 ?⑤뵒留⑤뱶 二쇱엯, tool evict ?쒖꽦??
             _cwm = ContextWindowManager(
                 model_name=str(gemini_model),
                 system_prompt=sys_prompt,
@@ -1114,7 +1240,7 @@ class AgentRunner:
                 evict_after_turns=3,
                 recent_window=4,
             )
-            # get_knowledge는 항상 active 유지 (tracker에 미리 등록)
+            # get_knowledge????긽 active ?좎? (tracker??誘몃━ ?깅줉)
             _cwm.tool_tracker.record_use("get_knowledge", turn=0)
         except Exception as e:
             import traceback
@@ -1128,8 +1254,8 @@ class AgentRunner:
         _append_trace("user", {"text": f"Task: {task_input}"})
         _append_trace("system", {"model": str(gemini_model), "skills": [str(s) for s in skill_ids]})
 
-        # 429 Quota 재시도 래퍼 (generate_content용)
-        # FIX #5: last_error로 예외 컨텍스트 보존
+        # 429 Quota ?ъ떆???섑띁 (generate_content??
+        # FIX #5: last_error濡??덉쇅 而⑦뀓?ㅽ듃 蹂댁〈
         def safe_generate(contents, config):
             if not contents:
                 raise ValueError("Empty contents list passed to generate_content()")  # FIX #12
@@ -1149,22 +1275,28 @@ class AgentRunner:
                         print(f"[Quota] API Rate Limit (429). {wait}s wait... ({i+1}/{max_retries})")
                         time.sleep(wait)
                         continue
-                    raise  # 429 외 에러는 즉시 재발생
+                    raise  # 429 ???먮윭??利됱떆 ?щ컻??
             raise last_error or Exception("API Rate Limit Exceeded (Quota)")
 
         try:
-            # 초기 사용자 메시지 등록
+            # 珥덇린 ?ъ슜??硫붿떆吏 ?깅줉
             _cwm.add_user_message(f"Task: {task_input}", turn=0)
 
-            # CWM 기반 ReAct Loop (직접 턴 관리)
+            # CWM 湲곕컲 ReAct Loop (吏곸젒 ??愿由?
             for turn in range(10):
-                # 매 턴 컨텍스트 최적화
+                # 留???而⑦뀓?ㅽ듃 理쒖쟻??
                 gen_config = _cwm.get_generate_config(turn, genai_types=genai_types)
                 response = safe_generate(
                     contents=gen_config["contents"],
                     config=genai_types.GenerateContentConfig(
                         system_instruction=gen_config["system_instruction"],
                         tools=gen_config["tools"],
+                        # agent_runner가 수동으로 함수 호출을 처리하므로
+                        # SDK 자동 실행(automatic function calling)을 비활성화
+                        # 비활성화하지 않으면 SDK가 미등록 도구 호출 시 KeyError 발생
+                        automatic_function_calling=genai_types.AutomaticFunctionCallingConfig(
+                            disable=True
+                        ),
                     ),
                 )
 
@@ -1173,7 +1305,7 @@ class AgentRunner:
                         pass
                     break
 
-                # 모델 응답 히스토리에 기록
+                # 紐⑤뜽 ?묐떟 ?덉뒪?좊━??湲곕줉
                 _cwm.record_model_response(response, turn)
 
                 has_action = False
@@ -1192,7 +1324,7 @@ class AgentRunner:
                         print(f"[Tool] {fname}({fargs})", flush=True)
                         _append_trace("tool_call", {"name": str(fname), "args": fargs})
 
-                        # Tool lookup: knowledge tool 포함 전체 목록에서 검색
+                        # Tool lookup: knowledge tool ?ы븿 ?꾩껜 紐⑸줉?먯꽌 寃??
                         tool_func = next((t for t in _tool_functions_with_knowledge if t.__name__ == fname), None)
                         if tool_func:
                             try:
@@ -1202,7 +1334,7 @@ class AgentRunner:
                                         print(f"[Policy] Approval rejected: {fname}", flush=True)
                                         approval_rejects += 1
                                         _append_trace("tool_reject", {"name": str(fname), "skill_id": str(skill_id)})
-                                        # FIX #4: function_response로 기록 (연속 user role 방지)
+                                        # FIX #4: function_response濡?湲곕줉 (?곗냽 user role 諛⑹?)
                                         _cwm.record_tool_call(fname, turn)
                                         _cwm.record_tool_result(fname, "[rejected: approval denied]", turn)
                                         continue
@@ -1217,7 +1349,7 @@ class AgentRunner:
                                             "reason": str(tool_decision.reason or "blocked_by_hook"),
                                         },
                                     )
-                                    # FIX #4: function_response로 기록 (연속 user role 방지)
+                                    # FIX #4: function_response濡?湲곕줉 (?곗냽 user role 諛⑹?)
                                     _cwm.record_tool_call(fname, turn)
                                     _cwm.record_tool_result(
                                         fname,
@@ -1235,23 +1367,23 @@ class AgentRunner:
                                 print(f"  -> Result: {str(res_obj)[:100]}...", flush=True)
                                 _append_trace("tool_result", {"name": str(fname), "result": str(res_obj)[:800]})
 
-                                # CWM에 tool 호출 + 결과 기록
+                                # CWM??tool ?몄텧 + 寃곌낵 湲곕줉
                                 _cwm.record_tool_call(fname, turn)
                                 _cwm.record_tool_result(fname, res_obj, turn)
                             except Exception as e:
                                 print(f"[Tool Error] {fname}: {e}", flush=True)
                                 _append_trace("tool_error", {"name": str(fname), "message": str(e)})
-                                # FIX #4: function_response로 기록 (연속 user role 방지)
+                                # FIX #4: function_response濡?湲곕줉 (?곗냽 user role 諛⑹?)
                                 _cwm.record_tool_result(fname, f"[error: {e}]", turn)
                         else:
                             print(f"[Runner] Unknown tool: {fname}", flush=True)
-                            # FIX #4: function_response로 기록 (연속 user role 방지)
+                            # FIX #4: function_response濡?湲곕줉 (?곗냽 user role 諛⑹?)
                             _cwm.record_tool_result(fname, f"[error: unknown tool '{fname}']", turn)
 
                 if not has_action:
                     break
 
-            # CWM 통계 로깅
+            # CWM ?듦퀎 濡쒓퉭
             _cwm_stats = _cwm.get_stats()
             _safe_print(f"[CWM] history={_cwm_stats['history']['total_tokens']}tok "
                         f"compressed={_cwm_stats['history']['compressed_entries']} "
@@ -1279,6 +1411,10 @@ class AgentRunner:
 # =============================================================================
 # 7) Factory
 # =============================================================================
+
+
+
+
 
 
 

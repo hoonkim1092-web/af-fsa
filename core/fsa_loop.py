@@ -37,29 +37,39 @@ def parse_evaluator_response(result: dict) -> dict:
 
 class FSALoop:
     """
-    (V23) Full Self Automation (FSA) Loop Orchestrator with Git Safety.
+    (V24) Full Self Automation (FSA) Loop Orchestrator with Workspace-Scoped Git Safety.
     Implements EXECUTE -> TRACE -> EVAL -> SUMMARIZE -> DATASETS -> REFLECT cycle.
+
+    Git 범위 원칙:
+    - commit/rollback은 workspace(프로젝트 디렉토리) 안에서만 동작한다.
+    - factory 코드(core/, skills/ 등)는 에이전트 git 조작 범위 밖이다.
+    - rollback은 tracked 파일 변경만 되돌린다. untracked 파일은 보존된다.
     """
     def __init__(self, runner: AgentRunner, agent_mgr=None):
         self.runner = runner
-        self.git = GitManager()
         self.agent_mgr = agent_mgr
         # Fallback evaluator (used when agent_mgr is unavailable or evaluator agent fails)
         self.evaluator = StrategyEvaluator(
             model_name=runner.mr.pick('evaluator') if hasattr(runner.mr, 'pick') else 'gemini-1.5-pro-latest'
         )
         self.max_cycles = 5
+        # NOTE: GitManager는 __init__에서 생성하지 않는다.
+        # run_mission()에서 workspace를 받아 그 범위로 생성한다.
 
     def run_mission(self, agent: dict, task_input: str, run_id: str, workspace: str | None = None):
         print(f"\n🌀 [FSALoop] 풀 셀프 자동화 모드(FSA) 시작: {run_id}")
+
+        # workspace 기반 GitManager 생성 — factory 루트가 아닌 프로젝트 디렉토리
+        target_workspace = workspace or os.getcwd()
+        git = GitManager(target_workspace)
 
         current_task = task_input
         for cycle in range(1, self.max_cycles + 1):
             print(f"\n🔄 [Cycle {cycle}/{self.max_cycles}] 실행 및 자동 커밋 준비...")
 
-            # ── Step 1: Pre-Commit for safety ──
+            # ── Step 1: Pre-Commit for safety (workspace 범위) ──
             commit_msg = f"AEE Auto-Save: {run_id} Cycle {cycle}"
-            self.git.commit(commit_msg)
+            git.commit(commit_msg)
 
             # ── Step 2: EXECUTE ──
             result = self.runner.run(
@@ -67,7 +77,7 @@ class FSALoop:
                 current_task,
                 run_id=f"{run_id}_c{cycle}",
                 auto_approve=True,
-                workspace=workspace,
+                workspace=target_workspace,
             )
 
             # Step 2b: TRACE — LangSmithTracingHook auto-collects (Phase 1, no-op if disabled)
@@ -76,12 +86,12 @@ class FSALoop:
                 print(f"✅ [Cycle {cycle}] 성공적으로 완료됨.")
                 return result
 
-            # ── Step 3: Failure & Rollback ──
+            # ── Step 3: Failure & Rollback (workspace tracked 파일만) ──
             print(f"⚠️ [Cycle {cycle}] 실패 감지: {result.get('reason')}")
-            print(f"⏪ [FSALoop] 안전을 위해 Git Rollback을 수행합니다.")
+            print(f"⏪ [FSALoop] workspace tracked 파일 변경을 되돌립니다.")
 
             try:
-                self.git.rollback()
+                git.rollback()
             except Exception as e:
                 print_agent_msg("Critical", f"Rollback 실패: {e}", "🛑")
 

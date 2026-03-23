@@ -1,25 +1,87 @@
 import json
 import os
 import time
+from dataclasses import dataclass, field
 
+from core.approval_gate import ApprovalGate
 from core.bootstrap_roles import ProjectPlanningDirector, build_bootstrap_agent
 from core.documentation_policy import ensure_documentation_files, write_project_todo
 from core.dynamic_orchestrator import DynamicOrchestrator
+from core.project_task_board import (
+    board_todo_items,
+    build_project_board,
+    enrich_role_plan,
+    write_project_board,
+    write_task_execution_plan,
+)
 from core.utils import (
     append_dashboard_run,
     now_iso,
     read_yaml,
     safe_id,
     to_portable_path,
-    write_text,
     write_yaml,
 )
+from core.work_item_generator import generate_work_items, slug_from_brief
+from core.work_item_parser import sync_board_from_work_items
 
 PROJECT_ROLE_BASELINE_SKILLS = ("file_handler", "core_memory")
 
 
+@dataclass
+class PreparedProject:
+    """
+    prepare() 의 결과 객체.
+
+    승인 전까지 execute() 를 호출하면 안 된다.
+    approval_gate.is_execution_open() 이 True 일 때만 execute() 진행.
+    """
+
+    run_id: str
+    workspace: str
+    work_item_slug: str
+    project_brief: dict
+    role_plan: dict
+    task_board: dict
+    planning_files: list[str] = field(default_factory=list)
+    work_item_files: dict[str, str] = field(default_factory=dict)
+    # 하위 호환: 개별 경로 필드
+    project_brief_path: str = ""
+    role_plan_path: str = ""
+    task_board_path: str = ""
+    task_execution_plan_path: str = ""
+    todo_path: str = ""
+
+    def work_item_dir(self) -> str:
+        return os.path.join(self.workspace, "docs", "work-items", self.work_item_slug)
+
+    def gate(self) -> ApprovalGate:
+        return ApprovalGate(self.workspace, self.work_item_slug)
+
+    def summary_lines(self) -> list[str]:
+        roles = self.role_plan.get("roles") or []
+        tasks = self.task_board.get("tasks") or []
+        modules = self.role_plan.get("modules") or []
+        lines = [
+            f"  목표: {self.project_brief.get('goal', '')}",
+            f"  역할 수: {len(roles)}",
+            f"  모듈 수: {len(modules)}",
+            f"  작업 수: {len(tasks)}",
+            f"  work-item: {self.work_item_dir()}",
+        ]
+        return lines
+
+
 class ProjectPipeline:
-    """Front-loads research and planning before multi-agent execution."""
+    """
+    2-Phase 프로젝트 파이프라인.
+
+    Phase 1 — prepare():  문서 생성 + work-item 자동 채움. 에이전트 실행 없음.
+    Phase 2 — execute():  승인 확인 → 편집 반영 → 에이전트 실행.
+
+    하위 호환:
+      run() = prepare() + 자동 승인 + execute()
+    """
 
     def __init__(self, mr, agent_mgr, research_agent, procurer):
         self.mr = mr
@@ -59,8 +121,10 @@ class ProjectPipeline:
         merged["runtime_rules"] = runtime_rules
         return merged
 
-    def _write_todo(self, workspace: str, role_plan: dict) -> str:
-        todo_items = [str(x).strip() for x in (role_plan.get("todo_items") or []) if str(x).strip()]
+    def _write_todo(self, workspace: str, role_plan: dict, task_board: dict | None = None) -> str:
+        todo_items = board_todo_items(task_board or {})
+        if not todo_items:
+            todo_items = [str(x).strip() for x in (role_plan.get("todo_items") or []) if str(x).strip()]
         if not todo_items:
             todo_items = [f"{item.get('name')}: {item.get('objective')}" for item in (role_plan.get("roles") or [])]
         return write_project_todo(workspace, todo_items)
@@ -87,6 +151,17 @@ class ProjectPipeline:
             role_name = str(item.get("name") or role_id)
             objective = str(item.get("objective") or project_brief.get("goal") or "").strip()
             required_skills = [safe_id(str(s)) for s in (item.get("required_skills") or []) if str(s).strip()]
+            role_modules = [
+                module
+                for module in (role_plan.get("modules") or [])
+                if isinstance(module, dict) and safe_id(str(module.get("owner_role") or "")) == role_id
+            ]
+            feature_slices: list[str] = []
+            for module in role_modules:
+                for slice_name in (module.get("feature_slices") or []):
+                    text = str(slice_name).strip()
+                    if text and text not in feature_slices:
+                        feature_slices.append(text)
 
             agent = self.agent_mgr.get_or_create(role_id, workspace=workspace)
             agent_path = self._role_agent_path(role_id, workspace)
@@ -97,6 +172,13 @@ class ProjectPipeline:
             agent_data["project_role"] = {
                 "objective": objective,
                 "required_skills": required_skills,
+                "owned_modules": [module.get("id") for module in role_modules if str(module.get("id") or "").strip()],
+                "feature_slices": feature_slices,
+                "planning_steps": [
+                    str(step.get("id") or "").strip()
+                    for step in (role_plan.get("planning_steps") or [])
+                    if isinstance(step, dict) and str(step.get("id") or "").strip()
+                ],
                 "updated_at": now_iso(),
             }
             write_yaml(agent_path, agent_data)
@@ -127,7 +209,11 @@ class ProjectPipeline:
 
         return list(dict.fromkeys(roles)), installed_map
 
-    def run(
+    # ------------------------------------------------------------------
+    # Phase 1: prepare
+    # ------------------------------------------------------------------
+
+    def prepare(
         self,
         task_input: str,
         workspace: str,
@@ -135,13 +221,20 @@ class ProjectPipeline:
         enable_build: bool = False,
         requested_role: str = "",
         route: dict | None = None,
-    ) -> dict:
+    ) -> PreparedProject:
+        """
+        Phase 1: 문서를 생성하고 work-item 을 자동으로 채운다.
+
+        에이전트를 실행하지 않는다.
+        반환된 PreparedProject 에서 gate().approve() 후 execute() 를 호출해야 한다.
+        """
         target_workspace = os.path.abspath(workspace)
         os.makedirs(target_workspace, exist_ok=True)
         ensure_documentation_files(target_workspace)
         planning_dir = self._planning_dir(target_workspace)
         run_id = f"project_run_{int(time.time())}"
 
+        # -- Research --
         research_agent = build_bootstrap_agent("research_director")
         project_brief = self.research.research_project_brief(
             research_agent,
@@ -154,8 +247,10 @@ class ProjectPipeline:
         project_brief_path = os.path.join(planning_dir, "project_brief.json")
         self._write_json(project_brief_path, project_brief)
 
+        # -- Planning --
         pd_agent = build_bootstrap_agent("pd_director")
-        role_plan = self.planner.plan(task_input, project_brief)
+        role_plan_raw = self.planner.plan(task_input, project_brief)
+        role_plan = enrich_role_plan(task_input, project_brief, role_plan_raw)
         role_plan["generated_at"] = now_iso()
         role_plan["pd_agent"] = {
             "id": pd_agent["id"],
@@ -164,47 +259,182 @@ class ProjectPipeline:
         role_plan_path = os.path.join(planning_dir, "role_plan.json")
         self._write_json(role_plan_path, role_plan)
 
-        todo_path = self._write_todo(target_workspace, role_plan)
-        roles, installed_map = self._materialize_roles(
-            role_plan=role_plan,
-            project_brief=project_brief,
+        # -- Task Board --
+        task_board = build_project_board(project_brief, role_plan)
+        task_board_path = write_project_board(target_workspace, task_board)
+        task_execution_plan_path = write_task_execution_plan(
+            target_workspace, project_brief, role_plan, task_board
+        )
+        todo_path = self._write_todo(target_workspace, role_plan, task_board)
+
+        # -- Work Items (★ 신규) --
+        slug = slug_from_brief(project_brief)
+        work_item_files = generate_work_items(
             workspace=target_workspace,
-            execution_mode=execution_mode,
-            enable_build=enable_build,
-            run_id=run_id,
+            slug=slug,
+            project_brief=project_brief,
+            role_plan=role_plan,
+            task_board=task_board,
         )
 
+        planning_files = [
+            to_portable_path(project_brief_path),
+            to_portable_path(role_plan_path),
+            to_portable_path(task_board_path),
+            to_portable_path(task_execution_plan_path),
+            to_portable_path(todo_path),
+        ] + [to_portable_path(p) for p in work_item_files.values()]
+
+        return PreparedProject(
+            run_id=run_id,
+            workspace=target_workspace,
+            work_item_slug=slug,
+            project_brief=project_brief,
+            role_plan=role_plan,
+            task_board=task_board,
+            planning_files=planning_files,
+            work_item_files=work_item_files,
+            project_brief_path=to_portable_path(project_brief_path),
+            role_plan_path=to_portable_path(role_plan_path),
+            task_board_path=to_portable_path(task_board_path),
+            task_execution_plan_path=to_portable_path(task_execution_plan_path),
+            todo_path=to_portable_path(todo_path),
+        )
+
+    # ------------------------------------------------------------------
+    # Phase 2: execute
+    # ------------------------------------------------------------------
+
+    def execute(
+        self,
+        prepared: PreparedProject,
+        enable_build: bool = False,
+        execution_mode: str = "approval",
+    ) -> dict:
+        """
+        Phase 2: 승인된 프로젝트를 실행한다.
+
+        실행 전 검사:
+          1. gate.is_execution_open() — execution_open: true 확인
+          2. gate.check_validity()   — 승인 후 문서 변경 없음 확인
+        통과 후:
+          3. work-item 편집 내용을 task_board 에 반영
+          4. 역할 구체화 (YAML 에이전트 파일 생성)
+          5. DynamicOrchestrator.run_project() 실행
+        """
+        workspace = prepared.workspace
+        gate = prepared.gate()
+
+        # -- 승인 확인 --
+        if not gate.is_execution_open():
+            return {
+                "ok": False,
+                "reason": "approval_required",
+                "message": "approval-gate.md 를 승인한 후 실행하세요.",
+                "gate_path": gate.gate_path,
+            }
+
+        # -- 문서 변경 감지 --
+        valid, changed = gate.check_validity()
+        if not valid:
+            gate.invalidate(reason=f"변경된 문서: {', '.join(changed)}")
+            return {
+                "ok": False,
+                "reason": "documents_changed_after_approval",
+                "changed_files": changed,
+                "message": "승인 후 문서가 변경되었습니다. 재승인 후 실행하세요.",
+            }
+
+        # -- 편집 내용 반영 --
+        updated_board = sync_board_from_work_items(
+            workspace=workspace,
+            slug=prepared.work_item_slug,
+            existing_board=prepared.task_board,
+        )
+        write_project_board(workspace, updated_board)
+
+        # -- 역할 구체화 --
+        roles, installed_map = self._materialize_roles(
+            role_plan=prepared.role_plan,
+            project_brief=prepared.project_brief,
+            workspace=workspace,
+            execution_mode=execution_mode,
+            enable_build=enable_build,
+            run_id=prepared.run_id,
+        )
+
+        # -- 에이전트 실행 --
+        task_input = str(prepared.project_brief.get("goal") or "")
         orchestrator = DynamicOrchestrator(self.mr, max_concurrent=5)
-        board = orchestrator.run_project(task_input, roles, target_workspace)
-        status = str(board.get("current_status", "unknown"))
+        run_board = orchestrator.run_project(task_input, roles, workspace)
+        status = str(run_board.get("current_status", "unknown"))
 
         append_dashboard_run(
             {
                 "ts": now_iso(),
                 "type": "project_run",
-                "project_id": os.path.basename(target_workspace),
-                "task": (task_input or "")[:300],
+                "project_id": os.path.basename(workspace),
+                "task": task_input[:300],
                 "ok": status == "completed",
                 "reason": status,
                 "pipeline": "project",
                 "roles": roles,
-                "planning_files": [
-                    to_portable_path(project_brief_path),
-                    to_portable_path(role_plan_path),
-                    to_portable_path(todo_path),
-                ],
+                "planning_files": prepared.planning_files,
+                "work_item_slug": prepared.work_item_slug,
             }
         )
 
         return {
-            "run_id": run_id,
+            "run_id": prepared.run_id,
             "pipeline": "project",
             "ok": status == "completed",
             "reason": status,
             "roles": roles,
             "installed_skills": installed_map,
-            "project_brief_path": to_portable_path(project_brief_path),
-            "role_plan_path": to_portable_path(role_plan_path),
-            "todo_path": to_portable_path(todo_path),
-            "board": board,
+            "work_item_slug": prepared.work_item_slug,
+            "work_item_dir": prepared.work_item_dir(),
+            "planning_files": prepared.planning_files,
+            "board": run_board,
+            # 하위 호환 — 기존 코드가 직접 키로 접근하는 경우를 위해
+            "project_brief_path": prepared.project_brief_path,
+            "role_plan_path": prepared.role_plan_path,
+            "task_board_path": prepared.task_board_path,
+            "task_execution_plan_path": prepared.task_execution_plan_path,
+            "todo_path": prepared.todo_path,
         }
+
+    # ------------------------------------------------------------------
+    # 하위 호환: run() = prepare + 자동 승인 + execute
+    # ------------------------------------------------------------------
+
+    def run(
+        self,
+        task_input: str,
+        workspace: str,
+        execution_mode: str = "approval",
+        enable_build: bool = False,
+        requested_role: str = "",
+        route: dict | None = None,
+    ) -> dict:
+        """
+        하위 호환 메서드.
+
+        기존 코드에서 run() 을 직접 호출하면 자동 승인으로 동작한다.
+        CLI 에서는 prepare() → 사용자 승인 → execute() 흐름을 사용한다.
+        """
+        prepared = self.prepare(
+            task_input=task_input,
+            workspace=workspace,
+            execution_mode=execution_mode,
+            enable_build=enable_build,
+            requested_role=requested_role,
+            route=route,
+        )
+        # 자동 승인 (하위 호환)
+        prepared.gate().approve(approver="auto")
+
+        return self.execute(
+            prepared=prepared,
+            enable_build=enable_build,
+            execution_mode=execution_mode,
+        )

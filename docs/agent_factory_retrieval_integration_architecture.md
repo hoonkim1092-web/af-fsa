@@ -1,4 +1,4 @@
-﻿# Agent Factory Retrieval Integration Architecture
+﻿c# Agent Factory Retrieval Integration Architecture
 
 ## Metadata
 - Last updated: 2026-03-15

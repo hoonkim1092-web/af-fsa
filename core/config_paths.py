@@ -23,8 +23,11 @@ def _config_value(name: str, env_key: str) -> str:
 
 GOOGLE_API_KEY = get_engine_api_key("google")
 OPENAI_API_KEY = get_engine_api_key("openai")
-if not GOOGLE_API_KEY and not OPENAI_API_KEY and not supports_cli_bootstrap() and not engine_api_keys_disabled():
-    raise RuntimeError("Neither GOOGLE_API_KEY nor OPENAI_API_KEY found in env/.env")
+# ── API 키 필수 체크 (비활성화 중) ──────────────────────────────────────────
+# 원복하려면 아래 주석을 해제하세요.
+# if not GOOGLE_API_KEY and not OPENAI_API_KEY and not supports_cli_bootstrap() and not engine_api_keys_disabled():
+#     raise RuntimeError("Neither GOOGLE_API_KEY nor OPENAI_API_KEY found in env/.env")
+# ────────────────────────────────────────────────────────────────────────────
 # [New SDK] genai.Client은 각 모듈에서 개별 생성 (config_paths는 경로만 담당)
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

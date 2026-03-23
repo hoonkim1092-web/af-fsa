@@ -22,6 +22,7 @@ EMBEDDING_DIM = 768
 CACHE_DIR = ".system_generated/cache"
 CACHE_FILE = "skill_embeddings.json"
 QUERY_CACHE_MAX = 100
+MAX_SKILL_EMBEDDINGS = 10_000
 
 
 class SemanticEmbedder:
@@ -69,6 +70,12 @@ class SemanticEmbedder:
             texts_to_embed[skill_id] = (text, text_hash)
 
         if not texts_to_embed:
+            # 현재 스킬 목록에 없는 stale 항목 제거
+            stale = set(self._skill_embeddings) - set(skills)
+            if stale:
+                for k in stale:
+                    self._skill_embeddings.pop(k, None)
+                self._save_disk_cache()
             return
 
         try:
@@ -77,6 +84,15 @@ class SemanticEmbedder:
             if embeddings and len(embeddings) == len(texts):
                 for (skill_id, (_, text_hash)), emb in zip(texts_to_embed.items(), embeddings):
                     self._skill_embeddings[skill_id] = {"hash": text_hash, "embedding": emb}
+                # stale 항목 제거
+                stale = set(self._skill_embeddings) - set(skills)
+                for k in stale:
+                    self._skill_embeddings.pop(k, None)
+                # 크기 상한 초과 시 가장 오래된 항목부터 제거
+                if len(self._skill_embeddings) > MAX_SKILL_EMBEDDINGS:
+                    excess = len(self._skill_embeddings) - MAX_SKILL_EMBEDDINGS
+                    for k in list(self._skill_embeddings.keys())[:excess]:
+                        self._skill_embeddings.pop(k, None)
                 self._save_disk_cache()
         except Exception:
             pass

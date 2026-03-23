@@ -129,19 +129,20 @@ def procure_skill(skill_name, role, skill_type="action"):
     if skill_type == "action":
         found = glob.glob(os.path.join(WAREHOUSE_DIR, "**", f"{skill_name}.py"), recursive=True)
         if found:
-            register_skill(skill_name, purpose_desc, found[0], stype="action")
+            register_skill(skill_name, purpose_desc, found[0], stype="action", source="warehouse")
             return found[0]
 
         forge_path = os.path.join(FORGE_DIR, f"{skill_name}.py")
         if os.path.exists(forge_path):
-            register_skill(skill_name, purpose_desc, forge_path, stype="action")
+            register_skill(skill_name, purpose_desc, forge_path, stype="action", source="forge")
             return forge_path
     else:
         for base in [WAREHOUSE_DIR, FORGE_DIR]:
+            source = "warehouse" if base == WAREHOUSE_DIR else "forge"
             for filename in skill_markdown_filenames():
                 md_path = os.path.join(base, skill_name, filename)
                 if os.path.exists(md_path):
-                    register_skill(skill_name, purpose_desc, md_path, stype="knowledge")
+                    register_skill(skill_name, purpose_desc, md_path, stype="knowledge", source=source)
                     return md_path
 
     return forge_new_skill(skill_name, role, skill_type=skill_type)
@@ -177,7 +178,7 @@ def forge_new_skill(skill_name, role, coding_engine=None, skill_type="action"):
             with open(output_path, "w", encoding="utf-8") as handle:
                 handle.write(code)
             log("FORGE", f"Action forge complete: {output_path}")
-            register_skill(skill_name, f"Dynamically forged action skill for {role}", output_path, stype="action")
+            register_skill(skill_name, f"Dynamically forged action skill for {role}", output_path, stype="action", source="forge")
             return output_path
         except Exception as exc:
             log("FORGE", f"Action forge failed: {exc}")
@@ -199,7 +200,7 @@ def forge_new_skill(skill_name, role, coding_engine=None, skill_type="action"):
             output_path = os.path.join(skill_dir, fname)
             if os.path.exists(output_path):
                 log("FORGE", f"Knowledge forge complete (skill_creator): {output_path}")
-                register_skill(skill_name, f"Dynamically forged knowledge skill for {role}", output_path, stype="knowledge")
+                register_skill(skill_name, f"Dynamically forged knowledge skill for {role}", output_path, stype="knowledge", source="forge")
                 return output_path
     log("FORGE", "Knowledge forge failed via skill_creator")
     return None
@@ -529,6 +530,33 @@ class SkillOrchestrator:
             installable = bool(self.registry.is_installable(skill_id))
         return installable
 
+    @staticmethod
+    def _try_enhance_skill(
+        candidate_id: str,
+        decision,
+        *,
+        workspace: str | None = None,
+    ) -> dict:
+        """SkillEnhancer를 사용하여 기존 스킬에 누락 capabilities 추가."""
+        try:
+            from core.skill_enhancer import SkillEnhancer
+
+            gap = getattr(decision, "capability_gap", None)
+            missing = list(getattr(gap, "missing_capabilities", [])) if gap else []
+            if not missing:
+                # capability 정보 없으면 enhance 자체가 의미 없음 → 바로 reuse
+                return {"ok": True, "skill_id": candidate_id, "reason": "no_gap_reuse_as_is"}
+
+            enhancer = SkillEnhancer()
+            return enhancer.enhance(
+                skill_name=candidate_id,
+                missing_capabilities=missing,
+                workspace=workspace,
+            )
+        except Exception as exc:
+            log("ENHANCE", f"SkillEnhancer 실행 오류: {exc}")
+            return {"ok": False, "skill_id": candidate_id, "reason": f"enhancer_exception:{exc}"}
+
     def _build_and_register(
         self,
         *,
@@ -663,6 +691,53 @@ class SkillOrchestrator:
                 if install_ok:
                     installed.append(candidate_id)
                     continue
+
+            if decision.mode == "enhance" and candidate_id and candidate_path:
+                self._log_reuse_decision(name, decision, candidate_path, outcome="enhance")
+                self._record_selection_feedback(
+                    feedback_loop,
+                    skill_id=name,
+                    decision_mode=decision.mode,
+                    status="selected_for_enhance",
+                    run_id=run_id,
+                    agent_role=agent_role,
+                    decision=decision,
+                    payload={"candidate_path": candidate_path},
+                )
+                # enhance 시도
+                enhanced = self._try_enhance_skill(
+                    candidate_id, decision, workspace=workspace,
+                )
+                if enhanced.get("ok"):
+                    enhanced_id = safe_id(str(enhanced.get("skill_id") or candidate_id))
+                    install_ok = self._maybe_install_skill(agent, enhanced_id, approval_gate, auto_approve)
+                    self._record_selection_feedback(
+                        feedback_loop,
+                        skill_id=name,
+                        decision_mode="enhance",
+                        status="enhanced_installed" if install_ok else "enhanced_skipped",
+                        run_id=run_id,
+                        agent_role=agent_role,
+                        decision=decision,
+                        payload={"enhanced_result": enhanced},
+                    )
+                    if install_ok:
+                        installed.append(enhanced_id)
+                        continue
+                else:
+                    # enhance 실패 → forge fallback
+                    log("ENHANCE", f"enhance 실패 for '{name}': {enhanced.get('reason')}, forge로 fallback")
+                    self._record_selection_feedback(
+                        feedback_loop,
+                        skill_id=name,
+                        decision_mode="enhance_fallback_forge",
+                        status="enhance_failed",
+                        run_id=run_id,
+                        agent_role=agent_role,
+                        decision=decision,
+                        payload={"enhance_reason": str(enhanced.get("reason", ""))},
+                    )
+                    # forge fallback은 아래 forge 블록에서 처리
 
             if decision.mode == "shadow_reuse" and candidate_id and candidate_path:
                 self._log_reuse_decision(name, decision, candidate_path, outcome="adapt")
