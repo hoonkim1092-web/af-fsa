@@ -1,4 +1,22 @@
 {
   "project_id": "smoke_test2",
-  "runs": []
+  "runs": [
+    {
+      "ts": "2026-03-23T15:04:23",
+      "type": "single_run",
+      "project_id": "smoke_test2",
+      "role": "General Assistant",
+      "task": "Goal: Calculate 2+2 and print the result to stdout. Constraints: Use Python, no external libraries.",
+      "skills_loaded": [],
+      "ok": true,
+      "reason": "gemini",
+      "latency_ms": 13404,
+      "approval_rejects": 0,
+      "build_enabled": false,
+      "missing_skills_detected": [
+        "execute_python_code",
+        "print_to_stdout"
+      ]
+    }
+  ]
 }
