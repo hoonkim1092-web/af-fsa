@@ -1,0 +1,7 @@
+﻿id: liability_traceability_design
+name: liability_traceability_design
+version: 1.0.0
+capabilities:
+  - LIABILITY_TRACEABILITY_DESIGN
+status: active
+updated_at: '2026-02-20T00:00:00'

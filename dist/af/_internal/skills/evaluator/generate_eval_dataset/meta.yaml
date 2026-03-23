@@ -1,0 +1,27 @@
+id: generate-eval-dataset
+name: Generate Evaluation Dataset
+description: "여러 실행 로그를 분석하여 에이전트 행동 검증을 위한 평가 데이터셋을 자동 생성"
+category: EVAL
+skill_type: action
+when_to_use: "여러 실행 로그를 바탕으로 에이전트의 행동을 검증하기 위한 테스트 데이터셋을 자동 생성할 때"
+when_to_use_keywords:
+  - 테스트생성
+  - 평가데이터
+  - dataset
+  - eval
+  - 데이터셋
+  - 벤치마크
+semantic_tags:
+  - test-generation
+  - quality-assurance
+  - dataset
+max_tokens: 3000
+timeout_sec: 60
+requires_auth: false
+network_required: false
+dependencies:
+  - trace-execution
+incompatible_with:
+  - trace-execution
+version: "1.0.0"
+author: agent-factory

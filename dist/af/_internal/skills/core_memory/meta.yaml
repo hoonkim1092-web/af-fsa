@@ -1,0 +1,12 @@
+id: "core_memory"
+name: "Core Memory (Korean)"
+version: "1.0.0"
+description: "기억(JSON 파일)을 저장하고 불러오는 에이전트 핵심 역량입니다."
+capabilities:
+  - "MEMORY_READ"
+  - "MEMORY_WRITE"
+  - "MEMORY_SEARCH"
+created_at: "2026-02-14T21:13:00"
+updated_at: "2026-02-14T21:13:00"
+author: "Logi-Mind Agent Factory"
+last_test_ok: true

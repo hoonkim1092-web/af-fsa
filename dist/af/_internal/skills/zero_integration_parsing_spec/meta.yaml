@@ -1,0 +1,7 @@
+﻿id: zero_integration_parsing_spec
+name: zero_integration_parsing_spec
+version: 1.0.0
+capabilities:
+  - ZERO_INTEGRATION_PARSING_SPEC
+status: active
+updated_at: '2026-02-20T00:00:00'

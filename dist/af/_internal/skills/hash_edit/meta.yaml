@@ -1,0 +1,9 @@
+id: hash_edit
+name: Hash-Anchored Editor
+description: 정밀한 코드 편집을 위해 라인별 해시를 이용한 도구를 제공합니다.
+version: 1.0.0
+tools:
+  - name: get_file_with_hashes
+    description: 파일 내용을 해시와 함께 읽어옵니다.
+  - name: apply_edit
+    description: 해시를 기반으로 코드의 특정 라인을 수정합니다.

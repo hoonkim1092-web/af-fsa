@@ -1,0 +1,7 @@
+﻿id: ai_funnel_routing
+name: ai_funnel_routing
+version: 1.0.0
+capabilities:
+  - AI_FUNNEL_ROUTING
+status: active
+updated_at: '2026-02-20T00:00:00'

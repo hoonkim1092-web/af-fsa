@@ -1,0 +1,7 @@
+﻿id: state_machine_exception_planning
+name: state_machine_exception_planning
+version: 1.0.0
+capabilities:
+  - STATE_MACHINE_EXCEPTION_PLANNING
+status: active
+updated_at: '2026-02-20T00:00:00'

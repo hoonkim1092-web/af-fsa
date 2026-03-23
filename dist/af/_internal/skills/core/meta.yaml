@@ -1,0 +1,11 @@
+name: "cortex"
+description: "The brain of the agent. Handles long-term memory and experience learning via Vector DB."
+version: "1.0.0"
+capabilities:
+  - "memory"
+  - "learning"
+  - "recall"
+  - "search"
+path: "skills/core/cortex.py"
+meta_path: "skills/core/meta.yaml"
+last_test_ok: true

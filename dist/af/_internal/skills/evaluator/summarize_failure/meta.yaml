@@ -1,0 +1,23 @@
+id: summarize-failure
+name: Summarize Failure
+description: "실패한 에이전트 실행의 원인을 분석하고 심각도 판정 및 수정 제안을 생성"
+category: EVAL
+skill_type: action
+when_to_use: "에이전트 실행이 실패했을 때, 원인을 분석하고 개선안을 제시할 때"
+when_to_use_keywords:
+  - 에러분석
+  - 실패원인
+  - root-cause
+  - failure
+  - 에러
+  - 실패
+semantic_tags:
+  - error-analysis
+  - root-cause
+  - remediation
+max_tokens: 2500
+timeout_sec: 30
+requires_auth: false
+network_required: false
+version: "1.0.0"
+author: agent-factory

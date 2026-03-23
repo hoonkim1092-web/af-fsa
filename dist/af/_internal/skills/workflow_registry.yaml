@@ -1,0 +1,7 @@
+capability_to_skill:
+  data_visualize: ["data_visualize"]
+  issue_read: ["issue_tracker"]
+  issue_write: ["issue_tracker"]
+  research: ["research_assistant"]
+
+updated_at: "2026-02-12T15:55:00"

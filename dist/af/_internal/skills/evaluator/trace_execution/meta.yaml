@@ -1,0 +1,25 @@
+id: trace-execution
+name: Trace Execution
+description: "JSONL 로그에서 에이전트 실행 흐름을 추출하고 구조화된 분석 결과를 반환"
+category: EVAL
+skill_type: action
+when_to_use: "에이전트 실행 로그를 분석하여 스킬 호출 순서, 타이밍, 결과를 파악할 때"
+when_to_use_keywords:
+  - 로그분석
+  - 실행흐름
+  - trace
+  - debugging
+  - 트레이싱
+  - 실행추적
+semantic_tags:
+  - execution-analysis
+  - debugging
+  - observability
+max_tokens: 2000
+timeout_sec: 30
+requires_auth: false
+network_required: false
+incompatible_with:
+  - generate-eval-dataset
+version: "1.0.0"
+author: agent-factory
