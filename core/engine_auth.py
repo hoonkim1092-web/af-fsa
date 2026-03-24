@@ -69,15 +69,52 @@ def supports_cli_bootstrap() -> bool:
     return bool(providers & _CLI_BOOTSTRAP_PROVIDERS)
 
 
+def auto_configure_cli_provider() -> str | None:
+    """시스템에 설치된 CLI 프로바이더를 자동 탐색하고 AGENT_CHAT_PROVIDER를 설정한다.
+
+    이미 환경변수가 설정된 경우 그대로 둔다.
+    탐색 우선순위: gemini_cli → claude_cli → codex_cli
+
+    반환값: 자동 설정된 프로바이더 ID (예: "gemini_cli") 또는 None
+    """
+    # 이미 설정되어 있으면 건드리지 않음
+    if str(os.getenv("AGENT_CHAT_PROVIDER", "") or "").strip():
+        return None
+
+    try:
+        from core.providers.registry import detect_installed_cli_providers
+        installed = detect_installed_cli_providers()
+    except Exception:
+        installed = []
+
+    # 우선순위: gemini_cli → claude_cli → codex_cli
+    _PRIORITY = ["gemini_cli", "claude_cli", "codex_cli"]
+    chosen = next((p for p in _PRIORITY if p in installed), None)
+    if not chosen and installed:
+        chosen = installed[0]
+
+    if chosen:
+        os.environ["AGENT_CHAT_PROVIDER"] = chosen
+        print(f"[Auto-Config] CLI 프로바이더 자동 감지: {chosen} → AGENT_CHAT_PROVIDER={chosen}")
+
+    return chosen
+
+
 def check_llm_available() -> bool:
-    """CLI 프로바이더가 설정되어 있는지 체크한다.
-    설정되지 않은 경우 구독/설정 안내 경고를 출력하고 False를 반환한다.
-    이 함수는 API 키를 체크하지 않는다. CLI 프로바이더만 본다.
+    """CLI 프로바이더가 설정/설치되어 있는지 체크한다.
+
+    1. 환경변수 AGENT_CHAT_PROVIDER가 이미 설정되어 있으면 OK.
+    2. 없으면 auto_configure_cli_provider()로 시스템에서 자동 탐색해 설정한다.
+    3. 그래도 없으면 설치 안내 경고를 출력하고 False 반환.
 
     사용 예:
         if not check_llm_available():
             return _fallback_result(...)
     """
+    # 먼저 자동 탐색/설정 시도
+    auto_configure_cli_provider()
+
+    # 설정 결과 재확인
     if _registry_supports_cli_bootstrap:
         try:
             has_cli = bool(_registry_supports_cli_bootstrap())
@@ -89,13 +126,15 @@ def check_llm_available() -> bool:
 
     if not has_cli:
         print(
-            "[WARNING] LLM 프로바이더가 설정되지 않았습니다.\n"
-            "  → CLI 프로바이더(Claude Code / Gemini CLI / Codex CLI) 중 하나를 구독하고\n"
-            "    환경변수 AGENT_CHAT_PROVIDER=claude_cli (또는 gemini_cli / codex_cli) 를\n"
-            "    설정한 뒤 다시 실행해 주세요.\n"
+            "[WARNING] 사용 가능한 LLM CLI 프로바이더가 없습니다.\n"
+            "  다음 중 하나를 설치하고 로그인하세요:\n"
+            "    • Gemini CLI  : npm install -g @google/gemini-cli  → gemini auth login\n"
+            "    • Claude Code : npm install -g @anthropic-ai/claude-code  → claude auth login\n"
+            "    • Codex CLI   : npm install -g @openai/codex  → codex login\n"
             "  → LLM 없이 실행하는 경우 키워드 기반 폴백(Fallback) 모드로 전환합니다."
         )
     return has_cli
+
 
 
 def get_engine_api_key(provider: str) -> str:

@@ -20,6 +20,14 @@ if hasattr(sys.stdout, "reconfigure"):
 if hasattr(sys.stderr, "reconfigure"):
     sys.stderr.reconfigure(encoding="utf-8")
 
+# 시작 즉시 CLI 프로바이더 자동 탐색 및 환경변수 설정
+# AGENT_CHAT_PROVIDER가 없으면 gemini_cli → claude_cli → codex_cli 순으로 탐색
+try:
+    from core.engine_auth import auto_configure_cli_provider
+    auto_configure_cli_provider()
+except Exception:
+    pass  # 임포트 실패 시 무시 (이후 check_llm_available()에서 재시도)
+
 
 
 def _safe_project_id(text: str) -> str:
