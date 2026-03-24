@@ -1,6 +1,7 @@
 import json
 from config.schema import factory_config
 from core.llm_engine import LLMEngine
+from core.engine_auth import check_llm_available
 
 class IntentGate:
     """
@@ -19,7 +20,12 @@ class IntentGate:
     ]
 
     def __init__(self):
-        self._llm = LLMEngine()  # 모델 자동 선택 (하드코딩 배제)
+        # CLI 프로바이더가 설정된 경우에만 LLMEngine을 생성한다.
+        # 설정되지 않으면 _llm=None 으로 두고, classify()에서 즉시 keyword fallback을 탄다.
+        if check_llm_available():
+            self._llm = LLMEngine()  # 모델 자동 선택 (하드코딩 배제)
+        else:
+            self._llm = None
     
     def classify(self, task_input: str, context: str = "") -> dict:
         """
@@ -44,13 +50,19 @@ Respond in pure JSON format:
         """
         
         try:
+            # CLI 프로바이더가 없으면 LLM 호출 자체를 건너뜀
+            if self._llm is None:
+                raise ValueError("no_cli_provider")
+
             # 최신 Flash 모델로 빠른 분류 (자동 선택, 버전 하드코딩 배제)
             response = self._llm.generate(
                 prompt=prompt
             )
-            
+
             # Clean up potential markdown formatting
             text = response.replace("```json", "").replace("```", "").strip()
+            if not text:
+                raise ValueError("empty_llm_response")
             result = json.loads(text)
             
             if result.get("intent") not in self.INTENT_CATEGORIES:

@@ -2,6 +2,7 @@
 import os
 
 from core.agent_runner import ModelRouter
+from core.engine_auth import check_llm_available
 from core.llm_engine import LLMEngine
 from core.utils import now_iso, safe_id, safe_json_load
 
@@ -97,8 +98,13 @@ class ProjectPlanningDirector:
 
     def __init__(self, mr: ModelRouter):
         self.mr = mr
-        engine_id = self.mr.pick("orchestrator") if hasattr(self.mr, "pick") else "gemini-1.5-pro-latest"
-        self.llm = LLMEngine(model_name=engine_id)
+        # CLI 프로바이더가 없으면 LLM 호출을 실행하지 않고 폴백모드로 진입한다.
+        self._llm_available = check_llm_available()
+        if self._llm_available:
+            engine_id = self.mr.pick("orchestrator") if hasattr(self.mr, "pick") else "gemini-1.5-pro-latest"
+            self.llm = LLMEngine(model_name=engine_id)
+        else:
+            self.llm = None
 
     def _fallback_roles(self, task_input: str, project_brief: dict) -> dict:
         goal = str(project_brief.get("goal") or task_input).strip() or task_input
@@ -423,6 +429,10 @@ Rules:
 MANDATORY: You MUST always include a "qa_engineer" role. QA is non-negotiable.
 The qa_engineer must own at least one module with verify-phase tasks.
 """.strip()
+
+        # CLI 프로바이더가 없으면 LLM 플래닝을 건너뼀고 즈시 폴백로 진입
+        if not self._llm_available:
+            return self._fallback_roles(task_input, project_brief)
 
         try:
             response = self.llm.generate_json(prompt)

@@ -69,6 +69,35 @@ def supports_cli_bootstrap() -> bool:
     return bool(providers & _CLI_BOOTSTRAP_PROVIDERS)
 
 
+def check_llm_available() -> bool:
+    """CLI 프로바이더가 설정되어 있는지 체크한다.
+    설정되지 않은 경우 구독/설정 안내 경고를 출력하고 False를 반환한다.
+    이 함수는 API 키를 체크하지 않는다. CLI 프로바이더만 본다.
+
+    사용 예:
+        if not check_llm_available():
+            return _fallback_result(...)
+    """
+    if _registry_supports_cli_bootstrap:
+        try:
+            has_cli = bool(_registry_supports_cli_bootstrap())
+        except Exception:
+            has_cli = False
+    else:
+        providers = set(_configured_cli_providers())
+        has_cli = bool(providers & _CLI_BOOTSTRAP_PROVIDERS)
+
+    if not has_cli:
+        print(
+            "[WARNING] LLM 프로바이더가 설정되지 않았습니다.\n"
+            "  → CLI 프로바이더(Claude Code / Gemini CLI / Codex CLI) 중 하나를 구독하고\n"
+            "    환경변수 AGENT_CHAT_PROVIDER=claude_cli (또는 gemini_cli / codex_cli) 를\n"
+            "    설정한 뒤 다시 실행해 주세요.\n"
+            "  → LLM 없이 실행하는 경우 키워드 기반 폴백(Fallback) 모드로 전환합니다."
+        )
+    return has_cli
+
+
 def get_engine_api_key(provider: str) -> str:
     if _registry_get_engine_api_key:
         try:

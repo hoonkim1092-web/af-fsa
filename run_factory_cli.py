@@ -17,6 +17,8 @@ if hasattr(sys.stdin, "reconfigure"):
     sys.stdin.reconfigure(encoding="utf-8")
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8")
 
 
 
@@ -76,8 +78,57 @@ def _run_skill_promote(argv: list[str] | None = None):
 
 
 
+def _launch_interactive_mode(projects_root: str):
+    """대화형 PDCA 모드 진입점 (인자 없이 af 실행 시)."""
+    from core.pdca_state import PDCAState, PDCAStateMachine
+    from core.onboarding_wizard import OnboardingWizard, print_resume_banner
+    from core.interactive_chat import PDCAInteractiveChat, _run_pdca_repl, _make_pdca_commands
+
+    # 현재 디렉터리 또는 .af/pdca_state.json 탐색
+    cwd = os.getcwd()
+    state = PDCAState.load(cwd)
+
+    if state:
+        # 기존 세션 복원
+        workspace = os.path.join(projects_root, state.project_id)
+        print_resume_banner(state)
+    else:
+        # 새 온보딩
+        wizard = OnboardingWizard(projects_root)
+        state = wizard.run()
+        if state is None:
+            return
+        workspace = os.path.join(projects_root, state.project_id)
+
+    # 환경변수 설정
+    os.makedirs(workspace, exist_ok=True)
+    os.environ["AGENT_PROJECTS_DIR"] = projects_root
+    os.environ["AGENT_PROJECT_ID"] = state.project_id
+    os.environ["AGENT_PROJECT_ROOT"] = workspace
+    os.environ.setdefault("AGENT_AUTO_INSTALL_CLI", "1")
+
+    # PDCAInteractiveChat 시작
+    chat = PDCAInteractiveChat(workspace=workspace)
+    try:
+        chat.start()
+    except Exception as e:
+        print(f"\n초기화 실패: {e}")
+        return
+
+    sm = PDCAStateMachine(state, workspace)
+    chat.attach_pdca(sm)
+    _run_pdca_repl(chat)
+
+
 def main(argv: list[str] | None = None):
     effective_argv = argv if argv is not None else sys.argv[1:]
+
+    # ── 인자 없이 실행 → 대화형 PDCA 모드 ──
+    if not effective_argv or effective_argv == ["--interactive"]:
+        projects_root = _resolve_projects_root()
+        _launch_interactive_mode(projects_root)
+        return
+
     if effective_argv and effective_argv[0] == "skill-create":
         _run_skill_creator(effective_argv[1:])
         return
@@ -95,7 +146,8 @@ def main(argv: list[str] | None = None):
         return
 
     parser = argparse.ArgumentParser(description="Agent Factory CLI")
-    parser.add_argument("--project", "-p", type=str, required=True, help="Project id")
+    parser.add_argument("--interactive", action="store_true", help="대화형 PDCA 모드 시작")
+    parser.add_argument("--project", "-p", type=str, required=False, help="Project id")
     parser.add_argument("--role", "-r", type=str, help="Agent role")
     parser.add_argument("--task", "-t", type=str, help="Task input")
     parser.add_argument("--model", "-m", type=str, default=None, help="Model override")
@@ -112,6 +164,12 @@ def main(argv: list[str] | None = None):
     parser.add_argument("--chat", action="store_true", help="Interactive chat mode (continuous conversation)")
     args = parser.parse_args(argv)
     execution_mode = "fsa" if (args.fsa or args.mode == "fsa") else "approval"
+
+    # --interactive 또는 --project 미입력 → 대화형 PDCA 모드
+    if getattr(args, "interactive", False) or not args.project:
+        projects_root = _resolve_projects_root(args.projects_root if hasattr(args, "projects_root") else None)
+        _launch_interactive_mode(projects_root)
+        return
 
     if args.provider_command and not args.provider:
         parser.error("--provider-command requires --provider")
