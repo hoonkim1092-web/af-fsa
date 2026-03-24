@@ -1,0 +1,11 @@
+root = true
+
+[*.{md,py,yaml,yml,json,txt,sql,html,css,js,jsx,ts,tsx,sh}]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+
+[*.{bat,cmd,ps1}]
+charset = utf-8
+end_of_line = crlf
+insert_final_newline = true

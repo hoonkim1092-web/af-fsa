@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Callable
 
 from core.destructive_guard import inject_destructive_guard_contract
+from core.implementation_language_policy import inject_implementation_language_contract
 from core.providers.session_adapter import finalize_cli_session, prepare_cli_session
 
 
@@ -533,14 +534,16 @@ def _build_workspace_access_flags(request: CliChatRequest, spec: CliProviderSpec
 
 def compose_cli_prompt(request: CliChatRequest) -> str:
     spec = get_cli_provider_spec(request.provider_id)
-    effective_system_prompt = inject_destructive_guard_contract(request.system_prompt)
+    effective_system_prompt = inject_implementation_language_contract(request.system_prompt)
+    effective_system_prompt = inject_destructive_guard_contract(effective_system_prompt)
     return _compose_prompt(request, spec, effective_system_prompt)
 
 
 def build_cli_command(request: CliChatRequest) -> list[str]:
     spec = get_cli_provider_spec(request.provider_id)
     cmd = _resolve_base_command(spec)
-    effective_system_prompt = inject_destructive_guard_contract(request.system_prompt)
+    effective_system_prompt = inject_implementation_language_contract(request.system_prompt)
+    effective_system_prompt = inject_destructive_guard_contract(effective_system_prompt)
 
     if _should_include_model(request, spec):
         cmd.extend([spec.model_flag, str(request.model)])

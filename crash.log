@@ -1,20 +1,20 @@
-Traceback (most recent call last):
-  File "D:\agent-factory\core\dynamic_orchestrator.py", line 254, in run_project
-    asyncio.run(self._orchestration_loop(project_desc, roles, workspace))
-    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\HOME\AppData\Local\Python\pythoncore-3.14-64\Lib\asyncio\runners.py", line 204, in run
-    return runner.run(main)
-           ~~~~~~~~~~^^^^^^
-  File "C:\Users\HOME\AppData\Local\Python\pythoncore-3.14-64\Lib\asyncio\runners.py", line 127, in run
-    return self._loop.run_until_complete(task)
-           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
-  File "C:\Users\HOME\AppData\Local\Python\pythoncore-3.14-64\Lib\asyncio\base_events.py", line 719, in run_until_complete
-    return future.result()
-           ~~~~~~~~~~~~~^^
-  File "D:\agent-factory\core\dynamic_orchestrator.py", line 200, in _orchestration_loop
-    new_tasks = await self._lilith_decide_next(project_desc, roles)
-                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "D:\agent-factory\core\dynamic_orchestrator.py", line 57, in _lilith_decide_next
-    workspace = workspace or os.getcwd() # Need workspace path if not passed
-                ^^^^^^^^^
-UnboundLocalError: cannot access local variable 'workspace' where it is not associated with a value
+Traceback (most recent call last):
+  File "D:\agent-factory\core\dynamic_orchestrator.py", line 254, in run_project
+    asyncio.run(self._orchestration_loop(project_desc, roles, workspace))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HOME\AppData\Local\Python\pythoncore-3.14-64\Lib\asyncio\runners.py", line 204, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "C:\Users\HOME\AppData\Local\Python\pythoncore-3.14-64\Lib\asyncio\runners.py", line 127, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\HOME\AppData\Local\Python\pythoncore-3.14-64\Lib\asyncio\base_events.py", line 719, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "D:\agent-factory\core\dynamic_orchestrator.py", line 200, in _orchestration_loop
+    new_tasks = await self._lilith_decide_next(project_desc, roles)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\agent-factory\core\dynamic_orchestrator.py", line 57, in _lilith_decide_next
+    workspace = workspace or os.getcwd() # Need workspace path if not passed
+                ^^^^^^^^^
+UnboundLocalError: cannot access local variable 'workspace' where it is not associated with a value

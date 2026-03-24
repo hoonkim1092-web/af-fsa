@@ -1,176 +1,543 @@
-# Agent Factory
-
-멀티 에이전트 오케스트레이션 플랫폼. 프로젝트 단위로 특화된 에이전트를 생성·실행·진화시킵니다.
-
----
-
-## 설치
-
-### 사전 요구사항
-
-- Python 3.11 이상
-- Git
-
-### 1. 저장소 클론
-
-```bash
-git clone <repo_url>
-cd agent-factory
-```
-
-### 2. 패키지 설치
-
-```bash
-pip install -e .
-```
-
-설치하면 `af` 명령어가 등록됩니다.
-
-```bash
-af --help
-```
-
-### 3. 환경 변수 설정
-
-`.env` 파일을 만들거나 환경 변수를 직접 설정합니다.
-
-```bash
-# 필수 (하나 이상)
-GOOGLE_API_KEY=...          # Gemini 모델 사용 시
-OPENAI_API_KEY=...          # GPT 모델 사용 시
-ANTHROPIC_API_KEY=...       # Claude 모델 사용 시
-
-# 선택
-LANGSMITH_API_KEY=...       # LangSmith 트레이싱
-LANGSMITH_PROJECT=agent-factory
-AGENT_CHAT_PROVIDER=claude_cli   # CLI 제공자 (claude_cli / gemini_cli / codex_cli)
-```
-
----
-
-## 사용법
-
-### 기본 실행
-
-```bash
-# 태스크 실행 (--project 필수)
-af -p my_project -t "포커 게임 웹앱 만들어줘"
-
-# 역할 지정
-af -p my_project -r "Backend Dev" -t "REST API 설계"
-
-# 태스크 없이 실행하면 입력 프롬프트 표시
-af -p my_project
-```
-
-### 실행 모드
-
-```bash
-# approval 모드 (기본): 실행 전 계획 검토 및 승인
-af -p my_project -t "대시보드 구현"
-
-# FSA 모드: 완전 자동 실행
-af -p my_project -t "대시보드 구현" --fsa
-```
-
-### 스킬 빌드 포함
-
-```bash
-# 필요한 스킬이 없으면 자동 빌드
-af -p my_project -t "데이터 분석" --build
-```
-
-### 모델 지정
-
-```bash
-af -p my_project -t "기획서 작성" -m "claude-opus-4-6"
-af -p my_project -t "코드 리뷰" -m "gemini-2.0-flash"
-```
-
-### 파이프라인 모드
-
-```bash
-# auto (기본): 태스크 복잡도에 따라 자동 선택
-af -p my_project -t "간단한 수정" --pipeline single
-
-# project: 다단계 프로젝트 파이프라인 (기획 → 승인 → 실행)
-af -p my_project -t "전체 앱 구현" --pipeline project
-```
-
-### CLI 제공자 지정
-
-```bash
-# Claude CLI 사용
-af -p my_project -t "코드 작성" --provider claude_cli
-
-# Gemini CLI 사용
-af -p my_project -t "코드 작성" --provider gemini_cli
-
-# 명령어 경로 직접 지정
-af -p my_project -t "..." --provider claude_cli --provider-command /usr/local/bin/claude
-```
-
-### 워크플로우 실행
-
-```bash
-af -p my_project -w workflows/my_workflow.yaml
-af -p my_project -w workflows/my_workflow.yaml -a "Lilith,Himari" -t "2주 플랜"
-```
-
-### 스킬 관련 서브커맨드
-
-```bash
-af skill-eval      # 스킬 평가
-af skill-promote   # 스킬 승격
-af skill-create    # 스킬 생성
-af preflight       # 사전 검증
-```
-
----
-
-## 옵션 전체 목록
-
-| 옵션 | 단축 | 설명 |
-|------|------|------|
-| `--project` | `-p` | 프로젝트 ID (필수) |
-| `--task` | `-t` | 실행할 태스크 |
-| `--role` | `-r` | 에이전트 역할 (기본: General Assistant) |
-| `--mode` | | `approval` 또는 `fsa` |
-| `--fsa` | | FSA 모드 단축키 |
-| `--build` | | 누락 스킬 자동 빌드 |
-| `--model` | `-m` | 모델 이름 지정 |
-| `--provider` | | CLI 제공자 지정 |
-| `--provider-command` | | CLI 명령어 경로 |
-| `--pipeline` | | `auto` / `single` / `project` |
-| `--workflow` | `-w` | 워크플로우 YAML 경로 |
-| `--agents` | `-a` | 워크플로우 역할 목록 (쉼표 구분) |
-| `--projects-root` | | 프로젝트 루트 경로 재정의 |
-| `--no-cli-auto-install` | | CLI 자동 설치 비활성화 |
-
----
-
-## 프로젝트 구조
-
-```
-agent-factory/
-├── core/               # 핵심 모듈 (orchestrator, runner, memory 등)
-├── skills/             # 전역 재사용 스킬
-├── agents/             # 전역 에이전트 템플릿
-├── projects/           # 프로젝트별 데이터 (실행 후 자동 생성)
-│   └── <project_id>/
-│       ├── agents/     # 프로젝트 에이전트 YAML
-│       ├── data/       # 메모리, 메일박스
-│       ├── artifacts/  # 산출물
-│       ├── runs/       # 실행 로그
-│       └── planning/   # 기획 문서
-├── run_factory_cli.py  # CLI 진입점
-└── pyproject.toml      # 패키지 설정
-```
-
----
-
-## 테스트
-
-```bash
-python -m pytest tests/ -v
-```
+﻿# AI Agent Factory
+
+프로젝트 단위로 에이전트를 실행/진화시키는 시스템입니다.
+
+## 🌟 비전 및 철학 (Vision & Philosophy)
+
+`Agent Factory`는 단순한 자동화 도구를 넘어, 사용자의 의도를 계승하는 **'초개인화된 에이전트 군단'**을 구축하는 것을 목표로 합니다.
+
+- **나만의 에이전트들 (Personalized Squads)**: 팩토리에서 생산된 모든 에이전트는 사용자의 고유한 비즈니스 로직과 작업 스타일을 학습하여 세상에 단 하나뿐인 파트너로 진화합니다.
+- **기획 우선 (Planning-First)**: 인공지능이 무분별하게 코드를 작성하는 것을 방지하고, 철저한 기획과 설계 승인 후에만 구현을 시작하여 아키텍처의 무결성을 보장합니다.
+- **하이브리드 지능 (Hybrid Intelligence)**: 정적인 지식 창고와 동적인 웹 정보를 융합하여 가장 정확하고 상세한 해결책을 제시합니다.
+
+## 사용 방법
+
+`--project`는 필수입니다.
+
+### 단일 실행
+
+```bash
+
+
+
+
+
+
+
+
+
+
+python run_factory_cli.py --project logistics_v1 --role "Backend Architect" --task "주문 API 설계"
+
+
+
+
+
+
+
+
+
+
+```
+
+### 워크플로우 실행
+
+```bash
+
+
+
+
+
+
+
+
+
+
+python run_factory_cli.py --project logistics_v1 --workflow workflows/two_week_webapp_delivery.yaml --agents "Lilith,Himari" --task "2주 데모 플랜 실행"
+
+
+
+
+
+
+
+
+
+
+```
+
+## 구조
+
+- `run_factory_cli.py`: 프로젝트 단위 실행 진입점
+
+- `agent_launcher.py`: 에이전트/스킬/워크플로우 오케스트레이션
+
+- `projects/<project_id>/`: 프로젝트별 `agents/`, `data/`, `artifacts/`, `runs/`, `policies.yaml`, `skill-lock.yaml`, `context_schema.yaml`, `dashboard.json`
+
+- `skills/`: 전역 재사용 스킬 저장소
+
+## 회사/집 PC 동기화 (프로젝트/에이전트별)
+
+Git(권장) 또는 Supabase로 스냅샷을 `push/pull` 하여 회사/집 PC를 이어서 사용할 수 있습니다.
+
+프로젝트 전체 스코프와 에이전트 스코프를 각각 분리해 동기화할 수 있습니다.
+
+### 가장 쉬운 명령 (추천)
+
+루트에서 아래처럼만 실행하면 됩니다.
+
+```bat
+
+
+
+
+
+
+
+
+
+
+start_sync
+
+
+
+
+
+
+
+
+
+
+:: 작업
+
+
+
+
+
+
+
+
+
+
+end_sync
+
+
+
+
+
+
+
+
+
+
+```
+
+내부 동작:
+
+- `start_sync` -> `sync down git all` + `sync down db all`
+
+- `end_sync` -> `sync up db all` + `sync up git all`
+
+단일 프로젝트:
+
+- `start_sync agent-factory`
+
+- `end_sync agent-factory`
+
+단일 프로젝트 + 에이전트:
+
+- `start_sync agent-factory lilith`
+
+- `end_sync agent-factory lilith`
+
+직접 명령이 필요하면:
+
+```bat
+
+
+
+
+
+
+
+
+
+
+sync up git all
+
+
+
+
+
+
+
+
+
+
+sync down git all
+
+
+
+
+
+
+
+
+
+
+sync up db all
+
+
+
+
+
+
+
+
+
+
+sync down db all
+
+
+
+
+
+
+
+
+
+
+```
+
+의미:
+
+- `up` = push
+
+- `down` = pull
+
+- `git` = Git 원격 저장소로 동기화
+
+- `db` = Supabase DB로 동기화
+
+- `all` = `logi-mind-v22` + `agent-factory`
+
+특정 프로젝트/에이전트:
+
+```bat
+
+
+
+
+
+
+
+
+
+
+sync up git agent-factory
+
+
+
+
+
+
+
+
+
+
+sync down db logi-mind-v22
+
+
+
+
+
+
+
+
+
+
+sync up git agent-factory lilith
+
+
+
+
+
+
+
+
+
+
+```
+
+### Git 기반 동기화 (권장)
+
+원격 Git 저장소를 "DB처럼" 사용해서 회사/집 PC를 동기화합니다.
+
+프로젝트 전체 동기화:
+
+```powershell
+
+
+
+
+
+
+
+
+
+
+powershell -ExecutionPolicy Bypass -File scripts/project_context_git_sync.ps1 -Mode push -Project logi-mind-v22
+
+
+
+
+
+
+
+
+
+
+powershell -ExecutionPolicy Bypass -File scripts/project_context_git_sync.ps1 -Mode pull -Project logi-mind-v22
+
+
+
+
+
+
+
+
+
+
+```
+
+에이전트별 동기화:
+
+```powershell
+
+
+
+
+
+
+
+
+
+
+powershell -ExecutionPolicy Bypass -File scripts/project_context_git_sync.ps1 -Mode push -Project logi-mind-v22 -Agent lilith
+
+
+
+
+
+
+
+
+
+
+powershell -ExecutionPolicy Bypass -File scripts/project_context_git_sync.ps1 -Mode pull -Project logi-mind-v22 -Agent lilith
+
+
+
+
+
+
+
+
+
+
+```
+
+옵션:
+
+- `-Branch main` : 특정 브랜치로 pull/push
+
+- `-Message "sync: logi-mind-v22"` : 커밋 메시지 지정
+
+- `-Projects "logi-mind-v22,agent-factory"` : 여러 프로젝트 일괄 동기화
+
+요청하신 두 프로젝트 일괄 예시:
+
+```powershell
+
+
+
+
+
+
+
+
+
+
+powershell -ExecutionPolicy Bypass -File scripts/project_context_git_sync.ps1 -Mode push -Projects "logi-mind-v22,agent-factory"
+
+
+
+
+
+
+
+
+
+
+powershell -ExecutionPolicy Bypass -File scripts/project_context_git_sync.ps1 -Mode pull -Projects "logi-mind-v22,agent-factory"
+
+
+
+
+
+
+
+
+
+
+```
+
+1. Supabase SQL Editor에서 `artifacts/context_sync_schema.sql` 실행
+
+2. `.env`에 `SUPABASE_URL`, `SUPABASE_KEY` 설정
+
+3. 회사 PC에서 업로드 (프로젝트 전체):
+
+```bash
+
+
+
+
+
+
+
+
+
+
+python scripts/project_context_sync.py --project logi_mind_v22 --mode push
+
+
+
+
+
+
+
+
+
+
+```
+
+1. 집 PC에서 다운로드 (프로젝트 전체):
+
+```bash
+
+
+
+
+
+
+
+
+
+
+python scripts/project_context_sync.py --project logi_mind_v22 --mode pull
+
+
+
+
+
+
+
+
+
+
+```
+
+1. 에이전트별 업로드/다운로드:
+
+```bash
+
+
+
+
+
+
+
+
+
+
+python scripts/project_context_sync.py --project logi_mind_v22 --agent lilith --mode push
+
+
+
+
+
+
+
+
+
+
+python scripts/project_context_sync.py --project logi_mind_v22 --agent lilith --mode pull
+
+
+
+
+
+
+
+
+
+
+```
+
+여러 프로젝트 일괄(DB) 동기화:
+
+```bash
+
+
+
+
+
+
+
+
+
+
+python scripts/project_context_sync.py --projects "logi-mind-v22,agent-factory" --mode push
+
+
+
+
+
+
+
+
+
+
+python scripts/project_context_sync.py --projects "logi-mind-v22,agent-factory" --mode pull
+
+
+
+
+
+
+
+
+
+
+```
+
+프로젝트 이름 호환:
+
+- `logi-mind-v22`, `logi_mind_v22`, `logi_mind_v22+` 형태를 같은 프로젝트로 매칭해서 동기화합니다.
+
+기본 포함 항목:
+
+- `projects/<project_id>/data/memory/**/*.json` (에이전트 스코프는 해당 에이전트 메모리 우선)
+
+- `projects/<project_id>/runs/*/chat_trace.json` (에이전트 스코프는 최신 100개, 프로젝트 스코프는 전체)
+
+- `projects/<project_id>/runs/*/state.json`
+
+- `dashboard.json`, `policies.yaml`, `settings.yaml`, `skill-lock.yaml`, `workflow.yaml`, `context_schema.yaml`
+
+- 프로젝트 스코프(`--agent` 없음)에서는 `agents/*`, `artifacts/*`, `runs/*`의 주요 텍스트 산출물도 함께 동기화
+
+참고:
+
+- `core_memory`는 기본 저장 위치가 `data/memory/<agent_id>/...`로 분리되어 에이전트별 메모리가 섞이지 않습니다.

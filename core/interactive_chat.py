@@ -382,6 +382,189 @@ class InteractiveChat:
 
 
 # ──────────────────────────────────────────────────────────────
+# PDCA 대화형 채팅 (BKIT 스타일)
+# ──────────────────────────────────────────────────────────────
+
+class PDCAInteractiveChat(InteractiveChat):
+    """BKIT 스타일 PDCA 상태 머신이 통합된 대화형 채팅.
+
+    기존 InteractiveChat의 REPL, CWM, 메모리 훅, CLI 프로바이더를 상속하고
+    /plan, /design, /do, /check, /iterate, /report, /status, /next, /level
+    슬래시 커맨드를 추가로 제공한다.
+    """
+
+    def __init__(
+        self,
+        workspace: str,
+        model_name: str = "",
+        auto_approve: bool = False,
+    ):
+        agent: dict = {
+            "name": "af-assistant",
+            "role": "General Assistant",
+            "skills": [],
+        }
+        super().__init__(
+            agent=agent,
+            workspace=workspace,
+            model_name=model_name,
+            auto_approve=auto_approve,
+        )
+        self._pdca_sm: Any = None
+        self._pdca_cmds: Any = None
+
+    def start(self):
+        """PDCA 상태 로드 후 기존 start() 실행."""
+        self._load_pdca()
+        super().start()
+        if self._pdca_sm:
+            self._pdca_cmds = _make_pdca_commands(self._pdca_sm, self)
+            self._print_pdca_hint()
+
+    def _load_pdca(self):
+        """workspace에서 PDCAState 를 로드한다."""
+        try:
+            from core.pdca_state import PDCAState, PDCAStateMachine
+            state = PDCAState.load(self.workspace)
+            if state:
+                self._pdca_sm = PDCAStateMachine(state, self.workspace)
+        except Exception:
+            pass
+
+    def attach_pdca(self, sm: Any):
+        """OnboardingWizard 에서 생성된 상태머신을 주입한다."""
+        self._pdca_sm = sm
+        self._pdca_cmds = _make_pdca_commands(sm, self)
+
+    def _print_pdca_hint(self):
+        if not self._pdca_sm:
+            return
+        label = self._pdca_sm.current_label_ko()
+        nxt = self._pdca_sm.next_phase()
+        print(_c(f"  현재 단계: {label}", "36"), end="")
+        if nxt:
+            print(f"  {_c('→', '90')} {_c('/next', '32')} 로 다음 단계 진행")
+        else:
+            print()
+
+
+def _make_pdca_commands(sm: Any, chat: Any) -> Any:
+    """PDCACommandRegistry 인스턴스를 생성한다 (지연 임포트)."""
+    from core.pdca_commands import PDCACommandRegistry
+    return PDCACommandRegistry(sm, chat)
+
+
+def run_pdca_interactive(workspace: str, model: str = "", auto_approve: bool = False):
+    """PDCA 대화형 모드 진입점."""
+    from core.pdca_state import PDCAState, PDCAStateMachine
+
+    state = PDCAState.load(workspace)
+    if not state:
+        return  # OnboardingWizard에서 미리 생성되어야 함
+
+    chat = PDCAInteractiveChat(workspace=workspace, model_name=model, auto_approve=auto_approve)
+
+    try:
+        chat.start()
+    except Exception as e:
+        print(f"\n초기화 실패: {e}")
+        return
+
+    sm = PDCAStateMachine(state, workspace)
+    chat.attach_pdca(sm)
+
+    _run_pdca_repl(chat)
+
+
+def _run_pdca_repl(chat: "PDCAInteractiveChat"):
+    """PDCA REPL 루프."""
+    try:
+        while True:
+            try:
+                user_input = input(f"{_c('You', '1;32')}> ").strip()
+            except EOFError:
+                break
+
+            if not user_input:
+                continue
+
+            cmd = user_input.lower()
+            if cmd in ("exit", "quit", "bye", "/exit", "/quit"):
+                break
+
+            # 기존 슬래시 커맨드
+            if cmd == "/clear":
+                chat.clear_history()
+                continue
+            if cmd == "/history":
+                chat.show_history()
+                continue
+            if cmd == "/stats":
+                chat.show_stats()
+                continue
+            if cmd == "/help":
+                _print_pdca_help()
+                continue
+
+            # PDCA 슬래시 커맨드
+            if chat._pdca_cmds and user_input.startswith("/"):
+                if chat._pdca_cmds.dispatch(user_input):
+                    continue
+
+            # 알 수 없는 슬래시 커맨드
+            if user_input.startswith("/"):
+                print(_c(f"  알 수 없는 명령어: {user_input}. /help 로 확인하세요.", "31"))
+                continue
+
+            # 일반 채팅
+            print()
+            try:
+                response = chat.send_message(user_input)
+                role_name = chat.agent.get("role", "") or "Agent"
+                print(f"{_c(role_name, '1;35')}> {response}")
+            except KeyboardInterrupt:
+                print(_c("\n  (응답 중단됨)", "33"))
+            except Exception as e:
+                print(_c(f"\n  오류: {e}", "31"))
+            print()
+
+    except KeyboardInterrupt:
+        print(f"\n\n{_c('대화를 종료합니다.', '36')}")
+
+    if chat.turn > 0:
+        path = chat.save_session()
+        print(_c(f"세션 저장: {path}", "90"))
+    print()
+
+
+def _print_pdca_help():
+    print(f"\n  {_c('[PDCA 커맨드]', '1;36')}")
+    pdca_cmds = [
+        ("/plan [내용]",   "기획 문서 생성"),
+        ("/design",        "3가지 아키텍처 옵션 제안"),
+        ("/do",            "구현 시작"),
+        ("/check",         "갭 분석 및 검증"),
+        ("/iterate",       "AI 자동 수정"),
+        ("/report",        "완료 보고서 생성"),
+        ("/status",        "현재 PDCA 상태"),
+        ("/next",          "다음 단계로 자동 진행"),
+        ("/level [1/2/3]", "프로젝트 레벨 변경"),
+    ]
+    for cmd, desc in pdca_cmds:
+        print(f"  {_c(cmd, '32'):<30} {desc}")
+    print(f"\n  {_c('[기본 커맨드]', '1;36')}")
+    basic_cmds = [
+        ("/clear",   "대화 초기화"),
+        ("/history", "대화 기록"),
+        ("/stats",   "컨텍스트 통계"),
+        ("exit",     "종료"),
+    ]
+    for cmd, desc in basic_cmds:
+        print(f"  {_c(cmd, '32'):<30} {desc}")
+    print()
+
+
+# ──────────────────────────────────────────────────────────────
 # 진입점
 # ──────────────────────────────────────────────────────────────
 

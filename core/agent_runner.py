@@ -37,6 +37,7 @@ from core.registry import ToolRegistry
 from core.tool_runtime import ToolRuntimeWrapper
 from core.policy_runtime import PolicyRuntime
 from core.documentation_policy import inject_documentation_contract, inject_thinking_contract
+from core.implementation_language_policy import inject_implementation_language_contract
 from core.destructive_guard import inject_destructive_guard_contract
 from core.project_mailbox import (
     ack_mailbox_message as project_ack_mailbox_message,
@@ -120,6 +121,7 @@ class AgentRunner:
 
     def _build_runtime_system_prompt(self, agent: dict) -> str:
         prompt = inject_documentation_contract(self._resolve_system_prompt(agent))
+        prompt = inject_implementation_language_contract(prompt)
         prompt = inject_destructive_guard_contract(prompt)
         return inject_thinking_contract(prompt)
 
