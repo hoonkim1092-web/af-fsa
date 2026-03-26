@@ -83,12 +83,16 @@ class ProjectPipeline:
       run() = prepare() + 자동 승인 + execute()
     """
 
-    def __init__(self, mr, agent_mgr, research_agent, procurer):
+    def __init__(self, mr, agent_mgr, research_agent, procurer,
+                 broker=None, reservation_mgr=None, visualizer=None):
         self.mr = mr
         self.agent_mgr = agent_mgr
         self.research = research_agent
         self.procurer = procurer
         self.planner = ProjectPlanningDirector(mr)
+        self._broker = broker
+        self._reservation_mgr = reservation_mgr
+        self._visualizer = visualizer
 
     def _write_json(self, path: str, data: dict):
         with open(path, "w", encoding="utf-8") as f:
@@ -365,7 +369,9 @@ class ProjectPipeline:
 
         # -- 에이전트 실행 --
         task_input = str(prepared.project_brief.get("goal") or "")
-        orchestrator = DynamicOrchestrator(self.mr, max_concurrent=5)
+        orchestrator = DynamicOrchestrator(
+            self.mr, max_concurrent=5, broker=self._broker, visualizer=self._visualizer
+        )
         run_board = orchestrator.run_project(task_input, roles, workspace)
         status = str(run_board.get("current_status", "unknown"))
 

@@ -45,9 +45,10 @@ class FSALoop:
     - factory 코드(core/, skills/ 등)는 에이전트 git 조작 범위 밖이다.
     - rollback은 tracked 파일 변경만 되돌린다. untracked 파일은 보존된다.
     """
-    def __init__(self, runner: AgentRunner, agent_mgr=None):
+    def __init__(self, runner: AgentRunner, agent_mgr=None, visualizer=None):
         self.runner = runner
         self.agent_mgr = agent_mgr
+        self._visualizer = visualizer
         # Fallback evaluator (used when agent_mgr is unavailable or evaluator agent fails)
         self.evaluator = StrategyEvaluator(
             model_name=runner.mr.pick('evaluator') if hasattr(runner.mr, 'pick') else 'gemini-1.5-pro-latest'
@@ -63,9 +64,14 @@ class FSALoop:
         target_workspace = workspace or os.getcwd()
         git = GitManager(target_workspace)
 
+        agent_name = agent.get("name", "Agent") if isinstance(agent, dict) else "Agent"
+
         current_task = task_input
         for cycle in range(1, self.max_cycles + 1):
-            print(f"\n🔄 [Cycle {cycle}/{self.max_cycles}] 실행 및 자동 커밋 준비...")
+            if self._visualizer:
+                self._visualizer.update_from_fsa_step(agent_name, "execute", cycle, self.max_cycles)
+            else:
+                print(f"\n🔄 [Cycle {cycle}/{self.max_cycles}] 실행 및 자동 커밋 준비...")
 
             # ── Step 1: Pre-Commit for safety (workspace 범위) ──
             commit_msg = f"AEE Auto-Save: {run_id} Cycle {cycle}"
@@ -83,12 +89,18 @@ class FSALoop:
             # Step 2b: TRACE — LangSmithTracingHook auto-collects (Phase 1, no-op if disabled)
 
             if result.get("ok"):
-                print(f"✅ [Cycle {cycle}] 성공적으로 완료됨.")
+                if self._visualizer:
+                    self._visualizer.mark_completed(agent_name)
+                else:
+                    print(f"✅ [Cycle {cycle}] 성공적으로 완료됨.")
                 return result
 
             # ── Step 3: Failure & Rollback (workspace tracked 파일만) ──
-            print(f"⚠️ [Cycle {cycle}] 실패 감지: {result.get('reason')}")
-            print(f"⏪ [FSALoop] workspace tracked 파일 변경을 되돌립니다.")
+            if self._visualizer:
+                self._visualizer.update_from_fsa_step(agent_name, "eval", cycle, self.max_cycles)
+            else:
+                print(f"⚠️ [Cycle {cycle}] 실패 감지: {result.get('reason')}")
+                print(f"⏪ [FSALoop] workspace tracked 파일 변경을 되돌립니다.")
 
             try:
                 git.rollback()

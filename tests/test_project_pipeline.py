@@ -92,7 +92,7 @@ def test_project_pipeline_writes_planning_artifacts_and_roles(monkeypatch, tmp_p
     import core.project_pipeline as pp
 
     class _DummyOrchestrator:
-        def __init__(self, mr, max_concurrent=5):
+        def __init__(self, mr, max_concurrent=5, broker=None, visualizer=None, **kwargs):
             self.mr = mr
 
         def run_project(self, project_desc, roles, workspace=None):

@@ -58,6 +58,9 @@ from core.fsa_loop import FSALoop
 from core.dynamic_orchestrator import DynamicOrchestrator
 from core.request_router import RequestRouter
 from core.project_pipeline import ProjectPipeline
+from core.message_broker import MessageBroker
+from core.agent_reservation import AgentReservationManager
+from core.conversation_manager import ConversationManager
 from core.documentation_policy import ensure_documentation_files, single_task_todo_items, write_project_todo
 # Redundant AST and Sandbox logic removed (handled by core.utils and core.executor)
 
@@ -85,8 +88,19 @@ class AgentFactory:
         self.registry = RegistryManager()
         self.git = GitManager()
         self.runner = AgentRunner(self.mr)
-        self.ultra = FSALoop(self.runner, self.agent_mgr)
+
+        # [VISUAL] 터미널 시각화 엔진 — 모든 컴포넌트가 공유
+        from core.terminal_visualizer import TerminalVisualizer, set_visualizer
+        self.visualizer = TerminalVisualizer()
+        set_visualizer(self.visualizer)
+
+        self.ultra = FSALoop(self.runner, self.agent_mgr, visualizer=self.visualizer)
         self.request_router = RequestRouter()
+
+        # [COLLAB] 싱글톤 broker + reservation: 모든 오케스트레이터가 공유
+        self.broker = MessageBroker()
+        self.reservation_mgr = AgentReservationManager()
+
         # [GAP-3] Unified pipeline: Himari(Skeleton) + Builder(Release)
         self.procurer = SkillOrchestrator(
             registry=self.registry,
@@ -99,6 +113,22 @@ class AgentFactory:
             agent_mgr=self.agent_mgr,
             research_agent=self.research,
             procurer=self.procurer,
+            broker=self.broker,
+            reservation_mgr=self.reservation_mgr,
+            visualizer=self.visualizer,
+        )
+
+    def make_conversation_manager(self, project_id: str, workspace: str):
+        """프로젝트별 ConversationManager 생성 (싱글톤 broker/reservation/visualizer 공유)."""
+        return ConversationManager(
+            project_id=project_id,
+            workspace=workspace,
+            broker=self.broker,
+            agent_runner=self.runner,
+            agent_mgr=self.agent_mgr,
+            reservation_mgr=self.reservation_mgr,
+            mr=self.mr,
+            visualizer=self.visualizer,
         )
 
     def _missing_local_skill_files(self, agent: dict) -> list[str]:
@@ -456,7 +486,7 @@ class AgentFactory:
 
     def run_dynamic_workflow(self, task_input: str, role_specs: list[str]):
         print(f"\n🧭 [DynamicWorkflow] 진정한 리더(Lilith) 주도의 동적 병렬 실행을 시작합니다.")
-        orchestrator = DynamicOrchestrator(self.mr)
+        orchestrator = DynamicOrchestrator(self.mr, visualizer=self.visualizer)
         state_board = orchestrator.run_project(task_input, role_specs)
         print(f"\n✅ [DynamicWorkflow] 완료. 보드 상태: {json.dumps(state_board, ensure_ascii=False)}")
         return state_board

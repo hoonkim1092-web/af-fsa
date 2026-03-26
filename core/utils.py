@@ -97,23 +97,35 @@ def get_random_signature(agent_config: dict) -> str:
     return ""
 
 
-def print_agent_msg(name: str, msg: str, signature: str = ""):
-    """에이전트 이름과 메시지, 그리고 시그니처 대사를 출력합니다."""
+def safe_print(text: str) -> None:
+    """유니코드 인코딩 오류를 안전하게 처리하며 출력."""
+    try:
+        print(text)
+    except UnicodeEncodeError:
+        enc = getattr(sys.stdout, "encoding", None) or "utf-8"
+        safe = str(text).encode(enc, errors="replace").decode(enc, errors="replace")
+        print(safe)
+
+
+def print_agent_msg(name: str, msg: str, signature: str = "", phase=None, visualizer=None):
+    """에이전트 이름과 메시지, 그리고 시그니처 대사를 출력합니다.
+
+    Args:
+        phase: AgentPhase enum (terminal_visualizer 모듈). 주어지면 visualizer에 상태 업데이트.
+        visualizer: TerminalVisualizer 인스턴스. None이면 기본 print 출력.
+    """
     header = f"[{name}]"
-    
-    def _safe_out(text):
-        try:
-            print(text)
-        except UnicodeEncodeError:
-            enc = getattr(sys.stdout, "encoding", None) or "utf-8"
-            safe = str(text).encode(enc, errors="replace").decode(enc, errors="replace")
-            print(safe)
-            
     if signature:
-        _safe_out(f"\n{header} \"{signature}\"")
-        _safe_out(f"{header} {msg}")
+        safe_print(f"\n{header} \"{signature}\"")
+        safe_print(f"{header} {msg}")
     else:
-        _safe_out(f"{header} {msg}")
+        safe_print(f"{header} {msg}")
+
+    if visualizer is not None and phase is not None:
+        try:
+            visualizer.update_phase(name, phase)
+        except Exception:
+            pass
 
 
 def is_codex_model(model_name: str) -> bool:

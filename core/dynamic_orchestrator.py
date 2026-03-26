@@ -33,7 +33,7 @@ class DynamicOrchestrator:
     Dynamic multi-agent orchestrator driven by a central PM model.
     """
 
-    def __init__(self, mr, max_concurrent: int = 5, terminal_per_agent: bool | None = None):
+    def __init__(self, mr, max_concurrent: int = 5, terminal_per_agent: bool | None = None, broker=None, visualizer=None):
         self.mr = mr
         self.max_concurrent = max_concurrent
         # terminal_per_agent: None이면 환경변수 AGENT_TERMINAL_MODE로 결정 (기본 비활성)
@@ -43,7 +43,8 @@ class DynamicOrchestrator:
         self.agent_mgr = AgentManager(self.mr)
         self.runner = AgentRunner(self.mr)
         self.specializer = AgentSpecializer()
-        self.broker = MessageBroker()
+        self.broker = broker if broker is not None else MessageBroker()
+        self._visualizer = visualizer
 
         engine_id = self.mr.pick("orchestrator") if hasattr(self.mr, "pick") else "gemini-1.5-pro-latest"
         self.llm = LLMEngine(model_name=engine_id)
@@ -464,6 +465,8 @@ class DynamicOrchestrator:
     ):
         print_agent_msg("System", f"Dispatching [{role}] -> {subtask[:50]}...", "")
         self.state_board["agents_status"][role] = "working"
+        if self._visualizer and not self.terminal_per_agent:
+            self._visualizer.update_from_status(role, "working", task_summary=subtask[:30])
 
         # target_workspace를 try 밖에서 초기화해야 except 블록에서도 참조 가능하다.
         target_workspace = workspace or os.getcwd()
@@ -507,10 +510,14 @@ class DynamicOrchestrator:
                     changes_summary=f"Completed subtask: {subtask[:50]}",
                 )
                 print_agent_msg(role, "Task completed.", "")
+                if self._visualizer and not self.terminal_per_agent:
+                    self._visualizer.mark_completed(role)
                 self._sync_manifest()
             else:
                 reason = result.get("reason", "Unknown error") if result else "No result"
                 print_agent_msg(role, f"Task failed: {reason[:100]}", "")
+                if self._visualizer and not self.terminal_per_agent:
+                    self._visualizer.mark_failed(role)
                 eval_res = await asyncio.to_thread(
                     self.evaluator.evaluate_failure,
                     role=role,
@@ -543,6 +550,8 @@ class DynamicOrchestrator:
             self._sync_manifest()
         finally:
             self.state_board["agents_status"][role] = "idle"
+            if self._visualizer and not self.terminal_per_agent:
+                self._visualizer.update_from_status(role, "idle")
             self.active_tasks.pop(run_id, None)
             self.active_assignments.pop(run_id, None)
             self._sync_manifest()
@@ -562,6 +571,13 @@ class DynamicOrchestrator:
 
         for role in roles:
             self.state_board["agents_status"][role] = "idle"
+            if self._visualizer and not self.terminal_per_agent:
+                self._visualizer.register_agent(role)
+
+        if self._visualizer and not self.terminal_per_agent:
+            from core.terminal_visualizer import VisualMode
+            if self._visualizer.mode == VisualMode.DASHBOARD:
+                self._visualizer.print_dashboard()
 
         cycle = 0
         max_cycles = 15
