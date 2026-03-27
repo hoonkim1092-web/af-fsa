@@ -46,12 +46,14 @@ class VerificationResult:
 @dataclass
 class JudgmentResult:
     verdict: str               # "pass" | "fail" | "partial" | "abort"
-    selected_provider: str     # 최선 결과의 provider_id
-    merged_output: str         # Opus가 병합한 최종 출력
+    selected_provider: str     # 베이스로 선택된 provider_id
+    merged_output: str         # 통합된 최종 출력 (keep 부분 합성 + discard 제거)
     feedback: str              # 전체 피드백
     failure_patterns: list[str] = field(default_factory=list)  # 자가진화용 패턴
     confidence: float = 0.0    # 0.0~1.0
     round_num: int = 0
+    keep_parts: list[str] = field(default_factory=list)    # 통합에 채택된 부분 설명
+    discard_parts: list[str] = field(default_factory=list) # 폐기된 부분 및 이유
 
 
 # ──────────────────────────────────────────────────────────────
@@ -268,7 +270,7 @@ class CrossVerificationLoop:
                 futures[pool.submit(execute_cli_chat, req)] = (i, target_idx, reviewer.provider_id)
 
             for future in as_completed(futures):
-                reviewer_idx, target_idx, reviewer_pid = futures[future]
+                _, target_idx, reviewer_pid = futures[future]
                 try:
                     raw = future.result() or {}
                     text = str(raw.get("text", ""))
@@ -285,149 +287,336 @@ class CrossVerificationLoop:
 
     def _parse_review_json(self, text: str) -> dict:
         """리뷰 응답에서 JSON을 추출한다."""
-        # JSON 블록 추출 시도
-        match = re.search(r"\{[^{}]*\"score\"[^{}]*\}", text, re.DOTALL)
-        if match:
-            try:
-                return json.loads(match.group())
-            except Exception:
-                pass
+        # 깊이 추적 방식으로 JSON 추출 (feedback에 {}가 있어도 안전)
+        parsed = self._extract_json_by_depth(text)
+        if parsed is not None and "score" in parsed:
+            return parsed
+        # 코드블록 안에서 재시도
+        block_match = re.search(r"```(?:json)?\s*([\s\S]*?)\s*```", text)
+        if block_match:
+            parsed = self._extract_json_by_depth(block_match.group(1))
+            if parsed is not None and "score" in parsed:
+                return parsed
         # 점수만 추출 시도
-        score_match = re.search(r"score[\"']?\s*:\s*(\d+)", text)
+        score_match = re.search(r'"?score"?\s*:\s*(\d+)', text)
         score = int(score_match.group(1)) if score_match else 50
         return {"score": score, "issues": [], "feedback": text[:500]}
 
-    # ── 내부 메서드: Opus 판정 ──
+    # ── 내부 메서드: Opus 판정 (2단계) ──
 
     def _opus_judge(
         self, verified: list[VerificationResult], original_task: str, round_num: int
     ) -> JudgmentResult:
-        """claude-opus-4-6으로 최종 판정한다."""
+        """2단계 판정: Phase1(판정만) → Phase2(통합 합성, 필요 시만)."""
+        judge_provider = self._pick_judge_provider(verified)
 
-        # 결과 요약 구성
+        # Phase 1: 판정 — 코드 없이 메타데이터만 JSON으로
+        meta = self._judge_phase(verified, original_task, round_num, judge_provider)
+
+        verdict = meta.get("verdict", "fail")
+        keep_parts = meta.get("keep_parts", [])
+        discard_parts = meta.get("discard_parts", [])
+        selected_base = meta.get("selected_provider", "")
+        feedback = meta.get("feedback", "")
+        confidence = float(meta.get("confidence", 0.0))
+        failure_patterns = meta.get("failure_patterns", [])
+
+        judge_label = f"Opus({judge_provider})" if judge_provider == "claude_cli" else judge_provider
+        self._print(
+            f"{judge_label} 판정: {verdict} (confidence={confidence:.2f}) "
+            f"채택 {len(keep_parts)}건 / 폐기 {len(discard_parts)}건", "36"
+        )
+
+        # 압도적 승자 판단 (score 차 20점 이상) 또는 abort/fail → Phase 2 스킵
+        base_result = next((r for r in verified if r.provider_id == selected_base), None)
+        if base_result is None and verified:
+            base_result = max(verified, key=lambda r: r.review_score)
+
+        skip_synthesis = (
+            verdict in ("abort", "fail")
+            or not keep_parts  # 채택할 부분이 없으면 합성 의미 없음
+            or self._has_dominant_winner(verified)
+        )
+
+        if skip_synthesis:
+            merged = base_result.output if base_result else ""
+            if verdict not in ("abort",) and not merged:
+                merged = "[결과 없음]"
+        else:
+            # Phase 2: 합성 — JSON 없이 순수 코드/텍스트 생성
+            self._print("Phase 2: 통합 합성 시작", "36")
+            merged = self._synthesize_phase(
+                verified=verified,
+                keep_parts=keep_parts,
+                discard_parts=discard_parts,
+                base_result=base_result,
+                original_task=original_task,
+                judge_provider=judge_provider,
+                round_num=round_num,
+            )
+
+        return JudgmentResult(
+            verdict=verdict,
+            selected_provider=selected_base or (base_result.provider_id if base_result else ""),
+            merged_output=merged,
+            feedback=feedback,
+            failure_patterns=failure_patterns,
+            confidence=confidence,
+            round_num=round_num,
+            keep_parts=keep_parts,
+            discard_parts=discard_parts,
+        )
+
+    def _judge_phase(
+        self,
+        verified: list[VerificationResult],
+        original_task: str,
+        round_num: int,
+        judge_provider: str,
+    ) -> dict:
+        """Phase 1: 판정만 수행. JSON에 코드를 포함하지 않아 파싱이 안정적."""
         summaries = []
         for r in verified:
             summaries.append(
                 f"[{r.provider_id}] score={r.review_score} ok={r.ok}\n"
                 f"리뷰어: {r.review_by or '없음'}\n"
                 f"이슈: {', '.join(r.issues) or '없음'}\n"
-                f"출력(앞 1500자):\n{r.output[:1500]}"
+                f"리뷰 코멘트: {r.review_feedback[:500] or '없음'}\n"
+                f"출력 앞 800자:\n{r.output[:800]}"
             )
 
         judge_prompt = (
             f"[원래 태스크]\n{original_task}\n\n"
-            f"[{len(verified)}개 구현 결과 + 리뷰]\n\n"
+            f"[{len(verified)}개 구현 결과 + 교차 리뷰 요약]\n\n"
             + "\n\n---\n\n".join(summaries)
             + "\n\n"
-            f"위 결과를 종합하여 다음 JSON 형식으로 판정하세요:\n"
+            f"## 판정 지침\n\n"
+            f"각 구현의 장단점을 분석하여 판정하세요.\n"
+            f"merged_output(실제 코드)은 여기서 작성하지 마세요 — 판정 메타데이터만 JSON으로 답변하세요.\n\n"
+            f"다음 JSON만 출력하세요 (코드블록 없이):\n"
             f'{{\n'
             f'  "verdict": "pass" | "fail" | "partial" | "abort",\n'
-            f'  "selected_provider": "provider_id",\n'
-            f'  "merged_output": "최선의 결과 또는 병합된 코드",\n'
-            f'  "feedback": "전체 피드백",\n'
-            f'  "failure_patterns": ["pattern1", "pattern2"],\n'
-            f'  "confidence": 0.0~1.0\n'
+            f'  "selected_provider": "베이스로 사용할 provider_id",\n'
+            f'  "keep_parts": [\n'
+            f'    "provider_id: 채택할 부분과 이유 (예: gemini_cli: 에러 핸들링 패턴이 견고함)"\n'
+            f'  ],\n'
+            f'  "discard_parts": [\n'
+            f'    "provider_id: 폐기할 부분과 이유 (예: codex_cli: SQL 직접 포매팅 — injection 위험)"\n'
+            f'  ],\n'
+            f'  "feedback": "판정 근거 및 남은 문제점 (코드 제외, 설명만)",\n'
+            f'  "failure_patterns": ["수정 필요 패턴명 (fail/partial 시만, 없으면 [])"],\n'
+            f'  "confidence": <0.0~1.0 사이 실수>\n'
             f'}}\n\n'
-            f'판정 기준:\n'
-            f'- pass: 심각한 문제 없음, 태스크 충족\n'
-            f'- fail: 수정 가능한 문제 있음\n'
+            f'verdict 기준:\n'
+            f'- pass: 태스크 완전 충족 (심각한 문제 없음)\n'
             f'- partial: 부분 달성, 추가 작업 필요\n'
-            f'- abort: 근본적으로 해결 불가 (요구사항 모순, API 미존재 등)\n'
-            f'병합 불가 시 가장 높은 score의 결과를 selected_provider로 선택하세요.'
+            f'- fail: 수정 필요한 심각한 문제 존재\n'
+            f'- abort: 근본적으로 불가능한 요구사항\n'
         )
-
-        # claude_cli 설치 여부 확인 (Opus 판정은 claude_cli 필수)
-        judge_provider = self._pick_judge_provider()
 
         try:
             from core.providers.cli import CliChatRequest, execute_cli_chat
-
             req = CliChatRequest(
                 provider_id=judge_provider,
                 model=_OPUS_MODEL if judge_provider == "claude_cli" else "",
-                system_prompt="당신은 코드 품질 판정 전문가입니다. 반드시 JSON으로만 답변하세요.",
+                system_prompt="당신은 코드 품질 판정 전문가입니다. 반드시 JSON으로만 답변하세요. 코드는 절대 출력하지 마세요.",
                 task_input=judge_prompt,
                 workspace=self.workspace,
-                run_id=f"opus_judge_r{round_num}",
+                run_id=f"judge_phase1_r{round_num}",
                 auto_approve=True,
             )
             raw = execute_cli_chat(req) or {}
             text = str(raw.get("text", ""))
-            parsed = self._parse_judgment_json(text)
-            judge_label = f"Opus({judge_provider})" if judge_provider == "claude_cli" else judge_provider
-            self._print(f"{judge_label} 판정: {parsed.get('verdict', 'unknown')} "
-                        f"(confidence={parsed.get('confidence', 0):.2f})", "36")
-
-            # merged_output이 비어있으면 가장 높은 score 결과로 채움
-            merged = parsed.get("merged_output", "")
-            if not merged and verified:
-                best = max(verified, key=lambda r: r.review_score)
-                merged = best.output
-
-            return JudgmentResult(
-                verdict=parsed.get("verdict", "fail"),
-                selected_provider=parsed.get("selected_provider", "") or (verified[0].provider_id if verified else ""),
-                merged_output=merged,
-                feedback=parsed.get("feedback", ""),
-                failure_patterns=parsed.get("failure_patterns", []),
-                confidence=float(parsed.get("confidence", 0.0)),
-                round_num=round_num,
-            )
+            return self._parse_judgment_json(text)
         except Exception as exc:
-            self._print(f"판정 실패, 점수 기반 폴백: {exc}", "33")
-            # 폴백: 가장 높은 score의 결과 선택
+            self._print(f"Phase 1 판정 실패, 점수 기반 폴백: {exc}", "33")
             best = max(verified, key=lambda r: r.review_score, default=None)
-            fallback_output = best.output if best and best.output else "[판정 실패 - 결과 없음]"
-            return JudgmentResult(
-                verdict="partial",
-                selected_provider=best.provider_id if best else "",
-                merged_output=fallback_output,
-                feedback=f"판정 실패({exc}). 점수 기반 폴백: {best.provider_id if best else '없음'}",
-                confidence=0.3,
-                round_num=round_num,
-            )
+            return {
+                "verdict": "partial",
+                "selected_provider": best.provider_id if best else "",
+                "keep_parts": [],
+                "discard_parts": [],
+                "feedback": f"판정 실패({exc}). 점수 기반 폴백.",
+                "failure_patterns": [],
+                "confidence": 0.3,
+            }
 
-    def _pick_judge_provider(self) -> str:
+    def _synthesize_phase(
+        self,
+        verified: list[VerificationResult],
+        keep_parts: list[str],
+        discard_parts: list[str],
+        base_result: VerificationResult | None,
+        original_task: str,
+        judge_provider: str,
+        round_num: int,
+    ) -> str:
+        """Phase 2: 판정 결과를 바탕으로 실제 코드 합성. JSON 없이 순수 텍스트 반환."""
+        base_output = base_result.output if base_result else ""
+        base_provider = base_result.provider_id if base_result else "unknown"
+
+        # 채택할 다른 provider 결과 수집 (base 제외)
+        supplements = []
+        for r in verified:
+            if r.provider_id != base_provider and r.output:
+                supplements.append(
+                    f"[{r.provider_id} 결과 — 일부 채택 예정]\n{r.output[:1200]}"
+                )
+
+        keep_section = (
+            "[채택 지시]\n" + "\n".join(f"- {k}" for k in keep_parts) + "\n\n"
+            if keep_parts else ""
+        )
+        discard_section = (
+            "[폐기 지시]\n" + "\n".join(f"- {d}" for d in discard_parts) + "\n\n"
+            if discard_parts else ""
+        )
+        synth_prompt = (
+            f"[원래 태스크]\n{original_task}\n\n"
+            f"[베이스 구현 ({base_provider})]\n{base_output[:2000]}\n\n"
+            + (("\n\n".join(supplements) + "\n\n") if supplements else "")
+            + keep_section
+            + discard_section
+            + "## 합성 지시\n\n"
+            + "위 채택/폐기 지시에 따라 베이스 구현을 수정하여 최종 결과물을 만드세요.\n"
+            + "- 채택 항목의 좋은 부분을 베이스에 통합하세요\n"
+            + "- 폐기 항목에 해당하는 코드를 제거하거나 수정하세요\n"
+            + "- 일관된 스타일로 완성된 결과물만 출력하세요 (설명 없이 결과물만)\n"
+        )
+
+        try:
+            from core.providers.cli import CliChatRequest, execute_cli_chat
+            req = CliChatRequest(
+                provider_id=judge_provider,
+                model=_OPUS_MODEL if judge_provider == "claude_cli" else "",
+                system_prompt="당신은 시니어 소프트웨어 엔지니어입니다. 설명 없이 완성된 결과물만 출력하세요.",
+                task_input=synth_prompt,
+                workspace=self.workspace,
+                run_id=f"judge_phase2_r{round_num}",
+                auto_approve=True,
+            )
+            raw = execute_cli_chat(req) or {}
+            result = str(raw.get("text", "")).strip()
+            if result:
+                self._print("Phase 2: 합성 완료", "32")
+                return result
+        except Exception as exc:
+            self._print(f"Phase 2 합성 실패, 베이스 결과 사용: {exc}", "33")
+
+        # 합성 실패 시 베이스 결과 그대로 반환
+        return base_output
+
+    def _has_dominant_winner(self, verified: list[VerificationResult]) -> bool:
+        """score 차이가 20점 이상이면 압도적 승자로 판단 → 합성 스킵."""
+        if len(verified) < 2:
+            return True
+        scores = sorted([r.review_score for r in verified], reverse=True)
+        return (scores[0] - scores[1]) >= 20
+
+    def _pick_judge_provider(self, verified: list | None = None) -> str:
         """Opus 판정용 프로바이더를 선택한다.
 
-        claude_cli가 설치되어 있으면 Opus 사용.
-        없으면 설치된 다른 프로바이더로 폴백 (최선의 단일 판정).
+        claude_cli가 설치되어 있으면 항상 claude_cli(Opus) 사용.
+        없으면 교차검증에서 상대방에게 더 높은 점수를 받은 provider를 판정자로 선택.
+        동점이면 providers 리스트에서 마지막 항목 사용 (0번이 기본 판정자가 되는 것 방지).
         """
         if "claude_cli" in self.providers:
             return "claude_cli"
-        # claude_cli 없으면 설치된 다른 프로바이더 중 첫 번째
+
+        # claude_cli 없음 → 교차검증 점수 기반 선택 (이해충돌 최소화)
+        if verified and len(verified) >= 2:
+            # review_score: 상대방이 나에게 준 점수 → 높을수록 더 좋은 코드
+            best = max(verified, key=lambda r: r.review_score)
+            provider = best.provider_id
+            self._print(
+                f"claude_cli 없음 → 교차검증 최고점({best.review_score}점) "
+                f"{provider}가 판정 (Opus 미사용). "
+                f"Opus 판정을 원하면 claude_cli 설치 권장.", "33"
+            )
+            return provider
+
+        # verified 없거나 단일 결과 → 리스트 마지막 항목 (0번 편향 방지)
         if self.providers:
-            provider = self.providers[0]
+            provider = self.providers[-1]
             self._print(
                 f"claude_cli 없음 → {provider}으로 판정 (Opus 미사용). "
                 f"Opus 판정을 원하면 claude_cli 설치 권장.", "33"
             )
             return provider
+
         # 아무것도 없으면 claude_cli 시도 — execute_cli_chat이 실패하면 try/except 폴백 처리
         self._print("설치된 CLI 없음 → claude_cli 시도 (설치 안내 유도)", "33")
         return "claude_cli"
 
     def _parse_judgment_json(self, text: str) -> dict:
-        """판정 응답에서 JSON을 추출한다."""
-        match = re.search(r"\{[\s\S]*\"verdict\"[\s\S]*\}", text)
-        if match:
-            try:
-                return json.loads(match.group())
-            except Exception:
-                pass
-        # 부분 추출
+        """Phase 1 판정 응답에서 JSON을 추출한다.
+
+        코드블록(```json ... ```) 안의 JSON도 처리한다.
+        중괄호 깊이 추적 방식으로 정확한 범위를 찾는다.
+        """
+        # 코드블록이 있으면 그 안에서 JSON 범위를 추출
+        block_match = re.search(r"```(?:json)?\s*([\s\S]*?)\s*```", text)
+        candidate = block_match.group(1) if block_match else text
+
+        parsed = self._extract_json_by_depth(candidate)
+        if parsed is not None:
+            return parsed
+
+        # 코드블록 밖에서 한 번 더 시도
+        if block_match:
+            parsed = self._extract_json_by_depth(text)
+            if parsed is not None:
+                return parsed
+
+        # 폴백: 필드별 개별 추출
         verdict_match = re.search(r'"verdict"\s*:\s*"(\w+)"', text)
         verdict = verdict_match.group(1) if verdict_match else "fail"
         conf_match = re.search(r'"confidence"\s*:\s*([\d.]+)', text)
         confidence = float(conf_match.group(1)) if conf_match else 0.3
+        provider_match = re.search(r'"selected_provider"\s*:\s*"([^"]+)"', text)
+        selected = provider_match.group(1) if provider_match else ""
+        feedback_match = re.search(r'"feedback"\s*:\s*"([^"]*)"', text)
+        feedback = feedback_match.group(1) if feedback_match else text[:300]
         return {
             "verdict": verdict,
-            "selected_provider": "",
-            "merged_output": text[:2000],
-            "feedback": text[:500],
+            "selected_provider": selected,
+            "keep_parts": [],
+            "discard_parts": [],
+            "feedback": feedback,
             "failure_patterns": [],
             "confidence": confidence,
         }
+
+    def _extract_json_by_depth(self, text: str) -> dict | None:
+        """중괄호 깊이를 추적해 첫 번째 완전한 JSON 객체를 추출한다."""
+        start = text.find("{")
+        if start == -1:
+            return None
+        depth = 0
+        in_string = False
+        escape = False
+        for i, ch in enumerate(text[start:], start):
+            if escape:
+                escape = False
+                continue
+            if ch == "\\" and in_string:
+                escape = True
+                continue
+            if ch == '"':
+                in_string = not in_string
+                continue
+            if in_string:
+                continue
+            if ch == "{":
+                depth += 1
+            elif ch == "}":
+                depth -= 1
+                if depth == 0:
+                    try:
+                        return json.loads(text[start:i + 1])
+                    except Exception:
+                        return None
+        return None
 
     # ── 내부 메서드: 자가진화 ──
 
