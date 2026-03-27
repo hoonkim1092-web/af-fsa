@@ -20,8 +20,8 @@ if hasattr(sys.stdout, "reconfigure"):
 if hasattr(sys.stderr, "reconfigure"):
     sys.stderr.reconfigure(encoding="utf-8")
 
-# 시작 즉시 CLI 프로바이더 자동 탐색 및 환경변수 설정
-# AGENT_CHAT_PROVIDER가 없으면 gemini_cli → claude_cli → codex_cli 순으로 탐색
+# 시작 즉시 CLI 프로바이더 자동 탐색 및 런타임 레지스트리 설정
+# AGENT_CHAT_PROVIDER 환경변수 불필요: 설치된 CLI를 자동 감지해 우선순위 배정
 try:
     from core.engine_auth import auto_configure_cli_provider
     auto_configure_cli_provider()
@@ -198,7 +198,11 @@ def main(argv: list[str] | None = None):
     if args.model:
         os.environ["AGENT_CHAT_MODEL"] = args.model.strip()
     if args.provider:
-        os.environ["AGENT_CHAT_PROVIDER"] = args.provider
+        try:
+            from core.providers.registry import configure_providers
+            configure_providers([args.provider])
+        except Exception:
+            os.environ["AGENT_CHAT_PROVIDER"] = args.provider  # 폴백
     if args.provider_command:
         os.environ[CLI_PROVIDER_COMMAND_ENVS[args.provider]] = args.provider_command.strip()
     if args.no_cli_auto_install:

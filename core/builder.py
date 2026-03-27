@@ -61,7 +61,7 @@ class SandboxedBuilder:
         raw = str(os.getenv("AGENT_BUILDER_PROVIDER", "") or "").strip()
         if raw:
             return get_requested_cli_providers(raw)
-        return get_requested_cli_providers(os.getenv("AGENT_CHAT_PROVIDER"))
+        return get_requested_cli_providers()
 
     def _builder_cli_model(self, provider_id: str) -> str:
         override = str(os.getenv("AGENT_BUILDER_MODEL", "") or "").strip()

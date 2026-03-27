@@ -174,22 +174,31 @@ class InteractiveChat:
 
     def _resolve_cli_provider(self) -> str:
         """역할에 맞는 CLI 제공자를 결정한다."""
-        # 환경 변수 우선
-        provider = os.getenv("AGENT_CHAT_PROVIDER", "").strip()
-        if provider:
-            return provider
-
-        # 역할 기반 추론
+        # 런타임 레지스트리 우선 (AGENT_CHAT_PROVIDER 환경변수 불필요)
         try:
-            from core.agent_runner import _infer_engine_id
-            role_summary = self.agent.get("role", "") or self.agent.get("name", "")
-            engine_id = _infer_engine_id(role_summary)
-            if "gemini" in engine_id:
-                return "gemini_cli"
+            from core.providers.registry import get_active_provider_setting, detect_installed_cli_providers
+            active = get_active_provider_setting().strip()
+            if active:
+                # 콤마로 여러 개일 수 있으므로 첫 번째 값 사용
+                return active.split(",")[0].strip()
         except Exception:
             pass
 
-        return "claude_cli"  # 기본값
+        # 역할 기반 추론 (설치된 CLI 중에서 선택)
+        try:
+            from core.agent_runner import _infer_engine_id
+            from core.providers.registry import detect_installed_cli_providers
+            role_summary = self.agent.get("role", "") or self.agent.get("name", "")
+            engine_id = _infer_engine_id(role_summary)
+            installed = detect_installed_cli_providers()
+            if "gemini" in engine_id and "gemini_cli" in installed:
+                return "gemini_cli"
+            if installed:
+                return installed[0]
+        except Exception:
+            pass
+
+        return "claude_cli"  # 최후 기본값
 
     # ──────────────────────────────────────────────────────────
     # 메시지 전송

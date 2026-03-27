@@ -126,7 +126,7 @@ def _cli_model_for_provider(provider_id: str, cli_providers: list[str]) -> str:
 
 
 def list_requirement_candidates() -> list[RequirementCandidate]:
-    cli_providers = get_requested_cli_providers(os.getenv("AGENT_CHAT_PROVIDER"))
+    cli_providers = get_requested_cli_providers()
     candidates: list[RequirementCandidate] = []
     seen: set[tuple[str, str, str]] = set()
 

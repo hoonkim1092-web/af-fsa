@@ -45,8 +45,7 @@ def _print_no_subscription_guide() -> None:
     print(f"  설치: npm install -g @anthropic-ai/claude-code")
     print(f"  인증: claude auth login")
     print()
-    print("  설치 후 환경변수를 설정하세요:")
-    print("  AGENT_CHAT_PROVIDER=claude_cli")
+    print("  설치 후 자동 감지됩니다. 또는 --provider 인자로 직접 지정하세요.")
     print()
     print("  다른 옵션:")
     print("  - Gemini CLI: npm install -g @google/gemini-cli")
@@ -101,19 +100,13 @@ def print_startup_routing_notice() -> None:
         return
     _startup_notified = True
 
-    cli_providers = get_requested_cli_providers(os.getenv("AGENT_CHAT_PROVIDER"))
+    cli_providers = get_requested_cli_providers()
     if not cli_providers:
-        # 설정 자체가 없음
-        installed = detect_installed_cli_providers()
-        if not installed:
-            _print_no_subscription_guide()
-        else:
-            print(f"\n[Router] 설치된 CLI 감지: {', '.join(get_cli_display_name(p) for p in installed)}")
-            print(f"[Router] AGENT_CHAT_PROVIDER 환경변수를 설정하세요. 예: AGENT_CHAT_PROVIDER={installed[0]}")
-            print()
+        # 설치된 CLI가 아예 없음
+        _print_no_subscription_guide()
         return
 
-    available = detect_available_cli_providers(os.getenv("AGENT_CHAT_PROVIDER"))
+    available = detect_available_cli_providers()
     if not available:
         # 설정했지만 설치 안 됨
         _print_no_subscription_guide()
@@ -145,7 +138,7 @@ class ModelRouter:
         if forced:
             model_name = forced
         else:
-            cli_providers = get_requested_cli_providers(os.getenv("AGENT_CHAT_PROVIDER"))
+            cli_providers = get_requested_cli_providers()
             if cli_providers:
                 provider = self._pick_cli_provider(cli_providers, agent_config)
                 model_name = default_chat_model_for_provider(provider)
@@ -168,7 +161,7 @@ class ModelRouter:
 
     def pick_provider(self, agent_config: dict = None) -> str:
         """최적 CLI 프로바이더 ID를 반환한다."""
-        cli_providers = get_requested_cli_providers(os.getenv("AGENT_CHAT_PROVIDER"))
+        cli_providers = get_requested_cli_providers()
         if not cli_providers:
             return ""
         return self._pick_cli_provider(cli_providers, agent_config)
@@ -190,11 +183,21 @@ class ModelRouter:
         engine_id = _infer_engine_id(role) if role else "researcher_gemini"
 
         # 가용 프로바이더 중에서 역할 기반 선택
-        available = detect_available_cli_providers(os.getenv("AGENT_CHAT_PROVIDER"))
+        available = detect_available_cli_providers()
         if not available:
             available = cli_providers
 
         return pick_cli_provider_for_role(engine_id, available, role_description=role)
+
+    def pick_multiple(self, stage: str = "coding") -> list[tuple[str, str]]:
+        """교차검증용: 설치된 모든 (provider_id, model) 쌍을 반환한다.
+
+        Returns:
+            [(provider_id, model), ...] — 설치된 CLI 프로바이더 목록.
+            빈 리스트면 교차검증 불가.
+        """
+        providers = detect_installed_cli_providers()
+        return [(pid, default_chat_model_for_provider(pid)) for pid in providers]
 
     def _pick_api_model(self, stage: str, agent_config: dict = None, is_complex: bool = True) -> str:
         """API Key 모드 폴백 (현재 비활성, 나중에 복구 가능)."""

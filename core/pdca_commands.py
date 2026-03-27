@@ -468,7 +468,7 @@ class PDCACommandRegistry:
         print(f"\n  {_c('✓ 구현 완료. /check 로 검증을 진행하세요.', '32')}")
 
     def _run_do(self):
-        """기존 AgentFactory.run() 을 호출해 구현한다."""
+        """구현을 실행한다. Dynamic/Enterprise 레벨에서는 교차검증 루프를 사용한다."""
         task = self.state.task_description
 
         # 선택된 설계 옵션을 태스크에 포함
@@ -479,13 +479,31 @@ class PDCACommandRegistry:
                 task = f"{task}\n\n[선택된 아키텍처]\n{content}"
 
         level = self.state.level
-        if level == ProjectLevel.ENTERPRISE.value:
-            pipeline_mode = "project"
-        elif level == ProjectLevel.DYNAMIC.value:
-            pipeline_mode = "project"
-        else:
-            pipeline_mode = "single"
 
+        # ── 교차검증 루프 (Dynamic/Enterprise) ──
+        if level in (ProjectLevel.DYNAMIC.value, ProjectLevel.ENTERPRISE.value):
+            judgment = self._run_do_with_verification(task, level)
+            # 검증 이력 저장
+            if hasattr(self.state, 'verification_history'):
+                self.state.verification_history.append({
+                    "phase": "do",
+                    "verdict": judgment.verdict,
+                    "confidence": judgment.confidence,
+                    "provider": judgment.selected_provider,
+                    "round": judgment.round_num,
+                })
+                self.state.save(self.workspace)
+            # PASS/PARTIAL → 결과 출력 후 종료
+            if judgment.verdict in ("pass", "partial") and judgment.merged_output:
+                print(f"\n  {_c('[교차검증 결과]', '1;36')}")
+                print(f"  판정: {_c(judgment.verdict.upper(), '32')}")
+                print(f"  신뢰도: {judgment.confidence:.0%}")
+                if judgment.feedback:
+                    print(f"\n  {judgment.feedback[:400]}")
+            return
+
+        # ── Starter: 기존 AgentFactory 단일 실행 ──
+        pipeline_mode = "single"
         from agent_launcher import AgentFactory
         factory = AgentFactory()
         factory.run(
@@ -494,6 +512,21 @@ class PDCACommandRegistry:
             enable_build=False,
             execution_mode="approval",
             pipeline_mode=pipeline_mode,
+        )
+
+    def _run_do_with_verification(self, task: str, level: str):
+        """교차검증 루프로 구현 태스크를 실행한다."""
+        from core.cross_verification import CrossVerificationLoop
+
+        print(f"\n  {_c('교차검증 루프를 시작합니다...', '36')}")
+
+        loop = CrossVerificationLoop(
+            workspace=self.workspace,
+            level=level,
+        )
+        return loop.run(
+            task=task,
+            system_prompt="당신은 시니어 풀스택 개발자입니다. 주어진 태스크를 완전히 구현하세요.",
         )
 
     # ──────────────────────────────────────────────────────────
@@ -581,25 +614,60 @@ class PDCACommandRegistry:
 
         gap_raw = self.state.gap_analysis.get("raw", "")
         task = f"{self.state.task_description}\n\n[갭 분석 결과 기반 수정]\n{gap_raw}"
+        level = self.state.level
 
+        ok = False
         try:
-            from core.fsa_loop import FSALoop
-            from core.agent_runner import AgentRunner
-            from core.model_router import ModelRouter
-            from core.manager import AgentManager
+            # Dynamic/Enterprise: 교차검증 루프로 자동 수정
+            if level in (ProjectLevel.DYNAMIC.value, ProjectLevel.ENTERPRISE.value):
+                from core.cross_verification import CrossVerificationLoop
 
-            mr = ModelRouter()
-            runner = AgentRunner(mr)
-            manager = AgentManager(workspace=self.workspace)
-            agent = manager.get_or_create("General Assistant", workspace=self.workspace)
+                loop = CrossVerificationLoop(workspace=self.workspace, level=level)
+                judgment = loop.run(
+                    task=task,
+                    system_prompt=(
+                        "당신은 코드 수정 전문가입니다. "
+                        "갭 분석 결과를 바탕으로 누락된 기능을 구현하고 버그를 수정하세요."
+                    ),
+                )
+                ok = judgment.verdict in ("pass", "partial")
+                # 진화 이력 저장
+                if hasattr(self.state, 'verification_history'):
+                    self.state.verification_history.append({
+                        "phase": "iterate",
+                        "iterate_count": count,
+                        "verdict": judgment.verdict,
+                        "confidence": judgment.confidence,
+                        "patterns": judgment.failure_patterns,
+                    })
+                if ok:
+                    print(f"\n  {_c(f'교차검증 판정: {judgment.verdict.upper()} '
+                                   f'(신뢰도 {judgment.confidence:.0%})', '32')}")
+                else:
+                    print(_c(f"\n  교차검증 판정: {judgment.verdict.upper()}", "33"))
+                    if judgment.feedback:
+                        print(f"  {judgment.feedback[:300]}")
+            else:
+                # Starter: FSALoop 단일 실행
+                from core.fsa_loop import FSALoop
+                from core.agent_runner import AgentRunner
+                from core.model_router import ModelRouter
+                from core.manager import AgentManager
 
-            fsa = FSALoop(runner=runner, workspace=self.workspace)
-            result = fsa.run_mission(
-                agent=agent,
-                task_input=task,
-                max_cycles=2,
-            )
-            ok = result.get("ok", False) if isinstance(result, dict) else bool(result)
+                mr = ModelRouter()
+                runner = AgentRunner(mr)
+                manager = AgentManager(workspace=self.workspace)
+                agent = manager.get_or_create("General Assistant", workspace=self.workspace)
+
+                fsa = FSALoop(runner=runner)
+                fsa.max_cycles = 2
+                result = fsa.run_mission(
+                    agent=agent,
+                    task_input=task,
+                    run_id=f"{self.state.project_id}_iterate_{count + 1}",
+                    workspace=self.workspace,
+                )
+                ok = result.get("ok", False) if isinstance(result, dict) else bool(result)
         except Exception as e:
             print(_c(f"\n  자동 수정 오류: {e}", "31"))
             ok = False

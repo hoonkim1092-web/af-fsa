@@ -39,8 +39,46 @@ def _env_truthy(raw: str | None, default: bool = False) -> bool:
     return text not in {"0", "false", "no", "off"}
 
 
+# ──────────────────────────────────────────────────────────────
+# 런타임 프로바이더 레지스트리 (AGENT_CHAT_PROVIDER 환경변수 대체)
+#
+# 우선순위:
+#   1. configure_providers()로 런타임에 설정된 값
+#   2. 하위 호환: AGENT_CHAT_PROVIDER 환경변수 (외부 override 전용)
+#   3. 아무것도 없으면 → detect_installed_cli_providers() 자동 탐지
+# ──────────────────────────────────────────────────────────────
+_runtime_providers: list[str] = []
+
+
+def configure_providers(providers: list[str]) -> None:
+    """런타임에 사용할 CLI 프로바이더를 설정한다.
+
+    AGENT_CHAT_PROVIDER 환경변수를 직접 쓰는 대신 이 함수를 사용한다.
+    --provider CLI 인자, auto_configure_cli_provider() 등에서 호출.
+    """
+    global _runtime_providers
+    _runtime_providers = [p for p in (providers or []) if p in CLI_PROVIDER_IDS]
+
+
+def get_active_provider_setting() -> str:
+    """현재 활성 프로바이더 설정값을 반환한다 (parse_provider_list 호환 형식).
+
+    런타임 설정 → 환경변수 하위호환 → 자동탐지 순으로 확인.
+    """
+    # 1. 런타임 설정 우선
+    if _runtime_providers:
+        return ",".join(_runtime_providers)
+    # 2. 환경변수 하위호환 (외부 도구/테스트에서 설정한 경우)
+    env_val = str(os.getenv("AGENT_CHAT_PROVIDER", "") or "").strip()
+    if env_val:
+        return env_val
+    # 3. 자동탐지: 설치된 모든 CLI 프로바이더
+    installed = detect_installed_cli_providers()
+    return ",".join(installed)
+
+
 def parse_provider_list(raw: str | None = None) -> list[str]:
-    text = str(raw if raw is not None else os.getenv("AGENT_CHAT_PROVIDER", "")).strip().lower()
+    text = str(raw if raw is not None else get_active_provider_setting()).strip().lower()
     if not text:
         return []
     return [token.strip() for token in text.split(",") if token.strip()]
@@ -142,10 +180,15 @@ def detect_installed_cli_providers() -> list[str]:
 
 
 def detect_available_cli_providers(raw: str | None = None) -> list[str]:
-    """설정된 프로바이더 중 실제 설치된 것만 반환한다."""
+    """설정된 프로바이더 중 실제 설치된 것만 반환한다.
+
+    명시적으로 raw를 전달한 경우: raw 기반 필터링.
+    raw 미전달: get_active_provider_setting() 기반 (런타임/env/자동탐지).
+    """
     requested = get_requested_cli_providers(raw)
     if not requested:
-        return []
+        # 설정 자체가 없으면 설치된 전체 반환
+        return detect_installed_cli_providers()
     installed = set(detect_installed_cli_providers())
     return [p for p in requested if p in installed]
 

@@ -977,7 +977,7 @@ class AgentRunner:
         print_startup_routing_notice()
 
         # ??釉?疫꿸퀡而?癰귣벊????癒??(API ?紐꾪뀱 ??곸뵠 ?類ㅼ읅??곗쨮 野껉퀣??
-        cli_providers = get_requested_cli_providers(os.getenv("AGENT_CHAT_PROVIDER"))
+        cli_providers = get_requested_cli_providers()
         role_summary = agent.get("role", "") or (agent.get("identity", {}) or {}).get("role_summary", "")
         agent_name = agent.get("name", "")
         engine_id = _infer_engine_id(role_summary or agent_name)

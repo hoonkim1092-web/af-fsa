@@ -62,6 +62,7 @@ class FSALoop:
 
         # workspace 기반 GitManager 생성 — factory 루트가 아닌 프로젝트 디렉토리
         target_workspace = workspace or os.getcwd()
+        self.workspace = target_workspace   # 교차검증 evaluator에서 참조
         git = GitManager(target_workspace)
 
         agent_name = agent.get("name", "Agent") if isinstance(agent, dict) else "Agent"
@@ -107,8 +108,8 @@ class FSALoop:
             except Exception as e:
                 print_agent_msg("Critical", f"Rollback 실패: {e}", "🛑")
 
-            # ── Step 4: EVAL — Evaluator 에이전트 또는 fallback ──
-            eval_res = self._run_evaluator(agent, current_task, result, run_id, cycle)
+            # ── Step 4: EVAL — 교차검증 평가 (2개 이상 CLI) 또는 단일 evaluator ──
+            eval_res = self._run_cross_verified_evaluator(agent, current_task, result, run_id, cycle)
 
             action = eval_res.get("action", "abort")
             if action == "abort":
@@ -305,6 +306,62 @@ class FSALoop:
             return str(meta.get("version", "0.1.0"))
         except Exception:
             return "0.1.0"
+
+    def _run_cross_verified_evaluator(
+        self, agent: dict, current_task: str, result: dict, run_id: str, cycle: int
+    ) -> dict:
+        """교차검증 기반 평가: 여러 엔진이 실패를 분석하고 Opus가 최종 판정.
+
+        2개 이상 CLI가 설치된 경우에만 활성화.
+        실패 시 기존 _run_evaluator() 로 폴백한다.
+        """
+        try:
+            from core.cross_verification import CrossVerificationLoop
+
+            # 설치된 CLI가 2개 미만이면 교차검증 의미 없음
+            pairs = self.runner.mr.pick_multiple() if hasattr(self.runner, 'mr') else []
+            if len(pairs) < 2:
+                return self._run_evaluator(agent, current_task, result, run_id, cycle)
+
+            workspace = getattr(self, 'workspace', None) or os.getcwd()
+            loop = CrossVerificationLoop(workspace=workspace, level="dynamic", max_rounds=1)
+
+            eval_task = (
+                f"다음 실행 결과의 실패 원인을 분석하고 수정 방향을 제시하세요.\n\n"
+                f"[원래 태스크]\n{current_task}\n\n"
+                f"[오류 로그]\n{result.get('reason', '')[:2000]}\n\n"
+                f"반드시 JSON으로 답변하세요:\n"
+                f'{{"action": "retry"|"abort", '
+                f'"reasoning": "분석 내용", '
+                f'"new_instruction": "수정된 태스크 지시"}}'
+            )
+            judgment = loop.run(eval_task, "당신은 코드 디버깅 전문가입니다.")
+
+            if judgment.verdict in ("pass", "partial") and judgment.merged_output:
+                parsed = self._parse_eval_result(judgment.merged_output)
+                if parsed.get("action") in ("retry", "abort"):
+                    return parsed
+
+        except Exception as exc:
+            print_agent_msg("FSALoop", f"교차검증 평가 실패, fallback 사용: {exc}", "⚠️")
+
+        return self._run_evaluator(agent, current_task, result, run_id, cycle)
+
+    def _parse_eval_result(self, text: str) -> dict:
+        """평가 결과 텍스트에서 action/reasoning/new_instruction을 추출한다."""
+        import re, json as _json
+        match = re.search(r'\{[\s\S]*"action"[\s\S]*\}', text)
+        if match:
+            try:
+                data = _json.loads(match.group())
+                return {
+                    "action": str(data.get("action", "abort")).strip().lower(),
+                    "reasoning": str(data.get("reasoning", "")),
+                    "new_instruction": str(data.get("new_instruction", "")),
+                }
+            except Exception:
+                pass
+        return {"action": "abort", "reasoning": "판정 파싱 실패", "new_instruction": ""}
 
     def _run_evaluator(self, agent: dict, current_task: str, result: dict, run_id: str, cycle: int) -> dict:
         """Try evaluator agent first, fall back to StrategyEvaluator."""

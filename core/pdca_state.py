@@ -65,6 +65,10 @@ class PDCAState:
     iterate_count: int = 0
     max_iterate: int = 5
 
+    # 교차검증 이력
+    verification_history: list = field(default_factory=list)
+    evolution_log: list = field(default_factory=list)
+
     # 문서 무결성 해시 (ApprovalGate 연동용)
     checkpoint_hashes: dict = field(default_factory=dict)
 

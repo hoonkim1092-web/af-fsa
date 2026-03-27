@@ -4,12 +4,18 @@ from config.schema import factory_config
 
 try:
     from core.providers.registry import (
+        configure_providers as _registry_configure_providers,
+        detect_installed_cli_providers as _registry_detect_installed,
         engine_api_keys_disabled as _registry_engine_api_keys_disabled,
+        get_active_provider_setting as _registry_get_active_provider_setting,
         get_engine_api_key as _registry_get_engine_api_key,
         supports_cli_bootstrap as _registry_supports_cli_bootstrap,
     )
 except Exception:
+    _registry_configure_providers = None
+    _registry_detect_installed = None
     _registry_engine_api_keys_disabled = None
+    _registry_get_active_provider_setting = None
     _registry_get_engine_api_key = None
     _registry_supports_cli_bootstrap = None
 
@@ -44,7 +50,14 @@ def _config_value(name: str, env_keys: tuple[str, ...]) -> str:
 
 
 def _configured_cli_providers() -> list[str]:
-    raw = str(os.getenv("AGENT_CHAT_PROVIDER", "") or "").strip().lower()
+    """현재 활성 프로바이더 목록을 반환한다 (런타임 레지스트리 우선)."""
+    try:
+        if _registry_get_active_provider_setting:
+            raw = _registry_get_active_provider_setting()
+        else:
+            raw = str(os.getenv("AGENT_CHAT_PROVIDER", "") or "").strip().lower()
+    except Exception:
+        raw = str(os.getenv("AGENT_CHAT_PROVIDER", "") or "").strip().lower()
     return [part.strip() for part in raw.split(",") if part.strip()]
 
 
@@ -70,32 +83,46 @@ def supports_cli_bootstrap() -> bool:
 
 
 def auto_configure_cli_provider() -> str | None:
-    """시스템에 설치된 CLI 프로바이더를 자동 탐색하고 AGENT_CHAT_PROVIDER를 설정한다.
+    """설치된 CLI 프로바이더를 자동 탐색하고 런타임 레지스트리에 설정한다.
 
-    이미 환경변수가 설정된 경우 그대로 둔다.
+    AGENT_CHAT_PROVIDER 환경변수를 직접 쓰지 않는다.
+    이미 런타임 레지스트리 또는 환경변수로 설정된 경우 건드리지 않는다.
     탐색 우선순위: gemini_cli → claude_cli → codex_cli
 
-    반환값: 자동 설정된 프로바이더 ID (예: "gemini_cli") 또는 None
+    반환값: 자동 선택된 프로바이더 ID (예: "gemini_cli") 또는 None
     """
-    # 이미 설정되어 있으면 건드리지 않음
-    if str(os.getenv("AGENT_CHAT_PROVIDER", "") or "").strip():
+    # 이미 런타임 또는 환경변수로 설정된 경우 건드리지 않음
+    try:
+        if _registry_get_active_provider_setting:
+            current = _registry_get_active_provider_setting()
+        else:
+            current = str(os.getenv("AGENT_CHAT_PROVIDER", "") or "").strip()
+    except Exception:
+        current = ""
+
+    # get_active_provider_setting()은 설치된 것을 auto-return하므로
+    # 명시적으로 설정된(런타임 or env var) 경우만 스킵
+    from core.providers.registry import _runtime_providers
+    env_set = str(os.getenv("AGENT_CHAT_PROVIDER", "") or "").strip()
+    if _runtime_providers or env_set:
         return None
 
     try:
-        from core.providers.registry import detect_installed_cli_providers
-        installed = detect_installed_cli_providers()
+        installed = _registry_detect_installed() if _registry_detect_installed else []
     except Exception:
         installed = []
 
+    if not installed:
+        return None
+
     # 우선순위: gemini_cli → claude_cli → codex_cli
     _PRIORITY = ["gemini_cli", "claude_cli", "codex_cli"]
-    chosen = next((p for p in _PRIORITY if p in installed), None)
-    if not chosen and installed:
-        chosen = installed[0]
+    chosen = next((p for p in _PRIORITY if p in installed), installed[0])
 
-    if chosen:
-        os.environ["AGENT_CHAT_PROVIDER"] = chosen
-        print(f"[Auto-Config] CLI 프로바이더 자동 감지: {chosen} → AGENT_CHAT_PROVIDER={chosen}")
+    # 환경변수 대신 런타임 레지스트리에 설정
+    if _registry_configure_providers:
+        _registry_configure_providers([chosen])
+    print(f"[Auto-Config] CLI 프로바이더 자동 감지: {', '.join(installed)} → {chosen} 우선 사용")
 
     return chosen
 
@@ -103,18 +130,12 @@ def auto_configure_cli_provider() -> str | None:
 def check_llm_available() -> bool:
     """CLI 프로바이더가 설정/설치되어 있는지 체크한다.
 
-    1. 환경변수 AGENT_CHAT_PROVIDER가 이미 설정되어 있으면 OK.
-    2. 없으면 auto_configure_cli_provider()로 시스템에서 자동 탐색해 설정한다.
+    1. 런타임 레지스트리 또는 env var에 설정 있으면 OK.
+    2. 없으면 auto_configure_cli_provider()로 자동 탐색.
     3. 그래도 없으면 설치 안내 경고를 출력하고 False 반환.
-
-    사용 예:
-        if not check_llm_available():
-            return _fallback_result(...)
     """
-    # 먼저 자동 탐색/설정 시도
     auto_configure_cli_provider()
 
-    # 설정 결과 재확인
     if _registry_supports_cli_bootstrap:
         try:
             has_cli = bool(_registry_supports_cli_bootstrap())
