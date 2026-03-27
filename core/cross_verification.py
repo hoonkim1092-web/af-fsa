@@ -403,7 +403,8 @@ class CrossVerificationLoop:
                 f"Opus 판정을 원하면 claude_cli 설치 권장.", "33"
             )
             return provider
-        # 아무것도 없으면 claude_cli 시도 (설치 프롬프트 유도)
+        # 아무것도 없으면 claude_cli 시도 — execute_cli_chat이 실패하면 try/except 폴백 처리
+        self._print("설치된 CLI 없음 → claude_cli 시도 (설치 안내 유도)", "33")
         return "claude_cli"
 
     def _parse_judgment_json(self, text: str) -> dict:

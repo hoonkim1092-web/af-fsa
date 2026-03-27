@@ -100,18 +100,14 @@ def print_startup_routing_notice() -> None:
         return
     _startup_notified = True
 
-    cli_providers = get_requested_cli_providers()
-    if not cli_providers:
+    available = detect_available_cli_providers()
+    if not available:
         # 설치된 CLI가 아예 없음
         _print_no_subscription_guide()
         return
 
-    available = detect_available_cli_providers()
-    if not available:
-        # 설정했지만 설치 안 됨
-        _print_no_subscription_guide()
-        return
-
+    # 명시적으로 설정된 경우(configure_providers/env)와 자동탐지 모두
+    # available 기준으로 단일/다중 판정
     if len(available) == 1:
         _print_single_provider_notice(available[0])
     else:

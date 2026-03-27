@@ -161,8 +161,24 @@ def _windows_roaming_npm_dir() -> str:
     return ""
 
 
+_installed_cli_cache: list[str] | None = None
+_installed_cli_cache_ts: float = 0.0
+_INSTALLED_CLI_CACHE_TTL = 60.0  # 60초 TTL
+
+
 def detect_installed_cli_providers() -> list[str]:
-    """시스템에 실제 설치된 CLI 프로바이더 목록을 반환한다."""
+    """시스템에 실제 설치된 CLI 프로바이더 목록을 반환한다 (60초 캐시).
+
+    shutil.which()는 시스템 PATH를 탐색하므로 비용이 있음.
+    60초 내 재호출은 캐시 결과를 반환한다.
+    """
+    import time
+    global _installed_cli_cache, _installed_cli_cache_ts
+
+    now = time.monotonic()
+    if _installed_cli_cache is not None and (now - _installed_cli_cache_ts) < _INSTALLED_CLI_CACHE_TTL:
+        return list(_installed_cli_cache)
+
     installed: list[str] = []
     for provider_id, executable in _CLI_EXECUTABLES.items():
         if shutil.which(executable):
@@ -176,7 +192,17 @@ def detect_installed_cli_providers() -> list[str]:
                     if os.path.exists(os.path.join(npm_dir, executable + suffix)):
                         installed.append(provider_id)
                         break
-    return installed
+
+    _installed_cli_cache = installed
+    _installed_cli_cache_ts = now
+    return list(installed)
+
+
+def invalidate_installed_cli_cache() -> None:
+    """설치 캐시를 강제 무효화한다 (테스트 또는 CLI 설치 직후 사용)."""
+    global _installed_cli_cache, _installed_cli_cache_ts
+    _installed_cli_cache = None
+    _installed_cli_cache_ts = 0.0
 
 
 def detect_available_cli_providers(raw: str | None = None) -> list[str]:

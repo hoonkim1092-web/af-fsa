@@ -319,7 +319,8 @@ class FSALoop:
             from core.cross_verification import CrossVerificationLoop
 
             # 설치된 CLI가 2개 미만이면 교차검증 의미 없음
-            pairs = self.runner.mr.pick_multiple() if hasattr(self.runner, 'mr') else []
+            mr = getattr(self.runner, 'mr', None)
+            pairs = mr.pick_multiple() if (mr is not None and hasattr(mr, 'pick_multiple')) else []
             if len(pairs) < 2:
                 return self._run_evaluator(agent, current_task, result, run_id, cycle)
 

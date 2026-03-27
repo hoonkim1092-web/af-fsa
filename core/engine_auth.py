@@ -100,11 +100,16 @@ def auto_configure_cli_provider() -> str | None:
     except Exception:
         current = ""
 
-    # get_active_provider_setting()은 설치된 것을 auto-return하므로
-    # 명시적으로 설정된(런타임 or env var) 경우만 스킵
-    from core.providers.registry import _runtime_providers
+    # 명시적으로 설정된(런타임 or env var) 경우만 스킵.
+    # 주의: _runtime_providers를 직접 import하면 재할당이 반영 안 됨 →
+    # 모듈 참조로 접근하거나 get_active_provider_setting() 사용.
+    try:
+        import core.providers.registry as _reg
+        runtime_set = bool(_reg._runtime_providers)
+    except Exception:
+        runtime_set = False
     env_set = str(os.getenv("AGENT_CHAT_PROVIDER", "") or "").strip()
-    if _runtime_providers or env_set:
+    if runtime_set or env_set:
         return None
 
     try:
