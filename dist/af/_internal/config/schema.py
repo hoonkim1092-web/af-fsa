@@ -39,9 +39,13 @@ class HooksConfig(BaseModel):
     event_bus_enabled: bool = Field(default=True)
     truncation_max_length: int = Field(default=16000)
 
+class LanguagePolicyConfig(BaseModel):
+    enforce_os_language_for_comments_messages_strings: bool = Field(default=True)
+
 class PolicyConfig(BaseModel):
     engines: Dict[str, EngineConfig] = Field(default_factory=dict)
     skills: Dict[str, SkillConfig] = Field(default_factory=dict)
+    language_policy: LanguagePolicyConfig = Field(default_factory=LanguagePolicyConfig)
 
 from typing import Optional, Dict
 
