@@ -65,7 +65,7 @@ Write-Step "af-1.0.2.zip 다운로드 중..."
 try {
     $progressPreference = 'SilentlyContinue'
     Invoke-WebRequest `
-        -Uri "https://github.com/hoonkim1092-web/agent-factory/releases/download/v1.0.2/af-1.0.2.zip" `
+        -Uri "https://github.com/hoonkim1092-web/agent-factory/raw/af-fsa_v1.0.2/dist/af-1.0.2.zip" `
         -OutFile $zipFile `
         -UseBasicParsing
     $progressPreference = 'Continue'
