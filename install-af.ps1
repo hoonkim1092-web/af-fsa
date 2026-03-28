@@ -1,174 +1,133 @@
-#Requires -Version 5.1
+#!/usr/bin/env powershell
 <#
 .SYNOPSIS
-    Agent Factory (af) 설치 스크립트
+Agent Factory CLI 설치 스크립트
 
 .DESCRIPTION
-    af.exe를 다운로드하고 PATH에 추가합니다.
-    Claude CLI / Codex CLI와 동일한 방식으로 설치됩니다.
+GitHub 릴리스에서 af-1.0.2.zip을 다운로드 후 자동으로 압축 해제하고 PATH에 등록합니다.
+
+.PARAMETER InstallPath
+설치 경로 (기본값: C:\tools)
 
 .EXAMPLE
-    # GitHub Releases에서 최신 버전 설치:
-    irm https://raw.githubusercontent.com/yourorg/agent-factory/main/install-af.ps1 | iex
-
-    # 로컬 zip 파일로 설치:
-    .\install-af.ps1 -ZipPath .\af-codex-5.4.zip
-
-.PARAMETER ZipPath
-    로컬 zip 파일 경로 (없으면 GitHub에서 다운로드)
-
-.PARAMETER InstallDir
-    설치 디렉토리 (기본: $env:LOCALAPPDATA\AgentFactory)
-
-.PARAMETER Version
-    설치할 버전 태그 (기본: 최신 릴리즈)
+.\install.ps1
+.\install.ps1 -InstallPath "D:\MyApps"
 #>
 
 param(
-    [string]$ZipPath = "",
-    [string]$InstallDir = "$env:LOCALAPPDATA\AgentFactory",
-    [string]$Version = "latest",
-    [string]$Repo = "hoonkim1092-web/agent-factory"
+    [string]$InstallPath = "C:\tools"
 )
 
-Set-StrictMode -Version Latest
-$ErrorActionPreference = "Stop"
+# 색상 지정
+function Write-Header {
+    param([string]$Message)
+    Write-Host "`n" + ("=" * 60) -ForegroundColor Cyan
+    Write-Host "  $Message" -ForegroundColor Cyan
+    Write-Host ("=" * 60) -ForegroundColor Cyan
+}
 
-# ── 색상 헬퍼 ─────────────────────────────────────────────────────────────────
-function Write-Step  { param([string]$msg) Write-Host "  $msg" -ForegroundColor Cyan }
-function Write-OK    { param([string]$msg) Write-Host "  ✓ $msg" -ForegroundColor Green }
-function Write-Warn  { param([string]$msg) Write-Host "  ! $msg" -ForegroundColor Yellow }
-function Write-Fail  { param([string]$msg) Write-Host "  ✗ $msg" -ForegroundColor Red }
+function Write-Step {
+    param([string]$Message)
+    Write-Host "`n► $Message" -ForegroundColor Yellow
+}
 
-Write-Host ""
-Write-Host "======================================" -ForegroundColor Blue
-Write-Host "   Agent Factory (af) Installer" -ForegroundColor Blue
-Write-Host "======================================" -ForegroundColor Blue
-Write-Host ""
+function Write-Success {
+    param([string]$Message)
+    Write-Host "✓ $Message" -ForegroundColor Green
+}
 
-# ── 1. zip 파일 확보 ──────────────────────────────────────────────────────────
-$tempZip = ""
-if ($ZipPath -ne "") {
-    if (-not (Test-Path $ZipPath)) {
-        Write-Fail "zip 파일을 찾을 수 없습니다: $ZipPath"
-        exit 1
-    }
-    $tempZip = (Resolve-Path $ZipPath).Path
-    Write-Step "로컬 zip 사용: $tempZip"
-} else {
-    Write-Step "GitHub Releases에서 다운로드 중..."
+function Write-Error {
+    param([string]$Message)
+    Write-Host "✗ $Message" -ForegroundColor Red
+    exit 1
+}
 
-    # 릴리즈 URL 결정
-    if ($Version -eq "latest") {
-        $apiUrl = "https://api.github.com/repos/$Repo/releases/latest"
+# 관리자 권한 확인
+$isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")
+if (-not $isAdmin) {
+    Write-Error "관리자 권한이 필요합니다. PowerShell을 관리자 모드로 실행해주세요."
+}
+
+Write-Header "Agent Factory CLI v1.0.2 설치"
+
+# Step 1: 폴더 생성
+Write-Step "설치 폴더 생성 ($InstallPath)"
+try {
+    New-Item -ItemType Directory -Path $InstallPath -Force | Out-Null
+    Write-Success "폴더 생성 완료"
+} catch {
+    Write-Error "폴더 생성 실패: $_"
+}
+
+# Step 2: 파일 다운로드
+$zipFile = "$InstallPath\af-1.0.2.zip"
+Write-Step "af-1.0.2.zip 다운로드 중..."
+try {
+    $progressPreference = 'SilentlyContinue'
+    Invoke-WebRequest `
+        -Uri "https://github.com/hoonkim1092-web/agent-factory/releases/download/v1.0.2/af-1.0.2.zip" `
+        -OutFile $zipFile `
+        -UseBasicParsing
+    $progressPreference = 'Continue'
+
+    if (Test-Path $zipFile) {
+        $sizeMB = [math]::Round((Get-Item $zipFile).Length / 1MB, 1)
+        Write-Success "다운로드 완료 ($sizeMB MB)"
     } else {
-        $apiUrl = "https://api.github.com/repos/$Repo/releases/tags/$Version"
+        Write-Error "다운로드 실패"
     }
-
-    try {
-        $release = Invoke-RestMethod -Uri $apiUrl -Headers @{ "User-Agent" = "af-installer" }
-        $asset = $release.assets | Where-Object { $_.name -like "af-*.zip" } | Select-Object -First 1
-        if (-not $asset) {
-            Write-Fail "릴리즈 에셋에서 af-*.zip을 찾을 수 없습니다."
-            exit 1
-        }
-        $downloadUrl = $asset.browser_download_url
-        $tempZip = Join-Path $env:TEMP $asset.name
-
-        Write-Step "다운로드: $($asset.name) ($([math]::Round($asset.size/1MB, 1)) MB)"
-        Invoke-WebRequest -Uri $downloadUrl -OutFile $tempZip -UseBasicParsing
-        Write-OK "다운로드 완료"
-    } catch {
-        Write-Fail "다운로드 실패: $_"
-        Write-Warn "로컬 zip 파일로 설치하려면: .\install-af.ps1 -ZipPath .\af-codex-5.4.zip"
-        exit 1
-    }
+} catch {
+    Write-Error "다운로드 오류: $_"
 }
 
-# ── 2. 설치 디렉토리 준비 ─────────────────────────────────────────────────────
-Write-Step "설치 디렉토리 준비: $InstallDir"
-if (Test-Path $InstallDir) {
-    Write-Warn "기존 설치 덮어씁니다: $InstallDir"
-    Remove-Item -Recurse -Force $InstallDir
-}
-New-Item -ItemType Directory -Force -Path $InstallDir | Out-Null
-
-# ── 3. 압축 해제 ──────────────────────────────────────────────────────────────
+# Step 3: 압축 해제
 Write-Step "압축 해제 중..."
-$tempExtract = Join-Path $env:TEMP "af_install_$(Get-Random)"
-New-Item -ItemType Directory -Force -Path $tempExtract | Out-Null
-
 try {
-    Expand-Archive -Path $tempZip -DestinationPath $tempExtract -Force
+    Expand-Archive -Path $zipFile -DestinationPath $InstallPath -Force
+    Write-Success "압축 해제 완료"
 } catch {
-    Write-Fail "압축 해제 실패: $_"
-    exit 1
+    Write-Error "압축 해제 실패: $_"
 }
 
-# zip 내부 구조 감지 (dist/af/ 또는 루트 직접)
-$afSubDir = Get-ChildItem -Path $tempExtract -Recurse -Filter "af.exe" | Select-Object -First 1
-if (-not $afSubDir) {
-    Write-Fail "압축 파일 내에서 af.exe를 찾을 수 없습니다."
-    exit 1
-}
-$sourceDir = $afSubDir.DirectoryName
-
-# 내용물 복사
-Copy-Item -Path (Join-Path $sourceDir "*") -Destination $InstallDir -Recurse -Force
-Write-OK "압축 해제 완료"
-
-# 임시 파일 정리
-Remove-Item -Recurse -Force $tempExtract -ErrorAction SilentlyContinue
-if ($ZipPath -eq "" -and (Test-Path $tempZip)) {
-    Remove-Item -Force $tempZip -ErrorAction SilentlyContinue
-}
-
-# ── 4. PATH 등록 ──────────────────────────────────────────────────────────────
-Write-Step "PATH 등록 중..."
-
-$currentPath = [Environment]::GetEnvironmentVariable("PATH", "User")
-if ($currentPath -notlike "*$InstallDir*") {
-    [Environment]::SetEnvironmentVariable(
-        "PATH",
-        "$InstallDir;$currentPath",
-        "User"
-    )
-    # 현재 세션에도 반영
-    $env:PATH = "$InstallDir;$env:PATH"
-    Write-OK "PATH에 추가됨 (현재 세션 + 영구)"
+# Step 4: 설치 확인
+Write-Step "설치 확인"
+$exePath = "$InstallPath\af\af.exe"
+if (Test-Path $exePath) {
+    Write-Success "af.exe 설치 확인"
 } else {
-    Write-OK "이미 PATH에 있습니다"
+    Write-Error "af.exe를 찾을 수 없습니다"
 }
 
-# ── 5. 버전 확인 ──────────────────────────────────────────────────────────────
-$exePath = Join-Path $InstallDir "af.exe"
-Write-Step "설치 확인..."
+# Step 5: PATH 등록
+Write-Step "환경변수 PATH에 등록"
 try {
-    $verOutput = & $exePath --version 2>&1
-    Write-OK "af 실행 확인: $verOutput"
+    $currentPath = [Environment]::GetEnvironmentVariable("Path", "User")
+    $afPath = "$InstallPath\af"
+
+    if ($currentPath -notlike "*$afPath*") {
+        [Environment]::SetEnvironmentVariable(
+            "Path",
+            "$currentPath;$afPath",
+            "User"
+        )
+        Write-Success "PATH 등록 완료"
+    } else {
+        Write-Success "이미 PATH에 등록됨"
+    }
 } catch {
-    Write-Warn "af --version 실행 실패 (PATH 재시작 후 정상 작동할 수 있음)"
+    Write-Error "PATH 등록 실패: $_"
 }
 
-# ── 6. API 키 안내 ────────────────────────────────────────────────────────────
+# 완료
+Write-Header "설치 완료!"
+Write-Host "
+설치 경로: $exePath
+"
+Write-Host "다음 단계:" -ForegroundColor Cyan
+Write-Host "1. PowerShell을 재시작하세요"
+Write-Host "2. 다음 명령어를 실행하세요:"
+Write-Host "   af.exe" -ForegroundColor Yellow
 Write-Host ""
-Write-Host "======================================" -ForegroundColor Green
-Write-Host "   설치 완료!" -ForegroundColor Green
-Write-Host "======================================" -ForegroundColor Green
-Write-Host ""
-Write-Host "  설치 경로: $InstallDir" -ForegroundColor White
-Write-Host ""
-Write-Host "  API 키 설정 (선택사항):" -ForegroundColor Yellow
-Write-Host '    $env:GEMINI_API_KEY = "your-key"     # Google Gemini (스킬 생성)' -ForegroundColor Gray
-Write-Host '    $env:OPENAI_API_KEY = "your-key"     # OpenAI GPT' -ForegroundColor Gray
-Write-Host '    $env:ANTHROPIC_API_KEY = "your-key"  # Claude' -ForegroundColor Gray
-Write-Host ""
-Write-Host "  CLI 공급자 (키 없이 Claude CLI 사용):" -ForegroundColor Yellow
-Write-Host '    $env:AGENT_CHAT_PROVIDER = "claude"  # claude CLI 사용' -ForegroundColor Gray
-Write-Host ""
-Write-Host "  시작하기:" -ForegroundColor Cyan
-Write-Host "    af --help" -ForegroundColor White
-Write-Host "    af -p my_project -t `"피보나치 수열 코드 작성해줘`"" -ForegroundColor White
-Write-Host ""
-Write-Host "  새 터미널을 열어야 PATH가 적용됩니다." -ForegroundColor Yellow
+Write-Host "또는 즉시 실행:"
+Write-Host "   & '$exePath'" -ForegroundColor Yellow
 Write-Host ""
