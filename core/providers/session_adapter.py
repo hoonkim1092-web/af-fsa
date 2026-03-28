@@ -124,6 +124,11 @@ def _repo_root() -> Path:
     return Path(__file__).resolve().parents[2]
 
 
+def _is_frozen() -> bool:
+    """PyInstaller exe 번들 환경인지 확인."""
+    return getattr(sys, "frozen", False)
+
+
 def _runtime_paths(provider_id: str, workspace: str, run_id: str) -> dict[str, Path]:
     runtime_dir = workspace_runtime_dir(workspace)
     slug = _safe_slug(run_id, fallback="run")
@@ -415,9 +420,11 @@ def prepare_cli_session(request, command: list[str]) -> dict[str, Any]:
     settings_path = None
     guard_path = None
     guard_dir = None
-    if spec.provider_id == "claude_cli":
+    # PyInstaller 번들 환경에서는 sys.executable이 Python이 아닌 af.exe이므로
+    # hook 명령이 올바르게 실행되지 않는다 — hook 등록을 건너뜀
+    if spec.provider_id == "claude_cli" and not _is_frozen():
         settings_path = _write_claude_settings(workspace, run_id)
-    elif spec.provider_id == "gemini_cli":
+    elif spec.provider_id == "gemini_cli" and not _is_frozen():
         settings_path, guard_path = _write_gemini_defaults(
             workspace,
             run_id,

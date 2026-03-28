@@ -297,11 +297,20 @@ class InteractiveChat:
         """CLI 제공자를 호출하고 응답 텍스트를 반환한다."""
         from core.providers.cli import CliChatRequest, execute_cli_chat as _execute
 
+        # Windows에서 --append-system-prompt 인자에 특수문자가 포함되면
+        # 명령줄 파싱이 망가져 -p 플래그에 프롬프트가 전달 안 되는 문제 발생.
+        # 시스템 프롬프트를 task 안에 포함시켜 --append-system-prompt 사용을 피한다.
+        sys_ctx = (self._sys_prompt or "").strip()
+        if sys_ctx:
+            full_input = f"[System Context]\n{sys_ctx}\n\n{prompt}"
+        else:
+            full_input = prompt
+
         request = CliChatRequest(
             provider_id=self._provider_id,
             model=self._model_name or "",
-            system_prompt=self._sys_prompt,
-            task_input=prompt,
+            system_prompt="",  # --append-system-prompt 플래그 제거
+            task_input=full_input,
             workspace=self.workspace,
             run_id=f"{self.session_id}_t{self.turn}",
             timeout_sec=300,
