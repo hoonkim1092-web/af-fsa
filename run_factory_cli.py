@@ -87,45 +87,22 @@ def _run_skill_promote(argv: list[str] | None = None):
 
 
 def _launch_interactive_mode(projects_root: str):
-    """대화형 PDCA 모드 진입점 (인자 없이 af 실행 시)."""
-    from core.pdca_state import PDCAState, PDCAStateMachine
-    from core.onboarding_wizard import OnboardingWizard, print_resume_banner
-    from core.interactive_chat import PDCAInteractiveChat, _run_pdca_repl, _make_pdca_commands
+    """대화형 모드 진입점 (인자 없이 af 실행 시) — 바로 채팅 시작."""
+    from core.interactive_chat import run_interactive
 
-    # 현재 디렉터리 또는 .af/pdca_state.json 탐색
-    cwd = os.getcwd()
-    state = PDCAState.load(cwd)
-
-    if state:
-        # 기존 세션 복원
-        workspace = os.path.join(projects_root, state.project_id)
-        print_resume_banner(state)
-    else:
-        # 새 온보딩
-        wizard = OnboardingWizard(projects_root)
-        state = wizard.run()
-        if state is None:
-            return
-        workspace = os.path.join(projects_root, state.project_id)
-
-    # 환경변수 설정
+    project_id = "default"
+    workspace = os.path.join(projects_root, project_id)
     os.makedirs(workspace, exist_ok=True)
     os.environ["AGENT_PROJECTS_DIR"] = projects_root
-    os.environ["AGENT_PROJECT_ID"] = state.project_id
+    os.environ["AGENT_PROJECT_ID"] = project_id
     os.environ["AGENT_PROJECT_ROOT"] = workspace
     os.environ.setdefault("AGENT_AUTO_INSTALL_CLI", "1")
 
-    # PDCAInteractiveChat 시작
-    chat = PDCAInteractiveChat(workspace=workspace)
-    try:
-        chat.start()
-    except Exception as e:
-        print(f"\n초기화 실패: {e}")
-        return
-
-    sm = PDCAStateMachine(state, workspace)
-    chat.attach_pdca(sm)
-    _run_pdca_repl(chat)
+    run_interactive(
+        project_id=project_id,
+        workspace=workspace,
+        role="General Assistant",
+    )
 
 
 def main(argv: list[str] | None = None):
@@ -164,14 +141,15 @@ def main(argv: list[str] | None = None):
     parser.add_argument("--projects-root", type=str, help="Projects root override")
     parser.add_argument("--workflow", "-w", type=str, help="Workflow YAML path")
     parser.add_argument("--agents", "-a", type=str, help="Comma-separated workflow roles")
-    parser.add_argument("--mode", choices=["approval", "fsa"], default="approval", help="Execution mode")
+    parser.add_argument("--mode", choices=["approval", "fsa", "ise"], default="approval", help="Execution mode")
     parser.add_argument("--fsa", action="store_true", help="Shortcut for full self automation mode")
+    parser.add_argument("--ise", action="store_true", help="Infinite Self-Evolution mode (무한 자기진화 루프)")
     parser.add_argument("--build", action="store_true", help="Build missing skills before run")
     parser.add_argument("--no-cli-auto-install", action="store_true", help="Disable missing CLI auto install")
     parser.add_argument("--pipeline", choices=["auto", "single", "project"], default="auto", help="Pipeline mode")
     parser.add_argument("--chat", action="store_true", help="Interactive chat mode (continuous conversation)")
     args = parser.parse_args(argv)
-    execution_mode = "fsa" if (args.fsa or args.mode == "fsa") else "approval"
+    execution_mode = "ise" if (args.ise or args.mode == "ise") else ("fsa" if (args.fsa or args.mode == "fsa") else "approval")
 
     # --interactive 또는 --project 미입력 → 대화형 PDCA 모드
     if getattr(args, "interactive", False) or not args.project:
