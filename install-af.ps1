@@ -1,9 +1,9 @@
 <#
 .SYNOPSIS
-Agent Factory CLI v1.2.1 설치 스크립트
+Agent Factory CLI v1.2.2 설치 스크립트
 
 .EXAMPLE
-irm https://raw.githubusercontent.com/hoonkim1092-web/af-fsa/af-fsa_v1.2.1/install-af.ps1 | iex
+irm https://raw.githubusercontent.com/hoonkim1092-web/af-fsa/af-fsa_v1.2.2/install-af.ps1 | iex
 #>
 
 param(
@@ -13,13 +13,13 @@ param(
 # 관리자 권한 없으면 자동으로 관리자로 재실행
 $isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")
 if (-not $isAdmin) {
-    Start-Process powershell -ArgumentList "-NoExit -ExecutionPolicy Bypass -Command `"irm https://raw.githubusercontent.com/hoonkim1092-web/af-fsa/af-fsa_v1.2.1/install-af.ps1 | iex`"" -Verb RunAs
+    Start-Process powershell -ArgumentList "-NoExit -ExecutionPolicy Bypass -Command `"irm https://raw.githubusercontent.com/hoonkim1092-web/af-fsa/af-fsa_v1.2.2/install-af.ps1 | iex`"" -Verb RunAs
     exit
 }
 
 Write-Host ""
 Write-Host "============================================================" -ForegroundColor Cyan
-Write-Host "  Agent Factory CLI v1.2.1 설치" -ForegroundColor Cyan
+Write-Host "  Agent Factory CLI v1.2.2 설치" -ForegroundColor Cyan
 Write-Host "============================================================" -ForegroundColor Cyan
 
 # Step 1: 기존 설치 탐지 및 제거
@@ -90,12 +90,12 @@ try {
 }
 
 # Step 3: 다운로드
-$zipFile = "$InstallPath\af-1.2.1.zip"
-Write-Host "`n► af-1.2.1.zip 다운로드 중..." -ForegroundColor Yellow
+$zipFile = "$InstallPath\af-1.2.2.zip"
+Write-Host "`n► af-1.2.2.zip 다운로드 중..." -ForegroundColor Yellow
 try {
     $ProgressPreference = 'SilentlyContinue'
     Invoke-WebRequest `
-        -Uri "https://github.com/hoonkim1092-web/af-fsa/raw/af-fsa_v1.2.1/dist/af-1.2.1.zip" `
+        -Uri "https://github.com/hoonkim1092-web/af-fsa/raw/af-fsa_v1.2.2/dist/af-1.2.2.zip" `
         -OutFile $zipFile `
         -UseBasicParsing
     $ProgressPreference = 'Continue'
@@ -142,7 +142,7 @@ if ($userPath -notlike "*$afPath*") {
 
 Write-Host ""
 Write-Host "============================================================" -ForegroundColor Cyan
-Write-Host "  설치 완료! v1.2.1" -ForegroundColor Green
+Write-Host "  설치 완료! v1.2.2" -ForegroundColor Green
 Write-Host "============================================================" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "  PowerShell을 재시작한 후:" -ForegroundColor White

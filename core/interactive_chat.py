@@ -623,7 +623,9 @@ def run_interactive(
     auto_approve: bool = False,
 ):
     """대화형 채팅 모드 진입점."""
+    print(f"[Chat] 시작 중... (project={project_id})", flush=True)
     agent = _load_or_build_agent(role, workspace)
+    print(f"[Chat] 에이전트 로드 완료: {agent.get('name', '?')}", flush=True)
 
     chat = InteractiveChat(
         agent=agent,

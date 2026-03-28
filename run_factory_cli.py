@@ -3,6 +3,13 @@ import os
 import re
 import sys
 
+# PyInstaller 환경에서 stdout 버퍼링 해제
+if hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(line_buffering=True)
+    except Exception:
+        pass
+
 FACTORY_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(FACTORY_DIR)
 
