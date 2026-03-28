@@ -577,6 +577,38 @@ def _print_pdca_help():
 # 진입점
 # ──────────────────────────────────────────────────────────────
 
+def _load_or_build_agent(role: str, workspace: str) -> dict:
+    """AgentFactory 전체 초기화 없이 에이전트를 빠르게 로드/생성한다."""
+    from core.utils import safe_id, read_yaml, apply_agent_overrides
+    from core.config_paths import AGENTS_DIR, GLOBAL_AGENTS_DIR
+
+    role_id = safe_id(role) or "agent"
+
+    # 1) 워크스페이스 로컬 YAML
+    local_path = os.path.join(workspace, "agents", f"{role_id}.yaml")
+    if os.path.exists(local_path):
+        return apply_agent_overrides(read_yaml(local_path), role)
+
+    # 2) 글로벌 YAML
+    global_path = os.path.join(GLOBAL_AGENTS_DIR, f"{role_id}.yaml")
+    if os.path.exists(global_path):
+        return apply_agent_overrides(read_yaml(global_path), role)
+
+    # 3) 폴백: API 호출 없이 즉시 생성
+    role_text = role.strip() or "General Assistant"
+    return {
+        "name": f"agent_{role_id}",
+        "role": role_text,
+        "tone": "calm, direct, pragmatic",
+        "traits": ["practical", "concise", "execution-focused"],
+        "system_ko": (
+            f"당신은 {role_text} 역할의 실행 에이전트다. "
+            "현재 워크스페이스 안에서 필요한 파일을 직접 만들거나 수정해 작업 결과를 남겨라."
+        ),
+        "signature_lines": [f"[{role_text}] 바로 실행합니다."],
+    }
+
+
 def run_interactive(
     project_id: str,
     workspace: str,
@@ -585,10 +617,7 @@ def run_interactive(
     auto_approve: bool = False,
 ):
     """대화형 채팅 모드 진입점."""
-    from agent_launcher import AgentFactory
-
-    factory = AgentFactory()
-    agent = factory._get_agent(role, workspace=workspace)
+    agent = _load_or_build_agent(role, workspace)
 
     chat = InteractiveChat(
         agent=agent,
