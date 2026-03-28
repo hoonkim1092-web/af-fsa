@@ -312,7 +312,10 @@ class InteractiveChat:
             return str(result.get("text", "")).strip() or "(응답 없음)"
 
         reason = result.get("reason", "unknown")
-        return f"[오류] CLI 응답 실패: {reason}"
+        stderr = str(result.get("stderr", "")).strip()
+        returncode = result.get("returncode", "?")
+        detail = f" (exit={returncode})\n  {stderr[:300]}" if stderr else f" (exit={returncode})"
+        return f"[오류] CLI 응답 실패: {reason}{detail}"
 
     # ──────────────────────────────────────────────────────────
     # 슬래시 명령어
