@@ -187,7 +187,12 @@
       "Bash(echo \"Exit: $?\")",
       "Bash(powershell -ExecutionPolicy Bypass -File scripts/sync_easy.ps1 -Action down -Backend db -Target all 2>&1)",
       "WebFetch(domain:github.com)",
-      "WebFetch(domain:bkamp.ai)"
+      "WebFetch(domain:bkamp.ai)",
+      "Bash(git ls-tree:*)",
+      "Bash(git checkout:*)",
+      "Bash(curl -s \"https://api.github.com/repos/hoonkim1092-web/agent-factory/branches/af-fsa_v1.0.2\")",
+      "Bash(curl -s \"https://api.github.com/repos/hoonkim1092-web/agent-factory/branches\")",
+      "Bash(git remote:*)"
     ]
   }
 }

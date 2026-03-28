@@ -1,5 +1,0 @@
-owner_agent: General
-stages:
-- id: MAIN
-  name: Main
-  objective: Default workflow stage

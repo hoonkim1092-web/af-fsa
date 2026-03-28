@@ -26,7 +26,7 @@ from core.utils import safe_id, now_iso, _safe_write_json
 
 # ── 색상 유틸 ──
 def _c(text: str, code: str) -> str:
-    if not sys.stdout.isatty():
+    if not getattr(sys.stdout, "isatty", lambda: False)():
         return text
     return f"\033[{code}m{text}\033[0m"
 
