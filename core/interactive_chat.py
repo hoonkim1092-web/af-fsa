@@ -84,16 +84,21 @@ class InteractiveChat:
 
     def start(self):
         """세션 초기화: 스킬 로드, CWM 구성, Memory 훅 등록."""
+        def _step(msg: str):
+            print(f"  [초기화] {msg}", flush=True)
+
         from core.agent_runner import AgentRunner
         from core.model_router import ModelRouter
         from core.context_window_manager import ContextWindowManager
         from core.hooks.event_bus import HookEventBus
         from core.hooks.guardrails import IntentGateHook, TodoContinuationEnforcer, ToolOutputTruncator
 
+        _step("모델 라우터 로드 중...")
         mr = ModelRouter()
+        _step("에이전트 러너 초기화 중...")
         self._runner = AgentRunner(mr)
 
-        # 시스템 프롬프트 + 스킬 로드
+        _step("시스템 프롬프트 구성 중...")
         self._sys_prompt = self._runner._build_runtime_system_prompt(self.agent)
         self._sys_prompt += (
             "\n\n[Interactive Chat Mode]\n"
@@ -101,11 +106,12 @@ class InteractiveChat:
             "이전 대화 내용을 기억하고 맥락에 맞게 응답하세요."
         )
 
-        # Memory 훅 등록 (에이전트 간 맥락 공유)
+        _step("이벤트 버스 등록 중...")
         self._bus = HookEventBus()
         self._bus.register(IntentGateHook())
         self._bus.register(TodoContinuationEnforcer())
         self._bus.register(ToolOutputTruncator())
+        _step("메모리 훅 등록 중...")
         self._register_memory_hooks()
 
         self._agent_state = {
@@ -118,21 +124,21 @@ class InteractiveChat:
             "workspace": self.workspace,
         }
 
-        # pre_execute: KnowledgeInjectionHook이 메모리에서 지식 주입
+        _step("지식 컨텍스트 주입 중...")
         self._bus.run_pre_execute(self._agent_state)
         injected = self._agent_state.get("_knowledge_context", "")
         if injected:
             self._sys_prompt += f"\n\n{injected}"
 
-        # CLI 제공자 결정 (역할 기반)
+        _step("CLI 제공자 탐색 중...")
         self._provider_id = self._resolve_cli_provider()
 
-        # CWM 초기화 (히스토리 압축 + 토큰 예산)
+        _step("컨텍스트 윈도우 매니저 초기화 중...")
         model_name = self._model_name or self.agent.get("preferred_model") or "gemini-2.0-flash"
         self._cwm = ContextWindowManager(
             model_name=model_name,
             system_prompt=self._sys_prompt,
-            all_tools=[],          # CLI 모드: 도구는 CLI가 자체 처리
+            all_tools=[],
             knowledge_skills=[],
             evict_after_turns=5,
             recent_window=6,
