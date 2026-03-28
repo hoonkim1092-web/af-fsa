@@ -313,9 +313,17 @@ class InteractiveChat:
 
         reason = result.get("reason", "unknown")
         stderr = str(result.get("stderr", "")).strip()
+        stdout = str(result.get("stdout", "")).strip()
         returncode = result.get("returncode", "?")
-        detail = f" (exit={returncode})\n  {stderr[:300]}" if stderr else f" (exit={returncode})"
-        return f"[오류] CLI 응답 실패: {reason}{detail}"
+        cmd = result.get("command", [])
+        cmd_preview = " ".join(str(x) for x in cmd[:2]) if cmd else "?"
+
+        lines = [f"[오류] CLI: {reason} (exit={returncode}, cmd={cmd_preview})"]
+        if stderr:
+            lines.append(f"  ERR: {stderr[:400]}")
+        if stdout:
+            lines.append(f"  OUT: {stdout[:200]}")
+        return "\n".join(lines)
 
     # ──────────────────────────────────────────────────────────
     # 슬래시 명령어
