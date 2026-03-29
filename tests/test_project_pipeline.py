@@ -43,6 +43,44 @@ def test_factory_routes_complex_task_to_project_pipeline(monkeypatch, tmp_path):
     assert routed[0]["requested_role"] == "General"
 
 
+def test_factory_routes_project_pipeline_directly_in_fsa_mode(monkeypatch, tmp_path):
+    al = _load_launcher(monkeypatch)
+    factory = al.AgentFactory()
+
+    routed = []
+    approvals = []
+    factory.request_router.route = lambda **kwargs: {
+        "pipeline": "project",
+        "intent": "greenfield",
+        "confidence": 99,
+        "reasoning": "forced-test",
+    }
+    factory.project_pipeline.run = lambda **kwargs: routed.append(kwargs) or {
+        "pipeline": "project",
+        "ok": True,
+        "reason": "completed",
+    }
+    factory._run_project_with_approval = lambda **kwargs: approvals.append(kwargs) or {
+        "pipeline": "project",
+        "ok": False,
+        "reason": "unexpected-approval-path",
+    }
+
+    res = factory.run(
+        task_input="build a poker game",
+        role_spec="General",
+        workspace=str(tmp_path),
+        execution_mode="fsa",
+    )
+
+    assert res["pipeline"] == "project"
+    assert routed and routed[0]["workspace"] == str(tmp_path)
+    assert routed[0]["requested_role"] == "General"
+    assert routed[0]["execution_mode"] == "fsa"
+    assert approvals == []
+
+
+
 def test_project_pipeline_writes_planning_artifacts_and_roles(monkeypatch, tmp_path):
     al = _load_launcher(monkeypatch)
     factory = al.AgentFactory()

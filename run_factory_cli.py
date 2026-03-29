@@ -93,7 +93,15 @@ def _run_skill_promote(argv: list[str] | None = None):
 
 
 
-def _launch_interactive_mode(projects_root: str):
+def _launch_interactive_mode(
+    projects_root: str,
+    *,
+    role: str = "General Assistant",
+    model: str = "",
+    execution_mode: str = "approval",
+    pipeline_mode: str = "auto",
+    enable_build: bool = False,
+):
     """대화형 모드 진입점 (인자 없이 af 실행 시) — 바로 채팅 시작."""
     from core.interactive_chat import run_interactive
 
@@ -108,7 +116,12 @@ def _launch_interactive_mode(projects_root: str):
     run_interactive(
         project_id=project_id,
         workspace=workspace,
-        role="General Assistant",
+        role=role,
+        model=model,
+        auto_approve=(execution_mode == "fsa"),
+        execution_mode=execution_mode,
+        pipeline_mode=pipeline_mode,
+        enable_build=enable_build,
     )
 
 
@@ -161,7 +174,14 @@ def main(argv: list[str] | None = None):
     # --interactive 또는 --project 미입력 → 대화형 PDCA 모드
     if getattr(args, "interactive", False) or not args.project:
         projects_root = _resolve_projects_root(args.projects_root if hasattr(args, "projects_root") else None)
-        _launch_interactive_mode(projects_root)
+        _launch_interactive_mode(
+            projects_root,
+            role=(args.role or "").strip() or "General Assistant",
+            model=args.model or "",
+            execution_mode=execution_mode,
+            pipeline_mode=args.pipeline,
+            enable_build=bool(args.build),
+        )
         return
 
     if args.provider_command and not args.provider:
@@ -204,6 +224,9 @@ def main(argv: list[str] | None = None):
             role=role,
             model=args.model or "",
             auto_approve=(execution_mode == "fsa"),
+            execution_mode=execution_mode,
+            pipeline_mode=args.pipeline,
+            enable_build=bool(args.build),
         )
         return
 
