@@ -32,6 +32,13 @@ def _quote_command(parts: list[str]) -> str:
     return " ".join(__import__("shlex").quote(part) for part in parts)
 
 
+def _hook_path_arg(value: str | Path) -> str:
+    path = Path(value).resolve()
+    if os.name == "nt":
+        return path.as_posix()
+    return str(path)
+
+
 def _merge_pythonpath(repo_root: Path) -> str:
     existing = str(os.getenv("PYTHONPATH", "") or "").strip()
     parts = [str(repo_root)]
@@ -210,16 +217,16 @@ def _hook_command(provider_base: str, workspace: str, run_id: str, repo_root: Pa
     script_path = repo_root / "scripts" / "cli_hook_bridge.py"
     return _quote_command(
         [
-            sys.executable,
-            str(script_path),
+            _hook_path_arg(sys.executable),
+            _hook_path_arg(script_path),
             "--provider",
             provider_base,
             "--workspace",
-            str(Path(workspace).resolve()),
+            _hook_path_arg(workspace),
             "--run-id",
             str(run_id),
             "--repo-root",
-            str(repo_root),
+            _hook_path_arg(repo_root),
         ]
     )
 
@@ -633,4 +640,3 @@ __all__ = [
     "handle_hook_event",
     "prepare_cli_session",
 ]
-

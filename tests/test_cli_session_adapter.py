@@ -37,6 +37,11 @@ def test_prepare_cli_session_writes_claude_hook_settings(tmp_path: Path):
     assert settings["hooks"]["UserPromptSubmit"]
     assert settings["hooks"]["PreCompact"]
     assert settings["hooks"]["SessionEnd"]
+    hook_command = settings["hooks"]["SessionStart"][0]["hooks"][0]["command"]
+    assert "cli_hook_bridge.py" in hook_command
+    if os.name == "nt":
+        assert "C:/Project/" in hook_command or "C:/" in hook_command
+        assert "\\scripts\\cli_hook_bridge.py" not in hook_command
     assert "permissions" in settings
     assert "Bash(rm:*)" in settings["permissions"]["deny"]
     assert "Bash(git reset --hard:*)" in settings["permissions"]["deny"]
@@ -75,6 +80,11 @@ def test_prepare_cli_session_routes_gemini_hooks_via_generated_defaults_file(tmp
     assert settings["hooks"]["AfterAgent"]
     assert settings["hooks"]["PreCompress"]
     assert settings["hooks"]["SessionEnd"]
+    hook_command = settings["hooks"]["SessionStart"][0]["hooks"][0]["command"]
+    assert "cli_hook_bridge.py" in hook_command
+    if os.name == "nt":
+        assert "C:/Project/" in hook_command or "C:/" in hook_command
+        assert "\\scripts\\cli_hook_bridge.py" not in hook_command
     assert str(guard_path) in settings["policyPaths"]
     assert guard_path.exists()
     assert 'include_tools = ["run_shell_command"]' in guard_text
