@@ -1,6 +1,10 @@
 @echo off
 setlocal EnableExtensions
 chcp 65001 >nul
+set PYTHONUTF8=1
+set PYTHONIOENCODING=utf-8
+set LANG=C.UTF-8
+set LC_ALL=C.UTF-8
 
 set "CODEX_PATH="
 for /f "delims=" %%I in ('where codex 2^>nul') do if not defined CODEX_PATH set "CODEX_PATH=%%~fI"
@@ -40,4 +44,3 @@ setlocal
 >>"%CDX_LOG_FILE%" echo [%DATE% %TIME%] %*
 endlocal
 exit /b 0
-

@@ -107,6 +107,10 @@ def test_prepare_cli_session_sets_codex_shell_guard_on_windows(tmp_path: Path):
     assert sessions_root.exists()
     assert temp_root.exists()
     assert prepared["env"]["TMP"] == str(temp_root)
+    assert prepared["env"]["PYTHONUTF8"] == "1"
+    assert prepared["env"]["PYTHONIOENCODING"] == "utf-8"
+    assert prepared["env"]["LANG"] == "C.UTF-8"
+    assert prepared["env"]["LC_ALL"] == "C.UTF-8"
     if os.name != "nt":
         assert prepared["guard_dir"] == ""
         assert state["destructive_guard_mode"] == "system_prompt_contract"

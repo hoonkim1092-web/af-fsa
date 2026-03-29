@@ -348,6 +348,10 @@ def _prepare_codex_runtime_env(paths: dict[str, Path]) -> dict[str, str]:
         "TEMP": str(temp_root),
         "TMP": str(temp_root),
         "TMPDIR": str(temp_root),
+        "PYTHONUTF8": "1",
+        "PYTHONIOENCODING": "utf-8",
+        "LANG": "C.UTF-8",
+        "LC_ALL": "C.UTF-8",
     }
 
 
