@@ -39,7 +39,7 @@ def _c(text: str, code: str) -> str:
     return f"\033[{code}m{text}\033[0m"
 
 
-def _print_banner(project_id: str, role: str, provider: str):
+def _print_banner(project_id: str, role: str, provider: str, pipeline_mode: str):
     print()
     print(_c("=" * 60, "36"))
     print(_c("  Agent Factory — Interactive Chat", "1;36"))
@@ -47,10 +47,12 @@ def _print_banner(project_id: str, role: str, provider: str):
     print(f"  프로젝트 : {_c(project_id, '33')}")
     print(f"  역할     : {_c(role, '33')}")
     print(f"  엔진     : {_c(provider, '33')}")
+    print(f"  pipeline : {_c(pipeline_mode, '33')}")
     print()
     print(f"  {_c('exit', '90')} 또는 {_c('Ctrl+C', '90')} 로 종료")
     print(f"  {_c('/clear', '90')} 로 대화 초기화")
     print(f"  {_c('/history', '90')} 로 대화 기록 보기")
+    print(f"  {_c('/pipeline', '90')} to view/change pipeline mode")
     print(f"  {_c('/stats', '90')} 로 컨텍스트 통계")
     print(_c("-" * 60, "36"))
     print()
@@ -69,10 +71,16 @@ class InteractiveChat:
         workspace: str,
         model_name: str = "",
         auto_approve: bool = False,
+        execution_mode: str = "approval",
+        pipeline_mode: str = "auto",
+        enable_build: bool = False,
     ):
         self.agent = agent
         self.workspace = workspace
         self.auto_approve = auto_approve
+        self.execution_mode = str(execution_mode or "approval").strip().lower() or "approval"
+        self.pipeline_mode = self._normalize_pipeline_mode(pipeline_mode)
+        self.enable_build = bool(enable_build)
         self.project_id = safe_id(os.path.basename(workspace))
         self.session_id = f"chat_{int(time.time())}"
         self.turn = 0
@@ -82,8 +90,10 @@ class InteractiveChat:
         self._provider_id: str = ""
         self._sys_prompt: str = ""
         self._cwm: Any = None
+        self._factory: Any = None
         self._runner: Any = None
         self._bus: Any = None
+        self._last_route: dict[str, Any] = {}
         self._agent_state: dict = {}
         self._visualizer: TerminalVisualizer = TerminalVisualizer()
 
@@ -136,7 +146,140 @@ class InteractiveChat:
         self._visualizer.register_agent(agent_name)
 
         role = self.agent.get("role", "") or self.agent.get("name", "") or "Agent"
-        _print_banner(self.project_id, role, self._provider_id)
+        _print_banner(self.project_id, role, self._provider_id, self.pipeline_mode)
+
+    def _normalize_pipeline_mode(self, value: str) -> str:
+        mode = str(value or "auto").strip().lower()
+        return mode if mode in {"auto", "single", "project"} else "auto"
+
+    def set_pipeline_mode(self, value: str) -> tuple[bool, str]:
+        raw = str(value or "").strip().lower()
+        normalized = self._normalize_pipeline_mode(raw)
+        if normalized != raw:
+            return False, "pipeline mode must be one of: auto, single, project"
+        self.pipeline_mode = normalized
+        return True, f"pipeline mode set to {self.pipeline_mode}"
+
+    def _get_factory(self):
+        if self._factory is None:
+            from agent_launcher import AgentFactory
+
+            self._factory = AgentFactory()
+        return self._factory
+
+    def _resolve_route(self, user_input: str) -> dict[str, Any]:
+        role_spec = self.agent.get("role", "") or self.agent.get("name", "") or "General Assistant"
+        if self.pipeline_mode in {"single", "project"}:
+            return {
+                "pipeline": self.pipeline_mode,
+                "intent": "forced",
+                "confidence": 100,
+                "reasoning": f"chat_pipeline_mode={self.pipeline_mode}",
+            }
+        try:
+            route = self._get_factory().request_router.route(
+                task_input=user_input,
+                role_spec=role_spec,
+                pipeline_mode=self.pipeline_mode,
+            )
+        except Exception as exc:
+            route = {
+                "pipeline": "single",
+                "intent": "fallback",
+                "confidence": 0,
+                "reasoning": f"chat_route_fallback:{exc}",
+            }
+        if str(route.get("pipeline", "")).strip().lower() not in {"single", "project"}:
+            route["pipeline"] = "single"
+        return route
+
+    def _build_pipeline_task(self, current_input: str) -> str:
+        parts: list[str] = []
+        history_text = self._build_history_text()
+        if history_text:
+            parts.append(f"[Conversation Context]\n{history_text}")
+        parts.append(f"[Latest User Request]\n{current_input}")
+        return "\n\n".join(parts)
+
+    def _run_single_turn(self, user_input: str, task_prompt: str, run_id: str) -> dict:
+        todo_path = os.path.join(self.workspace, ".todo.md")
+        if not os.path.exists(todo_path):
+            role_spec = self.agent.get("role", "") or self.agent.get("name", "")
+            ensure_documentation_files(self.workspace)
+            write_project_todo(self.workspace, single_task_todo_items(user_input, role_spec))
+
+        return self._runner.run(
+            self.agent,
+            task_prompt,
+            run_id=run_id,
+            auto_approve=self.auto_approve,
+            workspace=self.workspace,
+        )
+
+    def _run_project_turn(self, user_input: str) -> dict:
+        role_spec = self.agent.get("role", "") or self.agent.get("name", "") or "General Assistant"
+        factory = self._get_factory()
+        return factory.run(
+            task_input=self._build_pipeline_task(user_input),
+            role_spec=role_spec,
+            enable_build=self.enable_build,
+            execution_mode=self.execution_mode,
+            workspace=self.workspace,
+            pipeline_mode="project",
+        )
+
+    def _format_project_result(self, result: dict) -> str:
+        reason = str(result.get("reason") or "unknown").strip() or "unknown"
+        message = str(result.get("message") or "").strip()
+        if result.get("ok"):
+            roles = ", ".join(str(x) for x in (result.get("roles") or []) if str(x).strip()) or "-"
+            board = result.get("board") or {}
+            completed = len(board.get("completed_subtasks", []) or [])
+            failed = len(board.get("failed_subtasks", []) or [])
+            lines = [
+                "[Project Pipeline] completed",
+                f"roles: {roles}",
+                f"completed: {completed}, failed: {failed}",
+            ]
+            work_item_dir = str(result.get("work_item_dir") or "").strip()
+            if work_item_dir:
+                lines.append(f"work-items: {work_item_dir}")
+            planning_files = result.get("planning_files") or []
+            if planning_files:
+                lines.append(f"planning files: {len(planning_files)}")
+            return "\n".join(lines)
+
+        lines = [f"[Project Pipeline] {reason}"]
+        if message:
+            lines.append(message)
+        changed_files = result.get("changed_files") or []
+        if changed_files:
+            lines.append(f"changed files: {', ' .join(str(x) for x in changed_files)}")
+        gate_path = str(result.get("gate_path") or "").strip()
+        if gate_path:
+            lines.append(f"approval gate: {gate_path}")
+        return "\n".join(lines)
+
+    def handle_command(self, user_input: str) -> bool:
+        cmd = user_input.lower().strip()
+        if cmd == "/clear":
+            self.clear_history()
+            return True
+        if cmd == "/history":
+            self.show_history()
+            return True
+        if cmd == "/stats":
+            self.show_stats()
+            return True
+        if cmd.startswith("/pipeline"):
+            parts = user_input.split(maxsplit=1)
+            if len(parts) == 1:
+                print(_c(f"  pipeline mode: {self.pipeline_mode}", "36"))
+            else:
+                ok, msg = self.set_pipeline_mode(parts[1])
+                print(_c(f"  {msg}", "36" if ok else "31"))
+            return True
+        return False
 
     def _resolve_cli_provider(self) -> str:
         """역할에 맞는 CLI 제공자를 결정한다."""
@@ -196,13 +339,8 @@ class InteractiveChat:
 
         # CWM 압축 히스토리 + 현재 메시지로 태스크 프롬프트 구성
         task_prompt = self._build_task_prompt(user_input)
-
-        # .todo.md 없으면 무조건 생성 (TodoContinuationEnforcer 차단 방지)
-        todo_path = os.path.join(self.workspace, ".todo.md")
-        if not os.path.exists(todo_path):
-            role_spec = self.agent.get("role", "") or self.agent.get("name", "")
-            ensure_documentation_files(self.workspace)
-            write_project_todo(self.workspace, single_task_todo_items(user_input, role_spec))
+        route = self._resolve_route(user_input)
+        self._last_route = dict(route)
 
         # TerminalVisualizer: 매 턴 register_agent 호출 (멱등 - 이미 등록된 경우 무시됨)
         # mark_completed/failed 이후 다음 턴에도 update_phase가 정상 동작하도록 보장
@@ -210,7 +348,7 @@ class InteractiveChat:
         self._visualizer.register_agent(agent_name)
         self._visualizer.update_phase(
             agent_name,
-            AgentPhase.CODING,
+            AgentPhase.DESIGNING if route.get("pipeline") == "project" else AgentPhase.CODING,
             task_summary=user_input[:30],
             cycle=self.turn,
         )
@@ -218,13 +356,10 @@ class InteractiveChat:
         # AgentRunner.run() — FSA와 동일한 파이프라인
         run_id = f"{self.session_id}_t{self.turn}"
         try:
-            result = self._runner.run(
-                self.agent,
-                task_prompt,
-                run_id=run_id,
-                auto_approve=self.auto_approve,
-                workspace=self.workspace,
-            )
+            if route.get("pipeline") == "project":
+                result = self._run_project_turn(user_input)
+            else:
+                result = self._run_single_turn(user_input, task_prompt, run_id)
         except Exception as exc:
             # 예외가 발생해도 세션은 유지: 에러 메시지를 응답으로 반환
             self._visualizer.mark_failed(agent_name)
@@ -250,6 +385,8 @@ class InteractiveChat:
 
     def _extract_response_text(self, result: dict) -> str:
         """AgentRunner.run() 결과에서 응답 텍스트를 추출한다."""
+        if str(result.get("pipeline") or "").strip().lower() == "project":
+            return self._format_project_result(result)
         if result.get("ok"):
             # 성공: output > reason > 기본 메시지 순으로 시도
             text = (
@@ -350,6 +487,7 @@ class InteractiveChat:
             recent_window=6,
         )
         self.turn = 0
+        self._last_route = {}
         print(_c("  대화 히스토리가 초기화되었습니다.", "33"))
 
     def show_history(self):
@@ -375,6 +513,9 @@ class InteractiveChat:
         print(f"  대화 턴  : {self.turn}")
         print(f"  히스토리 : {h.get('total_tokens', 0)} 토큰 ({h.get('total_entries', 0)}개 항목)")
         print(f"  압축됨   : {h.get('compressed_entries', 0)}개 (절약: {h.get('saved_tokens', 0)} 토큰)")
+        print(f"  pipeline : {self.pipeline_mode}")
+        if self._last_route:
+            print(f"  last route: {self._last_route.get('pipeline', 'single')} ({self._last_route.get('reasoning', '')})")
         print(f"  엔진     : {self._provider_id}")
         print()
 
@@ -526,14 +667,8 @@ def _run_pdca_repl(chat: "PDCAInteractiveChat"):
                 break
 
             # 기존 슬래시 커맨드
-            if cmd == "/clear":
-                chat.clear_history()
-                continue
-            if cmd == "/history":
-                chat.show_history()
-                continue
-            if cmd == "/stats":
-                chat.show_stats()
+            # built-in slash commands
+            if chat.handle_command(user_input):
                 continue
             if cmd == "/help":
                 _print_pdca_help()
@@ -590,6 +725,8 @@ def _print_pdca_help():
         ("/clear",   "대화 초기화"),
         ("/history", "대화 기록"),
         ("/stats",   "컨텍스트 통계"),
+        ("/pipeline", "pipeline mode"),
+        ("/pipeline auto|single|project", "change pipeline mode"),
         ("exit",     "종료"),
     ]
     for cmd, desc in basic_cmds:
@@ -639,6 +776,9 @@ def run_interactive(
     role: str = "General Assistant",
     model: str = "",
     auto_approve: bool = False,
+    execution_mode: str = "approval",
+    pipeline_mode: str = "auto",
+    enable_build: bool = False,
 ):
     """대화형 채팅 모드 진입점."""
     print(f"[Chat] 시작 중... (project={project_id})", flush=True)
@@ -649,6 +789,9 @@ def run_interactive(
         agent=agent,
         workspace=workspace,
         model_name=model,
+        execution_mode=execution_mode,
+        pipeline_mode=pipeline_mode,
+        enable_build=enable_build,
         auto_approve=auto_approve,
     )
 
@@ -671,18 +814,13 @@ def run_interactive(
             cmd = user_input.lower()
             if cmd in ("exit", "quit", "bye", "/exit", "/quit"):
                 break
-            if cmd == "/clear":
-                chat.clear_history()
-                continue
-            if cmd == "/history":
-                chat.show_history()
-                continue
-            if cmd == "/stats":
-                chat.show_stats()
+            if chat.handle_command(user_input):
                 continue
             if cmd == "/help":
                 print(f"\n  {_c('/clear', '32')}    대화 초기화")
                 print(f"  {_c('/history', '32')}  대화 기록 보기")
+                print(f"  {_c('/pipeline', '32')}  pipeline mode")
+                print(f"  {_c('/pipeline auto|single|project', '32')}  change pipeline mode")
                 print(f"  {_c('/stats', '32')}    컨텍스트 통계")
                 print(f"  {_c('exit', '32')}      종료\n")
                 continue

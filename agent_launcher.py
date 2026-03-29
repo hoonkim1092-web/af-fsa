@@ -405,6 +405,15 @@ class AgentFactory:
         if route.get("pipeline") == "project":
             target_workspace = workspace or PROJECT_ROOT
             print(f"\n[Router] project pipeline selected: {route.get('reasoning', '')}")
+            if execution_mode == "fsa":
+                return self.project_pipeline.run(
+                    task_input=task_input,
+                    workspace=target_workspace,
+                    execution_mode=execution_mode,
+                    enable_build=enable_build,
+                    requested_role=role_spec,
+                    route=route,
+                )
             return self._run_project_with_approval(
                 task_input=task_input,
                 workspace=target_workspace,

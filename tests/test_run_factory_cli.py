@@ -105,3 +105,45 @@ def test_run_factory_cli_rejects_provider_command_without_provider(monkeypatch):
         )
 
     assert calls == []
+
+
+def test_run_factory_cli_chat_passes_pipeline_options(monkeypatch, tmp_path):
+    calls = []
+
+    def _fake_run_interactive(**kwargs):
+        calls.append(kwargs)
+
+    fake_chat = types.ModuleType("core.interactive_chat")
+    fake_chat.run_interactive = _fake_run_interactive
+    monkeypatch.setitem(sys.modules, "core.interactive_chat", fake_chat)
+
+    import run_factory_cli
+
+    cli = importlib.reload(run_factory_cli)
+    cli.main(
+        [
+            "--project",
+            "demo",
+            "--chat",
+            "--role",
+            "Frontend Architect",
+            "--model",
+            "gpt-5.4",
+            "--mode",
+            "fsa",
+            "--build",
+            "--pipeline",
+            "project",
+            "--projects-root",
+            str(tmp_path / "projects"),
+        ]
+    )
+
+    assert len(calls) == 1
+    assert calls[0]["project_id"] == "demo"
+    assert calls[0]["role"] == "Frontend Architect"
+    assert calls[0]["model"] == "gpt-5.4"
+    assert calls[0]["auto_approve"] is True
+    assert calls[0]["execution_mode"] == "fsa"
+    assert calls[0]["pipeline_mode"] == "project"
+    assert calls[0]["enable_build"] is True
