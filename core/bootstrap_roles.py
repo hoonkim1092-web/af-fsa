@@ -426,6 +426,11 @@ Return JSON only:
 Rules:
 {_build_policy_rules()}
 
+Evidence Grounding Rules:
+- If the research brief contains evidence_summary, local_references, web_references, or notebook_summary, derive modules, deliverables, acceptance criteria, and task slices from that evidence.
+- Prefer concrete module names, file or interface oriented tasks, and observable acceptance criteria over generic placeholders.
+- When the brief references existing documents or flows, preserve them as implementation constraints or verification targets.
+
 MANDATORY: You MUST always include a "qa_engineer" role. QA is non-negotiable.
 The qa_engineer must own at least one module with verify-phase tasks.
 """.strip()

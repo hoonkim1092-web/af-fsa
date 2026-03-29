@@ -1,3 +1,4 @@
+import inspect
 import json
 import os
 import time
@@ -51,6 +52,8 @@ class PreparedProject:
     task_board_path: str = ""
     task_execution_plan_path: str = ""
     todo_path: str = ""
+    research_evidence: dict = field(default_factory=dict)
+    research_evidence_path: str = ""
 
     def work_item_dir(self) -> str:
         return os.path.join(self.workspace, "docs", "work-items", self.work_item_slug)
@@ -240,11 +243,30 @@ class ProjectPipeline:
 
         # -- Research --
         research_agent = build_bootstrap_agent("research_director")
-        project_brief = self.research.research_project_brief(
-            research_agent,
-            task_input,
-            workspace=target_workspace,
-        )
+        research_evidence: dict = {}
+        collect_evidence = getattr(self.research, "collect_project_evidence", None)
+        if callable(collect_evidence):
+            try:
+                research_evidence = collect_evidence(task_input, workspace=target_workspace) or {}
+            except Exception:
+                research_evidence = {}
+        research_evidence_path = os.path.join(planning_dir, "research_evidence.json")
+        self._write_json(research_evidence_path, research_evidence)
+
+        brief_params = inspect.signature(self.research.research_project_brief).parameters
+        if "evidence_bundle" in brief_params:
+            project_brief = self.research.research_project_brief(
+                research_agent,
+                task_input,
+                workspace=target_workspace,
+                evidence_bundle=research_evidence,
+            )
+        else:
+            project_brief = self.research.research_project_brief(
+                research_agent,
+                task_input,
+                workspace=target_workspace,
+            )
         project_brief["requested_role"] = requested_role
         project_brief["route"] = route or {}
         project_brief["generated_at"] = now_iso()
@@ -282,6 +304,7 @@ class ProjectPipeline:
         )
 
         planning_files = [
+            to_portable_path(research_evidence_path),
             to_portable_path(project_brief_path),
             to_portable_path(role_plan_path),
             to_portable_path(task_board_path),
@@ -303,6 +326,8 @@ class ProjectPipeline:
             task_board_path=to_portable_path(task_board_path),
             task_execution_plan_path=to_portable_path(task_execution_plan_path),
             todo_path=to_portable_path(todo_path),
+            research_evidence=research_evidence,
+            research_evidence_path=to_portable_path(research_evidence_path),
         )
 
     # ------------------------------------------------------------------
@@ -407,6 +432,7 @@ class ProjectPipeline:
             "task_board_path": prepared.task_board_path,
             "task_execution_plan_path": prepared.task_execution_plan_path,
             "todo_path": prepared.todo_path,
+            "research_evidence_path": prepared.research_evidence_path,
         }
 
     # ------------------------------------------------------------------

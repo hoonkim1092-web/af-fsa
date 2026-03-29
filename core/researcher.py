@@ -5,7 +5,8 @@ import sys
 from core.requirement_llm import execute_requirement_prompt
 from core.utils import (
     safe_id, read_yaml, write_yaml, now_iso, get_random_signature,
-    print_agent_msg, safe_json_load, resolve_skill_paths, resolve_existing_path
+    print_agent_msg, safe_json_load, resolve_skill_paths, resolve_existing_path,
+    to_portable_path,
 )
 from core.config_paths import AGENTS_DIR, REGISTRY_PATH
 from core.research_engine import query_notebooklm
@@ -189,6 +190,253 @@ class HimariResearchAgent:
         )
         return target
 
+    def _repo_root(self) -> str:
+        return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+    def _compact_text(self, value: str, limit: int = 240) -> str:
+        text = " ".join(str(value or "").split())
+        if len(text) <= limit:
+            return text
+        return text[: max(limit - 3, 0)].rstrip() + "..."
+
+    def _workspace_notes(self, workspace: str) -> list[str]:
+        notes: list[str] = []
+        target_workspace = os.path.abspath(workspace or os.getcwd())
+
+        todo_path = os.path.join(target_workspace, ".todo.md")
+        if os.path.exists(todo_path):
+            notes.append(f"existing_todo={to_portable_path(os.path.relpath(todo_path, target_workspace))}")
+
+        board_path = os.path.join(target_workspace, "project_board_state.json")
+        if os.path.exists(board_path):
+            notes.append(f"existing_project_board={to_portable_path(os.path.relpath(board_path, target_workspace))}")
+
+        work_items_dir = os.path.join(target_workspace, "docs", "work-items")
+        if os.path.isdir(work_items_dir):
+            item_count = sum(1 for entry in os.listdir(work_items_dir) if os.path.isdir(os.path.join(work_items_dir, entry)) and not entry.startswith("_"))
+            if item_count:
+                notes.append(f"existing_work_items={item_count}")
+
+        agents_dir = os.path.join(target_workspace, "agents")
+        if os.path.isdir(agents_dir):
+            agent_count = sum(1 for name in os.listdir(agents_dir) if name.endswith((".yml", ".yaml")))
+            if agent_count:
+                notes.append(f"existing_agents={agent_count}")
+
+        return notes
+
+    def _is_allowed_reference_path(self, source_path: str) -> bool:
+        portable = "/" + to_portable_path(source_path).replace("\\", "/").lower().lstrip("/")
+        blocked_tokens = (
+            "/.git/",
+            "/dist/",
+            "/build/",
+            "/node_modules/",
+            "/.system_generated/",
+            "/__pycache__/",
+            "/.r1210/",
+            "/.r129/",
+            "/docs/work-items/_template/",
+        )
+        return not any(token in portable for token in blocked_tokens)
+
+    def _reference_path(self, source_path: str, root: str) -> str:
+        abs_path = os.path.abspath(source_path)
+        try:
+            rel = os.path.relpath(abs_path, os.path.abspath(root))
+            if not rel.startswith(".."):
+                return to_portable_path(rel)
+        except Exception:
+            pass
+        return to_portable_path(abs_path)
+
+    def _collect_local_references(self, task_input: str, workspace: str, limit: int = 6) -> list[dict]:
+        from core.ingestion_pipeline import IngestionPipeline
+
+        roots: list[str] = []
+        for candidate in [workspace, self._repo_root()]:
+            if not candidate:
+                continue
+            candidate_abs = os.path.abspath(candidate)
+            if os.path.isdir(candidate_abs) and candidate_abs not in roots:
+                roots.append(candidate_abs)
+
+        refs: list[dict] = []
+        seen: set[tuple[str, str, str]] = set()
+        for root in roots:
+            try:
+                pipeline = IngestionPipeline(project_root=root)
+                pipeline.run(force=True)
+                results = pipeline.search(task_input, top_k=max(limit, 8))
+            except Exception:
+                continue
+
+            for result in results:
+                chunk = getattr(result, "chunk", None)
+                if not chunk:
+                    continue
+                source_path = os.path.abspath(str(getattr(chunk, "source_path", "") or ""))
+                if not source_path or not os.path.exists(source_path):
+                    continue
+                if not self._is_allowed_reference_path(source_path):
+                    continue
+
+                path_label = self._reference_path(source_path, root)
+                heading = self._compact_text(getattr(chunk, "heading", ""), limit=120)
+                excerpt = self._compact_text(getattr(chunk, "content", ""), limit=260)
+                key = (path_label, heading, excerpt)
+                if key in seen:
+                    continue
+                seen.add(key)
+                refs.append(
+                    {
+                        "path": path_label,
+                        "heading": heading,
+                        "excerpt": excerpt,
+                        "score": round(float(getattr(result, "score", 0.0) or 0.0), 4),
+                    }
+                )
+                if len(refs) >= limit:
+                    return refs
+        return refs
+
+    def _collect_web_references(self, task_input: str, limit: int = 4) -> list[dict]:
+        if not os.getenv("TAVILY_API_KEY"):
+            return []
+        try:
+            from core.web_search import tavily_search
+            results = tavily_search(task_input, max_results=limit, include_answer=False)
+        except Exception:
+            return []
+
+        refs: list[dict] = []
+        for item in results[:limit]:
+            url = str(item.get("url") or "").strip()
+            title = self._compact_text(item.get("title") or url, limit=120)
+            excerpt = self._compact_text(item.get("content") or "", limit=260)
+            if not url:
+                continue
+            refs.append(
+                {
+                    "url": url,
+                    "title": title,
+                    "excerpt": excerpt,
+                    "score": round(float(item.get("score") or 0.0), 4),
+                }
+            )
+        return refs
+
+    def _collect_notebook_summary(self, task_input: str, local_refs: list[dict], web_refs: list[dict]) -> str:
+        try:
+            import importlib.util
+            if importlib.util.find_spec("notebooklm_tools") is None:
+                return ""
+        except Exception:
+            return ""
+
+        prompt_lines = [
+            "Summarize the implementation evidence for the following project request.",
+            f"Task: {task_input}",
+        ]
+        if local_refs:
+            prompt_lines.append("Local references:")
+            for ref in local_refs[:4]:
+                prompt_lines.append(
+                    f"- {ref.get('path')}: {ref.get('heading') or ref.get('excerpt') or ''}"
+                )
+        if web_refs:
+            prompt_lines.append("Web references:")
+            for ref in web_refs[:3]:
+                prompt_lines.append(
+                    f"- {ref.get('title') or ref.get('url')}: {ref.get('excerpt') or ''}"
+                )
+        prompt_lines.append(
+            "Return a concise synthesis covering deliverables, implementation constraints, risks, and verification focus."
+        )
+
+        try:
+            insight = query_notebooklm("\n".join(prompt_lines))
+        except Exception:
+            return ""
+        return self._compact_text(insight, limit=1200)
+
+    def _build_evidence_summary(
+        self,
+        workspace_notes: list[str],
+        local_refs: list[dict],
+        web_refs: list[dict],
+        notebook_summary: str,
+    ) -> list[str]:
+        summary: list[str] = []
+        for note in workspace_notes[:3]:
+            summary.append(f"Workspace note: {note}")
+        for ref in local_refs[:3]:
+            path = str(ref.get("path") or "").strip()
+            excerpt = str(ref.get("excerpt") or ref.get("heading") or "").strip()
+            if path:
+                summary.append(f"Local reference: {path} -> {excerpt}")
+        for ref in web_refs[:3]:
+            label = str(ref.get("title") or ref.get("url") or "").strip()
+            excerpt = str(ref.get("excerpt") or "").strip()
+            if label:
+                summary.append(f"Web reference: {label} -> {excerpt}")
+        if notebook_summary:
+            summary.append(f"NotebookLM synthesis: {self._compact_text(notebook_summary, limit=280)}")
+        return summary[:8]
+
+    def collect_project_evidence(self, task_input: str, workspace: str | None = None) -> dict:
+        target_workspace = os.path.abspath(workspace or os.getenv("AGENT_PROJECT_ROOT") or os.getcwd())
+        workspace_notes = self._workspace_notes(target_workspace)
+        local_refs = self._collect_local_references(task_input, target_workspace)
+        web_refs = self._collect_web_references(task_input)
+        notebook_summary = self._collect_notebook_summary(task_input, local_refs, web_refs)
+        evidence_summary = self._build_evidence_summary(
+            workspace_notes,
+            local_refs,
+            web_refs,
+            notebook_summary,
+        )
+        return {
+            "workspace_notes": workspace_notes,
+            "local_references": local_refs,
+            "web_references": web_refs,
+            "notebook_summary": notebook_summary,
+            "evidence_summary": evidence_summary,
+        }
+
+    def _merge_project_brief_evidence(self, brief: dict, task_input: str, evidence_bundle: dict | None) -> dict:
+        data = dict(brief or {})
+        evidence = dict(evidence_bundle or {})
+        workspace_notes = [str(x).strip() for x in (evidence.get("workspace_notes") or []) if str(x).strip()]
+        evidence_summary = [str(x).strip() for x in (evidence.get("evidence_summary") or []) if str(x).strip()]
+        notebook_summary = str(evidence.get("notebook_summary") or "").strip()
+        local_references = [item for item in (evidence.get("local_references") or []) if isinstance(item, dict)]
+        web_references = [item for item in (evidence.get("web_references") or []) if isinstance(item, dict)]
+
+        data.setdefault("goal", task_input)
+        data["constraints"] = [str(x) for x in (data.get("constraints") or []) if str(x).strip()]
+        data["required_skills"] = [safe_id(str(x)) for x in (data.get("required_skills") or []) if str(x).strip()]
+        data["role_hints"] = [safe_id(str(x)) for x in (data.get("role_hints") or []) if str(x).strip()]
+        data["deliverables"] = [str(x).strip() for x in (data.get("deliverables") or []) if str(x).strip()]
+        data["risks"] = [str(x).strip() for x in (data.get("risks") or []) if str(x).strip()]
+        data["research_notes"] = [str(x).strip() for x in (data.get("research_notes") or []) if str(x).strip()]
+        data["tech_stack"] = [str(x).strip() for x in (data.get("tech_stack") or []) if str(x).strip()]
+        data["workspace_notes"] = workspace_notes
+        data["evidence_summary"] = evidence_summary
+        data["local_references"] = local_references
+        data["web_references"] = web_references
+        data["notebook_summary"] = notebook_summary
+
+        derived_notes: list[str] = []
+        if local_references:
+            derived_notes.append(f"local_references={len(local_references)}")
+        if web_references:
+            derived_notes.append(f"web_references={len(web_references)}")
+        if notebook_summary:
+            derived_notes.append("notebook_summary=available")
+        data["research_notes"] = list(dict.fromkeys(data["research_notes"] + derived_notes + evidence_summary[:4]))
+        return data
+
     def _fallback_project_brief(self, task_input: str) -> dict:
         text = (task_input or "").lower()
         required_skills: list[str] = []
@@ -196,7 +444,7 @@ class HimariResearchAgent:
         deliverables: list[str] = []
         risks: list[str] = []
 
-        if any(token in text for token in ("game", "게임", "poker", "포커")):
+        if any(token in text for token in ("game", "lotto", "poker", "game")):
             required_skills.extend([
                 "gameplay_core",
                 "state_machine",
@@ -204,21 +452,21 @@ class HimariResearchAgent:
                 "integration_test_guard",
             ])
             role_hints.extend(["game_logic_dev", "frontend_dev", "qa_engineer"])
-            deliverables.extend(["게임 규칙 구현", "플레이 UI", "통합 테스트"])
-            risks.extend(["상태 전이 복잡도", "룰 고정 오류"])
-        if any(token in text for token in ("web", "ui", "페이지", "screen", "frontend")):
+            deliverables.extend(["core rules implementation", "player-facing UI", "integration verification"])
+            risks.extend(["complex state transitions", "incorrect rule evaluation"])
+        if any(token in text for token in ("web", "ui", "page", "screen", "frontend")):
             required_skills.append("frontend_game_ui")
             role_hints.append("frontend_dev")
-        if any(token in text for token in ("api", "db", "backend", "서버")):
+        if any(token in text for token in ("api", "db", "backend", "server")):
             required_skills.append("backend_service")
             role_hints.append("backend_dev")
-            risks.append("데이터 모델 정합성")
+            risks.append("data model integrity")
         if not required_skills:
             required_skills.extend(["implementation_plan", "integration_test_guard"])
         if not role_hints:
             role_hints.extend(["general_dev", "qa_engineer"])
         if not deliverables:
-            deliverables.append("작동하는 구현 결과")
+            deliverables.append("working implementation output")
 
         return {
             "goal": task_input,
@@ -231,21 +479,33 @@ class HimariResearchAgent:
             "tech_stack": [],
         }
 
-    def research_project_brief(self, agent: dict, task_input: str, workspace: str | None = None) -> dict:
+    def research_project_brief(
+        self,
+        agent: dict,
+        task_input: str,
+        workspace: str | None = None,
+        evidence_bundle: dict | None = None,
+    ) -> dict:
         identity = agent if isinstance(agent, dict) and agent else self._himari_identity()
         sig = get_random_signature(identity)
-        print_agent_msg(identity.get("name", "Himari"), f"프로젝트 착수 리서치를 시작합니다: {task_input}", sig)
+        print_agent_msg(identity.get("name", "Himari"), f"Project kickoff research started: {task_input}", sig)
 
         target_workspace = workspace or os.getenv("AGENT_PROJECT_ROOT") or os.getcwd()
-        workspace_notes = []
-        todo_path = os.path.join(target_workspace, ".todo.md")
-        if os.path.exists(todo_path):
-            workspace_notes.append(f"existing_todo={todo_path}")
+        evidence = evidence_bundle or self.collect_project_evidence(task_input, workspace=target_workspace)
+        workspace_notes = [str(x).strip() for x in (evidence.get("workspace_notes") or []) if str(x).strip()]
+        local_refs = [item for item in (evidence.get("local_references") or []) if isinstance(item, dict)]
+        web_refs = [item for item in (evidence.get("web_references") or []) if isinstance(item, dict)]
+        notebook_summary = str(evidence.get("notebook_summary") or "").strip()
+        evidence_summary = [str(x).strip() for x in (evidence.get("evidence_summary") or []) if str(x).strip()]
 
         prompt = f"""
 You are Himari, a project research director.
 Task: {task_input}
-Workspace notes: {workspace_notes}
+Workspace notes(JSON): {json.dumps(workspace_notes, ensure_ascii=False)}
+Evidence summary(JSON): {json.dumps(evidence_summary, ensure_ascii=False)}
+Local references(JSON): {json.dumps(local_refs[:6], ensure_ascii=False)}
+Web references(JSON): {json.dumps(web_refs[:4], ensure_ascii=False)}
+NotebookLM synthesis: {notebook_summary or '(none)'}
 
 Return JSON only:
 {{
@@ -260,9 +520,11 @@ Return JSON only:
 }}
 
 Rules:
-        - required_skills: 3 to 8 concrete skills in English snake_case.
-        - role_hints: 2 to 5 practical implementation roles.
-        - deliverables and risks should be short Korean phrases.
+- required_skills: 3 to 8 concrete skills in English snake_case.
+- role_hints: 2 to 5 practical implementation roles.
+- deliverables and risks should be short Korean phrases.
+- Use the evidence bundle to ground deliverables, risks, and implementation constraints when evidence is available.
+- Prefer concrete modules, interfaces, verification targets, and existing project documents over generic placeholders.
         """.strip()
         try:
             result = execute_requirement_prompt(prompt, workspace=target_workspace)
@@ -271,21 +533,14 @@ Rules:
             data = safe_json_load(result.get("text") or "{}")
             if not isinstance(data, dict):
                 raise ValueError("project_brief_not_dict")
-            data.setdefault("goal", task_input)
-            data["constraints"] = [str(x) for x in (data.get("constraints") or []) if str(x).strip()]
-            data["required_skills"] = [safe_id(str(x)) for x in (data.get("required_skills") or []) if str(x).strip()]
-            data["role_hints"] = [safe_id(str(x)) for x in (data.get("role_hints") or []) if str(x).strip()]
-            data["deliverables"] = [str(x).strip() for x in (data.get("deliverables") or []) if str(x).strip()]
-            data["risks"] = [str(x).strip() for x in (data.get("risks") or []) if str(x).strip()]
-            data["research_notes"] = [str(x).strip() for x in (data.get("research_notes") or []) if str(x).strip()]
-            data["tech_stack"] = [str(x).strip() for x in (data.get("tech_stack") or []) if str(x).strip()]
+            data = self._merge_project_brief_evidence(data, task_input, evidence)
             if not data["required_skills"]:
                 raise ValueError("required_skills_missing")
             if not data["role_hints"]:
                 raise ValueError("role_hints_missing")
             return data
         except Exception:
-            return self._fallback_project_brief(task_input)
+            return self._merge_project_brief_evidence(self._fallback_project_brief(task_input), task_input, evidence)
 
     def research(self, agent: dict, reqs: dict, build_targets: list[str] | None = None) -> dict:
         missing = [safe_id(str(s)) for s in (build_targets or reqs.get("missing_skills") or []) if str(s).strip()]

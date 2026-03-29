@@ -632,24 +632,41 @@ def board_prompt_digest(board: dict[str, Any], max_tasks: int = 12, max_instruct
 
 def write_task_execution_plan(workspace: str, project_brief: dict[str, Any], role_plan: dict[str, Any], board: dict[str, Any]) -> str:
     target_path = os.path.join(os.path.abspath(workspace), TASK_EXECUTION_PLAN_REL_PATH)
+
+    research_lines: list[str] = []
+    for item in _clean_list(project_brief.get("evidence_summary"))[:8]:
+        research_lines.append(f"- {item}")
+    if not research_lines:
+        for item in _clean_list(project_brief.get("research_notes"))[:6]:
+            research_lines.append(f"- {item}")
+    notebook_summary = _clean_text(project_brief.get("notebook_summary"))
+    if notebook_summary:
+        trimmed = notebook_summary if len(notebook_summary) <= 280 else notebook_summary[:277].rstrip() + "..."
+        research_lines.append(f"- NotebookLM: {trimmed}")
+    if not research_lines:
+        research_lines.append("- (additional research needed)")
+
     lines = [
-        "# 작업 실행 계획",
+        "# Task Execution Plan",
         "",
-        "## 개요",
-        f"- 프로젝트 목표: {_clean_text(project_brief.get('goal'))}",
-        f"- 실행 전략: {_clean_text(role_plan.get('execution_strategy') or 'parallel')}",
-        f"- 역할 수: {len(role_plan.get('roles') or [])}",
-        f"- 모듈 수: {len(role_plan.get('modules') or [])}",
-        f"- 작업 수: {len(board.get('tasks') or [])}",
+        "## Overview",
+        f"- project_goal: {_clean_text(project_brief.get('goal'))}",
+        f"- execution_strategy: {_clean_text(role_plan.get('execution_strategy') or 'parallel')}",
+        f"- role_count: {len(role_plan.get('roles') or [])}",
+        f"- module_count: {len(role_plan.get('modules') or [])}",
+        f"- task_count: {len(board.get('tasks') or [])}",
         "",
-        "## 단계별 진행 순서",
+        "## Evidence",
+        *research_lines,
+        "",
+        "## Stage Order",
     ]
     for index, step in enumerate(role_plan.get("planning_steps") or default_planning_steps(), start=1):
         lines.append(f"{index}. {step.get('name')}")
-        lines.append(f"   목적: {_clean_text(step.get('objective'))}")
+        lines.append(f"   objective: {_clean_text(step.get('objective'))}")
         criteria = _clean_list(step.get("exit_criteria"))
-        lines.append(f"   종료 조건: {', '.join(criteria) if criteria else '-'}")
-    lines.extend(["", "## 역할별 모듈 분해"])
+        lines.append(f"   exit_criteria: {', '.join(criteria) if criteria else '-'}")
+    lines.extend(["", "## Module Breakdown By Role"])
 
     role_lookup = {safe_id(role.get("id")): role for role in (role_plan.get("roles") or []) if isinstance(role, dict)}
     for module in (role_plan.get("modules") or []):
@@ -657,37 +674,36 @@ def write_task_execution_plan(workspace: str, project_brief: dict[str, Any], rol
             continue
         owner = role_lookup.get(safe_id(module.get("owner_role")), {})
         lines.append(f"### {module.get('name')}")
-        lines.append(f"- 담당 역할: {_role_name(owner) if owner else _clean_text(module.get('owner_role'))}")
-        lines.append(f"- 목표: {_clean_text(module.get('summary'))}")
-        lines.append(f"- 기능 슬라이스: {', '.join(_clean_list(module.get('feature_slices'))) or '-'}")
-        lines.append(f"- 산출물: {', '.join(_clean_list(module.get('deliverables'))) or '-'}")
+        lines.append(f"- owner_role: {_role_name(owner) if owner else _clean_text(module.get('owner_role'))}")
+        lines.append(f"- objective: {_clean_text(module.get('summary'))}")
+        lines.append(f"- feature_slices: {', '.join(_clean_list(module.get('feature_slices'))) or '-'}")
+        lines.append(f"- deliverables: {', '.join(_clean_list(module.get('deliverables'))) or '-'}")
         depends = ", ".join(_clean_list(module.get("depends_on"))) or "-"
-        lines.append(f"- 선행 모듈: {depends}")
-        lines.append("- 작업:")
+        lines.append(f"- depends_on: {depends}")
+        lines.append("- tasks:")
         for task in (module.get("tasks") or []):
             if not isinstance(task, dict):
                 continue
             acceptance = ", ".join(_clean_list(task.get("acceptance"))) or "-"
             lines.append(f"  - [{task.get('phase', 'build')}] {task.get('instruction')}")
-            lines.append(f"    완료 기준: {acceptance}")
+            lines.append(f"    acceptance: {acceptance}")
         lines.append("")
 
     lines.extend(
         [
-            "## 실행 규칙",
-            "- 각 작업은 작은 기능 슬라이스 단위로 끝낼 수 있어야 한다.",
-            "- 모듈 간 의존성은 `depends_on`을 기준으로 해결한다.",
-            "- 구현 전에 범위와 파일 경계를 먼저 정리한다.",
-            "- 검증 작업은 구현 작업과 별도 태스크로 유지한다.",
+            "## Execution Rules",
+            "- Each task should finish as a small, independent slice of work.",
+            "- Resolve dependencies using `depends_on` before parallelizing the next step.",
+            "- Define scope and file boundaries before implementation begins.",
+            "- Keep verification work as separate tasks instead of burying it inside build tasks.",
             "",
-            "## 역할 간 handoff 규칙",
-            "- 에이전트는 task_id 기준으로 handoff, blocker, decision_request, decision_response, review_request, review_result, result 메시지를 남긴다.",
-            "- handoff와 review_request에는 관련 파일 경로와 완료 기준을 함께 적는다.",
-            "- blocker는 현재 막힌 이유와 필요한 결정 또는 입력을 명시한다.",
-            "- 수신자는 작업 시작 전에 inbox를 확인하고 필요한 메시지를 ack 한다.",
+            "## Handoff Rules",
+            "- Agents should communicate using task_id-scoped handoff, blocker, decision_request, decision_response, review_request, review_result, and result messages.",
+            "- Include relevant file paths and acceptance criteria in each handoff or review request.",
+            "- Every blocker should state what is blocked, why, and what decision or input is required.",
+            "- Each receiving agent should check the inbox and acknowledge required messages before starting work.",
             "",
         ]
     )
     write_text(target_path, "\n".join(lines).rstrip() + "\n")
     return target_path
-

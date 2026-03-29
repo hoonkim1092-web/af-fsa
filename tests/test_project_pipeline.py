@@ -43,12 +43,74 @@ def test_factory_routes_complex_task_to_project_pipeline(monkeypatch, tmp_path):
     assert routed[0]["requested_role"] == "General"
 
 
+def test_factory_routes_project_pipeline_directly_in_fsa_mode(monkeypatch, tmp_path):
+    al = _load_launcher(monkeypatch)
+    factory = al.AgentFactory()
+
+    routed = []
+    approvals = []
+    factory.request_router.route = lambda **kwargs: {
+        "pipeline": "project",
+        "intent": "greenfield",
+        "confidence": 99,
+        "reasoning": "forced-test",
+    }
+    factory.project_pipeline.run = lambda **kwargs: routed.append(kwargs) or {
+        "pipeline": "project",
+        "ok": True,
+        "reason": "completed",
+    }
+    factory._run_project_with_approval = lambda **kwargs: approvals.append(kwargs) or {
+        "pipeline": "project",
+        "ok": False,
+        "reason": "unexpected-approval-path",
+    }
+
+    res = factory.run(
+        task_input="build a poker game",
+        role_spec="General",
+        workspace=str(tmp_path),
+        execution_mode="fsa",
+    )
+
+    assert res["pipeline"] == "project"
+    assert routed and routed[0]["workspace"] == str(tmp_path)
+    assert routed[0]["requested_role"] == "General"
+    assert routed[0]["execution_mode"] == "fsa"
+    assert approvals == []
+
+
+
 def test_project_pipeline_writes_planning_artifacts_and_roles(monkeypatch, tmp_path):
     al = _load_launcher(monkeypatch)
     factory = al.AgentFactory()
     pipeline = factory.project_pipeline
 
-    pipeline.research.research_project_brief = lambda agent, task_input, workspace=None: {
+    pipeline.research.collect_project_evidence = lambda task_input, workspace=None: {
+        "workspace_notes": ["existing_todo=.todo.md"],
+        "evidence_summary": [
+            "Local reference: docs/architecture.md -> game state is split by module.",
+            "Web reference: Poker rules -> verify state transitions and winner evaluation.",
+        ],
+        "local_references": [
+            {
+                "path": "docs/architecture.md",
+                "heading": "# Modules",
+                "excerpt": "game state is split by module.",
+                "score": 0.9,
+            }
+        ],
+        "web_references": [
+            {
+                "url": "https://example.com/poker-rules",
+                "title": "Poker rules",
+                "excerpt": "verify state transitions and winner evaluation.",
+                "score": 0.8,
+            }
+        ],
+        "notebook_summary": "Prefer isolated game-rule modules and explicit verification checkpoints.",
+    }
+    pipeline.research.research_project_brief = lambda agent, task_input, workspace=None, evidence_bundle=None: {
         "goal": "Implement a browser poker game",
         "constraints": ["network_allowed"],
         "required_skills": ["frontend_game_ui", "gameplay_core", "integration_test_guard"],
@@ -57,6 +119,10 @@ def test_project_pipeline_writes_planning_artifacts_and_roles(monkeypatch, tmp_p
         "risks": ["rule evaluation bug"],
         "research_notes": ["seed"],
         "tech_stack": ["vanilla_js"],
+        "evidence_summary": list((evidence_bundle or {}).get("evidence_summary") or []),
+        "local_references": list((evidence_bundle or {}).get("local_references") or []),
+        "web_references": list((evidence_bundle or {}).get("web_references") or []),
+        "notebook_summary": str((evidence_bundle or {}).get("notebook_summary") or ""),
     }
     pipeline.planner.plan = lambda task_input, project_brief: {
         "execution_strategy": "parallel",
@@ -111,6 +177,7 @@ def test_project_pipeline_writes_planning_artifacts_and_roles(monkeypatch, tmp_p
 
     assert res["ok"] is True
     assert sorted(res["roles"]) == ["frontend_dev", "qa_engineer"]
+    assert os.path.exists(tmp_path / "planning" / "research_evidence.json")
     assert os.path.exists(tmp_path / "planning" / "project_brief.json")
     assert os.path.exists(tmp_path / "planning" / "role_plan.json")
     assert os.path.exists(tmp_path / "project_board_state.json")
@@ -126,6 +193,13 @@ def test_project_pipeline_writes_planning_artifacts_and_roles(monkeypatch, tmp_p
     assert "core_memory" in frontend_agent["runtime_rules"]["allowed_skills"]
     assert frontend_agent["project_role"]["owned_modules"]
     assert frontend_agent["project_role"]["planning_steps"]
+
+    research_data = json.loads((tmp_path / "planning" / "research_evidence.json").read_text(encoding="utf-8"))
+    assert research_data["evidence_summary"]
+
+    project_brief_data = json.loads((tmp_path / "planning" / "project_brief.json").read_text(encoding="utf-8"))
+    assert project_brief_data["evidence_summary"]
+    assert project_brief_data["local_references"][0]["path"] == "docs/architecture.md"
 
     role_plan_data = json.loads((tmp_path / "planning" / "role_plan.json").read_text(encoding="utf-8"))
     assert role_plan_data["planning_steps"]
