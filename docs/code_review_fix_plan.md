@@ -11,7 +11,7 @@
 | **1** | security_guard 통합 | 🔴 | 중복 코드 ~210줄 삭제 + 네트워크 차단 보완 |
 | **2** | generate_json() 수정 | 🟣 | JSON 파싱 안전성 강화 |
 | **3** | orchestrator resume 버그 | 🔴 | `[/]` 무시, interrupted 누락, placeholder 무한루프 |
-| **4** | minesweeper 제거 | � | Context Isolation 위반 하드코딩 제거 |
+| **4** | minesweeper ?? | ?? | Context Isolation ?? ???? ?? |
 | **5** | wildcard import / safe_id 정리 | 🟠 | `import *` 제거, safe_id 3중 정의 통합 |
 | **6** | agent_runner.py 분리 + 설정 정리 | 🟠 | ModelRouter 분리, config side-effect, 프로젝트 위생 |
 
