@@ -558,7 +558,11 @@ def build_cli_command(request: CliChatRequest) -> list[str]:
         cmd.extend([spec.system_prompt_flag, effective_system_prompt])
 
     prompt_text = _compose_prompt(request, spec, effective_system_prompt)
-    if spec.prompt_flag:
+    if spec.provider_id == "claude_cli":
+        # Windows 명령줄 인자 파싱 문제 방지: 프롬프트를 stdin으로 전달
+        # claude --print 는 인자 없이 -p 만 있으면 stdin에서 읽음
+        cmd.append("-p")
+    elif spec.prompt_flag:
         cmd.extend([spec.prompt_flag, prompt_text])
     elif spec.provider_id == "codex_cli":
         cmd.append("-")
@@ -601,7 +605,8 @@ def execute_cli_chat(
 ) -> dict:
     spec = get_cli_provider_spec(request.provider_id)
     cmd = build_cli_command(request)
-    input_text = compose_cli_prompt(request) if request.provider_id == "codex_cli" else None
+    # claude_cli도 stdin으로 프롬프트 전달 (Windows 명령줄 길이/파싱 문제 회피)
+    input_text = compose_cli_prompt(request) if request.provider_id in ("codex_cli", "claude_cli") else None
     prepared = prepare_cli_session(request, cmd)
     env = _build_cli_env(request, prepared)
     runner = run_command or subprocess.run
