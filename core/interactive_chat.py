@@ -29,6 +29,7 @@ from typing import Any
 
 from core.utils import safe_id, now_iso, _safe_write_json
 from core.terminal_visualizer import TerminalVisualizer, AgentPhase
+from core.documentation_policy import ensure_documentation_files, single_task_todo_items, write_project_todo
 
 
 # ── 색상 유틸 ──
@@ -195,6 +196,13 @@ class InteractiveChat:
 
         # CWM 압축 히스토리 + 현재 메시지로 태스크 프롬프트 구성
         task_prompt = self._build_task_prompt(user_input)
+
+        # .todo.md 없으면 무조건 생성 (TodoContinuationEnforcer 차단 방지)
+        todo_path = os.path.join(self.workspace, ".todo.md")
+        if not os.path.exists(todo_path):
+            role_spec = self.agent.get("role", "") or self.agent.get("name", "")
+            ensure_documentation_files(self.workspace)
+            write_project_todo(self.workspace, single_task_todo_items(user_input, role_spec))
 
         # TerminalVisualizer: 매 턴 register_agent 호출 (멱등 - 이미 등록된 경우 무시됨)
         # mark_completed/failed 이후 다음 턴에도 update_phase가 정상 동작하도록 보장

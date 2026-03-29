@@ -50,6 +50,7 @@ from core.hooks.guardrails import IntentGateHook, TodoContinuationEnforcer, Tool
 from core.providers.cli import CliChatRequest, execute_cli_chat
 from core.providers.registry import (
     default_chat_model_for_provider,
+    detect_available_cli_providers,
     get_configured_engine_api_key,
     get_requested_cli_providers,
     strip_engine_api_keys,
@@ -63,6 +64,7 @@ from model_utils import (
 
     resolve_dynamic_model,
     _infer_engine_id,
+    resolve_engine_for_available,
     _pick_anthropic_model,
     _pick_openai_model,
     get_dynamic_default_model,
@@ -957,6 +959,13 @@ class AgentRunner:
         role_summary = agent.get("role", "") or (agent.get("identity", {}) or {}).get("role_summary", "")
         agent_name = agent.get("name", "")
         engine_id = _infer_engine_id(role_summary or agent_name)
+
+        # preferred provider 미구독 시 가용 provider 기반 engine으로 fallback
+        _available = detect_available_cli_providers()
+        _resolved = resolve_engine_for_available(engine_id, _available)
+        if _resolved != engine_id:
+            _safe_print(f"[Router] '{engine_id}' 선호 프로바이더 미구독 -> '{_resolved}'로 fallback")
+            engine_id = _resolved
 
         is_complex = engine_id in ("architect_claude", "researcher_gemini", "coder_claude", "reasoner_o")
         if is_complex:

@@ -688,6 +688,37 @@ def pick_cli_provider_for_role(
     return available_providers[0]
 
 
+# provider_id → 해당 프로바이더가 primary인 engine_id
+_PROVIDER_PRIMARY_ENGINE: dict[str, str] = {
+    "claude_cli": "coder_claude",
+    "gemini_cli": "researcher_gemini",
+    "codex_cli":  "codex",
+}
+
+
+def resolve_engine_for_available(engine_id: str, available_providers: list[str]) -> str:
+    """preferred CLI provider가 미구독/미설치인 경우 실제 가용 provider에 맞는 engine_id로 remapping한다.
+
+    예) researcher_gemini (gemini_cli 선호) + gemini_cli 없음 + claude_cli 있음
+        → coder_claude (claude_cli 선호) 로 remapping
+
+    단일 프로바이더 환경이거나 preferred provider가 가용하면 engine_id를 그대로 반환한다.
+    """
+    available_set = set(available_providers or [])
+    preference = _ROLE_CLI_PREFERENCE.get(engine_id, [])
+
+    # preferred provider 가용 → 변경 없음
+    if not preference or preference[0] in available_set:
+        return engine_id
+
+    # preferred provider 없음 → fallback preference에서 실제 사용될 provider 탐색
+    actual_provider = next((p for p in preference if p in available_set), "")
+    if not actual_provider:
+        return engine_id  # 가용 provider 없음 → 변경 불가
+
+    return _PROVIDER_PRIMARY_ENGINE.get(actual_provider, engine_id)
+
+
 def _llm_decide_provider(
     engine_id: str,
     role_description: str,
