@@ -20,9 +20,11 @@ import sys
 from typing import TYPE_CHECKING, Any
 
 from core.pdca_state import PDCAPhase, PDCAState, PDCAStateMachine, ProjectLevel
+from core.utils import safe_id
 
 if TYPE_CHECKING:
     pass
+
 
 
 # ── 색상 유틸 ──
@@ -502,17 +504,31 @@ class PDCACommandRegistry:
                     print(f"\n  {judgment.feedback[:400]}")
             return
 
-        # ── Starter: 기존 AgentFactory 단일 실행 ──
-        pipeline_mode = "single"
-        from agent_launcher import AgentFactory
-        factory = AgentFactory()
-        factory.run(
-            task_input=task,
-            role_spec="General Assistant",
-            enable_build=False,
-            execution_mode="approval",
-            pipeline_mode=pipeline_mode,
-        )
+        # ── Starter: 채팅 세션 runner 재사용 (메모리·CWM 히스토리 공유) ──
+        # V2: AgentFactory()를 새로 생성하면 메모리 훅/CWM이 끊긴다.
+        # chat._runner(AgentRunner)를 재사용하여 FSA와 동일한 컨텍스트 유지.
+        try:
+            from core.manager import AgentManager
+            runner = getattr(self.chat, "_runner", None)
+            if runner is None:
+                from core.agent_runner import AgentRunner
+                from core.model_router import ModelRouter
+                runner = AgentRunner(ModelRouter())
+
+            manager = AgentManager(workspace=self.workspace)
+            agent = manager.get_or_create("General Assistant", workspace=self.workspace)
+            result = runner.run(
+                agent,
+                task,
+                run_id=f"pdca_do_{safe_id(self.state.project_id)}",
+                auto_approve=False,
+                workspace=self.workspace,
+            )
+            if not result.get("ok"):
+                print(_c(f"\n  구현 실패: {result.get('reason', 'unknown')}", "31"))
+        except Exception as exc:
+            print(_c(f"\n  구현 오류: {exc}", "31"))
+
 
     def _run_do_with_verification(self, task: str, level: str):
         """교차검증 루프로 구현 태스크를 실행한다."""
