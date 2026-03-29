@@ -192,7 +192,12 @@
       "Bash(git checkout:*)",
       "Bash(curl -s \"https://api.github.com/repos/hoonkim1092-web/agent-factory/branches/af-fsa_v1.0.2\")",
       "Bash(curl -s \"https://api.github.com/repos/hoonkim1092-web/agent-factory/branches\")",
-      "Bash(git remote:*)"
+      "Bash(git remote:*)",
+      "Bash(git pull:*)",
+      "Bash(git merge:*)",
+      "Bash(git fetch:*)",
+      "Bash(dist/af/af.exe --project myproject --chat)",
+      "Bash(C:/Project/agent-factory/dist/af/af.exe --project testproject --chat)"
     ]
   }
 }
