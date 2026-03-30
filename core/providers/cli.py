@@ -111,6 +111,15 @@ _AUTH_REQUIRED_MARKERS = (
     "sign in required",
 )
 
+_HOOK_FAILURE_MARKERS = (
+    "can't open file",
+    "hook",
+    "cli_hook_bridge",
+    "hook_bridge",
+    "sessionstart",
+    "userpromptsubmit",
+)
+
 
 def get_cli_provider_spec(provider_id: str) -> CliProviderSpec:
     key = str(provider_id or "").strip().lower()
@@ -309,6 +318,8 @@ def _classify_cli_issue(stdout: str, stderr: str) -> str:
         return "permission_denied"
     if any(marker in haystack for marker in _AUTH_REQUIRED_MARKERS):
         return "auth_required"
+    if any(marker in haystack for marker in _HOOK_FAILURE_MARKERS):
+        return "hook_failure"
     return ""
 
 
@@ -729,10 +740,15 @@ def execute_cli_chat(
 
     text = _extract_text(completed.stdout)
     ok = completed.returncode == 0 and bool(text.strip())
+    if ok:
+        failure_reason = request.provider_id
+    else:
+        issue = _classify_cli_issue(completed.stdout, completed.stderr)
+        failure_reason = f"{request.provider_id}_{issue}" if issue else f"{request.provider_id}_failed"
     result = {
         "ok": ok,
         "provider_id": request.provider_id,
-        "reason": request.provider_id if ok else f"{request.provider_id}_failed",
+        "reason": failure_reason,
         "stdout": completed.stdout,
         "stderr": completed.stderr,
         "text": text,
