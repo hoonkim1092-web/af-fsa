@@ -45,6 +45,7 @@ class IngestionPipeline:
         self.chunker = chunker or DocumentChunker()
         self.index = index or DocumentIndex()
         self._last_run: float = 0.0
+        self._virtual_chunk_ids: Set[str] = set()
 
     def run(self, force: bool = False) -> dict:
         """인덱싱 실행.
@@ -79,9 +80,9 @@ class IngestionPipeline:
         # 4. 증분 인덱싱
         self.index.index_chunks(all_chunks, incremental=True)
 
-        # 5. stale 청크 제거
+        # 5. stale 청크 제거 (virtual chunk는 제외)
         valid_paths = set(files)
-        self.index.remove_stale(valid_paths)
+        self.index.remove_stale(valid_paths, skip_prefixes=("__virtual__",))
 
         # 6. 캐시 저장
         self.index.save_cache()
@@ -96,6 +97,19 @@ class IngestionPipeline:
             "elapsed_ms": elapsed,
             "skipped": False,
         }
+
+    def ingest_external_chunks(self, chunks: List[DocumentChunk]) -> int:
+        """웹/LLM prior virtual chunk를 인덱스에 추가.
+
+        로컬 파일 스캔 없이 외부 근거만 인덱스에 올린다.
+        캐시 저장 없음 — 세션 내 휘발성.
+        """
+        if not chunks:
+            return 0
+        self.index.index_chunks(chunks, incremental=True)
+        for chunk in chunks:
+            self._virtual_chunk_ids.add(chunk.chunk_id)
+        return len(chunks)
 
     def search(self, query: str, top_k: int = 10, filters: Optional[dict] = None):
         """인덱스 검색 (인덱싱 안 됐으면 자동 실행)."""

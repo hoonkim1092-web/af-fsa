@@ -243,13 +243,49 @@ class ProjectPipeline:
 
         # -- Research --
         research_agent = build_bootstrap_agent("research_director")
+        risk_level = str((route or {}).get("risk_level") or "normal").strip()
+        comparison_mode = bool((route or {}).get("comparison_mode", False))
         research_evidence: dict = {}
         collect_evidence = getattr(self.research, "collect_project_evidence", None)
         if callable(collect_evidence):
+            from core.research_verifier import ResearchVerifier
+            verifier = ResearchVerifier()
             try:
-                research_evidence = collect_evidence(task_input, workspace=target_workspace) or {}
-            except Exception:
-                research_evidence = {}
+                _collect_kwargs = dict(
+                    workspace=target_workspace,
+                    risk_level=risk_level,
+                    comparison_mode=comparison_mode,
+                )
+                import inspect as _inspect
+                _ce_params = _inspect.signature(collect_evidence).parameters
+                _supports_risk = "risk_level" in _ce_params
+
+                def _evidence_fn():
+                    kw = dict(_collect_kwargs)
+                    if not _supports_risk:
+                        kw.pop("risk_level", None)
+                        kw.pop("comparison_mode", None)
+                    try:
+                        return collect_evidence(task_input, **kw) or {}
+                    except Exception as exc:
+                        print(f"[ProjectPipeline] collect_project_evidence failed: {exc}")
+                        return {}
+
+                research_evidence, _vr = verifier.verify_with_retry(
+                    evidence_fn=_evidence_fn,
+                    task_input=task_input,
+                )
+                if _vr.status != "pass":
+                    print(
+                        f"[ProjectPipeline] evidence quality={_vr.status} "
+                        f"score={_vr.score} gaps={_vr.gaps}"
+                    )
+            except Exception as exc:
+                print(f"[ProjectPipeline] research verification failed: {exc}")
+                try:
+                    research_evidence = collect_evidence(task_input, workspace=target_workspace) or {}
+                except Exception:
+                    research_evidence = {}
         research_evidence_path = os.path.join(planning_dir, "research_evidence.json")
         self._write_json(research_evidence_path, research_evidence)
 

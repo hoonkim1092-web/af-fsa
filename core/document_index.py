@@ -316,12 +316,17 @@ class DocumentIndex:
             results.sort(key=lambda r: r.score, reverse=True)
             return results[:top_k]
 
-    def remove_stale(self, valid_paths: set):
-        """존재하지 않는 파일의 청크를 모든 인덱스에서 제거."""
+    def remove_stale(self, valid_paths: set, skip_prefixes: tuple[str, ...] = ()):
+        """존재하지 않는 파일의 청크를 모든 인덱스에서 제거.
+
+        skip_prefixes: source_path가 이 접두사로 시작하는 청크는 제거하지 않음.
+                       virtual chunk("__virtual__/...")를 보호하는 데 사용.
+        """
         with self._lock:
             to_remove = [
                 cid for cid, chunk in self._chunks.items()
                 if chunk.source_path not in valid_paths
+                and not any(chunk.source_path.startswith(p) for p in skip_prefixes)
             ]
             for cid in to_remove:
                 self._chunks.pop(cid, None)

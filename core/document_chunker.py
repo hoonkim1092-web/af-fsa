@@ -117,7 +117,7 @@ class DocumentChunker:
                         heading=heading,
                         start_line=start_line,
                         end_line=start_line + len(section_lines) - 1,
-                        metadata={"type": "markdown", "heading_level": heading.count("#") if heading.startswith("#") else 0},
+                        metadata={"type": "markdown", "heading_level": heading.count("#") if heading.startswith("#") else 0, "source_type": "local"},
                     )
                     chunks.append(chunk)
             else:
@@ -187,7 +187,7 @@ class DocumentChunker:
                     heading=heading,
                     start_line=start_line + line_offset,
                     end_line=start_line + line_offset + segment.count("\n"),
-                    metadata={"type": os.path.splitext(file_path)[1].lstrip("."), "chunk_index": idx},
+                    metadata={"type": os.path.splitext(file_path)[1].lstrip("."), "chunk_index": idx, "source_type": "local"},
                 )
                 chunks.append(chunk)
 
@@ -201,3 +201,34 @@ class DocumentChunker:
         """고유 청크 ID 생성."""
         raw = f"{file_path}:{start_line}:{sub_idx}"
         return hashlib.md5(raw.encode()).hexdigest()[:12]
+
+
+def make_virtual_chunk(
+    content: str,
+    title: str,
+    source_type: str,
+    source_url: str = "",
+    weight: float = 1.0,
+    verified: bool = True,
+) -> DocumentChunk:
+    """웹/LLM prior 근거를 DocumentChunk로 변환하는 팩토리.
+
+    source_type:
+      "web"       — Tavily로 수집한 웹 페이지 (weight=0.9)
+      "llm_prior" — LLM 학습 지식 (weight=0.4, verified=False)
+    """
+    raw_id = f"{source_type}:{title[:80]}:{content[:80]}"
+    chunk_id = hashlib.md5(raw_id.encode()).hexdigest()[:12]
+    virtual_path = f"__virtual__/{source_type}/{chunk_id}"
+    return DocumentChunk(
+        chunk_id=chunk_id,
+        source_path=virtual_path,
+        content=content,
+        heading=title,
+        metadata={
+            "source_type": source_type,
+            "weight": weight,
+            "verified": verified,
+            "url": source_url,
+        },
+    )
