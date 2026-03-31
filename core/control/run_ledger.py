@@ -48,6 +48,25 @@ class LedgerEntry:
     def is_active(self) -> bool:
         return not self.closed_at
 
+    def is_stale(self, stale_threshold_sec: int = 1800) -> bool:
+        """
+        started_at 이후 stale_threshold_sec(기본 30분) 이상 경과했고
+        아직 닫히지 않은 run을 stale로 판정한다.
+        (crash/kill 등으로 close_run()이 호출되지 않은 경우)
+        """
+        if self.closed_at:
+            return False
+        if not self.started_at:
+            return True  # 시작 시각 없음 → 비정상 → stale
+        try:
+            from datetime import datetime, timezone
+            started = datetime.fromisoformat(self.started_at.replace("Z", "+00:00"))
+            now = datetime.now(timezone.utc)
+            elapsed = (now - started).total_seconds()
+            return elapsed > stale_threshold_sec
+        except Exception:
+            return False
+
 
 class RunLedger:
     """
@@ -191,6 +210,37 @@ class RunLedger:
             if affected_set & entry_files:
                 conflicting.append(entry)
         return conflicting
+
+    def resolve_stale_conflicts(
+        self,
+        affected_files: list[str],
+        stale_threshold_sec: int = 1800,
+    ) -> tuple[list[LedgerEntry], list[LedgerEntry]]:
+        """
+        충돌하는 run을 stale / 활성으로 분류하고,
+        stale run은 자동으로 close_run("failed")처리한다.
+
+        Returns:
+            (stale_resolved, still_active)
+            stale_resolved: 자동 해소된 run 목록
+            still_active:   아직 활성 중인 run 목록 (진짜 충돌)
+        """
+        conflicting = self.conflict_check(affected_files)
+        stale_resolved: list[LedgerEntry] = []
+        still_active: list[LedgerEntry] = []
+
+        for entry in conflicting:
+            if entry.is_stale(stale_threshold_sec):
+                self.close_run(entry.run_id, outcome="failed")
+                print(
+                    f"[RunLedger] auto-closed stale run {entry.run_id} "
+                    f"(started={entry.started_at})"
+                )
+                stale_resolved.append(entry)
+            else:
+                still_active.append(entry)
+
+        return stale_resolved, still_active
 
     def get_history(self, limit: int = 50) -> list[LedgerEntry]:
         """최근 N개 항목을 반환한다 (최신 순)."""

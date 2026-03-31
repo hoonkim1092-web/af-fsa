@@ -59,6 +59,11 @@ class MaintenancePipeline:
         # standard_update / deep_update / full_bootstrap → ProjectPipeline.prepare() 위임
         return self._full_prepare(normalized, policy)
 
+    # 충돌 대기 설정
+    _CONFLICT_WAIT_SEC = 60       # 활성 충돌 대기 최대 시간 (초)
+    _CONFLICT_POLL_INTERVAL = 5   # 폴링 간격 (초)
+    _STALE_THRESHOLD_SEC = 1800   # 30분 이상 미완료 run → stale 판정
+
     def execute(self, prepared: dict, normalized: Any, allow_conflict: bool = False) -> dict:
         """
         실행 단계.
@@ -66,32 +71,24 @@ class MaintenancePipeline:
         Args:
             prepared:        prepare()의 반환값
             normalized:      NormalizedRequest (또는 dict)
-            allow_conflict:  True면 동시 작업 충돌을 무시하고 실행 계속.
-                             False(기본)면 충돌 발견 시 실행을 중단하고 오류 반환.
+            allow_conflict:  True면 활성 충돌도 무시하고 실행 계속.
+                             False(기본)면:
+                               1. stale run → 자동 close 후 계속
+                               2. 활성 run  → 최대 60초 대기 → 타임아웃 시 abort
 
         Returns:
             result: dict with keys ("success", "outcome", "state", "errors")
         """
+        import time
+
         policy = self._get_policy(normalized)
         run_id = self._get_run_id(normalized)
 
-        # 1. 동시 작업 충돌 확인
-        conflict_result = self._check_conflicts(normalized)
-        if conflict_result["has_conflict"]:
-            conflicting = conflict_result["conflicting_runs"]
-            if not allow_conflict:
-                print(
-                    f"[MaintenancePipeline] conflict detected, aborting: {conflicting}. "
-                    f"Pass allow_conflict=True to override."
-                )
-                self._close_ledger(self._workspace, run_id, "failed")
-                return {
-                    "success": False,
-                    "outcome": "failed",
-                    "error": f"conflict with active run(s): {conflicting}",
-                    "conflict_result": conflict_result,
-                }
-            print(f"[MaintenancePipeline] conflict detected (overridden): {conflicting}")
+        # 1. 충돌 처리 (stale 자동 해소 → 활성 충돌 대기)
+        resolved = self._handle_conflicts(normalized, run_id, allow_conflict)
+        if resolved is not None:
+            # None이 아니면 abort 신호
+            return resolved
 
         # 2. Supervisor를 통한 실행
         supervisor_result = self._run_with_supervisor(prepared, normalized, run_id)
@@ -186,6 +183,90 @@ class MaintenancePipeline:
             }
 
     # ── execute 서브 루틴 ──
+
+    def _handle_conflicts(
+        self,
+        normalized: Any,
+        run_id: str,
+        allow_conflict: bool,
+    ) -> dict | None:
+        """
+        충돌을 3단계로 해소한다.
+          1. stale run 자동 close
+          2. 활성 run이 남으면 최대 _CONFLICT_WAIT_SEC 동안 폴링 대기
+          3. 타임아웃 → abort (dict 반환)
+          4. 충돌 없으면 None 반환 (실행 계속)
+          5. allow_conflict=True면 경고만 출력하고 None 반환
+        """
+        import time
+        from core.control.run_ledger import RunLedger
+
+        affected_files = self._get_affected_files(normalized)
+        if not affected_files:
+            return None
+
+        ledger = RunLedger(self._workspace)
+
+        try:
+            # ── Step 1: stale run 자동 해소 ──
+            stale_resolved, still_active = ledger.resolve_stale_conflicts(
+                affected_files, self._STALE_THRESHOLD_SEC
+            )
+            if stale_resolved:
+                print(
+                    f"[MaintenancePipeline] auto-resolved {len(stale_resolved)} stale run(s): "
+                    f"{[e.run_id for e in stale_resolved]}"
+                )
+
+            if not still_active:
+                return None  # 충돌 없음 → 실행 계속
+
+            # ── Step 2: allow_conflict override ──
+            if allow_conflict:
+                print(
+                    f"[MaintenancePipeline] active conflict overridden: "
+                    f"{[e.run_id for e in still_active]}"
+                )
+                return None
+
+            # ── Step 3: 활성 충돌 → 폴링 대기 ──
+            deadline = time.time() + self._CONFLICT_WAIT_SEC
+            while time.time() < deadline:
+                remaining = int(deadline - time.time())
+                print(
+                    f"[MaintenancePipeline] waiting for active run(s) to finish "
+                    f"({[e.run_id for e in still_active]}, timeout in {remaining}s)..."
+                )
+                time.sleep(self._CONFLICT_POLL_INTERVAL)
+
+                # 재확인: stale 포함해서 다시 분류
+                _, still_active = ledger.resolve_stale_conflicts(
+                    affected_files, self._STALE_THRESHOLD_SEC
+                )
+                if not still_active:
+                    print("[MaintenancePipeline] conflict resolved, proceeding.")
+                    return None  # 충돌 해소 → 실행 계속
+
+            # ── Step 4: 타임아웃 → abort ──
+            active_ids = [e.run_id for e in still_active]
+            print(
+                f"[MaintenancePipeline] conflict wait timed out after "
+                f"{self._CONFLICT_WAIT_SEC}s. active: {active_ids}"
+            )
+            self._close_ledger(self._workspace, run_id, "failed")
+            return {
+                "success": False,
+                "outcome": "failed",
+                "error": (
+                    f"conflict with active run(s) {active_ids} unresolved after "
+                    f"{self._CONFLICT_WAIT_SEC}s. Use allow_conflict=True to override."
+                ),
+                "conflicting_runs": active_ids,
+            }
+
+        except Exception as exc:
+            print(f"[MaintenancePipeline] conflict resolution failed: {exc}")
+            return None  # 오류 시 진행 (safe default)
 
     def _check_conflicts(self, normalized: Any) -> dict:
         """RunLedger로 동시 작업 충돌을 확인한다."""
