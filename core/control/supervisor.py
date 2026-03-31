@@ -181,7 +181,10 @@ class RuntimeSupervisor:
           5. MAX_RETRIES 소진 → skip → 추가 stall 시 rollback
         """
         if not stalled_tasks:
-            return "aborted"
+            # in_progress 태스크 없음 = 아직 pending 상태 대기 중
+            # heartbeat 루프를 끊지 않고 계속 감시
+            print("[RuntimeSupervisor] stall detected but no in_progress tasks — pending/blocked, skipping")
+            return "skipped"
 
         stall_meta = self._load_stall_meta(run_id)
         retry_count = stall_meta.get("retry_count", 0)
@@ -313,6 +316,9 @@ class RuntimeSupervisor:
 
         repeated = []
         for entry in error_entries:
+            # task_id 없는 익명 태스크는 건너뜀 — 공유 키로 오탐 방지
+            if not entry.get("task_id"):
+                continue
             error_key = self._error_key(entry["error"])
             key = f"{entry['task_id']}|{error_key}"
             total = count_map.get(key, 0) + 1  # 현재 회차 포함
@@ -388,8 +394,6 @@ class RuntimeSupervisor:
         """StrategyEvaluator 인스턴스를 반환한다. 불가하면 None."""
         try:
             from core.evaluator import StrategyEvaluator
-            from core.llm_engine import LLMEngine
-            # 기본 모델 사용 (orchestrator와 동일)
             return StrategyEvaluator()
         except Exception:
             return None
@@ -500,24 +504,6 @@ class RuntimeSupervisor:
             os.replace(tmp, board_path)
         except Exception as exc:
             print(f"[RuntimeSupervisor] reset_tasks failed: {exc}")
-
-    def _mark_tasks_skipped(self, tasks: list[dict]) -> None:
-        board_path = os.path.join(self._workspace, "project_board_state.json")
-        if not os.path.isfile(board_path):
-            return
-        try:
-            with open(board_path, encoding="utf-8") as f:
-                board = json.load(f)
-            stall_ids = {t.get("task_id") for t in tasks}
-            for task in (board.get("tasks") or []):
-                if task.get("task_id") in stall_ids:
-                    task["status"] = "blocked"
-            tmp = board_path + ".tmp"
-            with open(tmp, "w", encoding="utf-8") as f:
-                json.dump(board, f, ensure_ascii=False, indent=2)
-            os.replace(tmp, board_path)
-        except Exception as exc:
-            print(f"[RuntimeSupervisor] mark_tasks_skipped failed: {exc}")
 
     # ── RunLedger 연동 ──
 
