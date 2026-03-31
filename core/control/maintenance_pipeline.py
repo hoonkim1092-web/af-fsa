@@ -152,7 +152,17 @@ class MaintenancePipeline:
             if isinstance(prepared, dict):
                 prepared["skipped_stages"] = skipped
 
-            return prepared if isinstance(prepared, dict) else {"result": prepared, "skipped_stages": skipped}
+            # B8 Fix: dict 아닐 때 {"result": prepared, ...}로 래핑하면
+            # downstream에서 "brief" 키 접근 시 KeyError 발생.
+            # 빈 dict fallback으로 표준 구조를 보장한다.
+            if not isinstance(prepared, dict):
+                prepared = {
+                    "brief": {},
+                    "board": None,
+                    "work_items": [],
+                    "skipped_stages": skipped,
+                }
+            return prepared
 
         except Exception as exc:
             print(f"[MaintenancePipeline] ProjectPipeline.prepare() failed: {exc}")

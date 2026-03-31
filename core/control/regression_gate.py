@@ -110,10 +110,10 @@ class RegressionSafetyGate:
             if len(parts) >= 2:
                 compound = "_".join(p.replace(".py", "") for p in parts[-2:])
                 candidates.append(f"tests/test_{compound}.py")
-                # subdirectory: tests/bar/test_baz.py
-                if len(parts) >= 2:
-                    subdir = "/".join(parts[:-1][-1:])
-                    candidates.append(f"tests/{subdir}/test_{base}.py")
+                # B7 Fix: subdirectory 패턴 — 중간 디렉토리명(parts[-2])을 올바르게 사용
+                # `parts[:-1][-1:]`은 parts[-2]와 동일하지만 의도가 불명확했음
+                parent_dir = parts[-2]  # e.g., "bar" from "core/bar/baz.py"
+                candidates.append(f"tests/{parent_dir}/test_{base}.py")
 
             for candidate in candidates:
                 full = os.path.join(workspace, candidate)
@@ -225,11 +225,8 @@ class RegressionSafetyGate:
         failed = 0
         warnings: list[str] = []
 
+        # B6 Fix: summary_match는 사용하지 않으므로 제거. finditer 하나로 파싱.
         # 예: "5 passed, 2 failed in 3.14s"
-        summary_match = re.search(
-            r"(\d+)\s+passed|(\d+)\s+failed|(\d+)\s+warning",
-            output,
-        )
         for m in re.finditer(r"(\d+)\s+(passed|failed|warning)", output):
             count = int(m.group(1))
             kind = m.group(2)

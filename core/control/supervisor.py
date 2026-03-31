@@ -204,7 +204,10 @@ class RuntimeSupervisor:
             tracker["last_change_time"] = time.time()
             return "retried"
 
-        elif retry_count < self.MAX_RETRIES + 1:
+        elif retry_count == self.MAX_RETRIES:
+            # B3 Fix: retry 소진 시 skip 1회 허용.
+            # 이전 조건 `< MAX_RETRIES + 1`은 retry_count > MAX_RETRIES 케이스를
+            # 실질적으로 차단해 else가 dead code였음. == 으로 명확히 구분.
             print(f"[RuntimeSupervisor] stall retry exhausted, skipping stalled tasks")
             self._mark_tasks_skipped(stalled_tasks)
             self._save_stall_meta(run_id, {"retry_count": retry_count + 1, "skipped": True})
@@ -212,7 +215,8 @@ class RuntimeSupervisor:
             return "skipped"
 
         else:
-            print(f"[RuntimeSupervisor] stall abort: all tasks stalled")
+            # retry_count > MAX_RETRIES: skip 후에도 stall 재발 → abort
+            print(f"[RuntimeSupervisor] stall abort: all tasks stalled after skip")
             self._stop_event.set()
             return "aborted"
 

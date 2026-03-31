@@ -159,19 +159,20 @@ class RollbackManager:
                     "message": "no commits to revert (already at rollback point)",
                 }
 
-            # 최신 커밋부터 순서대로 revert
-            for commit in commits:
-                revert = subprocess.run(
-                    ["git", "revert", "--no-commit", commit],
-                    capture_output=True, text=True,
-                    cwd=self._workspace, timeout=30,
-                )
-                if revert.returncode != 0:
-                    return {
-                        "success": False,
-                        "strategy": "git_revert",
-                        "message": f"git revert failed at {commit[:8]}: {revert.stderr.strip()}",
-                    }
+            # B1 Fix: git rev-list는 newest-first로 반환함.
+            # --no-commit으로 커밋별 루프는 conflict 위험이 있으므로
+            # range revert 한 번에 처리: git revert --no-commit <ref>..HEAD
+            revert = subprocess.run(
+                ["git", "revert", "--no-commit", f"{plan.git_ref_before}..HEAD"],
+                capture_output=True, text=True,
+                cwd=self._workspace, timeout=60,
+            )
+            if revert.returncode != 0:
+                return {
+                    "success": False,
+                    "strategy": "git_revert",
+                    "message": f"git revert failed: {revert.stderr.strip()}",
+                }
 
             return {
                 "success": True,
@@ -198,15 +199,30 @@ class RollbackManager:
                 checkpoint = json.load(f)
             # checkpoint에 저장된 파일 상태를 복원 (JSON 형식 의존)
             restored_files = checkpoint.get("files", {})
+            restored_count = 0
+            failed_paths: list[str] = []
             for rel_path, content in restored_files.items():
-                full_path = os.path.join(self._workspace, rel_path)
+                # B2 Fix: path traversal 방지 — workspace 밖 경로 차단
+                full_path = os.path.realpath(os.path.join(self._workspace, rel_path))
+                workspace_real = os.path.realpath(self._workspace)
+                if not full_path.startswith(workspace_real + os.sep) and full_path != workspace_real:
+                    failed_paths.append(rel_path)
+                    print(f"[RollbackManager] blocked path traversal attempt: {rel_path!r}")
+                    continue
                 os.makedirs(os.path.dirname(full_path), exist_ok=True)
                 with open(full_path, "w", encoding="utf-8") as f:
                     f.write(content)
+                restored_count += 1
+            if failed_paths:
+                return {
+                    "success": False,
+                    "strategy": "checkpoint_restore",
+                    "message": f"blocked {len(failed_paths)} unsafe path(s): {failed_paths}",
+                }
             return {
                 "success": True,
                 "strategy": "checkpoint_restore",
-                "message": f"restored {len(restored_files)} file(s) from checkpoint",
+                "message": f"restored {restored_count} file(s) from checkpoint",
             }
         except Exception as exc:
             return {

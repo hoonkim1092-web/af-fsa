@@ -254,7 +254,11 @@ class ContinuitySnapshotBuilder:
             total_pending = board_summary.get("pending", 0)
             if total_pending == 0:
                 return "healthy"
-            return "degraded"  # pending 남아있는데 manifest completed는 비정상
+            # B9 Fix: manifest completed + board pending > 0 은 "비정상"이 아니라
+            # 중간 재개 세션 (pending 태스크가 아직 실행 전인 정상 상태)일 수 있다.
+            # conflict_note는 이미 build()에서 기록되므로 여기선 "degraded" 대신
+            # "healthy"를 반환하고 caller가 conflict_notes로 판단하게 한다.
+            return "healthy"
 
         if manifest_status in ("running", "in_progress"):
             return "degraded"  # 실행 중인데 스냅샷 빌드 = 비정상

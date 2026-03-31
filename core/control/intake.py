@@ -85,7 +85,8 @@ class ControlPlaneIntake:
         from core.utils import now_iso
         import uuid
 
-        run_id = f"run-{now_iso()[:19].replace(':', '').replace('-', '')}-{uuid.uuid4().hex[:6]}"
+        # B4 Fix: hex 6자리(16.7M)는 충돌 위험 → uuid4 전체 32자리 사용
+        run_id = f"run-{now_iso()[:19].replace(':', '').replace('-', '')}-{uuid.uuid4().hex}"
 
         # ── 2차 분류 ──
         work_kind, issue_kind = self._classify_work_kind(route, workspace)
@@ -252,14 +253,26 @@ class ControlPlaneIntake:
             print(f"[ControlPlaneIntake] ledger open_run failed: {exc}")
 
     def _infer_risk_level(self, intent: str, work_kind: str) -> str:
-        """intent + work_kind에서 초기 risk_level을 추론한다."""
+        """
+        intent + work_kind에서 초기 risk_level을 추론한다.
+
+        B5 Fix: 이전 코드는 모든 분기가 "normal"을 반환하는 dead code였음.
+        실질적인 risk 신호를 반영하도록 수정.
+        """
+        # trivial/question → low risk
+        if intent in ("trivial", "question"):
+            return "low"
+        # 새 프로젝트는 기본 normal
         if work_kind == "new_project":
             return "normal"
-        if intent == "debugging" or work_kind == "bugfix":
+        # 단순 bugfix → normal
+        if work_kind == "bugfix" or intent == "debugging":
             return "normal"
-        if work_kind in ("refactor", "maintenance"):
-            return "normal"
-        if work_kind == "feature_update":
+        # 기존 코드 구조 변경 → high
+        if work_kind == "refactor":
+            return "high"
+        # 기능 추가/유지보수 → normal
+        if work_kind in ("feature_update", "maintenance"):
             return "normal"
         return "normal"
 
