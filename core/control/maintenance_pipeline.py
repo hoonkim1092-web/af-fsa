@@ -59,13 +59,15 @@ class MaintenancePipeline:
         # standard_update / deep_update / full_bootstrap → ProjectPipeline.prepare() 위임
         return self._full_prepare(normalized, policy)
 
-    def execute(self, prepared: dict, normalized: Any) -> dict:
+    def execute(self, prepared: dict, normalized: Any, allow_conflict: bool = False) -> dict:
         """
         실행 단계.
 
         Args:
-            prepared:   prepare()의 반환값
-            normalized: NormalizedRequest (또는 dict)
+            prepared:        prepare()의 반환값
+            normalized:      NormalizedRequest (또는 dict)
+            allow_conflict:  True면 동시 작업 충돌을 무시하고 실행 계속.
+                             False(기본)면 충돌 발견 시 실행을 중단하고 오류 반환.
 
         Returns:
             result: dict with keys ("success", "outcome", "state", "errors")
@@ -76,11 +78,20 @@ class MaintenancePipeline:
         # 1. 동시 작업 충돌 확인
         conflict_result = self._check_conflicts(normalized)
         if conflict_result["has_conflict"]:
-            print(
-                f"[MaintenancePipeline] conflict detected: "
-                f"{conflict_result['conflicting_runs']}"
-            )
-            # 경고만 출력, 실행은 계속 (사용자 결정에 따라)
+            conflicting = conflict_result["conflicting_runs"]
+            if not allow_conflict:
+                print(
+                    f"[MaintenancePipeline] conflict detected, aborting: {conflicting}. "
+                    f"Pass allow_conflict=True to override."
+                )
+                self._close_ledger(self._workspace, run_id, "failed")
+                return {
+                    "success": False,
+                    "outcome": "failed",
+                    "error": f"conflict with active run(s): {conflicting}",
+                    "conflict_result": conflict_result,
+                }
+            print(f"[MaintenancePipeline] conflict detected (overridden): {conflicting}")
 
         # 2. Supervisor를 통한 실행
         supervisor_result = self._run_with_supervisor(prepared, normalized, run_id)

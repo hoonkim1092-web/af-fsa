@@ -55,7 +55,7 @@ class RuntimeSupervisor:
         self._update_ledger(run_id, state="executing")
 
         # heartbeat 스레드 시작
-        board_tracker = {"last_board_hash": "", "last_change_time": time.time()}
+        board_tracker = {"last_board_sig": None, "last_change_time": time.time()}
         heartbeat_thread = threading.Thread(
             target=self._heartbeat_loop,
             args=(run_id, board_tracker),
@@ -132,29 +132,28 @@ class RuntimeSupervisor:
         if not os.path.isfile(board_path):
             return "alive"
 
+        # mtime + size 조합으로 변경 감지 — 파일 전체 읽기/MD5 불필요
         try:
-            with open(board_path, encoding="utf-8") as f:
-                content = f.read()
+            stat = os.stat(board_path)
+            current_sig = (stat.st_mtime, stat.st_size)
         except Exception:
             return "alive"
 
-        import hashlib
-        current_hash = hashlib.md5(content.encode()).hexdigest()
-
-        if current_hash != tracker["last_board_hash"]:
-            tracker["last_board_hash"] = current_hash
+        if current_sig != tracker.get("last_board_sig"):
+            tracker["last_board_sig"] = current_sig
             tracker["last_change_time"] = time.time()
-            return "alive"
-
-        elapsed = time.time() - tracker["last_change_time"]
-        if elapsed > self.HEARTBEAT_TIMEOUT_SEC:
-            # 완료 여부 확인
+            # 완료 여부는 변경이 감지됐을 때만 확인 (파일 읽기 1회로 제한)
             try:
-                board = json.loads(content)
+                with open(board_path, encoding="utf-8") as f:
+                    board = json.load(f)
                 if self._is_board_complete(board):
                     return "completed"
             except Exception:
                 pass
+            return "alive"
+
+        elapsed = time.time() - tracker["last_change_time"]
+        if elapsed > self.HEARTBEAT_TIMEOUT_SEC:
             return "stalled"
 
         return "alive"

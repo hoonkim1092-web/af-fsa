@@ -200,17 +200,39 @@ class CanonicalLifecycleBridge:
         except Exception as exc:
             print(f"[LifecycleBridge] after_agent snapshot failed: {exc}")
 
+    # 로그 로테이션 설정
+    _LOG_MAX_BYTES = 1 * 1024 * 1024   # 1 MB
+    _LOG_KEEP_LINES = 500              # 로테이션 후 보존할 최신 줄 수
+
     def _log_event(self, event: CanonicalEvent) -> None:
-        """이벤트를 lifecycle_events.jsonl에 기록한다."""
+        """이벤트를 lifecycle_events.jsonl에 기록한다. 1 MB 초과 시 로테이션."""
         try:
             log_dir = os.path.join(event.workspace, ".af_runtime", "control")
             os.makedirs(log_dir, exist_ok=True)
             log_path = os.path.join(log_dir, "lifecycle_events.jsonl")
+
+            # 로테이션 체크: 파일이 임계값을 초과하면 최신 N줄만 남김
+            if os.path.isfile(log_path) and os.path.getsize(log_path) > self._LOG_MAX_BYTES:
+                self._rotate_log(log_path)
+
             line = json.dumps(event.to_dict(), ensure_ascii=False) + "\n"
             with open(log_path, "a", encoding="utf-8") as f:
                 f.write(line)
         except Exception:
             pass  # 로그 실패는 silent
+
+    def _rotate_log(self, log_path: str) -> None:
+        """로그 파일에서 최신 _LOG_KEEP_LINES 줄만 남기고 truncate한다."""
+        try:
+            with open(log_path, encoding="utf-8") as f:
+                lines = f.readlines()
+            keep = lines[-self._LOG_KEEP_LINES:]
+            tmp = log_path + ".tmp"
+            with open(tmp, "w", encoding="utf-8") as f:
+                f.writelines(keep)
+            os.replace(tmp, log_path)
+        except Exception:
+            pass  # 로테이션 실패는 silent (다음 기회에 재시도)
 
 
 __all__ = ["CanonicalEvent", "CanonicalLifecycleBridge", "CANONICAL_EVENTS"]
