@@ -51,6 +51,7 @@ class StateRecord:
     previous_state: str = ""
     retry_count: int = 0
     transition_log: list[dict[str, str]] = field(default_factory=list)
+    failure_reasons: list[dict] = field(default_factory=list)  # 실패 분석 이력
     created_at: str = ""
     updated_at: str = ""
     metadata: dict[str, Any] = field(default_factory=dict)
@@ -156,6 +157,33 @@ class MaintenanceStateMachine:
         """현재 상태에서 to_state로 전이 가능한지 확인한다."""
         current = self.current_state()
         return to_state in VALID_TRANSITIONS.get(current, [])
+
+    def record_failure(self, failure_entry: dict) -> StateRecord | None:
+        """
+        실패 분석 결과를 StateRecord.failure_reasons에 누적 저장한다.
+        상태 전이는 하지 않음 — 분석 이력만 기록.
+
+        failure_entry 구조 (권장):
+          {
+            "task_id": str,
+            "role": str,
+            "error": str,
+            "evaluator_action": "retry" | "pivot" | "abort",
+            "evaluator_reasoning": str,
+            "new_instruction": str,
+            "repeat_count": int,
+            "at": str (ISO timestamp),
+          }
+        """
+        from core.utils import now_iso
+        record = self.load()
+        if record is None:
+            return None
+        entry = {**failure_entry, "at": failure_entry.get("at") or now_iso()}
+        record.failure_reasons.append(entry)
+        record.updated_at = now_iso()
+        self._save(record)
+        return record
 
     def force_reset(self, reason: str = "") -> StateRecord:
         """비상 리셋: rollback → closed_failed로 강제 전환."""
