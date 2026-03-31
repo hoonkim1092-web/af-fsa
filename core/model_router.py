@@ -127,9 +127,29 @@ class ModelRouter:
     - 구독 없음: 에러 반환 + 구독 유도
     """
 
-    def pick(self, stage: str, agent_config: dict = None, is_complex: bool = True, return_langchain_model: bool = False) -> str | Any:
-        """최적 모델명을 반환한다. return_langchain_model=True이면 LangChain ChatModel 인스턴스 반환."""
+    # 파이프라인 단계별 권장 모델 티어
+    # draft/rewrite/enrich: mid-tier (비용 효율), critique/judge/qa: frontier (품질 중심)
+    _PIPELINE_STAGE_TIERS: dict[str, str] = {
+        "draft":    "mid",
+        "rewrite":  "mid",
+        "enrich":   "mid",
+        "critique": "frontier",
+        "judge":    "frontier",
+        "qa":       "frontier",
+    }
 
+    # CLI 프로바이더별 티어 우선순위 (frontier: Claude 우선, mid: Gemini/Codex 우선)
+    _CLI_FRONTIER_PREFERENCE: dict[str, list[str]] = {
+        "frontier": ["claude_cli", "gemini_cli", "codex_cli"],
+        "mid":      ["gemini_cli", "codex_cli", "claude_cli"],
+    }
+
+    def pick(self, stage: str, agent_config: dict = None, is_complex: bool = True, return_langchain_model: bool = False) -> str | Any:
+        """최적 모델명을 반환한다. return_langchain_model=True이면 LangChain ChatModel 인스턴스 반환.
+
+        파이프라인 단계(draft/critique/rewrite/judge/qa/enrich)를 stage로 전달하면
+        해당 단계의 권장 티어(mid/frontier)에 맞는 CLI 프로바이더를 선택한다.
+        """
         # [우선순위 1] 환경변수로 모델 강제 지정
         forced = (os.getenv("AGENT_CHAT_MODEL") or "").strip()
         if forced:
@@ -137,7 +157,8 @@ class ModelRouter:
         else:
             cli_providers = get_requested_cli_providers()
             if cli_providers:
-                provider = self._pick_cli_provider(cli_providers, agent_config)
+                tier = self._PIPELINE_STAGE_TIERS.get(stage, "")
+                provider = self._pick_cli_provider_for_tier(cli_providers, agent_config, tier)
                 model_name = default_chat_model_for_provider(provider)
             else:
                 model_name = self._pick_api_model(stage, agent_config, is_complex)
@@ -164,11 +185,30 @@ class ModelRouter:
         return self._pick_cli_provider(cli_providers, agent_config)
 
     def _pick_cli_provider(self, cli_providers: list[str], agent_config: dict = None) -> str:
-        """역할 기반 CLI 프로바이더 선택."""
+        """역할 기반 CLI 프로바이더 선택 (티어 미지정)."""
+        return self._pick_cli_provider_for_tier(cli_providers, agent_config, tier="")
+
+    def _pick_cli_provider_for_tier(self, cli_providers: list[str], agent_config: dict = None, tier: str = "") -> str:
+        """티어 + 역할 기반 CLI 프로바이더 선택.
+
+        복수 프로바이더 환경에서 tier가 "frontier"이면 Claude 우선,
+        "mid"이면 Gemini/Codex 우선으로 실제 설치된 프로바이더에서 선택한다.
+        단일 프로바이더이면 티어 무관하게 그것을 반환한다.
+        """
         if len(cli_providers) == 1:
             return cli_providers[0]
 
-        # 역할 추론
+        available = detect_available_cli_providers()
+        if not available:
+            available = cli_providers
+
+        # 티어 기반 우선순위 (복수 프로바이더 + 설치된 것 중에서)
+        if tier in self._CLI_FRONTIER_PREFERENCE:
+            for preferred in self._CLI_FRONTIER_PREFERENCE[tier]:
+                if preferred in available:
+                    return preferred
+
+        # 티어 미지정 또는 매칭 없음: 역할 기반 선택
         role = ""
         if agent_config:
             role = (
@@ -178,12 +218,6 @@ class ModelRouter:
                 or ""
             )
         engine_id = _infer_engine_id(role) if role else "researcher_gemini"
-
-        # 가용 프로바이더 중에서 역할 기반 선택
-        available = detect_available_cli_providers()
-        if not available:
-            available = cli_providers
-
         return pick_cli_provider_for_role(engine_id, available, role_description=role)
 
     def pick_multiple(self, stage: str = "coding") -> list[tuple[str, str]]:

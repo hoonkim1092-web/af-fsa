@@ -1,0 +1,66 @@
+# Rubric: Research Report Quality
+
+name: "Research Report Quality"
+artifact_types:
+  - research_report
+  - brief
+  - analysis
+
+dimensions:
+
+  - name: coverage
+    description: "요청한 주제를 충분히 다루는지"
+    weight: 0.25
+    levels:
+      5: "모든 핵심 주제가 다뤄지고 open_questions가 명시됨"
+      3: "주요 주제는 다뤄졌지만 일부 누락"
+      1: "핵심 주제의 절반 이상 누락"
+    evidence_checks:
+      - field: "evidence_summary"
+        rule: "min_count"
+        value: 3
+        description: "evidence_summary가 최소 3개 이상 존재해야 함"
+
+  - name: evidence_quality
+    description: "근거의 신뢰도와 최신성"
+    weight: 0.30
+    levels:
+      5: "외부 출처와 로컬 문서 모두 포함, 최신성 충족"
+      3: "로컬 문서만 있거나 외부 출처가 부족"
+      1: "근거가 거의 없음"
+    evidence_checks:
+      - field: "evidence_summary"
+        rule: "not_empty"
+        description: "evidence_summary가 비어있지 않아야 함"
+
+  - name: actionability
+    description: "결론이 실행 가능한 다음 단계로 이어지는지"
+    weight: 0.25
+    levels:
+      5: "명확한 권고사항과 다음 단계가 제시됨"
+      3: "일반적 방향은 있지만 구체적 행동 항목 부족"
+      1: "결론이 없거나 순수 정보 나열"
+    evidence_checks:
+      - field: "goal"
+        rule: "not_empty"
+        description: "goal이 비어있지 않아야 함"
+
+  - name: consistency
+    description: "섹션 간 주장이 일관적"
+    weight: 0.20
+    levels:
+      5: "모순되는 주장 없음"
+      3: "사소한 불일치 1건"
+      1: "명백한 모순 존재"
+    evidence_checks: []
+
+thresholds:
+  pass: 4.0
+  pass_with_warnings: 3.0
+  fail: 0.0
+
+scoring:
+  method: "weighted_average"
+  min_score_per_dimension: 1
+  max_score_per_dimension: 5
+  normalize_to: 1.0

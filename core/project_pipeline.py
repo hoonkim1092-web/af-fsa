@@ -106,6 +106,229 @@ class ProjectPipeline:
         os.makedirs(planning_dir, exist_ok=True)
         return planning_dir
 
+    # ── Checkpoint helpers ──────────────────────────────────────────────
+
+    def _checkpoint_dir(self, workspace: str) -> str:
+        d = os.path.join(workspace, ".checkpoint")
+        os.makedirs(d, exist_ok=True)
+        return d
+
+    def _save_checkpoint(self, workspace: str, stage: str, data: dict) -> None:
+        """단계 완료 시 결과를 .checkpoint/{stage}.json에 저장."""
+        import hashlib as _hl
+        path = os.path.join(self._checkpoint_dir(workspace), f"{stage}.json")
+        payload = {
+            "stage": stage,
+            "saved_at": now_iso(),
+            "data_hash": _hl.md5(
+                json.dumps(data, ensure_ascii=False, sort_keys=True).encode()
+            ).hexdigest(),
+            "data": data,
+        }
+        try:
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump(payload, f, ensure_ascii=False, indent=2)
+        except Exception as exc:
+            print(f"[Checkpoint] save failed for stage={stage}: {exc}")
+
+    def _load_checkpoint(self, workspace: str, stage: str) -> dict | None:
+        """체크포인트가 존재하면 data를 반환, 없으면 None."""
+        path = os.path.join(self._checkpoint_dir(workspace), f"{stage}.json")
+        if not os.path.exists(path):
+            return None
+        try:
+            with open(path, encoding="utf-8") as f:
+                payload = json.load(f)
+            return payload.get("data")
+        except Exception:
+            return None
+
+    # ── Structural Gate (Rubric-based) ─────────────────────────────────
+
+    def run_structural_gate(self, artifact: dict, artifact_type: str = "architecture_plan") -> dict:
+        """Rubric Compiler를 사용해 artifact를 평가하고 gate 결과를 반환.
+
+        Returns:
+            {"pass": bool, "status": str, "rubric_score": float,
+             "errors": [...], "warnings": [...], "weakest_dimensions": [...]}
+        """
+        try:
+            from core.rubric_compiler import RubricCompiler
+            result = RubricCompiler().evaluate(artifact, artifact_type)
+            return {
+                "pass": result.status in ("pass", "pass_with_warnings"),
+                "status": result.status,
+                "rubric_score": result.total_score,
+                "errors": result.errors,
+                "warnings": result.warnings,
+                "weakest_dimensions": result.weakest_dimensions(2),
+                "dimension_scores": {
+                    d.name: {"score": d.score, "raw": d.raw_score}
+                    for d in result.dimension_scores
+                },
+            }
+        except Exception as exc:
+            print(f"[ProjectPipeline] rubric gate failed, falling back: {exc}")
+            return self._basic_structural_check(artifact)
+
+    def _basic_structural_check(self, artifact: dict) -> dict:
+        errors, warnings = [], []
+        if not artifact.get("goal"):
+            errors.append("goal is missing")
+        if not artifact.get("deliverables"):
+            warnings.append("deliverables is empty")
+        if not artifact.get("acceptance_criteria"):
+            warnings.append("acceptance_criteria is empty")
+        return {
+            "pass": not errors,
+            "status": "pass" if not errors else "fail",
+            "rubric_score": 0.5,
+            "errors": errors,
+            "warnings": warnings,
+            "weakest_dimensions": [],
+        }
+
+    # ── Gate B: iMAD Debate Necessity Classifier ────────────────────────
+
+    def needs_agent_qa(
+        self,
+        critique_result: dict,
+        structural_gate_result: dict,
+        task_profile: dict | None = None,
+    ) -> bool:
+        """Agent QA가 필요한지 iMAD 패턴으로 판단한다."""
+        tp = task_profile or {}
+        if tp.get("complexity_tier") == "critical":
+            return True
+        if tp.get("execution_check_required"):
+            return True
+        if tp.get("risk_level") == "high":
+            return True
+
+        critique_score = float(critique_result.get("score") or 0.0)
+        gate_pass = bool(structural_gate_result.get("pass"))
+        confirmed_gaps = list(critique_result.get("confirmed_gaps") or [])
+        gate_warnings = len(structural_gate_result.get("warnings") or [])
+
+        if gate_pass and critique_score >= 0.85 and not confirmed_gaps:
+            return False
+
+        return (
+            critique_score < 0.75
+            or len(confirmed_gaps) > 0
+            or gate_warnings > 2
+        )
+
+    # ── Gate A: Confidence Gate (Fast Path) ─────────────────────────────
+
+    def should_fast_path(self, task_profile: dict, evidence_result: dict) -> bool:
+        """Gate A: simple 요청을 Draft→Gate→Accept로 단축할지 판단한다."""
+        tp = task_profile or {}
+        ev = evidence_result or {}
+        return (
+            tp.get("complexity_tier") == "simple"
+            and float(ev.get("score") or 0.0) >= 0.7
+            and not tp.get("comparison_mode", False)
+            and tp.get("risk_level", "normal") == "low"
+        )
+
+    # ── Convergence Detection ────────────────────────────────────────────
+
+    def revision_loop_with_convergence(
+        self,
+        draft: dict,
+        critique_feedback: dict,
+        evidence: dict,
+        rewrite_fn,
+        score_fn,
+        max_iterations: int = 3,
+        convergence_threshold: float = 0.05,
+    ) -> tuple[dict, float, int]:
+        """수렴 감지 기반 revision loop.
+
+        score delta < threshold이면 조기 종료.
+        Returns: (최종 artifact, 최종 score, 실제 반복 횟수)
+        """
+        current = dict(draft)
+        previous_score = score_fn(current)
+
+        if max_iterations <= 0:
+            return current, previous_score, 0
+
+        actual_iterations = 0
+        for i in range(max_iterations):
+            actual_iterations = i + 1
+            try:
+                revised = rewrite_fn(current, critique_feedback, evidence)
+            except Exception as exc:
+                print(f"[RevisionLoop] rewrite_fn failed at iteration {actual_iterations}: {exc}")
+                break
+
+            new_score = score_fn(revised)
+            delta = new_score - previous_score
+            print(f"[RevisionLoop] iter={actual_iterations} score={new_score:.3f} delta={delta:+.3f}")
+
+            if delta < convergence_threshold:
+                print(f"[RevisionLoop] 수렴 감지 (delta={delta:.3f} < {convergence_threshold})")
+                if delta > 0:
+                    current, previous_score = revised, new_score
+                break
+
+            current, previous_score = revised, new_score
+
+        return current, previous_score, actual_iterations
+
+    # ── Targeted Final Rewrite ───────────────────────────────────────────
+
+    def targeted_rewrite(
+        self,
+        artifact: dict,
+        qa_findings: list[str],
+        critique_gaps: list[str],
+        gate_warnings: list[str],
+        rewrite_section_fn,
+    ) -> dict:
+        """영향받는 섹션만 재작성한다 (전체 재작성 대신)."""
+        all_feedback = qa_findings + critique_gaps + gate_warnings
+        if not all_feedback:
+            return artifact
+
+        _field_keywords = {
+            "goal":                 ["goal", "목표", "요청", "정합성"],
+            "deliverables":         ["deliverable", "산출물", "owner"],
+            "risks":                ["risk", "위험", "mitigation", "대응"],
+            "acceptance_criteria":  ["acceptance", "criteria", "검증", "테스트"],
+            "roles":                ["role", "역할", "담당자"],
+            "implementation_notes": ["implementation", "구현", "기술", "tech"],
+            "evidence_summary":     ["evidence", "근거", "grounding", "출처"],
+        }
+
+        field_feedback_map: dict[str, list[str]] = {}
+        for fb in all_feedback:
+            fb_lower = fb.lower()
+            for field_key, keywords in _field_keywords.items():
+                if any(kw in fb_lower for kw in keywords):
+                    field_feedback_map.setdefault(field_key, []).append(fb)
+
+        if not field_feedback_map:
+            return artifact
+
+        revised = dict(artifact)
+        for field_key, feedbacks in field_feedback_map.items():
+            if field_key not in revised:
+                continue
+            try:
+                revised[field_key] = rewrite_section_fn(field_key, revised[field_key], feedbacks)
+            except Exception as exc:
+                print(f"[TargetedRewrite] {field_key} failed: {exc}")
+
+        revised["_rewrite_log"] = {
+            "type": "targeted",
+            "sections_modified": list(field_feedback_map.keys()),
+            "feedback_count": len(all_feedback),
+        }
+        return revised
+
     def _role_agent_path(self, role_id: str, workspace: str) -> str:
         return os.path.join(workspace, "agents", f"{safe_id(role_id)}.yaml")
 
@@ -281,38 +504,70 @@ class ProjectPipeline:
                         f"score={_vr.score} gaps={_vr.gaps}"
                     )
             except Exception as exc:
+                # Graceful degradation: 로컬만으로 진행
                 print(f"[ProjectPipeline] research verification failed: {exc}")
                 try:
                     research_evidence = collect_evidence(task_input, workspace=target_workspace) or {}
+                    research_evidence.setdefault("_warnings", []).append(f"evidence_degraded: {exc}")
                 except Exception:
-                    research_evidence = {}
+                    research_evidence = {"_stage_degraded": "evidence_acquisition", "_warnings": [str(exc)]}
         research_evidence_path = os.path.join(planning_dir, "research_evidence.json")
         self._write_json(research_evidence_path, research_evidence)
+        self._save_checkpoint(target_workspace, "evidence_acquisition", research_evidence)
 
-        brief_params = inspect.signature(self.research.research_project_brief).parameters
-        if "evidence_bundle" in brief_params:
-            project_brief = self.research.research_project_brief(
-                research_agent,
-                task_input,
-                workspace=target_workspace,
-                evidence_bundle=research_evidence,
+        # -- Brief (graceful degradation) --
+        from core.pipeline_quality import PipelineStageGuard
+        _guard = PipelineStageGuard()
+
+        def _gen_brief():
+            brief_params = inspect.signature(self.research.research_project_brief).parameters
+            if "evidence_bundle" in brief_params:
+                return self.research.research_project_brief(
+                    research_agent, task_input,
+                    workspace=target_workspace,
+                    evidence_bundle=research_evidence,
+                )
+            return self.research.research_project_brief(
+                research_agent, task_input, workspace=target_workspace,
             )
-        else:
-            project_brief = self.research.research_project_brief(
-                research_agent,
-                task_input,
-                workspace=target_workspace,
-            )
+
+        project_brief = _guard.run(
+            stage="draft_brief",
+            fn=_gen_brief,
+            fallback=lambda exc: {
+                "goal": task_input[:200],
+                "_stage_degraded": "draft_brief",
+                "_warnings": [str(exc)],
+            },
+        )
+        if not isinstance(project_brief, dict):
+            project_brief = {"goal": task_input[:200]}
         project_brief["requested_role"] = requested_role
         project_brief["route"] = route or {}
         project_brief["generated_at"] = now_iso()
         project_brief_path = os.path.join(planning_dir, "project_brief.json")
         self._write_json(project_brief_path, project_brief)
+        self._save_checkpoint(target_workspace, "draft_brief", project_brief)
 
-        # -- Planning --
+        # -- Planning (graceful degradation) --
         pd_agent = build_bootstrap_agent("pd_director")
-        role_plan_raw = self.planner.plan(task_input, project_brief)
-        role_plan = enrich_role_plan(task_input, project_brief, role_plan_raw)
+
+        def _gen_role_plan():
+            raw = self.planner.plan(task_input, project_brief)
+            return enrich_role_plan(task_input, project_brief, raw)
+
+        role_plan = _guard.run(
+            stage="role_planning",
+            fn=_gen_role_plan,
+            fallback=lambda exc: {
+                "roles": [],
+                "modules": [],
+                "_stage_degraded": "role_planning",
+                "_warnings": [str(exc)],
+            },
+        )
+        if not isinstance(role_plan, dict):
+            role_plan = {"roles": [], "modules": []}
         role_plan["generated_at"] = now_iso()
         role_plan["pd_agent"] = {
             "id": pd_agent["id"],
@@ -320,6 +575,7 @@ class ProjectPipeline:
         }
         role_plan_path = os.path.join(planning_dir, "role_plan.json")
         self._write_json(role_plan_path, role_plan)
+        self._save_checkpoint(target_workspace, "role_plan", role_plan)
 
         # -- Task Board --
         task_board = build_project_board(project_brief, role_plan)
