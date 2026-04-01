@@ -518,7 +518,7 @@ def generate_work_items(
     write_text(tasks_path, tasks_content)
     files["implementation-tasks.md"] = tasks_path
 
-    gate = ApprovalGate(workspace, slug)
+    gate = ApprovalGate(doc_root, slug)
     gate.initialize(work_item_id)
     files["approval-gate.md"] = gate.gate_path
 

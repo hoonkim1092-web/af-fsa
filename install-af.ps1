@@ -1,17 +1,17 @@
 <#
 .SYNOPSIS
-Agent Factory CLI v1.2.12 install script
+Agent Factory CLI v1.2.13 install script
 
 .EXAMPLE
-irm https://raw.githubusercontent.com/hoonkim1092-web/af-fsa/af-fsa_v1.2.12/install-af.ps1 | iex
+irm https://raw.githubusercontent.com/hoonkim1092-web/af-fsa/af-fsa_v1.2.13/install-af.ps1 | iex
 #>
 
 param(
     [string]$InstallPath = "C:\tools"
 )
 
-$Version = "1.2.12"
-$Branch = "af-fsa_v1.2.12"
+$Version = "1.2.13"
+$Branch = "af-fsa_v1.2.13"
 $RawBase = "https://raw.githubusercontent.com/hoonkim1092-web/af-fsa/$Branch"
 $ScriptUrl = "$RawBase/install-af.ps1"
 $ZipName = "af-$Version.zip"
@@ -166,3 +166,4 @@ Write-Host "Or run it immediately:" -ForegroundColor White
 Write-Host "  & '$exePath' --help" -ForegroundColor Yellow
 Write-Host ""
 Read-Host "Press Enter to exit"
+
