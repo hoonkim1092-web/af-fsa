@@ -200,7 +200,9 @@
       "Bash(C:/Project/agent-factory/dist/af/af.exe --project testproject --chat)",
       "Bash(cp /tmp/cs_stash.py D:/hoonProJect/worktrees/agent-factory/core/control/continuity_snapshot.py)",
       "Bash(cp /tmp/rb_stash.py D:/hoonProJect/worktrees/agent-factory/core/control/rollback.py)",
-      "Bash(cp /tmp/mp_stash.py D:/hoonProJect/worktrees/agent-factory/core/control/maintenance_pipeline.py)"
+      "Bash(cp /tmp/mp_stash.py D:/hoonProJect/worktrees/agent-factory/core/control/maintenance_pipeline.py)",
+      "Bash(wc -l /d/hoonProJect/worktrees/agent-factory/core/*.py)",
+      "Bash(xargs wc:*)"
     ]
   }
 }

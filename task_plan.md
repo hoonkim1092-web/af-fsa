@@ -2,29 +2,38 @@
 
 ## Goal
 
-Implement the next portability slice for subscription-backed CLI execution in `agent-factory`: split `claude_cli`, `gemini_cli`, and `codex_cli` into explicit providers, allow CLI-only bootstrap without API keys, and route `AgentRunner` through modular CLI adapters without breaking existing SDK paths.
+Build the current `agent-factory` CLI artifact from this worktree, verify the executable, and publish the resulting distributable into the deployment repository/branch that serves `af-fsa_v1.2.8`.
+
+## Current Phase
+
+Phase 2
 
 ## Phases
 
 | Status | Phase | Notes |
 | --- | --- | --- |
-| completed | Audit current model/provider flow | `agent_runner.py` mixes router, SDK calls, and Codex path in one file |
-| completed | Add failing tests for CLI provider split | Added `tests/test_cli_providers.py` for bootstrap, registry defaults, command building, and runner dispatch |
-| completed | Implement provider registry and CLI adapters | Added `core/providers/registry.py`, `core/providers/cli.py`, and package exports |
-| completed | Wire runner/bootstrap to CLI providers | `config_paths` now allows CLI bootstrap and `AgentRunner` dispatches explicit CLI providers before SDK fallback |
-| completed | Run targeted regression verification | 29 targeted tests passed |
+| completed | Phase 1: Discovery and deployment target identification | Confirmed build entrypoint is `python build_exe.py`; confirmed deployment repo `https://github.com/hoonkim1092-web/af-fsa.git` exists and serves version branches including `af-fsa_v1.2.8` |
+| in_progress | Phase 2: Build and local verification | Need fresh `dist/af` and `dist/af-1.2.8.zip`, then verify `dist/af/af.exe --help` |
+| pending | Phase 3: Stage deployment repository contents | Clone deployment repo branch `af-fsa_v1.2.8`, replace published payload with fresh build output, preserve expected installer paths |
+| pending | Phase 4: Commit and push deployment repo | Commit deployment changes with a clear message and push to origin |
+| pending | Phase 5: Final verification and handoff | Verify remote push target/commit and report exact results |
 
-## Decisions
+## Key Questions
 
-- Keep the existing SDK execution path as the fallback path for now; add CLI providers beside it rather than replacing it in one change.
-- Treat CLI selection as an explicit runtime choice via `AGENT_CHAT_PROVIDER`; do not auto-switch to external CLIs based on model name alone.
-- Use conservative default CLI commands backed by env overrides so command syntax can evolve without forcing code changes.
-- Keep tool orchestration in `agent-factory`; CLI providers receive composed prompts and workspace context, not in-process Python tool functions.
-- Leave provider-specific advanced behaviors such as approval mode, tool mirroring, and session hook packs for a later slice once the basic dispatch contract is stable.
+1. Is `af-fsa_v1.2.8` still the correct publish branch for the current source version? Answer so far: yes, because `version.py` is `1.2.8` and installer URLs point at that branch.
+2. Do we need to modify source files before build, or publish the current worktree state as-is? Answer so far: publish current worktree state unless the build fails and requires targeted fixes.
+
+## Decisions Made
+
+| Decision | Rationale |
+| --- | --- |
+| Treat external repo `af-fsa` as the deployment repository | `git ls-remote` confirmed it exists separately and contains versioned branches used by installer URLs |
+| Publish branch `af-fsa_v1.2.8` | Current source version is `1.2.8`, and install script downloads from that branch/tag path |
+| Verify with a real build plus `af.exe --help` before push | The task is deployment-oriented and requires artifact-level evidence, not just source inspection |
 
 ## Errors Encountered
 
 | Error | Attempt | Resolution |
 | --- | --- | --- |
-| `agent_runner.py` currently couples provider selection and execution flow | 1 | Split work into registry, adapter, and runner wiring phases |
-| New CLI dispatch test was blocked by `TodoContinuationEnforcer` | 1 | Added a minimal `.todo.md` in the test workspace so the runtime path matches real usage |
+| Sandbox shell failed with `CreateProcessWithLogonW failed: 1326` | 1 | Switched required shell operations to escalated execution |
+| Recursive search for local `af-fsa` directory hit access-denied under unrelated temp directory | 1 | Continued with direct remote inspection via `git ls-remote` instead of broad filesystem recursion |

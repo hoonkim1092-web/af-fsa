@@ -1,37 +1,34 @@
 # Progress
 
-## 2026-03-09
+## 2026-04-01
 
-- Started CLI provider separation phase for `claude_cli`, `gemini_cli`, and `codex_cli`.
-- Audited current execution path: provider choice, bootstrap gating, and SDK fallbacks are all concentrated in `core/agent_runner.py` and `core/config_paths.py`.
-- Chosen first implementation slice:
-  1. Add failing tests for keyless CLI bootstrap and runner dispatch.
-  2. Introduce modular provider registry and CLI adapter modules.
-  3. Wire `AgentRunner` to explicit CLI providers before SDK fallbacks.
-- Added `core/providers` with env-overridable default commands for Claude, Gemini, and Codex CLIs.
-- Updated bootstrap gating so explicit CLI provider configuration can start without `GOOGLE_API_KEY` or `OPENAI_API_KEY`.
-- Verified focused regression suite: `29 passed`.
+- Started deployment session for building `agent-factory` and publishing the packaged artifact.
+- Confirmed the workspace is `D:\hoonProJect\worktrees\agent-factory` on branch `2026-03-29-v1.0.3`.
+- Confirmed the source build entrypoint is `python build_exe.py`.
+- Confirmed the deployment repository is the external GitHub repo `hoonkim1092-web/af-fsa`.
+- Confirmed the publish branch for the current version is `af-fsa_v1.2.8`.
+- Identified sandbox shell failure (`CreateProcessWithLogonW failed: 1326`) and switched to escalated shell execution.
+- Next step: run a fresh build, verify `dist/af/af.exe --help`, then stage the deployment repo branch.
 
-## 2026-03-09
+## Test Results
 
-- Loaded and followed `brainstorming`, `test-driven-development`, and `planning-with-files`.
-- Audited current hook/orchestrator integration and confirmed the safe implementation slice:
-  - manifest continuity
-  - modular hook bus
-  - tool lifecycle interception
-- Added failing tests first:
-  - `tests/test_hook_event_bus.py`
-  - `tests/test_orchestrator_manifest.py`
-- Implemented:
-  - `core/continuity/manifest_store.py`
-  - `core/continuity/__init__.py`
-  - `core/hooks/base.py`
-  - `core/hooks/guardrails.py`
-  - refactored `core/hooks/event_bus.py`
-  - integrated snapshots into `core/dynamic_orchestrator.py`
-  - integrated `pre_tool_call` / `post_tool_call` into `core/agent_runner.py`
-- Updated `tests/conftest.py` so test collection does not fail on key-gated imports.
-- Removed tracked test artifact files under `tests/_tmp/**` and `tests/test_out.md`, and added ignore rules.
-- Verified with:
-  - `python -m pytest tests/test_hook_event_bus.py tests/test_orchestrator_manifest.py tests/test_dynamic_orchestrator_workspace_scope.py tests/test_runner_contracts.py tests/test_project_pipeline.py tests/test_session_bridge.py tests/test_project_context_sync.py`
-  - Result: `23 passed`
+| Test | Input | Expected | Actual | Status |
+| --- | --- | --- | --- | --- |
+| Deployment target lookup | `git ls-remote https://github.com/hoonkim1092-web/af-fsa.git` | Repo reachable and branch list available | Repo reachable; `af-fsa_v1.2.8` present | pass |
+
+## Error Log
+
+| Timestamp | Error | Attempt | Resolution |
+| --- | --- | --- | --- |
+| 2026-04-01 | `CreateProcessWithLogonW failed: 1326` on sandboxed shell/apply_patch | 1 | Used escalated shell commands for required local operations |
+| 2026-04-01 | Access denied during broad recursive directory search | 1 | Switched to targeted remote lookup instead of recursive local scan |
+
+## 5-Question Reboot Check
+
+| Question | Answer |
+| --- | --- |
+| Where am I? | Phase 2: Build and local verification |
+| Where am I going? | Build, verify, stage deployment repo, commit, push |
+| What's the goal? | Publish a verified `agent-factory` build to `af-fsa_v1.2.8` |
+| What have I learned? | Build entrypoint, version, and deployment repo/branch are confirmed |
+| What have I done? | Discovery completed and deployment target identified |
