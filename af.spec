@@ -19,6 +19,7 @@ a = Analysis(
     hiddenimports=[
         # ── core ──
         'core.agent_runner',
+        'core.agent_worker',
         'core.agent_specializer',
         'core.approval_gate',
         'core.ast_engine',
