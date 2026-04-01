@@ -134,6 +134,13 @@ def main(argv: list[str] | None = None):
         _launch_interactive_mode(projects_root)
         return
 
+    # ── worker 서브커맨드: PyInstaller exe에서 에이전트 워커 실행 ──
+    if effective_argv and effective_argv[0] == "worker":
+        from core.agent_worker import main as worker_main
+        sys.argv = ["af-worker"] + effective_argv[1:]
+        worker_main()
+        return
+
     if effective_argv and effective_argv[0] == "skill-create":
         _run_skill_creator(effective_argv[1:])
         return

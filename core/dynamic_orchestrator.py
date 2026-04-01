@@ -512,8 +512,13 @@ class DynamicOrchestrator:
         with open(task_file, "w", encoding="utf-8") as fh:
             json.dump(task_payload, fh, ensure_ascii=False, indent=2)
 
-        worker_script = str(Path(__file__).parent / "agent_worker.py")
-        cmd = [sys.executable, worker_script, "--task-file", task_file, "--result-file", result_file]
+        # PyInstaller frozen exe → "af.exe worker --task-file ..."
+        # 일반 Python → "python core/agent_worker.py --task-file ..."
+        if getattr(sys, "frozen", False):
+            cmd = [sys.executable, "worker", "--task-file", task_file, "--result-file", result_file]
+        else:
+            worker_script = str(Path(__file__).parent / "agent_worker.py")
+            cmd = [sys.executable, worker_script, "--task-file", task_file, "--result-file", result_file]
 
         popen_kwargs: Dict[str, Any] = {}
         if sys.platform == "win32":
