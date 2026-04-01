@@ -1,18 +1,18 @@
-{
-  "key": "user 지금 Gemini CLI는 현재 브라우저 로그인 단계까지는 진입합니다 API 키는 없어 보이고 Gemini Key 안쓰기로 되어 있는데 왜 API Key를 찾는거",
-  "value": "[user] 지금 \"Gemini CLI는 현재 브라우저 로그인 단계까지는 진입합니다. API 키는 없어 보이고\" Gemini Key 안쓰기로 되어 있는데 왜 API Key를 찾는거",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T06:08:25.464286+00:00",
-  "updated_at": "2026-03-10T06:08:25.464286+00:00",
-  "details": {
-    "text": "[user] 지금 \"Gemini CLI는 현재 브라우저 로그인 단계까지는 진입합니다. API 키는 없어 보이고\" Gemini Key 안쓰기로 되어 있는데 왜 API Key를 찾는거",
-    "event_timestamp": "2026-03-10T04:48:13.647Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
-    "session_line": 462,
-    "provider": "codex"
-  }
+{
+  "key": "user 지금 Gemini CLI는 현재 브라우저 로그인 단계까지는 진입합니다 API 키는 없어 보이고 Gemini Key 안쓰기로 되어 있는데 왜 API Key를 찾는거",
+  "value": "[user] 지금 \"Gemini CLI는 현재 브라우저 로그인 단계까지는 진입합니다. API 키는 없어 보이고\" Gemini Key 안쓰기로 되어 있는데 왜 API Key를 찾는거",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T06:08:25.464286+00:00",
+  "updated_at": "2026-03-10T06:08:25.464286+00:00",
+  "details": {
+    "text": "[user] 지금 \"Gemini CLI는 현재 브라우저 로그인 단계까지는 진입합니다. API 키는 없어 보이고\" Gemini Key 안쓰기로 되어 있는데 왜 API Key를 찾는거",
+    "event_timestamp": "2026-03-10T04:48:13.647Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 462,
+    "provider": "codex"
+  }
 }

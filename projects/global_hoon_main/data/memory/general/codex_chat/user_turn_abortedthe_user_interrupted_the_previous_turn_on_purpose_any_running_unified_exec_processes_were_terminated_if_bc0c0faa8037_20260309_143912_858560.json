@@ -1,18 +1,18 @@
-{
-  "key": "user turn_abortedThe user interrupted the previous turn on purpose Any running unified exec processes were terminated If",
-  "value": "[user] <turn_aborted> The user interrupted the previous turn on purpose. Any running unified exec processes were terminated. If any tools/commands were aborted, they may have partially executed; verify current state before retrying. </turn_aborted>",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T14:39:12.858612+00:00",
-  "updated_at": "2026-03-09T14:39:12.858612+00:00",
-  "details": {
-    "text": "[user] <turn_aborted>\nThe user interrupted the previous turn on purpose. Any running unified exec processes were terminated. If any tools/commands were aborted, they may have partially executed; verify current state before retrying.\n</turn_aborted>",
-    "event_timestamp": "2026-03-07T17:43:26.523Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/07/rollout-2026-03-07T23-57-50-019cc8ce-02f3-7c92-a357-f51576977b23.jsonl",
-    "session_line": 1911,
-    "provider": "codex"
-  }
+{
+  "key": "user turn_abortedThe user interrupted the previous turn on purpose Any running unified exec processes were terminated If",
+  "value": "[user] <turn_aborted> The user interrupted the previous turn on purpose. Any running unified exec processes were terminated. If any tools/commands were aborted, they may have partially executed; verify current state before retrying. </turn_aborted>",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T14:39:12.858612+00:00",
+  "updated_at": "2026-03-09T14:39:12.858612+00:00",
+  "details": {
+    "text": "[user] <turn_aborted>\nThe user interrupted the previous turn on purpose. Any running unified exec processes were terminated. If any tools/commands were aborted, they may have partially executed; verify current state before retrying.\n</turn_aborted>",
+    "event_timestamp": "2026-03-07T17:43:26.523Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/07/rollout-2026-03-07T23-57-50-019cc8ce-02f3-7c92-a357-f51576977b23.jsonl",
+    "session_line": 1911,
+    "provider": "codex"
+  }
 }

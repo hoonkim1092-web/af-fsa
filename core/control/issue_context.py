@@ -174,22 +174,24 @@ class IssueContextManager:
             print(f"[IssueContextManager] save failed: {exc}")
 
     def _generate_id(self) -> str:
-        """local-YYYYMMDD-NNN 형식의 이슈 ID를 생성한다."""
+        """local-YYYYMMDD-NNN-XXXXXX 형식의 이슈 ID를 생성한다.
+
+        BUG-8 Fix: seq만으로는 동일 날짜 내 race condition 시 중복 가능.
+        UUID 앞 6자리를 suffix로 추가해 충돌을 원천 차단.
+        """
+        import uuid
         from core.utils import now_iso
         date_part = now_iso()[:10].replace("-", "")
-        # 기존 run_ledger에서 오늘 날짜 카운트
         seq = 1
         ledger_path = os.path.join(self._control_dir, "run_ledger.jsonl")
         if os.path.isfile(ledger_path):
             try:
                 with open(ledger_path, encoding="utf-8") as f:
-                    seq = sum(
-                        1 for line in f
-                        if date_part in line
-                    ) + 1
+                    seq = sum(1 for line in f if date_part in line) + 1
             except Exception:
                 pass
-        return f"local-{date_part}-{seq:03d}"
+        uid = str(uuid.uuid4()).replace("-", "")[:6]
+        return f"local-{date_part}-{seq:03d}-{uid}"
 
 
 __all__ = ["IssueContext", "IssueContextManager"]

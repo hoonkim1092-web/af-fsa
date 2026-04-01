@@ -1,18 +1,18 @@
-{
-  "key": "assistant 이전 인증 시도는 중간에 중단됐습니다 같은 디바이스 인증 명령을 다시 실행해서 승인 URL과 코드가 나오면 그 기준으로 진행하겠습니다",
-  "value": "[assistant] 이전 인증 시도는 중간에 중단됐습니다. 같은 디바이스 인증 명령을 다시 실행해서 승인 URL과 코드가 나오면 그 기준으로 진행하겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T14:39:12.909388+00:00",
-  "updated_at": "2026-03-09T14:39:12.909388+00:00",
-  "details": {
-    "text": "[assistant] 이전 인증 시도는 중간에 중단됐습니다. 같은 디바이스 인증 명령을 다시 실행해서 승인 URL과 코드가 나오면 그 기준으로 진행하겠습니다.",
-    "event_timestamp": "2026-03-09T14:00:15.723Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T22-53-58-019cd2e0-4483-7943-8fd7-1e4deab29ea9.jsonl",
-    "session_line": 73,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 이전 인증 시도는 중간에 중단됐습니다 같은 디바이스 인증 명령을 다시 실행해서 승인 URL과 코드가 나오면 그 기준으로 진행하겠습니다",
+  "value": "[assistant] 이전 인증 시도는 중간에 중단됐습니다. 같은 디바이스 인증 명령을 다시 실행해서 승인 URL과 코드가 나오면 그 기준으로 진행하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T14:39:12.909388+00:00",
+  "updated_at": "2026-03-09T14:39:12.909388+00:00",
+  "details": {
+    "text": "[assistant] 이전 인증 시도는 중간에 중단됐습니다. 같은 디바이스 인증 명령을 다시 실행해서 승인 URL과 코드가 나오면 그 기준으로 진행하겠습니다.",
+    "event_timestamp": "2026-03-09T14:00:15.723Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T22-53-58-019cd2e0-4483-7943-8fd7-1e4deab29ea9.jsonl",
+    "session_line": 73,
+    "provider": "codex"
+  }
 }

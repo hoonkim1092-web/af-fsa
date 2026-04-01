@@ -104,6 +104,13 @@ class MaintenanceStateMachine:
         from core.utils import now_iso
         record = self.load()
         if record is None:
+            path = self._state_path()
+            if os.path.isfile(path):
+                # BUG-15 Fix: 파일 존재 + 파싱 실패 → 재초기화 금지
+                raise RuntimeError(
+                    f"[StateMachine] state file exists but failed to load "
+                    f"(run_id={self._run_id!r}). Manual inspection required."
+                )
             record = self.initialize()
 
         current = record.current_state
@@ -124,11 +131,12 @@ class MaintenanceStateMachine:
         record.previous_state = current
         record.current_state = to_state
         record.updated_at = now_iso()
+        # BUG-14 Fix: metadata를 json.dumps 문자열이 아닌 dict로 통일
         record.transition_log.append({
             "from": current,
             "to": to_state,
             "at": record.updated_at,
-            "metadata": json.dumps(metadata or {}),
+            "metadata": metadata or {},
         })
         if metadata:
             record.metadata.update(metadata)

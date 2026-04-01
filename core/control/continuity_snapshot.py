@@ -44,7 +44,7 @@ class ContinuitySnapshot:
     latest_session_provider: str = ""
     latest_session_run_id: str = ""
     # 집계 판정
-    overall_health: str = "unknown"     # "healthy" | "degraded" | "interrupted" | "unknown"
+    recovery_health: str = "unknown"    # "healthy" | "degraded" | "interrupted" | "unknown"
     conflict_notes: list[str] = field(default_factory=list)
 
     def to_dict(self) -> dict:
@@ -56,10 +56,10 @@ class ContinuitySnapshot:
         return cls(**{k: v for k, v in d.items() if k in known})
 
     def is_healthy(self) -> bool:
-        return self.overall_health == "healthy"
+        return self.recovery_health == "healthy"
 
     def is_interrupted(self) -> bool:
-        return self.overall_health == "interrupted"
+        return self.recovery_health == "interrupted"
 
 
 class ContinuitySnapshotBuilder:
@@ -112,13 +112,18 @@ class ContinuitySnapshotBuilder:
                 f"board has {board_in_progress} in_progress tasks (should be reset before resume)"
             )
 
-        # overall_health 판정
-        overall_health = self._resolve_health(orchestrator_status, {
-            "completed": board_completed,
-            "failed": board_failed,
-            "in_progress": board_in_progress,
-            "pending": board_pending,
-        })
+        # recovery_health 판정
+        # BUG-9 Fix: conflict_notes가 있으면 healthy → degraded로 격하
+        recovery_health = self._resolve_health(
+            orchestrator_status,
+            {
+                "completed": board_completed,
+                "failed": board_failed,
+                "in_progress": board_in_progress,
+                "pending": board_pending,
+            },
+            conflict_notes,
+        )
 
         snapshot = ContinuitySnapshot(
             timestamp=now_iso(),
@@ -135,7 +140,7 @@ class ContinuitySnapshotBuilder:
             resume_brief_excerpt=brief_excerpt,
             latest_session_provider=session_provider,
             latest_session_run_id=session_run_id,
-            overall_health=overall_health,
+            recovery_health=recovery_health,
             conflict_notes=conflict_notes,
         )
 
@@ -232,13 +237,19 @@ class ContinuitySnapshotBuilder:
 
     # ── merge 정책 ──
 
-    def _resolve_health(self, manifest_status: str, board_summary: dict) -> str:
+    def _resolve_health(
+        self,
+        manifest_status: str,
+        board_summary: dict,
+        conflict_notes: list[str] | None = None,
+    ) -> str:
         """
-        overall_health 판정 규칙:
+        recovery_health 판정 규칙:
           - manifest "crashed" → "interrupted" (최우선 override)
           - board failed_tasks > 0 → "degraded"
           - board in_progress > 0 → "degraded" (비정상 재개)
           - manifest "completed" 또는 비어있음 → "healthy"
+          - BUG-9 Fix: conflict_notes 있으면 "healthy" → "degraded" 격하
           - 그 외 → "unknown"
         """
         if manifest_status == "crashed":
@@ -251,13 +262,9 @@ class ContinuitySnapshotBuilder:
             return "degraded"
 
         if manifest_status in ("completed", ""):
-            total_pending = board_summary.get("pending", 0)
-            if total_pending == 0:
-                return "healthy"
-            # B9 Fix: manifest completed + board pending > 0 은 "비정상"이 아니라
-            # 중간 재개 세션 (pending 태스크가 아직 실행 전인 정상 상태)일 수 있다.
-            # conflict_note는 이미 build()에서 기록되므로 여기선 "degraded" 대신
-            # "healthy"를 반환하고 caller가 conflict_notes로 판단하게 한다.
+            # conflict_notes가 있으면 불일치 존재 → degraded
+            if conflict_notes:
+                return "degraded"
             return "healthy"
 
         if manifest_status in ("running", "in_progress"):

@@ -12,10 +12,12 @@ from __future__ import annotations
 
 import json
 import os
+import threading
 from dataclasses import dataclass, field, asdict
 from typing import Any
 
 _LEDGER_FILENAME = "run_ledger.jsonl"
+_append_lock = threading.Lock()  # in-process 스레드 안전성 보장
 
 
 @dataclass
@@ -89,16 +91,38 @@ class RunLedger:
     # ── Public API ──
 
     def append(self, entry: LedgerEntry) -> None:
-        """원자적으로 entry를 JSONL에 추가한다."""
+        """스레드-안전하게 entry를 JSONL에 추가한다.
+
+        BUG-3 Fix: 모듈 레벨 Lock으로 동일 프로세스 내 스레드 간 race condition 방지.
+        cross-process 안전성은 lock 파일로 추가 보장.
+        """
         os.makedirs(self._control_dir, exist_ok=True)
         line = json.dumps(entry.to_dict(), ensure_ascii=False) + "\n"
-        try:
-            with open(self._ledger_path, "a", encoding="utf-8") as f:
-                f.write(line)
-                f.flush()
-                os.fsync(f.fileno())
-        except Exception as exc:
-            print(f"[RunLedger] append failed: {exc}")
+        lock_path = self._ledger_path + ".lock"
+        with _append_lock:
+            try:
+                # cross-process: lock 파일로 상호 배제
+                with open(lock_path, "a", encoding="utf-8") as lf:
+                    try:
+                        import msvcrt
+                        msvcrt.locking(lf.fileno(), msvcrt.LK_NBLCK, 1)
+                        acquired = True
+                    except (ImportError, OSError):
+                        acquired = False
+                    try:
+                        with open(self._ledger_path, "a", encoding="utf-8") as f:
+                            f.write(line)
+                            f.flush()
+                            os.fsync(f.fileno())
+                    finally:
+                        if acquired:
+                            try:
+                                lf.seek(0)
+                                msvcrt.locking(lf.fileno(), msvcrt.LK_UNLCK, 1)
+                            except Exception:
+                                pass
+            except Exception as exc:
+                print(f"[RunLedger] append failed: {exc}")
 
     def open_run(
         self,

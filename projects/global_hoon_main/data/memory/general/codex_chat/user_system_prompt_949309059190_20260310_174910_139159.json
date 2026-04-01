@@ -1,18 +1,18 @@
-{
-  "key": "user System Prompt",
-  "value": "[user] [System Prompt]",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T17:49:10.139253+00:00",
-  "updated_at": "2026-03-10T17:49:10.139253+00:00",
-  "details": {
-    "text": "[user] [System Prompt]",
-    "event_timestamp": "2026-03-10T17:49:03.775Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/11/rollout-2026-03-11T02-49-03-019cd8dd-d7a1-7ae2-b3aa-3375f0d27d98.jsonl",
-    "session_line": 6,
-    "provider": "codex"
-  }
+{
+  "key": "user System Prompt",
+  "value": "[user] [System Prompt]",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:49:10.139253+00:00",
+  "updated_at": "2026-03-10T17:49:10.139253+00:00",
+  "details": {
+    "text": "[user] [System Prompt]",
+    "event_timestamp": "2026-03-10T17:49:03.775Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/11/rollout-2026-03-11T02-49-03-019cd8dd-d7a1-7ae2-b3aa-3375f0d27d98.jsonl",
+    "session_line": 6,
+    "provider": "codex"
+  }
 }

@@ -16,6 +16,7 @@ import json
 import os
 import subprocess
 from dataclasses import dataclass, field, asdict
+from pathlib import Path
 
 
 @dataclass
@@ -42,7 +43,7 @@ class RollbackPlan:
 
     @property
     def is_executable(self) -> bool:
-        return self.status == "pending" and self.git_ref_before != ""
+        return self.status == "pending"
 
 
 class RollbackManager:
@@ -66,7 +67,7 @@ class RollbackManager:
         from core.utils import now_iso
 
         git_ref = self._get_git_head()
-        strategy = "git_revert" if git_ref else "checkpoint_restore"
+        strategy = "checkpoint_restore"  # v2.1: 항상 checkpoint_restore 기본값
 
         checkpoint_path = os.path.join(
             self._control_dir, "checkpoints", f"{run_id}.json"
@@ -89,12 +90,42 @@ class RollbackManager:
         self._save(plan)
         return plan
 
+    def select_strategy(self, plan: RollbackPlan, workspace: str) -> str:
+        """v2.1.2: 롤백 전략 자동 선택.
+
+        판정 흐름:
+          1. checkpoint 존재 + JSON 파싱 성공 + 체크섬 일치 (integrity check)
+             + checkpoint 이후 외부 변경 없음
+             → "checkpoint_restore"
+          2. worktree clean + commits_since_ref가 affected_files와 정확히 대응
+             → "git_revert"
+          3. 그 외 → "manual"
+
+        ※ checkpoint가 존재하더라도 손상(파싱 실패 · 체크섬 불일치)된 경우
+          1번 조건 불충족으로 처리 → 2번 판정으로 진행.
+          2번도 불충족이면 "manual" fallback.
+        """
+        # 1. checkpoint_restore 조건
+        if plan.checkpoint_path and os.path.isfile(plan.checkpoint_path):
+            if self._check_checkpoint_integrity(plan.checkpoint_path):
+                if not self._has_external_changes(plan, workspace):
+                    return "checkpoint_restore"
+
+        # 2. git_revert 조건
+        if plan.git_ref_before and self._is_worktree_clean(workspace):
+            if self._commits_match_affected_files(plan, workspace):
+                return "git_revert"
+
+        # 3. manual fallback
+        return "manual"
+
     def execute_rollback(self, plan: RollbackPlan) -> dict:
         """
         전략별 롤백을 수행한다.
+        select_strategy()로 실제 전략을 결정한 뒤 실행한다.
 
         Returns:
-          {"success": bool, "strategy": str, "message": str}
+          {"success": bool, "strategy": str, "message": str, "fallback_reason": str | None}
         """
         from core.utils import now_iso
 
@@ -102,8 +133,16 @@ class RollbackManager:
             return {
                 "success": False,
                 "strategy": plan.strategy,
-                "message": f"plan not executable (status={plan.status}, ref={plan.git_ref_before!r})",
+                "message": f"plan not executable (status={plan.status})",
+                "fallback_reason": None,
             }
+
+        # v2.1: select_strategy로 실제 전략 결정 (plan.strategy 기본값보다 우선)
+        actual_strategy = self.select_strategy(plan, self._workspace)
+        fallback_reason = None
+        if actual_strategy != plan.strategy:
+            fallback_reason = f"strategy changed from {plan.strategy!r} to {actual_strategy!r}"
+        plan.strategy = actual_strategy
 
         if plan.strategy == "git_revert":
             result = self._execute_git_revert(plan)
@@ -111,6 +150,9 @@ class RollbackManager:
             result = self._execute_checkpoint_restore(plan)
         else:
             result = self._execute_manual(plan)
+
+        if fallback_reason:
+            result["fallback_reason"] = fallback_reason
 
         # 상태 업데이트
         plan.executed_at = now_iso()
@@ -201,15 +243,19 @@ class RollbackManager:
             restored_files = checkpoint.get("files", {})
             restored_count = 0
             failed_paths: list[str] = []
+            workspace_root = Path(self._workspace).resolve()
             for rel_path, content in restored_files.items():
-                # B2 Fix: path traversal 방지 — workspace 밖 경로 차단
-                full_path = os.path.realpath(os.path.join(self._workspace, rel_path))
-                workspace_real = os.path.realpath(self._workspace)
-                if not full_path.startswith(workspace_real + os.sep) and full_path != workspace_real:
+                # BUG-2 Fix: pathlib.is_relative_to()로 path traversal + symlink 방어
+                try:
+                    full_path = (workspace_root / rel_path).resolve()
+                    if not full_path.is_relative_to(workspace_root):
+                        failed_paths.append(rel_path)
+                        print(f"[RollbackManager] blocked path traversal attempt: {rel_path!r}")
+                        continue
+                except Exception:
                     failed_paths.append(rel_path)
-                    print(f"[RollbackManager] blocked path traversal attempt: {rel_path!r}")
                     continue
-                os.makedirs(os.path.dirname(full_path), exist_ok=True)
+                os.makedirs(full_path.parent, exist_ok=True)
                 with open(full_path, "w", encoding="utf-8") as f:
                     f.write(content)
                 restored_count += 1
@@ -259,6 +305,75 @@ class RollbackManager:
         except Exception:
             pass
         return ""
+
+    # ── select_strategy 헬퍼 ──
+
+    def _check_checkpoint_integrity(self, checkpoint_path: str) -> bool:
+        """checkpoint 파일의 무결성을 검증한다.
+
+        검증 순서:
+          1. JSON 파싱 성공 여부
+          2. '__checksum__' 필드가 있으면 SHA256 검증
+          3. 체크섬 없으면 파싱 성공만으로 통과
+        """
+        import hashlib
+        try:
+            with open(checkpoint_path, encoding="utf-8") as f:
+                raw = f.read()
+            data = json.loads(raw)
+            stored = data.get("__checksum__", None)
+            if stored is not None:
+                # BUG-10 Fix: pop 대신 copy에서 제거 — 원본 dict 변형 방지
+                data_copy = {k: v for k, v in data.items() if k != "__checksum__"}
+                actual = hashlib.sha256(
+                    json.dumps(data_copy, sort_keys=True, ensure_ascii=False).encode()
+                ).hexdigest()
+                return actual == stored
+            return True  # 체크섬 없음 → 파싱 성공으로 통과
+        except Exception:
+            return False
+
+    def _has_external_changes(self, plan: RollbackPlan, workspace: str) -> bool:
+        """checkpoint 생성 이후 affected_files에 외부 변경이 있는지 확인한다."""
+        if not plan.checkpoint_path or not os.path.isfile(plan.checkpoint_path):
+            return True  # checkpoint 없음 → 확인 불가 → 안전하지 않음
+        checkpoint_mtime = os.path.getmtime(plan.checkpoint_path)
+        for rel_path in plan.affected_files:
+            full_path = os.path.join(workspace, rel_path)
+            if os.path.isfile(full_path):
+                if os.path.getmtime(full_path) > checkpoint_mtime:
+                    return True
+        return False
+
+    def _is_worktree_clean(self, workspace: str) -> bool:
+        """git worktree가 clean 상태인지 확인한다."""
+        try:
+            result = subprocess.run(
+                ["git", "status", "--porcelain"],
+                capture_output=True, text=True,
+                cwd=workspace, timeout=10,
+            )
+            return result.returncode == 0 and result.stdout.strip() == ""
+        except Exception:
+            return False
+
+    def _commits_match_affected_files(self, plan: RollbackPlan, workspace: str) -> bool:
+        """git_ref_before 이후 커밋 변경 파일이 affected_files와 정확히 대응하는지 확인한다."""
+        if not plan.git_ref_before or not plan.affected_files:
+            return False
+        try:
+            result = subprocess.run(
+                ["git", "diff", "--name-only", f"{plan.git_ref_before}..HEAD"],
+                capture_output=True, text=True,
+                cwd=workspace, timeout=10,
+            )
+            if result.returncode != 0:
+                return False
+            changed_files = set(result.stdout.strip().splitlines())
+            affected_files = set(plan.affected_files)
+            return changed_files == affected_files
+        except Exception:
+            return False
 
     def _build_instructions(
         self,

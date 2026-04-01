@@ -19,6 +19,7 @@ RequestRouter.route() 결과를 입력으로 받아 Control Plane 처리를 추�
 from __future__ import annotations
 
 import os
+import uuid
 from dataclasses import dataclass, field
 
 
@@ -83,7 +84,7 @@ class ControlPlaneIntake:
             NormalizedRequest
         """
         from core.utils import now_iso
-        import uuid
+        # BUG-11 Fix: uuid는 모듈 상단에서 import (함수 내 반복 import 제거)
 
         # B4 Fix: hex 6자리(16.7M)는 충돌 위험 → uuid4 전체 32자리 사용
         run_id = f"run-{now_iso()[:19].replace(':', '').replace('-', '')}-{uuid.uuid4().hex}"

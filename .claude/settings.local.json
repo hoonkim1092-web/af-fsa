@@ -197,7 +197,10 @@
       "Bash(git merge:*)",
       "Bash(git fetch:*)",
       "Bash(dist/af/af.exe --project myproject --chat)",
-      "Bash(C:/Project/agent-factory/dist/af/af.exe --project testproject --chat)"
+      "Bash(C:/Project/agent-factory/dist/af/af.exe --project testproject --chat)",
+      "Bash(cp /tmp/cs_stash.py D:/hoonProJect/worktrees/agent-factory/core/control/continuity_snapshot.py)",
+      "Bash(cp /tmp/rb_stash.py D:/hoonProJect/worktrees/agent-factory/core/control/rollback.py)",
+      "Bash(cp /tmp/mp_stash.py D:/hoonProJect/worktrees/agent-factory/core/control/maintenance_pipeline.py)"
     ]
   }
 }

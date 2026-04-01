@@ -1,18 +1,18 @@
-{
-  "key": "user 대상은 현재 diff 기준으로 리뷰했습니다 타깃 테스트는 통과했지만 전체 스위트는 다시 돌리지 않았고 teststest_knowledge_skillpy는 이 샌드박스의   temp 권한 문제로 신뢰성 있게 ",
-  "value": "[user] 대상은 현재 diff 기준으로 리뷰했습니다. 타깃 테스트는 통과했지만, 전체 스위트는 다시 돌리지 않았고 tests/test_knowledge_skill.py는 이 샌드박스의    temp 권한 문제로 신뢰성 있게 검증하지 못했습니다. 권한 문제 수정해야할거 같아",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T17:40:38.079724+00:00",
-  "updated_at": "2026-03-10T17:40:38.079724+00:00",
-  "details": {
-    "text": "[user] 대상은 현재 diff 기준으로 리뷰했습니다. 타깃 테스트는 통과했지만, 전체 스위트는 다시 돌리지 않았고 tests/test_knowledge_skill.py는 이 샌드박스의 \n  temp 권한 문제로 신뢰성 있게 검증하지 못했습니다. 권한 문제 수정해야할거 같아",
-    "event_timestamp": "2026-03-10T17:03:03.071Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/11/rollout-2026-03-11T01-30-46-019cd896-2cfb-7692-a889-53fc50ef1599.jsonl",
-    "session_line": 440,
-    "provider": "codex"
-  }
+{
+  "key": "user 대상은 현재 diff 기준으로 리뷰했습니다 타깃 테스트는 통과했지만 전체 스위트는 다시 돌리지 않았고 teststest_knowledge_skillpy는 이 샌드박스의   temp 권한 문제로 신뢰성 있게 ",
+  "value": "[user] 대상은 현재 diff 기준으로 리뷰했습니다. 타깃 테스트는 통과했지만, 전체 스위트는 다시 돌리지 않았고 tests/test_knowledge_skill.py는 이 샌드박스의    temp 권한 문제로 신뢰성 있게 검증하지 못했습니다. 권한 문제 수정해야할거 같아",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:38.079724+00:00",
+  "updated_at": "2026-03-10T17:40:38.079724+00:00",
+  "details": {
+    "text": "[user] 대상은 현재 diff 기준으로 리뷰했습니다. 타깃 테스트는 통과했지만, 전체 스위트는 다시 돌리지 않았고 tests/test_knowledge_skill.py는 이 샌드박스의 \n  temp 권한 문제로 신뢰성 있게 검증하지 못했습니다. 권한 문제 수정해야할거 같아",
+    "event_timestamp": "2026-03-10T17:03:03.071Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/11/rollout-2026-03-11T01-30-46-019cd896-2cfb-7692-a889-53fc50ef1599.jsonl",
+    "session_line": 440,
+    "provider": "codex"
+  }
 }

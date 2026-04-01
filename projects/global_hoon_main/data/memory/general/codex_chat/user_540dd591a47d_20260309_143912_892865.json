@@ -1,18 +1,18 @@
-{
-  "key": "user 계정 로그인인지 확인해",
-  "value": "[user] 계정 로그인인지 확인해",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T14:39:12.892896+00:00",
-  "updated_at": "2026-03-09T14:39:12.892896+00:00",
-  "details": {
-    "text": "[user] 계정 로그인인지 확인해",
-    "event_timestamp": "2026-03-09T13:54:11.758Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T22-53-58-019cd2e0-4483-7943-8fd7-1e4deab29ea9.jsonl",
-    "session_line": 6,
-    "provider": "codex"
-  }
+{
+  "key": "user 계정 로그인인지 확인해",
+  "value": "[user] 계정 로그인인지 확인해",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T14:39:12.892896+00:00",
+  "updated_at": "2026-03-09T14:39:12.892896+00:00",
+  "details": {
+    "text": "[user] 계정 로그인인지 확인해",
+    "event_timestamp": "2026-03-09T13:54:11.758Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T22-53-58-019cd2e0-4483-7943-8fd7-1e4deab29ea9.jsonl",
+    "session_line": 6,
+    "provider": "codex"
+  }
 }
