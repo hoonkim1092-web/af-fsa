@@ -426,6 +426,21 @@ Return JSON only:
 Rules:
 {_build_policy_rules()}
 
+Module Design Rules:
+- module.name MUST be a technical component name in Korean or English.
+  GOOD: "데이터 수집기", "통계 분석 엔진", "GUI 메인 화면", "빌드 파이프라인", "LottoCrawler", "StatisticsEngine"
+  BAD: "C:\\Project\\lotto.exe (단독 실행 파일)" — file paths are forbidden as module names
+  BAD: "Backend Dev" or "QA Engineer" — role names are forbidden as module names
+- module.name MUST NOT equal a deliverable. Deliverables are outputs; modules are code components.
+- module.summary: 1-2 sentences explaining what this module TECHNICALLY does and why it exists.
+  BAD: "~를 독립 작업 단위로 구현한다."
+  GOOD: "동행복권 API에서 전체 회차 당첨 번호를 크롤링하여 SQLite DB에 저장한다. 오프라인 캐시를 지원한다."
+- feature_slices: concrete implementation units (files, functions, sub-features). NOT deliverable names.
+  BAD: ["C:\\Project\\lotto.exe"]
+  GOOD: ["HTTP 크롤러 구현", "JSON→SQLite 파싱", "중복 회차 스킵 로직", "오프라인 캐시"]
+- Each role owns 1-3 modules. Do NOT make a role own zero modules.
+- If the brief contains module_suggestions, use them as starting points for module names.
+
 Evidence Grounding Rules:
 - If the research brief contains evidence_summary, local_references, web_references, or notebook_summary, derive modules, deliverables, acceptance criteria, and task slices from that evidence.
 - Prefer concrete module names, file or interface oriented tasks, and observable acceptance criteria over generic placeholders.
