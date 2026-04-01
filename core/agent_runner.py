@@ -955,9 +955,19 @@ class AgentRunner:
         from core.model_router import print_startup_routing_notice
         print_startup_routing_notice()
 
-        cli_providers = get_requested_cli_providers()
+        all_cli_providers = get_requested_cli_providers()
         role_summary = agent.get("role", "") or (agent.get("identity", {}) or {}).get("role_summary", "")
         agent_name = agent.get("name", "")
+
+        # 역할 기반 최적 프로바이더를 첫 번째에, 나머지를 폴백으로 정렬
+        if len(all_cli_providers) > 1:
+            preferred = self.mr.pick_provider(agent_config=agent)
+            if preferred and preferred in all_cli_providers:
+                cli_providers = [preferred] + [p for p in all_cli_providers if p != preferred]
+            else:
+                cli_providers = all_cli_providers
+        else:
+            cli_providers = all_cli_providers
         engine_id = _infer_engine_id(role_summary or agent_name)
 
         # preferred provider 미구독 시 가용 provider 기반 engine으로 fallback

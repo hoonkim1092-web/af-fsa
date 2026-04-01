@@ -61,6 +61,8 @@ class DynamicOrchestrator:
             "agents_status": {},
             "current_status": "",
         }
+        self._task_retry_count: Dict[str, int] = {}  # task_id → 실패 횟수
+        self._max_task_retries = 3
         self.memory_hub = AstMemoryHub()
         self.evaluator = StrategyEvaluator(model_name=engine_id)
         self._workspace: str | None = None
@@ -377,6 +379,91 @@ class DynamicOrchestrator:
         except (TypeError, ValueError):
             return str(data)
 
+    def _cross_verified_evaluate(self, role: str, instruction: str, error_log: str, workspace: str) -> dict:
+        """교차검증 기반 실패 평가 + 자가진화. CLI 2개 이상이면 교차검증, 아니면 단일 evaluator."""
+        try:
+            from core.cross_verification import CrossVerificationLoop
+
+            pairs = self.mr.pick_multiple() if hasattr(self.mr, 'pick_multiple') else []
+            if len(pairs) >= 2:
+                loop = CrossVerificationLoop(workspace=workspace, level="dynamic", max_rounds=1)
+                eval_task = (
+                    f"다음 실행 결과의 실패 원인을 분석하고 수정 방향을 제시하세요.\n\n"
+                    f"[역할] {role}\n[태스크]\n{instruction}\n\n"
+                    f"[오류 로그]\n{error_log[:2000]}\n\n"
+                    f'반드시 JSON으로 답변하세요:\n'
+                    f'{{"action": "retry"|"abort", '
+                    f'"reasoning": "분석 내용", '
+                    f'"new_instruction": "수정된 태스크 지시"}}'
+                )
+                judgment = loop.run(eval_task, "당신은 코드 디버깅 전문가입니다.")
+
+                # 자가진화: failure_patterns가 있으면 관련 스킬 진화 트리거
+                if judgment.failure_patterns:
+                    self._try_evolve_from_patterns(judgment.failure_patterns, error_log, workspace)
+
+                if judgment.verdict in ("pass", "partial") and judgment.merged_output:
+                    import re as _re, json as _json
+                    match = _re.search(r'\{[\s\S]*"action"[\s\S]*\}', judgment.merged_output)
+                    if match:
+                        data = _json.loads(match.group())
+                        action = str(data.get("action", "abort")).strip().lower()
+                        if action in ("retry", "abort"):
+                            print_agent_msg("CrossVerify", f"교차검증 판정: {action}", "")
+                            return {
+                                "action": action,
+                                "reasoning": str(data.get("reasoning", "")),
+                                "new_instruction": str(data.get("new_instruction", "")),
+                            }
+        except Exception as exc:
+            print_agent_msg("CrossVerify", f"교차검증 실패, 단일 evaluator 폴백: {exc}", "")
+
+        return self.evaluator.evaluate_failure(role=role, instruction=instruction, error_log=error_log)
+
+    def _try_evolve_from_patterns(self, failure_patterns: list, error_log: str, workspace: str) -> None:
+        """failure_patterns에서 관련 스킬을 찾아 자가진화를 시도한다."""
+        try:
+            import re as _re
+            from core.skill_creator import evolve_skill
+            from core.skill_evolution_bus import SkillEvolutionBus
+
+            skills_dir = os.path.join(os.path.dirname(__file__), "..", "skills")
+            if not os.path.isdir(skills_dir):
+                return
+
+            skill_names = [
+                d for d in os.listdir(skills_dir)
+                if os.path.isdir(os.path.join(skills_dir, d)) and not d.startswith(".")
+            ]
+            feedback = f"failure_patterns: {failure_patterns}"
+            evolved = []
+
+            for pattern in failure_patterns:
+                keywords = _re.split(r"[_\-:/ ]+", str(pattern).lower())
+                for skill_name in skill_names:
+                    name_lower = skill_name.lower().replace("-", "_")
+                    if any(kw and kw in name_lower for kw in keywords if len(kw) > 2):
+                        skill_dir = os.path.join(skills_dir, skill_name)
+                        ok = evolve_skill(skill_dir, feedback=feedback, error_log=error_log[:1000])
+                        if ok:
+                            evolved.append(skill_name)
+                            print_agent_msg("Evolve", f"스킬 진화 성공: {skill_name}", "")
+
+            if evolved:
+                try:
+                    bus = SkillEvolutionBus()
+                    for name in evolved:
+                        bus.on_skill_evolved(
+                            skill_name=name,
+                            trigger="cross_verification_orchestrator",
+                            old_version="",
+                            new_version="",
+                        )
+                except Exception:
+                    pass
+        except Exception as exc:
+            print_agent_msg("Evolve", f"자가진화 시도 실패 (무시): {exc}", "")
+
     async def _run_agent_in_thread(
         self,
         agent_data: Dict[str, Any],
@@ -516,13 +603,16 @@ class DynamicOrchestrator:
             else:
                 reason = result.get("reason", "Unknown error") if result else "No result"
                 print_agent_msg(role, f"Task failed: {reason[:100]}", "")
+                _retry_key = task_id or f"{role}:{subtask[:60]}"
+                self._task_retry_count[_retry_key] = self._task_retry_count.get(_retry_key, 0) + 1
                 if self._visualizer and not self.terminal_per_agent:
                     self._visualizer.mark_failed(role)
                 eval_res = await asyncio.to_thread(
-                    self.evaluator.evaluate_failure,
+                    self._cross_verified_evaluate,
                     role=role,
                     instruction=subtask,
                     error_log=reason,
+                    workspace=target_workspace,
                 )
                 evaluator_action = str(eval_res.get("action") or "abort").strip().lower()
                 evaluator_advice = str(eval_res.get("new_instruction") or "").strip()
@@ -580,7 +670,7 @@ class DynamicOrchestrator:
                 self._visualizer.print_dashboard()
 
         cycle = 0
-        max_cycles = 15
+        max_cycles = 50
 
         while cycle < max_cycles:
             cycle += 1
@@ -611,6 +701,13 @@ class DynamicOrchestrator:
                 plan_task_id = str(task.get("task_id") or "")
                 if role == "__placeholder__":
                     continue
+                # retry 횟수 초과 시 해당 태스크 스킵
+                retry_key = plan_task_id or f"{role}:{instruction[:60]}"
+                if self._task_retry_count.get(retry_key, 0) >= self._max_task_retries:
+                    print_agent_msg("Lilith", f"[{role}] 태스크 {self._max_task_retries}회 실패 — 스킵", "")
+                    update_project_board_task(target_workspace, role, instruction, "failed",
+                                             note=f"max_retries({self._max_task_retries}) exceeded", task_id=plan_task_id)
+                    continue
                 if role and instruction and role in roles and self.state_board["agents_status"].get(role) == "idle":
                     run_token = f"run_{int(time.time())}_{role}_{uuid.uuid4().hex[:6]}"
                     self.state_board["agents_status"][role] = "working"
@@ -633,7 +730,12 @@ class DynamicOrchestrator:
             if not dispatched:
                 await asyncio.sleep(1)
 
-        self.state_board["current_status"] = "stopped_max_cycles" if cycle >= max_cycles else "completed"
+        if cycle >= max_cycles:
+            self.state_board["current_status"] = "stopped_max_cycles"
+        elif self.state_board["failed_subtasks"]:
+            self.state_board["current_status"] = "partial"
+        else:
+            self.state_board["current_status"] = "completed"
         self._sync_manifest(force=True)
 
         if self.active_tasks:
