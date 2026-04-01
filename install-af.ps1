@@ -95,7 +95,7 @@ Write-Host "`n► af-1.2.15.zip 다운로드 중..." -ForegroundColor Yellow
 try {
     $ProgressPreference = 'SilentlyContinue'
     Invoke-WebRequest `
-        -Uri "https://github.com/hoonkim1092-web/af-fsa/raw/af-fsa_v1.2.15/dist/af-1.2.15.zip" `
+        -Uri "https://github.com/hoonkim1092-web/af-fsa/releases/download/af-fsa_v1.2.15/af-1.2.15.zip" `
         -OutFile $zipFile `
         -UseBasicParsing
     $ProgressPreference = 'Continue'
