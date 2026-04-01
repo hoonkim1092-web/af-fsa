@@ -695,9 +695,13 @@ class ProjectPipeline:
         )
 
         # -- 에이전트 실행 --
+        from core.model_router import print_startup_routing_notice
+        print_startup_routing_notice()
+
         task_input = str(prepared.project_brief.get("goal") or "")
         orchestrator = DynamicOrchestrator(
-            self.mr, max_concurrent=5, broker=self._broker, visualizer=self._visualizer
+            self.mr, max_concurrent=5, terminal_per_agent=True,
+            broker=self._broker, visualizer=self._visualizer
         )
         run_board = orchestrator.run_project(task_input, roles, workspace)
         status = str(run_board.get("current_status", "unknown"))

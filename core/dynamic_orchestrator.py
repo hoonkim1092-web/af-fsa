@@ -377,6 +377,42 @@ class DynamicOrchestrator:
         except (TypeError, ValueError):
             return str(data)
 
+    def _cross_verified_evaluate(self, role: str, instruction: str, error_log: str, workspace: str) -> dict:
+        """교차검증 기반 실패 평가. CLI 2개 이상이면 교차검증, 아니면 단일 evaluator."""
+        try:
+            from core.cross_verification import CrossVerificationLoop
+
+            pairs = self.mr.pick_multiple() if hasattr(self.mr, 'pick_multiple') else []
+            if len(pairs) >= 2:
+                loop = CrossVerificationLoop(workspace=workspace, level="dynamic", max_rounds=1)
+                eval_task = (
+                    f"다음 실행 결과의 실패 원인을 분석하고 수정 방향을 제시하세요.\n\n"
+                    f"[역할] {role}\n[태스크]\n{instruction}\n\n"
+                    f"[오류 로그]\n{error_log[:2000]}\n\n"
+                    f'반드시 JSON으로 답변하세요:\n'
+                    f'{{"action": "retry"|"abort", '
+                    f'"reasoning": "분석 내용", '
+                    f'"new_instruction": "수정된 태스크 지시"}}'
+                )
+                judgment = loop.run(eval_task, "당신은 코드 디버깅 전문가입니다.")
+                if judgment.verdict in ("pass", "partial") and judgment.merged_output:
+                    import re as _re, json as _json
+                    match = _re.search(r'\{[\s\S]*"action"[\s\S]*\}', judgment.merged_output)
+                    if match:
+                        data = _json.loads(match.group())
+                        action = str(data.get("action", "abort")).strip().lower()
+                        if action in ("retry", "abort"):
+                            print_agent_msg("CrossVerify", f"교차검증 판정: {action}", "")
+                            return {
+                                "action": action,
+                                "reasoning": str(data.get("reasoning", "")),
+                                "new_instruction": str(data.get("new_instruction", "")),
+                            }
+        except Exception as exc:
+            print_agent_msg("CrossVerify", f"교차검증 실패, 단일 evaluator 폴백: {exc}", "")
+
+        return self.evaluator.evaluate_failure(role=role, instruction=instruction, error_log=error_log)
+
     async def _run_agent_in_thread(
         self,
         agent_data: Dict[str, Any],
@@ -519,10 +555,11 @@ class DynamicOrchestrator:
                 if self._visualizer and not self.terminal_per_agent:
                     self._visualizer.mark_failed(role)
                 eval_res = await asyncio.to_thread(
-                    self.evaluator.evaluate_failure,
+                    self._cross_verified_evaluate,
                     role=role,
                     instruction=subtask,
                     error_log=reason,
+                    workspace=target_workspace,
                 )
                 evaluator_action = str(eval_res.get("action") or "abort").strip().lower()
                 evaluator_advice = str(eval_res.get("new_instruction") or "").strip()
@@ -580,7 +617,7 @@ class DynamicOrchestrator:
                 self._visualizer.print_dashboard()
 
         cycle = 0
-        max_cycles = 15
+        max_cycles = 50
 
         while cycle < max_cycles:
             cycle += 1

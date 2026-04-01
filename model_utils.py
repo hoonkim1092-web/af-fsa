@@ -579,8 +579,9 @@ def resolve_dynamic_model(engine_id: str) -> ModelSelection:
 # 역할 키워드 → engine_id 매핑 테이블
 # 에이전트의 role/tagline/name에서 키워드를 찾아 최적 엔진을 결정한다.
 _ROLE_ENGINE_MAP: list[tuple[list[str], str]] = [
+    (["qa", "tester", "quality", "test_eng"], "codex"),
     (["architect", "design", "blueprint", "system design"], "architect_claude"),
-    (["coder", "developer", "engineer", "programmer"], "coder_claude"),
+    (["coder", "developer", "_dev", "engineer", "programmer"], "coder_claude"),
     (["research", "researcher", "analyst", "study"], "researcher_gemini"),
     (["manager", "pm", "pd", "project", "director", "orchestrat"], "manager_gpt"),
     (["reason", "verif", "logic", "validator", "reviewer"], "reasoner_o"),
