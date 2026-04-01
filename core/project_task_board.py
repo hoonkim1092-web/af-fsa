@@ -147,9 +147,16 @@ def _normalize_planning_steps(role_plan: dict[str, Any]) -> list[dict[str, Any]]
     return steps or default_planning_steps()
 
 
-def _task_template(role_name: str, module_name: str, summary: str) -> list[dict[str, Any]]:
+def _task_template(
+    role_name: str,
+    module_name: str,
+    summary: str,
+    feature_slices: list[str] | None = None,
+) -> list[dict[str, Any]]:
     focus = _clean_text(summary) or module_name
-    return [
+    slices = [s for s in (feature_slices or []) if s.strip()]
+
+    tasks: list[dict[str, Any]] = [
         {
             "phase": "scope",
             "title": f"{role_name}: {module_name} 범위와 인터페이스를 정의한다.",
@@ -158,8 +165,22 @@ def _task_template(role_name: str, module_name: str, summary: str) -> list[dict[
                 f"{module_name} 범위가 명확히 정리된다.",
                 "의존성과 산출물이 명시된다.",
             ],
-        },
-        {
+        }
+    ]
+
+    if slices:
+        for slice_name in slices:
+            tasks.append({
+                "phase": "build",
+                "title": f"{role_name}: {slice_name}",
+                "instruction": f"{role_name}: {slice_name} — {focus}의 일부로 구현한다.",
+                "acceptance": [
+                    f"{slice_name} 구현 완료.",
+                    "관련 파일과 산출물이 갱신된다.",
+                ],
+            })
+    else:
+        tasks.append({
             "phase": "build",
             "title": f"{role_name}: {module_name} 기능을 구현한다.",
             "instruction": f"{role_name}: {focus} 기능을 작은 슬라이스로 나눠 구현한다.",
@@ -167,17 +188,34 @@ def _task_template(role_name: str, module_name: str, summary: str) -> list[dict[
                 f"{module_name}의 핵심 기능이 구현된다.",
                 "관련 파일과 산출물이 갱신된다.",
             ],
-        },
-        {
-            "phase": "verify",
-            "title": f"{role_name}: {module_name} 결과를 검증하고 handoff를 남긴다.",
-            "instruction": f"{role_name}: {module_name} 결과를 검증하고 다음 작업자가 이어받을 handoff 메모를 남긴다.",
-            "acceptance": [
-                "검증 결과가 정리된다.",
-                "잔여 리스크와 후속 작업이 기록된다.",
-            ],
-        },
-    ]
+        })
+
+    tasks.append({
+        "phase": "verify",
+        "title": f"{role_name}: {module_name} 결과를 검증하고 handoff를 남긴다.",
+        "instruction": f"{role_name}: {module_name} 결과를 검증하고 다음 작업자가 이어받을 handoff 메모를 남긴다.",
+        "acceptance": [
+            "검증 결과가 정리된다.",
+            "잔여 리스크와 후속 작업이 기록된다.",
+        ],
+    })
+    return tasks
+
+
+def _deliverable_to_module_name(deliverable: str) -> str:
+    """파일 경로나 긴 설명 문자열에서 모듈 이름으로 쓸 수 있는 짧은 이름을 추출한다."""
+    import re
+    # 괄호 안 부가 설명 제거: "lotto.exe (단독 실행 파일)" → "lotto.exe"
+    name = re.sub(r"\s*\([^)]*\)", "", deliverable).strip()
+    # 경로에서 파일명만 추출: "C:\Project\lotto-recommender\lotto.exe" → "lotto.exe"
+    if re.search(r"[/\\]", name):
+        name = re.split(r"[/\\]", name.rstrip("/\\"))[-1].strip()
+    # 확장자 제거: "lotto.exe" → "lotto"
+    name = re.sub(r"\.[a-zA-Z]{1,5}$", "", name).strip()
+    # 결과가 너무 짧거나 비어 있으면 원본 앞 20자 사용
+    if len(name) < 2:
+        name = deliverable[:40].strip()
+    return name or deliverable
 
 
 def _auto_modules(task_input: str, project_brief: dict[str, Any], roles: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -192,33 +230,39 @@ def _auto_modules(task_input: str, project_brief: dict[str, Any], roles: list[di
         owner = next((role for role in roles if role["id"] == owner_role), roles[0] if roles else {"id": owner_role, "name": owner_role, "objective": goal})
         role_module_counts[owner_role] = role_module_counts.get(owner_role, 0) + 1
         module_index += 1
+        module_name = _deliverable_to_module_name(deliverable)
+        summary = f"{deliverable}을(를) 구현한다."
         modules.append(
             {
                 "id": safe_id(f"{owner_role}_module_{module_index}"),
-                "name": deliverable,
-                "summary": f"{deliverable}를 독립 작업 단위로 구현한다.",
+                "name": module_name,
+                "summary": summary,
                 "owner_role": owner_role,
                 "depends_on": [],
                 "deliverables": [deliverable],
-                "feature_slices": [deliverable],
-                "tasks": _task_template(_role_name(owner), deliverable, deliverable),
+                "feature_slices": [],
+                "tasks": _task_template(_role_name(owner), module_name, summary),
             }
         )
 
+    # 모듈이 없는 역할은 역할 이름 대신 역할 목적 기반의 모듈 이름을 사용
     for role in roles:
         if role_module_counts.get(role["id"], 0):
             continue
         module_index += 1
+        objective = _clean_text(role.get("objective") or goal)
+        # 역할 이름(예: "QA Engineer") 대신 역할 목적에서 짧은 모듈 이름 도출
+        role_module_name = f"{_role_name(role)} 검증" if "qa" in role["id"].lower() else f"{_role_name(role)} 구현"
         modules.append(
             {
                 "id": safe_id(f"{role['id']}_module_{module_index}"),
-                "name": _role_name(role),
-                "summary": role["objective"] or goal,
+                "name": role_module_name,
+                "summary": objective,
                 "owner_role": role["id"],
                 "depends_on": [],
-                "deliverables": _clean_list(project_brief.get("deliverables"))[:1] or [role["objective"]],
-                "feature_slices": [role["objective"]],
-                "tasks": _task_template(_role_name(role), _role_name(role), role["objective"] or goal),
+                "deliverables": _clean_list(project_brief.get("deliverables"))[:1] or [objective],
+                "feature_slices": [],
+                "tasks": _task_template(_role_name(role), role_module_name, objective),
             }
         )
     return modules
@@ -227,7 +271,13 @@ def _auto_modules(task_input: str, project_brief: dict[str, Any], roles: list[di
 def _normalize_tasks(module: dict[str, Any], owner_role: str, owner_name: str) -> list[dict[str, Any]]:
     raw_tasks = module.get("tasks")
     if not isinstance(raw_tasks, list) or not raw_tasks:
-        raw_tasks = _task_template(owner_name, _clean_text(module.get("name") or owner_name), _clean_text(module.get("summary")))
+        slices = [str(s).strip() for s in (module.get("feature_slices") or []) if str(s).strip()]
+        raw_tasks = _task_template(
+            owner_name,
+            _clean_text(module.get("name") or owner_name),
+            _clean_text(module.get("summary")),
+            feature_slices=slices,
+        )
 
     tasks: list[dict[str, Any]] = []
     for index, raw in enumerate(raw_tasks, start=1):

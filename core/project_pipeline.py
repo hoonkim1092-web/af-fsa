@@ -54,12 +54,18 @@ class PreparedProject:
     todo_path: str = ""
     research_evidence: dict = field(default_factory=dict)
     research_evidence_path: str = ""
+    # target_path가 있으면 문서는 그 경로에, 없으면 workspace에 생성
+    doc_root: str = ""
+
+    def _effective_doc_root(self) -> str:
+        """work-item 문서가 실제로 저장된 루트 경로."""
+        return self.doc_root if self.doc_root else self.workspace
 
     def work_item_dir(self) -> str:
-        return os.path.join(self.workspace, "docs", "work-items", self.work_item_slug)
+        return os.path.join(self._effective_doc_root(), "docs", "work-items", self.work_item_slug)
 
     def gate(self) -> ApprovalGate:
-        return ApprovalGate(self.workspace, self.work_item_slug)
+        return ApprovalGate(self._effective_doc_root(), self.work_item_slug)
 
     def summary_lines(self) -> list[str]:
         roles = self.role_plan.get("roles") or []
@@ -587,6 +593,9 @@ class ProjectPipeline:
 
         # -- Work Items (★ 신규) --
         slug = slug_from_brief(project_brief)
+        # target_path가 절대경로면 문서를 그 경로에 생성, 아니면 workspace 사용
+        _raw_target = str(project_brief.get("target_path") or "").strip()
+        doc_root = os.path.abspath(_raw_target) if (_raw_target and os.path.isabs(_raw_target)) else target_workspace
         work_item_files = generate_work_items(
             workspace=target_workspace,
             slug=slug,
@@ -620,6 +629,7 @@ class ProjectPipeline:
             todo_path=to_portable_path(todo_path),
             research_evidence=research_evidence,
             research_evidence_path=to_portable_path(research_evidence_path),
+            doc_root=doc_root,
         )
 
     # ------------------------------------------------------------------
