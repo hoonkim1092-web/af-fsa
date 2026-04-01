@@ -13,8 +13,8 @@
 *.tsx  text eol=lf
 *.jsx  text eol=lf
 *.sh   text eol=lf
-
 # Windows-native script files should keep CRLF.
 *.bat  text eol=crlf
 *.cmd  text eol=crlf
 *.ps1  text eol=crlf
+dist/*.zip filter=lfs diff=lfs merge=lfs -text
