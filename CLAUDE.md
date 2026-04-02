@@ -27,6 +27,14 @@
 - 빌드 zip은 LFS로 `dist/af-{version}.zip` 커밋
 - 태그 형식: `af-fsa_v{version}`
 
+## Hook 설치 (레포 클론 후 1회)
+
+```bash
+git config core.hooksPath .githooks
+```
+
+이후 `core/*.py` 등 변경 커밋 시 `Master_Blueprint.md` 미스테이지 → 자동 차단.
+
 ## 프로젝트 개요
 - **위치**: `C:\Project\agent-factory`
 - **퍼블릭 레포**: `origin` = `https://github.com/hoonkim1092-web/af-fsa.git`
