@@ -62,6 +62,14 @@ class GitHubIssuesAdapter(IssueTrackerAdapter):
     def __init__(self, repo: str = "") -> None:
         self._repo = repo  # e.g. "owner/repo" or "" for current repo
 
+    @staticmethod
+    def _sanitize_arg(value: str) -> str:
+        """CLI 인자 주입 방지: 선행 하이픈 제거, 제어 문자 제거."""
+        sanitized = value.lstrip("-")
+        # 제어 문자 제거 (ord < 32: 탭, 줄바꿈 등 모두 포함)
+        sanitized = "".join(ch for ch in sanitized if ord(ch) >= 32)
+        return sanitized
+
     def _gh_cmd(self, *args: str) -> list[str]:
         cmd = ["gh"]
         if self._repo:
@@ -77,7 +85,7 @@ class GitHubIssuesAdapter(IssueTrackerAdapter):
             "--json", "number,title,body,state,labels,assignees,url,createdAt,closedAt",
         )
         if labels:
-            cmd.extend(["--label", ",".join(labels)])
+            cmd.extend(["--label", ",".join(self._sanitize_arg(str(l)) for l in labels)])
 
         try:
             result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
@@ -91,6 +99,7 @@ class GitHubIssuesAdapter(IssueTrackerAdapter):
             return []
 
     async def get_issue(self, issue_id: str):
+        issue_id = self._sanitize_arg(str(issue_id))
         cmd = self._gh_cmd(
             "issue", "view", issue_id,
             "--json", "number,title,body,state,labels,assignees,url,createdAt,closedAt",
@@ -104,10 +113,12 @@ class GitHubIssuesAdapter(IssueTrackerAdapter):
             return None
 
     async def create_issue(self, title, body, labels=None):
+        title = self._sanitize_arg(str(title))
+        body = str(body)  # body는 줄바꿈 허용, 하이픈 제거 불필요 (--body 값으로 전달)
         cmd = self._gh_cmd("issue", "create", "--title", title, "--body", body)
         if labels:
             for lbl in labels:
-                cmd.extend(["--label", lbl])
+                cmd.extend(["--label", self._sanitize_arg(str(lbl))])
         try:
             result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
             if result.returncode != 0:
@@ -121,9 +132,10 @@ class GitHubIssuesAdapter(IssueTrackerAdapter):
             return None
 
     async def close_issue(self, issue_id, comment=""):
+        issue_id = self._sanitize_arg(str(issue_id))
         cmd = self._gh_cmd("issue", "close", issue_id)
         if comment:
-            cmd.extend(["--comment", comment])
+            cmd.extend(["--comment", str(comment)])
         try:
             result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
             return result.returncode == 0

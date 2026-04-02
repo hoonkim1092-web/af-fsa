@@ -109,7 +109,7 @@ class ControlPlaneIntake:
         # ── 실행 정책 ──
         blast_radius = change_impact.get("blast_radius", "module") if change_impact else "module"
         risk_level = issue_context.get("risk_level", "normal") if issue_context else "normal"
-        continuity_health = continuity_snapshot.get("overall_health", "healthy")
+        continuity_health = continuity_snapshot.get("recovery_health", "healthy")
         execution_policy = self._resolve_execution_policy(
             work_kind, risk_level, blast_radius, continuity_health, workspace,
         )

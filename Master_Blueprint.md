@@ -1,5 +1,5 @@
 # Agent Factory — Master Blueprint
-<!-- last_updated: 2026-04-02 | version: 1.2.16 -->
+<!-- last_updated: 2026-04-03 | version: 1.2.16 -->
 
 > **사용 목적**: 전체 코드를 다시 읽지 않고 이 파일만으로 수정·유지보수·기능 추가를 수행한다.
 > 코드 수정 시 반드시 해당 섹션을 **같은 커밋**에서 업데이트할 것.
@@ -52,23 +52,27 @@
 | `core/bootstrap_roles.py` | 프로젝트 계획 부트스트랩 에이전트 | `ProjectPlanningDirector` |
 | `core/builder.py` | 스킬 코드 생성 샌드박스 | `SandboxedBuilder` |
 | `core/config_paths.py` | 경로 상수 중앙화 | `PROJECT_ROOT`, `POLICIES_PATH` |
+| `core/control_plane_llm.py` | Control-plane CLI-first LLM | `ControlPlaneLLM` |
 | `core/cross_verification.py:1-758` | 멀티 CLI 교차검증 | `CrossVerificationLoop` |
 | `core/dashboard.py` | 실행 이력 모니터링 | `append_dashboard_run()` |
 | `core/destructive_guard.py` | 위험 명령 차단 | `inject_destructive_guard_contract()` |
 | `core/document_chunker.py` | 문서 청킹 (RAG) | `DocumentChunker`, `DocumentChunk` |
 | `core/document_index.py` | Dense+Sparse 하이브리드 검색 | `DocumentIndex` |
 | `core/documentation_policy.py` | 주석/문서화 정책 주입 | `inject_documentation_contract()` |
-| `core/dynamic_orchestrator.py:1-774` | 멀티 에이전트 비동기 오케스트레이터 | `DynamicOrchestrator` |
+| `core/dynamic_orchestrator.py:1-887` | 멀티 에이전트 비동기 오케스트레이터 (sparse governor) | `DynamicOrchestrator` |
 | `core/engine_auth.py` | CLI 프로바이더 자동 감지·설정 | `auto_configure_cli_provider()` |
 | `core/evaluator.py` | 실패 분석 (retry/pivot/abort) | `StrategyEvaluator` |
 | `core/executor.py` | 태스크 실행 래퍼 | — |
+| `core/failure_classifier.py` | 실패 분류 (infra/impl) | `classify_failure()`, `FailureCategory` |
+| `core/run_budget.py` | 글로벌 토큰 예산 추적 | `RunBudget`, `set_run_budget()`, `get_run_budget()` |
 | `core/fsa_loop.py:1-395` | FSA PDCA 자가실행 루프 | `FSALoop`, `run_mission()` |
 | `core/git_manager.py` | 워크스페이스 git 연산 | `GitManager` |
 | `core/hooks/event_bus.py` | 훅 라이프사이클 버스 | `HookEventBus` |
 | `core/hooks/skill_self_evolution.py` | 주기적 스킬 품질 감사 | `SkillSelfEvolutionHook` |
+| `core/hooks/code_review_doc.py` | 실행 후 자동 코드 리뷰 + 문서 업데이트 | `CodeReviewDocHook` |
 | `core/hooks/guardrails.py` | 실행 가드레일 | `IntentGateHook` |
 | `core/ingestion_pipeline.py` | 문서 인덱싱 파이프라인 | `IngestionPipeline` |
-| `core/interactive_chat.py` | 대화형 PDCA 모드 | `run_interactive()` |
+| `core/interactive_chat.py` | 대화형 PDCA 모드 (autosave/resume) | `run_interactive()`, `InteractiveChat.load_session()`, `resume_from_session()` |
 | `core/ise_loop.py` | 무한 자가진화 루프 | `ISELoop` |
 | `core/llm_engine.py` | LLM API 호출 엔진 | `LLMEngine` |
 | `core/manager.py` | 에이전트 생성·로드 | `AgentManager`, `RequirementAnalyzer` |
@@ -245,7 +249,7 @@ AgentRunner.run(agent, task_input, workspace)
 ---
 
 ### §3.2 DynamicOrchestrator (`core/dynamic_orchestrator.py`)
-<!-- last_updated: 2026-04-02 -->
+<!-- last_updated: 2026-04-03 (event-driven sparse governor, run budget, stall detection, state_board asyncio.Lock) -->
 
 **클래스:** `DynamicOrchestrator`
 
@@ -256,34 +260,51 @@ DynamicOrchestrator(mr, max_concurrent=5, terminal_per_agent=True, broker=..., v
 
 **핵심 상태:**
 ```python
-self.state_board          # 전체 프로젝트 보드 상태
-self.active_assignments   # 진행 중인 태스크 {role: {subtask, result_future}}
-self._task_retry_count    # 태스크별 재시도 횟수 {retry_key: count}
-self._max_task_retries    # = 3 (초과 시 skip)
-max_cycles                # = 50 (line 583)
+self.state_board              # 전체 프로젝트 보드 상태
+self.active_assignments       # 진행 중인 태스크 {role: {subtask, result_future}}
+self._task_retry_count        # 태스크별 재시도 횟수 {retry_key: count}
+self._max_task_retries        # = 3 (초과 시 skip)
+self._last_completion_cycle   # 마지막 태스크 완료 사이클 (stall 감지용)
+self._stall_threshold         # = 5 (N사이클 무완료 → stall)
+max_cycles                    # = 30
 ```
 
 **핵심 메서드:**
 
-| 메서드 | 위치 | 역할 |
-|--------|------|------|
-| `run(board, role_plan, workspace)` | ~line 580 | 메인 실행 루프 |
-| `_run_agent_in_terminal()` | line 487 | 터미널 워커 실행 |
-| `_cross_verified_evaluate()` | line 382 | 교차검증 실패 평가 |
-| `_try_evolve_from_patterns()` | line 418 | 실패 패턴→스킬 진화 |
-| `_lilith_decide_next()` | ~line 300 | Lilith LLM 다음 태스크 결정 |
+| 메서드 | 역할 |
+|--------|------|
+| `_orchestration_loop()` | 메인 실행 루프 (event-driven sparse governor) |
+| `_dispatch_from_board()` | Rule-based 태스크 디스패치 (LLM 토큰 0) |
+| `_needs_llm_intervention()` | LLM 개입 필요 여부 판단 (blocker/stall/pivot) |
+| `_lilith_intervene()` | LLM 기반 태스크 결정 (필요시에만 호출) |
+| `_lilith_decide_next()` | Lilith LLM 프롬프트 + 응답 파싱 |
+| `_run_agent_in_terminal()` | 터미널 워커 실행 |
+| `_cross_verified_evaluate()` | 교차검증 실패 평가 |
 
-**Worker 실행 경로 (`_run_agent_in_terminal:515-521`):**
-```python
-if getattr(sys, "frozen", False):
-    # PyInstaller exe 모드
-    cmd = [sys.executable, "worker", "--task-file", ..., "--result-file", ...]
-else:
-    # Python 소스 모드
-    cmd = [sys.executable, "core/agent_worker.py", "--task-file", ..., "--result-file", ...]
+**Event-Driven Sparse Governor 동작:**
+```
+매 사이클:
+  1. RunBudget 체크 → 소진 시 중단
+  2. idle 에이전트 확인
+  3. _dispatch_from_board() — rule-based (0 tokens)
+  4. board에 태스크 없고 _needs_llm_intervention() == True 일 때만 LLM 호출
+     트리거: 첫 사이클 / blocker 존재 / stall 감지 / 연속 impl 실패 3+건
+  5. Dispatch (retry gate, infra gate 적용)
 ```
 
-**완료 상태 결정 (`~line 684`):**
+**실패 분류 (`_execute_agent_task`):**
+```python
+from core.failure_classifier import classify_failure, FailureCategory
+category = classify_failure(reason)
+if category == FailureCategory.INFRA:
+    # evaluator 호출 안 함 → 즉시 "failed" → retry 안 함
+else:
+    # 기존 evaluator 경로 (retry/pivot/abort)
+```
+
+**LLM 엔진:** `ControlPlaneLLM` (CLI-first, API-fallback) — `core/control_plane_llm.py`
+
+**완료 상태 결정:**
 ```python
 if cycle >= max_cycles:       → "stopped_max_cycles"
 elif failed_subtasks:         → "partial"
@@ -293,7 +314,7 @@ else:                         → "completed"
 ---
 
 ### §3.3 AgentRunner (`core/agent_runner.py`)
-<!-- last_updated: 2026-04-02 -->
+<!-- last_updated: 2026-04-03 (_skill_module_cache 크기 제한 추가) -->
 
 **클래스:** `AgentRunner`
 
@@ -410,10 +431,37 @@ Phase 4: 자가진화 트리거 (failure_patterns → evolve_skill)
 ---
 
 ### §3.8 Evaluator (`core/evaluator.py`)
+<!-- last_updated: 2026-04-02 (ControlPlaneLLM으로 전환) -->
 
 **클래스:** `StrategyEvaluator`
 
 단일 CLI 환경 폴백. 판정: `retry` | `pivot` | `abort`
+
+**LLM 엔진:** `ControlPlaneLLM` (CLI-first, API-fallback) — GOOGLE_API_KEY 없이도 동작
+
+### §3.8.1 ControlPlaneLLM (`core/control_plane_llm.py`)
+<!-- last_updated: 2026-04-03 (AF_CONTROL_PLANE_PROVIDERS 환경변수 지원) -->
+
+Control-plane(Lilith, Evaluator)용 LLM 인터페이스.
+
+**해결 순서:** CLI providers (claude_cli > gemini_cli > codex_cli) → Gemini API → 빈 결과
+**인터페이스:** `generate(prompt) → str`, `generate_json(prompt) → dict`
+**CLI 실패 시:** infra 실패면 다음 CLI로 failover
+
+### §3.8.2 FailureClassifier (`core/failure_classifier.py`)
+
+reason 문자열 기반 실패 분류. `classify_failure(reason) → FailureCategory.INFRA | IMPLEMENTATION`
+
+INFRA 패턴: `missing_api_key`, `quota`, `429`, `503`, `cli_timeout`, `worker_timeout` 등
+
+### §3.8.3 RunBudget (`core/run_budget.py`)
+<!-- last_updated: 2026-04-02 -->
+
+글로벌 토큰 예산 추적. 4-char ≈ 1-token 휴리스틱.
+
+**API:** `set_run_budget(max_tokens)`, `get_run_budget()` (모듈 싱글턴)
+**동작:** 80% 경고 출력, 100% `is_exhausted()=True` → orchestrator 자동 중단
+**CLI:** `af run --budget 50000`
 
 ---
 
@@ -487,6 +535,16 @@ when_NOT_to_use     +0.10
 ──────────────────────────
 최대                  1.0
 ```
+
+### 자동 코드 리뷰 + 문서 업데이트 (백그라운드)
+
+`CodeReviewDocHook` (실행 우선순위=85):
+- 에이전트 실행 성공(`result["ok"]==True`) 후 자동 트리거
+- `git diff`로 변경 파일 감지 → `ControlPlaneLLM`으로 코드 리뷰
+- `docs/code_review.md`에 리뷰 결과 append
+- `docs/change_history.md`에 변경 이력 append
+- LLM 미사용 시 파일 목록만 기록 (graceful degradation)
+- 백그라운드 daemon 스레드 (메인 파이프라인 블로킹 없음, Lock으로 중복 방지)
 
 ---
 
@@ -773,9 +831,9 @@ model_utils.py (독립 모듈)
 | 항목 | 내용 | 해결 방안 |
 |------|------|----------|
 | **Self-hosting 제한** | af.exe는 자기 소스(`core/*.py`)를 수정 불가 | 소스 모드(`python run_factory_cli.py`)로 실행 |
-| **GOOGLE_API_KEY 없음** | Lilith(Gemini) LLM 실패 → 빈 응답 → cycle 낭비 | Claude CLI만으로도 동작하나 Gemini 추가 시 성능 향상 |
+| **GOOGLE_API_KEY 없음** | ~~Lilith LLM 실패 → cycle 낭비~~ **해결됨**: ControlPlaneLLM이 CLI-first로 동작 | — |
 | **TCP Broker 미연결** | agent_worker.py가 TCP 브로커에 실제 연결 안 함 | 파일 기반 Mailbox는 정상 동작 |
-| **max_cycles 소진** | Lilith LLM 오류 누적 시 50 사이클 낭비 후 종료 | Gemini API 설정 또는 Lilith 대체 로직 필요 |
+| **max_cycles 소진** | ~~Lilith LLM 오류 누적 시 50 사이클 낭비~~ **완화됨**: infra 실패 즉시 종료, ControlPlaneLLM CLI fallback | — |
 | **cross_verification level** | DynamicOrchestrator에서 항상 dynamic(1라운드) 고정 | enterprise 모드 옵션 추가 가능 |
 | **LFS zip 빌드 반복** | 매 버전마다 44MB zip LFS 푸시 필요 | 릴리스 asset URL 사용 시 PowerShell 리다이렉트 실패 |
 
@@ -795,6 +853,10 @@ model_utils.py (독립 모듈)
 
 | 날짜 | 버전 | 변경 내용 |
 |------|------|----------|
+| 2026-04-03 | v1.0.3 | feat(hooks): CodeReviewDocHook — 에이전트 실행 성공 후 자동 코드 리뷰 + docs/code_review.md, docs/change_history.md 자동 업데이트. ControlPlaneLLM 연동, LLM 미사용 시 파일 목록만 기록 |
+| 2026-04-03 | v1.0.3 | fix(code-review): Critical 4건 + High 6건 버그 수정 — checkpoint 원자적 쓰기, orchestrator state_board asyncio.Lock, ise_loop 도달불가 코드, issue_tracker 인자 주입 방지, dashboard 스레드 안전, control_plane_llm 환경변수, intake 키 불일치, agent_runner 캐시 제한, ise_redesigner 무한 폴백 방지, context_fork 타임아웃 경고 |
+| 2026-04-02 | v1.0.3 | feat(orchestrator): event-driven sparse governor — rule-based dispatch 기본(0 tokens), LLM은 blocker/stall/pivot 시만 호출. RunBudget 글로벌 토큰 예산(--budget), chat autosave/resume(--resume-chat), stall 감지(5-cycle threshold), max_cycles 50→30 |
+| 2026-04-02 | v1.2.17+ | feat(control-plane): ControlPlaneLLM CLI-first LLM + FailureClassifier infra/impl 분류 — GOOGLE_API_KEY 없이 Lilith/Evaluator 동작, infra 실패 retry 차단 |
 | 2026-04-02 | v1.2.17 | fix(bugs): 6개 파일 크리티컬 버그 수정 — worker 안전성, orchestrator 안정성, cross_verification timeout, fsa_loop 검증, skill_evolution_bus None처리 |
 | 2026-04-02 | v1.2.16 | **Blueprint 초기 생성** — v1.2.16 기준 전체 아키텍처 문서화 |
 | 2026-04-02 | v1.2.16 | fix(worker): PyInstaller frozen exe → `worker` 서브커맨드 추가 |

@@ -8,6 +8,7 @@ core/utils.py 에서 추출.
 import os
 import json
 import copy
+import threading
 
 from core.file_io import read_yaml
 
@@ -15,6 +16,7 @@ from core.file_io import read_yaml
 # Dashboard Cache
 # =============================================================================
 _DASHBOARD_CACHE: tuple[int, int, dict] | None = None
+_DASHBOARD_LOCK = threading.Lock()
 
 
 def _current_dashboard_config() -> tuple[str, str, str]:
@@ -54,6 +56,12 @@ def _normalize_dashboard_entry(value, base_dir: str):
 
 def append_dashboard_run(entry: dict):
     global _DASHBOARD_CACHE
+    with _DASHBOARD_LOCK:
+        _append_dashboard_run_locked(entry)
+
+
+def _append_dashboard_run_locked(entry: dict):
+    global _DASHBOARD_CACHE
     base_dir, path, project_id = _current_dashboard_config()
     try:
         st = os.stat(path)
@@ -84,8 +92,12 @@ def append_dashboard_run(entry: dict):
     data["runs"].append(_normalize_dashboard_entry(copy.deepcopy(entry), base_dir))
     data["runs"] = data["runs"][-300:]
     os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, "w", encoding="utf-8") as f:
+    tmp_path = path + ".tmp"
+    with open(tmp_path, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
+        f.flush()
+        os.fsync(f.fileno())
+    os.replace(tmp_path, path)
     try:
         st2 = os.stat(path)
         _DASHBOARD_CACHE = (int(st2.st_mtime_ns), int(st2.st_size), copy.deepcopy(data))
@@ -95,8 +107,12 @@ def append_dashboard_run(entry: dict):
 
 def _safe_write_json(path: str, data: dict):
     os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, "w", encoding="utf-8") as f:
+    tmp_path = path + ".tmp"
+    with open(tmp_path, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
+        f.flush()
+        os.fsync(f.fileno())
+    os.replace(tmp_path, path)
 
 
 def validate_context_with_schema(ctx: dict) -> tuple[bool, str]:
