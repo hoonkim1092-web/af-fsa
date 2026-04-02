@@ -360,7 +360,10 @@ def get_best_model(priority_list: list = None) -> str:
     if available:
         return normalize_model_name(available[0])
     # 최후의 수단: 동적 기본 모델 (버전 하드코딩 배제)
-    return normalize_model_name(get_dynamic_default_model("flash"))
+    dynamic = get_dynamic_default_model("flash")
+    if not dynamic:
+        return ""
+    return normalize_model_name(dynamic)
 
 
 # =============================================================================

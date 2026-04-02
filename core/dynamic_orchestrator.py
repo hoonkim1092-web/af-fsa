@@ -258,8 +258,12 @@ class DynamicOrchestrator:
                 todo_content = handle.read()
 
         # 개선 3: blocker 메시지를 별도로 감지하여 LLM에 강조
+        try:
+            raw_mailbox = load_mailbox_messages(target_workspace)
+        except Exception:
+            raw_mailbox = []
         blocker_messages = [
-            m for m in load_mailbox_messages(target_workspace)
+            m for m in raw_mailbox
             if m.get("type") == "blocker" and str(m.get("status") or "pending") == "pending"
         ]
         blocker_section = ""
@@ -317,12 +321,15 @@ class DynamicOrchestrator:
                 if task_key and task_key in completed:
                     continue
                 filtered_tasks.append(task)
-            log_path = self._runtime_file("dynamic_log.txt", target_workspace)
-            with log_path.open("a", encoding="utf-8") as handle:
-                handle.write(
-                    f"\n[Lilith] Cycle: {getattr(self, '_current_cycle', '?')}\n"
-                    f"Roles: {available_roles}\nTasks: {tasks}\nFilteredTasks: {filtered_tasks}\nRaw: {json.dumps(data, ensure_ascii=False)}\n"
-                )
+            try:
+                log_path = self._runtime_file("dynamic_log.txt", target_workspace)
+                with log_path.open("a", encoding="utf-8") as handle:
+                    handle.write(
+                        f"\n[Lilith] Cycle: {getattr(self, '_current_cycle', '?')}\n"
+                        f"Roles: {available_roles}\nTasks: {tasks}\nFilteredTasks: {filtered_tasks}\nRaw: {json.dumps(data, ensure_ascii=False)}\n"
+                    )
+            except Exception:
+                pass  # 로그 실패는 오케스트레이션에 영향 없음
 
             if not filtered_tasks:
                 fallback_tasks = self._fallback_next_tasks(available_roles, target_workspace)

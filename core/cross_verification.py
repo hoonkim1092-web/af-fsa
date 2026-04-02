@@ -169,6 +169,8 @@ class CrossVerificationLoop:
 
         # 탈출 조건 4: MAX 소진
         self._print(f"[MAX] 최대 라운드({self.max_rounds}) 소진 — 마지막 결과 반환", "33")
+        if not self.history:
+            return JudgmentResult(verdict="fail", merged_output="", confidence=0.0, failure_patterns=["no_rounds_executed"])
         return self.history[-1]
 
     # ── 내부 메서드: 탐지 ──
@@ -206,10 +208,10 @@ class CrossVerificationLoop:
                 )
                 futures[pool.submit(execute_cli_chat, req)] = pid
 
-            for future in as_completed(futures):
+            for future in as_completed(futures, timeout=600):
                 pid = futures[future]
                 try:
-                    raw = future.result() or {}
+                    raw = future.result(timeout=10) or {}
                     results.append(VerificationResult(
                         provider_id=pid,
                         model=_CODING_MODELS.get(pid, ""),
@@ -269,10 +271,10 @@ class CrossVerificationLoop:
                 )
                 futures[pool.submit(execute_cli_chat, req)] = (i, target_idx, reviewer.provider_id)
 
-            for future in as_completed(futures):
+            for future in as_completed(futures, timeout=600):
                 _, target_idx, reviewer_pid = futures[future]
                 try:
-                    raw = future.result() or {}
+                    raw = future.result(timeout=10) or {}
                     text = str(raw.get("text", ""))
                     parsed = self._parse_review_json(text)
                     verified[target_idx].review_by = reviewer_pid

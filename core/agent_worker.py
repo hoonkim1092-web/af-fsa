@@ -37,8 +37,20 @@ def main():
     args = parser.parse_args()
 
     # task.json 로드
-    with open(args.task_file, encoding="utf-8") as fh:
-        task = json.load(fh)
+    try:
+        with open(args.task_file, encoding="utf-8") as fh:
+            task = json.load(fh)
+    except (json.JSONDecodeError, OSError) as exc:
+        # 결과 파일에 에러 기록 후 종료
+        err_result = {"ok": False, "reason": f"task_json_load_error: {exc}"}
+        try:
+            os.makedirs(os.path.dirname(args.result_file), exist_ok=True)
+            with open(args.result_file, "w", encoding="utf-8") as fh:
+                json.dump(err_result, fh, ensure_ascii=False)
+        except Exception:
+            pass
+        print(f"[Worker] task.json 로드 실패: {exc}")
+        sys.exit(1)
 
     project_root = task.get("project_root", "")
     if project_root and project_root not in sys.path:
@@ -74,9 +86,19 @@ def main():
         traceback.print_exc()
 
     # result.json 저장
-    os.makedirs(os.path.dirname(args.result_file), exist_ok=True)
-    with open(args.result_file, "w", encoding="utf-8") as fh:
-        json.dump(result, fh, ensure_ascii=False, indent=2)
+    try:
+        os.makedirs(os.path.dirname(args.result_file), exist_ok=True)
+        with open(args.result_file, "w", encoding="utf-8") as fh:
+            json.dump(result, fh, ensure_ascii=False, indent=2)
+    except Exception as exc:
+        # 대체 경로에 저장 시도
+        print(f"[Worker:{role}] result.json 쓰기 실패: {exc}")
+        fallback = args.result_file + ".fallback.json"
+        try:
+            with open(fallback, "w", encoding="utf-8") as fh:
+                json.dump(result, fh, ensure_ascii=False)
+        except Exception:
+            pass
 
     status = "성공" if result.get("ok") else f"실패: {result.get('reason', '')[:100]}"
     print(f"[Worker:{role}] 완료 — {status}")

@@ -62,6 +62,8 @@ class FSALoop:
 
         # workspace 기반 GitManager 생성 — factory 루트가 아닌 프로젝트 디렉토리
         target_workspace = workspace or os.getcwd()
+        if not target_workspace or not os.path.isdir(target_workspace):
+            return {"ok": False, "reason": f"유효하지 않은 워크스페이스: {target_workspace}"}
         self.workspace = target_workspace   # 교차검증 evaluator에서 참조
         git = GitManager(target_workspace)
 
