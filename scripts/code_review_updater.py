@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import argparse
 import os
+import re
 import subprocess
 import sys
 from datetime import datetime
@@ -111,19 +112,42 @@ def _llm_review(changed: list[str], diff_text: str, context: str) -> str:
 
 def _atomic_write(path: str, content: str) -> None:
     tmp = path + ".tmp"
-    with open(tmp, "w", encoding="utf-8") as f:
-        f.write(content)
-        f.flush()
-        os.fsync(f.fileno())
-    os.replace(tmp, path)
+    try:
+        with open(tmp, "w", encoding="utf-8") as f:
+            f.write(content)
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(tmp, path)
+    except Exception:
+        try:
+            os.remove(tmp)
+        except OSError:
+            pass
+        raise
 
 
 def _atomic_append(path: str, content: str) -> None:
     with open(path, "a", encoding="utf-8") as f:
         f.write(content)
+        f.flush()
+        os.fsync(f.fileno())
 
 
 # ── main logic ───────────────────────────────────────────────────────────────
+
+def _last_logged_commit(doc_path: str) -> str:
+    """Return the commit hash of the most recent entry in the doc, or ''."""
+    if not os.path.exists(doc_path):
+        return ""
+    try:
+        with open(doc_path, encoding="utf-8") as f:
+            content = f.read()
+        # Entries look like: ## 2026-04-03 22:02 — `branch` (abc1234)
+        matches = re.findall(r"\(([0-9a-f]{7,40})\)", content)
+        return matches[-1] if matches else ""
+    except Exception:
+        return ""
+
 
 def update_code_review_doc(workspace: str, context: str, no_llm: bool) -> bool:
     """Update docs/code-review.md. Returns True if any entry was written."""
@@ -131,11 +155,16 @@ def update_code_review_doc(workspace: str, context: str, no_llm: bool) -> bool:
     if not changed:
         return False
 
+    commit = _short_commit(workspace)
+    doc_path = os.path.join(os.path.abspath(workspace), REVIEW_DOC_REL)
+    if commit and _last_logged_commit(doc_path) == commit:
+        # Same commit already logged — skip to avoid duplicate entries per session
+        return False
+
     diff_text = "" if no_llm else _diff_content(workspace)
     review_text = "" if no_llm else _llm_review(changed, diff_text, context)
 
     branch = _branch(workspace)
-    commit = _short_commit(workspace)
     date_str = datetime.now().strftime("%Y-%m-%d %H:%M")
 
     files_str = ", ".join(changed[:15])
@@ -153,7 +182,6 @@ def update_code_review_doc(workspace: str, context: str, no_llm: bool) -> bool:
     else:
         section += "_Review skipped (--no-llm or LLM unavailable)_\n"
 
-    doc_path = os.path.join(os.path.abspath(workspace), REVIEW_DOC_REL)
     os.makedirs(os.path.dirname(doc_path), exist_ok=True)
 
     if not os.path.exists(doc_path):
