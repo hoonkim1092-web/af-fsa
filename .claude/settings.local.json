@@ -52,6 +52,12 @@
             "command": "fp=$TOOL_INPUT_file_path; case \"$fp\" in *.py) python -m py_compile \"$fp\" 2>&1 || echo \"[af-hook] syntax error in $fp\" ;; esac",
             "timeout": 10,
             "statusMessage": "Python syntax check..."
+          },
+          {
+            "type": "command",
+            "command": "fp=$TOOL_INPUT_file_path; case \"$fp\" in *.py) python /c/Project/agent-factory/scripts/code_review_updater.py --no-llm 2>/dev/null ;; esac",
+            "timeout": 15,
+            "statusMessage": "Code review log update..."
           }
         ]
       }
