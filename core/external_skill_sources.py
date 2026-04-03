@@ -8,7 +8,7 @@ from core.external_skill_source_ids import (
     DEFAULT_EXTERNAL_SOURCE_PRIORITY,
     normalize_external_source_id,
 )
-from core.utils import get_codex_skill_roots, has_local_skill, safe_id
+from core.utils import get_external_skill_roots, get_codex_skill_roots, has_local_skill, safe_id
 
 
 def _split_csv(raw: str | None) -> list[str]:
@@ -120,6 +120,36 @@ def _repo_source_configs(project_policies: dict) -> list[dict]:
     return configs
 
 
+def _parse_frontmatter_name(md_path: str) -> str:
+    """SKILL.md / skill.md의 frontmatter 'name' 필드를 읽어 반환한다. 없으면 빈 문자열."""
+    try:
+        with open(md_path, encoding="utf-8", errors="replace") as f:
+            lines = f.readlines()
+        if not lines or lines[0].strip() != "---":
+            return ""
+        for line in lines[1:]:
+            stripped = line.strip()
+            if stripped == "---":
+                break
+            if stripped.startswith("name:"):
+                value = stripped[len("name:"):].strip().strip('"').strip("'")
+                return value
+    except Exception:
+        pass
+    return ""
+
+
+def _extract_skill_id(skill_dir: str) -> str:
+    """스킬 ID를 추출한다. frontmatter 'name' 우선, 없으면 디렉토리명 fallback."""
+    for md_name in ("SKILL.md", "skill.md"):
+        md_path = os.path.join(skill_dir, md_name)
+        if os.path.exists(md_path):
+            name = _parse_frontmatter_name(md_path)
+            if name:
+                return safe_id(name)
+    return safe_id(os.path.basename(skill_dir))
+
+
 def _official_codex_skill_roots(project_policies: dict) -> list[str]:
     raw = (
         project_policies.get("official_codex_skill_roots")
@@ -127,6 +157,25 @@ def _official_codex_skill_roots(project_policies: dict) -> list[str]:
         or []
     )
     return [root for root in get_codex_skill_roots(_normalize_paths(raw)) if os.path.isdir(root)]
+
+
+def _official_claude_skill_roots() -> list[str]:
+    """Claude Code 스킬 루트 디렉토리 목록 (personal + project)."""
+    home_dir = os.path.expanduser("~")
+    from core.config_paths import PROJECT_ROOT
+    candidates = [
+        os.path.join(home_dir, ".claude", "skills"),
+        os.path.join(PROJECT_ROOT, ".claude", "skills"),
+    ]
+    env_paths = []
+    raw = os.getenv("AGENT_CLAUDE_SKILL_DIRS", "").strip()
+    if raw:
+        env_paths = [p.strip() for p in raw.split(os.pathsep) if p.strip()]
+    return [
+        os.path.normpath(os.path.abspath(root))
+        for root in env_paths + candidates
+        if os.path.isdir(root)
+    ]
 
 
 @dataclass
@@ -258,7 +307,47 @@ class CodexOfficialSkillSource(ExternalSkillSource):
                     continue
                 if not any(os.path.exists(os.path.join(skill_dir, name)) for name in ("SKILL.md", "skill.md")):
                     continue
-                skill_id = safe_id(entry)
+                skill_id = _extract_skill_id(skill_dir)  # frontmatter name 우선
+                if not skill_id or skill_id in seen:
+                    continue
+                seen.add(skill_id)
+                out.append(
+                    ExternalSkillCandidate(
+                        source_id=self.source_id,
+                        skill_id=skill_id,
+                        name=skill_id,
+                        path=skill_dir,
+                        capabilities=[skill_id],
+                        source_repo=os.path.basename(root_dir) or self.source_id,
+                    )
+                )
+        return out
+
+
+class ClaudeOfficialSkillSource(ExternalSkillSource):
+    """Claude Code 로컬 스킬 탐색 (~/.claude/skills/, PROJECT/.claude/skills/)."""
+
+    def __init__(self, root_dirs: list[str] | None = None, source_id: str = "claude_official"):
+        super().__init__(source_id)
+        self.root_dirs = (
+            [os.path.abspath(str(r)) for r in root_dirs if str(r).strip()]
+            if root_dirs is not None
+            else _official_claude_skill_roots()
+        )
+
+    def iter_candidates(self) -> list[ExternalSkillCandidate]:
+        out: list[ExternalSkillCandidate] = []
+        seen: set[str] = set()
+        for root_dir in self.root_dirs:
+            if not os.path.isdir(root_dir):
+                continue
+            for entry in sorted(os.listdir(root_dir)):
+                skill_dir = os.path.join(root_dir, entry)
+                if not os.path.isdir(skill_dir):
+                    continue
+                if not any(os.path.exists(os.path.join(skill_dir, name)) for name in ("SKILL.md", "skill.md")):
+                    continue
+                skill_id = _extract_skill_id(skill_dir)  # frontmatter name 우선
                 if not skill_id or skill_id in seen:
                     continue
                 seen.add(skill_id)

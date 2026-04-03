@@ -250,24 +250,43 @@ def skill_markdown_filenames() -> tuple[str, ...]:
     return ("skill.md", "SKILL.md")
 
 
-def get_codex_skill_roots(extra_roots: list[str] | None = None) -> list[str]:
+def get_external_skill_roots(extra_roots: list[str] | None = None) -> list[str]:
+    """Claude Code / Codex / agents 스킬 디렉토리 목록을 반환한다.
+
+    우선순위 (Claude 공식 precedence: personal > project):
+      1. personal: ~/.claude/skills, ~/.codex/skills, ~/.agents/skills
+      2. project:  PROJECT_ROOT/.claude/skills, .codex/skills, .agents/skills
+      3. runtime:  $CODEX_HOME/skills
+      4. env:      AGENT_CODEX_SKILL_DIRS, AGENT_CLAUDE_SKILL_DIRS
+      5. system:   /etc/codex/skills (Linux only; Windows는 env opt-in)
+    """
     roots: list[str] = []
     seen: set[str] = set()
     home_dir = os.path.expanduser("~")
     defaults = [
-        os.path.join(PROJECT_ROOT, ".agents", "skills"),
-        os.path.join(PROJECT_ROOT, ".codex", "skills"),
-        os.path.join(home_dir, ".agents", "skills"),
+        # 1순위: personal (Claude 공식 precedence: personal > project)
+        os.path.join(home_dir, ".claude", "skills"),
         os.path.join(home_dir, ".codex", "skills"),
+        os.path.join(home_dir, ".agents", "skills"),
+        # 2순위: project
+        os.path.join(PROJECT_ROOT, ".claude", "skills"),
+        os.path.join(PROJECT_ROOT, ".codex", "skills"),
+        os.path.join(PROJECT_ROOT, ".agents", "skills"),
     ]
-    if os.name == "nt":
-        program_data = str(os.getenv("ProgramData", "")).strip()
-        if program_data:
-            defaults.append(os.path.join(program_data, "codex", "skills"))
-    else:
+    # 3순위: Codex 런타임 홈
+    codex_home = os.getenv("CODEX_HOME", "").strip()
+    if codex_home:
+        defaults.append(os.path.join(codex_home, "skills"))
+    # 5순위: 시스템 경로 (Linux only; Windows는 공식 문서 근거 없어 env opt-in만)
+    if os.name != "nt":
         defaults.append("/etc/codex/skills")
 
-    for raw_root in list(extra_roots or []) + _split_env_paths(os.getenv("AGENT_CODEX_SKILL_DIRS")) + defaults:
+    # 4순위: 환경변수 (extra_roots → AGENT_CODEX_SKILL_DIRS → AGENT_CLAUDE_SKILL_DIRS → defaults)
+    env_paths = (
+        _split_env_paths(os.getenv("AGENT_CODEX_SKILL_DIRS"))
+        + _split_env_paths(os.getenv("AGENT_CLAUDE_SKILL_DIRS"))
+    )
+    for raw_root in list(extra_roots or []) + env_paths + defaults:
         root = str(raw_root or "").strip()
         if not root:
             continue
@@ -278,6 +297,10 @@ def get_codex_skill_roots(extra_roots: list[str] | None = None) -> list[str]:
         seen.add(key)
         roots.append(normalized)
     return roots
+
+
+# 하위 호환 alias
+get_codex_skill_roots = get_external_skill_roots
 
 
 def resolve_knowledge_skill_path(skill_id: str, extra_roots: list[str] | None = None) -> str | None:

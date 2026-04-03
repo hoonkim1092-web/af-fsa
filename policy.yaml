@@ -67,12 +67,10 @@ skills:
 task_decomposition:
   roles:
     min: 2
-    max: 5
-    prefer: "practical_implementation"
+    prefer: "single_responsibility"
 
   modules:
     independent: true
-    max_tasks_per_module: 8
     min_tasks_per_module: 2
 
   tasks:
@@ -82,7 +80,6 @@ task_decomposition:
 
   planning_steps:
     min: 3
-    max: 5
 
   required_roles:
     - id: "qa_engineer"

@@ -23,7 +23,8 @@ from core.skill_metadata_adapter import (
 )
 from core.config_paths import SKILLS_DIR, PROJECT_SKILLS_DIR
 from core.file_io import read_yaml, write_yaml
-from core.utils import get_codex_skill_roots
+import time
+from core.utils import get_external_skill_roots
 
 logger = logging.getLogger(__name__)
 
@@ -61,6 +62,8 @@ class SkillRegistry:
         self._registry: Dict[str, SkillMetadata] = {}
         self._lock = threading.RLock()
         self._auto_loaded = False
+        self._external_scanned = False
+        self._last_scan_time: float = 0.0
 
     def register(self, metadata: SkillMetadata) -> None:
         """스킬 메타데이터를 등록합니다."""
@@ -107,11 +110,30 @@ class SkillRegistry:
         with self._lock:
             return len(self._registry)
 
+    @property
+    def external_scanned(self) -> bool:
+        """외부 스킬 스캔 완료 여부 (public API)."""
+        return self._external_scanned
+
+    def should_rescan_external(self) -> bool:
+        """외부 스킬 디렉토리의 mtime이 마지막 스캔 이후 변경되었는지 확인."""
+        for root in get_external_skill_roots():
+            if not os.path.isdir(root):
+                continue
+            try:
+                if os.path.getmtime(root) > self._last_scan_time:
+                    return True
+            except OSError:
+                continue
+        return False
+
     def clear(self) -> None:
         """레지스트리 초기화 (테스트용)"""
         with self._lock:
             self._registry.clear()
             self._auto_loaded = False
+            self._external_scanned = False
+            self._last_scan_time = 0.0
 
     def auto_load_from_directories(self, force: bool = False) -> int:
         """기존 스킬 디렉토리에서 메타데이터를 자동으로 로드합니다.
@@ -135,20 +157,22 @@ class SkillRegistry:
             if os.path.isdir(SKILLS_DIR):
                 loaded_count += self._load_from_directory(SKILLS_DIR)
 
-            # 3) User-wide Codex Skill Roots (~/.agents/skills/, ~/.codex/skills/, etc.)
+            # 3) External Skill Roots (personal > project 순서: ~/.claude/skills, ~/.codex/skills, etc.)
             already_scanned = {
                 os.path.normpath(os.path.abspath(PROJECT_SKILLS_DIR)).lower(),
                 os.path.normpath(os.path.abspath(SKILLS_DIR)).lower(),
             }
-            for codex_root in get_codex_skill_roots():
-                norm = os.path.normpath(os.path.abspath(codex_root)).lower()
+            for ext_root in get_external_skill_roots():
+                norm = os.path.normpath(os.path.abspath(ext_root)).lower()
                 if norm in already_scanned:
                     continue
                 already_scanned.add(norm)
-                if os.path.isdir(codex_root):
-                    loaded_count += self._load_from_directory(codex_root)
+                if os.path.isdir(ext_root):
+                    loaded_count += self._load_from_directory(ext_root)
 
             self._auto_loaded = True
+            self._external_scanned = True
+            self._last_scan_time = time.time()
             return loaded_count
 
     _SKIP_DIRS = {"forge", "_external_cache", "__pycache__", "warehouse"}
@@ -272,12 +296,15 @@ def list_all_skills(category: str = None) -> List[str]:
 
 
 def ensure_skills_loaded() -> None:
-    """스킬이 로드되지 않았으면 자동 로드합니다."""
+    """스킬이 로드되지 않았으면 자동 로드합니다. 외부 디렉토리 변경 시 재스캔."""
     registry = get_global_registry()
-    if registry.count() == 0:
+    if not registry.external_scanned:
         print("[INFO] 스킬 메타데이터 자동 로드 시작...")
         count = registry.auto_load_from_directories()
         print(f"[OK] {count}개 스킬 로드 완료")
+    elif registry.should_rescan_external():
+        logger.info("[SkillRegistry] 외부 스킬 디렉토리 변경 감지 — 재스캔")
+        registry.auto_load_from_directories(force=True)
 
 
 # =============================================================================

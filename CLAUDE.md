@@ -22,6 +22,12 @@
 - 빌드: `python build_exe.py` → `dist/af-{version}.zip`
 - 새 `core/*.py` 파일은 `af.spec` `hiddenimports`에 반드시 추가
 
+### 문서 파일명 규칙
+- **code-review.md**: 날짜 없음 (살아있는 단일 문서, in-place 갱신)
+- **기타 모든 문서**: 파일명에 날짜 포함 필수 — `YYYY-MM-DD-제목.md`
+  - 예: `2026-04-03-cross-cli-skill-discovery.md`
+  - Feature 문서, 버그픽스 문서, 설계 문서, 플랜 등 전부 해당
+
 ### 커밋 규칙
 - 코드 수정 + Blueprint 업데이트는 같은 커밋
 - 빌드 zip은 LFS로 `dist/af-{version}.zip` 커밋

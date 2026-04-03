@@ -39,15 +39,39 @@ def _build_policy_rules() -> str:
     lines = []
     roles = policy.get("roles") or {}
     if roles:
-        lines.append(f"- {roles.get('min', 2)} to {roles.get('max', 5)} roles only.")
+        min_r = roles.get("min", 2)
+        max_r = roles.get("max")
+        if max_r:
+            lines.append(f"- {min_r} to {max_r} roles only.")
+        else:
+            lines.append(f"- At least {min_r} roles. No upper limit — create as many specialized roles as the project requires.")
         if roles.get("prefer"):
-            lines.append(f"- Prefer {roles['prefer'].replace('_', ' ')} roles.")
+            lines.append(f"- Prefer {roles['prefer'].replace('_', ' ')} roles — each role should own exactly one responsibility.")
     steps = policy.get("planning_steps") or {}
     if steps:
-        lines.append(f"- planning_steps should usually be {steps.get('min', 3)} to {steps.get('max', 5)} items.")
+        min_s = steps.get("min", 3)
+        max_s = steps.get("max")
+        if max_s:
+            lines.append(f"- planning_steps should usually be {min_s} to {max_s} items.")
+        else:
+            lines.append(f"- planning_steps should have at least {min_s} items. Add more steps if the task complexity demands it.")
     tasks = policy.get("tasks") or {}
     if tasks.get("naming_convention"):
         lines.append(f"- required_skills, role ids, module ids, task ids, owner_role must be English {tasks['naming_convention']}.")
+    if tasks.get("granularity"):
+        lines.append(
+            f"- Task granularity must be '{tasks['granularity']}' — "
+            "each task should be independently completable in one focused pass."
+        )
+    modules_policy = policy.get("modules") or {}
+    min_t = modules_policy.get("min_tasks_per_module")
+    max_t = modules_policy.get("max_tasks_per_module")
+    if min_t and max_t:
+        lines.append(f"- Each module must have {min_t} to {max_t} tasks.")
+    elif min_t:
+        lines.append(f"- Each module must have at least {min_t} tasks. No upper limit — add as many tasks as the module complexity requires.")
+    elif max_t:
+        lines.append(f"- Each module must have at most {max_t} tasks.")
     for constraint in (policy.get("constraints") or []):
         lines.append(f"- {constraint}")
     return "\n".join(lines)

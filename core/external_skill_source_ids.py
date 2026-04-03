@@ -21,6 +21,12 @@ EXTERNAL_SOURCE_ID_ALIASES = {
     "official_codex": "codex_official",
     "official_codex_skills": "codex_official",
     "codex_skills": "codex_official",
+    # Claude Code 로컬 스킬 (~/.claude/skills/, PROJECT/.claude/skills/)
+    "claude_official": "claude_official",
+    "claude_code": "claude_official",
+    "claude_skills": "claude_official",
+    "official_claude": "claude_official",
+    # Git clone 폴백
     "claude": "claude_repo",
     "claude_repo": "claude_repo",
     "codex": "codex_repo",
@@ -34,8 +40,9 @@ EXTERNAL_SOURCE_ID_LEGACY_IDS = {
 
 DEFAULT_EXTERNAL_SOURCE_PRIORITY = [
     "codex_official",
-    "claude_repo",
-    "codex_repo",
+    "claude_official",   # Claude Code 로컬 스킬 (personal + project)
+    "claude_repo",       # Git clone 폴백 — CLI 존재와 무관하게 항상 활성
+    "codex_repo",        # Git clone 폴백 — 항상 활성
     "registry",
     "external_cache",
 ]

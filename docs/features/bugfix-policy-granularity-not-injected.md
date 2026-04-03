@@ -1,7 +1,7 @@
 # Bug Fix: policy.yaml task granularity 및 모듈 태스크 수 제한이 LLM 프롬프트에 주입되지 않는 문제
 
 ## 상태
-- status: identified
+- status: fixed (2026-04-03)
 - 발견일: 2026-04-02
 - 담당 파일: `core/bootstrap_roles.py`
 
@@ -56,7 +56,7 @@ elif max_t:
 
 ## 체크리스트
 
-- [ ] `core/bootstrap_roles.py` `_build_policy_rules()` 수정
-- [ ] `policy.yaml` 값 변경 없음 (기존 값 그대로 활용)
-- [ ] 단위 테스트: `_build_policy_rules()` 출력에 granularity/task count 문구 포함 확인
+- [x] `core/bootstrap_roles.py` `_build_policy_rules()` 수정
+- [x] `policy.yaml` 값 변경 없음 (기존 값 그대로 활용)
+- [x] 단위 테스트: `tests/test_bootstrap_policy_rules.py` 7개 케이스 모두 통과
 - [ ] 배포 빌드 재빌드 및 `dist/af/_internal/policy.yaml` 동기화 확인

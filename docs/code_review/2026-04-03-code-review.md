@@ -155,7 +155,7 @@
 | `skill_creator.py` | 1,092 | 스킬 생성 엔진 |
 | `skill_procurer.py` | 876 | 외부 스킬 조달 |
 | `skill_eval_harness.py` | 732 | 스킬 평가 하네스 |
-| `skill_registry.py` | 536 | 스킬 레지스트리 |
+| `skill_registry.py` | 536 | 스킬 레지스트리. `external_scanned` property, `should_rescan_external()` (mtime 기반) |
 | `skill_preflight.py` | 470 | 스킬 사전 검증 |
 | `skill_metadata_adapter.py` | 449 | 메타데이터 어댑터 |
 | `skill_feedback.py` | 365 | data/skill-usage.jsonl 기록 |
@@ -171,8 +171,19 @@
 | `skill_autodiscover.py` | 115 | 스킬 자동 발견 |
 | `skill_context_config.py` | 110 | 스킬 컨텍스트 설정 |
 | `knowledge_skill.py` | 90 | 지식 스킬 |
+| `external_skill_sources.py` | — | `CodexOfficialSkillSource`, `ClaudeOfficialSkillSource` (신규), `_extract_skill_id()` (frontmatter name 우선) |
+| `external_skill_source_ids.py` | — | 소스 ID 정규화. `claude_official` 추가, `DEFAULT_EXTERNAL_SOURCE_PRIORITY` 갱신 |
 
-**참고:** 스킬 시스템은 v3 설계 범위 밖. 안정적으로 동작 중.
+**최종 수정**: 2026-04-03
+
+**변경 사항 (cross-cli-skill-discovery v3)**:
+- `skill_registry.py`: `ensure_skills_loaded()` — `count()==0` 체크 → `external_scanned` 플래그로 교체. 유지보수 시 신규 외부 스킬 미감지 버그 수정
+- `skill_registry.py`: `should_rescan_external()` — 외부 디렉토리 mtime 기반 변경 감지 (기존: 디렉토리 basename 비교)
+- `external_skill_sources.py`: `_extract_skill_id()` — frontmatter `name` 우선, 디렉토리명 fallback (기존: 디렉토리명만)
+- `external_skill_sources.py`: `ClaudeOfficialSkillSource` — `~/.claude/skills/`, `PROJECT/.claude/skills/` 탐색
+- `external_skill_source_ids.py`: `claude_official` 소스 ID + 우선순위 (`codex_official` 다음)
+
+**참고:** 스킬 시스템은 v3 설계 범위 밖. cross-cli-skill-discovery는 완료.
 
 ### 2.8 대화/연구 엔진
 
@@ -207,7 +218,7 @@
 | `config_paths.py` | 101 | 모듈 레벨 상수. PROJECT_ROOT, AGENTS_DIR, RUNS_DIR 등 |
 | `engine_auth.py` | 182 | auto_configure_cli_provider() — 단일 provider 자동 선택 |
 | `concurrency.py` | 207 | BackgroundTaskManager, circuit breaker |
-| `utils.py` | 337 | 범용 유틸리티 |
+| `utils.py` | 337 | 범용 유틸리티. `get_external_skill_roots()` (신규, personal>project 순서, Claude 경로 포함), `get_codex_skill_roots` alias 유지 |
 | `file_io.py` | 124 | 파일 I/O 헬퍼 |
 | `file_lock.py` | 92 | 크로스 프로세스 파일 락 |
 | `git_manager.py` | 94 | Git 조작 |
