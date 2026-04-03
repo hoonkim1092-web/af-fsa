@@ -360,7 +360,10 @@ def get_best_model(priority_list: list = None) -> str:
     if available:
         return normalize_model_name(available[0])
     # 최후의 수단: 동적 기본 모델 (버전 하드코딩 배제)
-    return normalize_model_name(get_dynamic_default_model("flash"))
+    dynamic = get_dynamic_default_model("flash")
+    if not dynamic:
+        return ""
+    return normalize_model_name(dynamic)
 
 
 # =============================================================================
@@ -579,8 +582,9 @@ def resolve_dynamic_model(engine_id: str) -> ModelSelection:
 # 역할 키워드 → engine_id 매핑 테이블
 # 에이전트의 role/tagline/name에서 키워드를 찾아 최적 엔진을 결정한다.
 _ROLE_ENGINE_MAP: list[tuple[list[str], str]] = [
+    (["qa", "tester", "quality", "test_eng"], "codex"),
     (["architect", "design", "blueprint", "system design"], "architect_claude"),
-    (["coder", "developer", "engineer", "programmer"], "coder_claude"),
+    (["coder", "developer", "_dev", "engineer", "programmer"], "coder_claude"),
     (["research", "researcher", "analyst", "study"], "researcher_gemini"),
     (["manager", "pm", "pd", "project", "director", "orchestrat"], "manager_gpt"),
     (["reason", "verif", "logic", "validator", "reviewer"], "reasoner_o"),

@@ -1,0 +1,28 @@
+#!/bin/sh
+# pre-commit hook: 코드 변경 시 Master_Blueprint.md 업데이트 여부 확인
+
+BLUEPRINT="Master_Blueprint.md"
+STAGED=$(git diff --cached --name-only)
+
+# core/*.py 또는 model_utils.py 변경이 있는지 확인
+CODE_CHANGED=$(echo "$STAGED" | grep -E "^(core/|model_utils\.py|run_factory_cli\.py|version\.py|af\.spec|install-af\.ps1)" | head -1)
+
+if [ -n "$CODE_CHANGED" ]; then
+    # Blueprint도 스테이지에 있는지 확인
+    BLUEPRINT_STAGED=$(echo "$STAGED" | grep "^$BLUEPRINT$")
+    if [ -z "$BLUEPRINT_STAGED" ]; then
+        echo ""
+        echo "⚠️  [pre-commit] 코드 변경 감지: $CODE_CHANGED"
+        echo "   Master_Blueprint.md 가 스테이지되지 않았습니다."
+        echo ""
+        echo "   업데이트 후 커밋하려면:"
+        echo "     git add Master_Blueprint.md && git commit"
+        echo ""
+        echo "   Blueprint 업데이트 없이 강제 커밋하려면:"
+        echo "     git commit --no-verify"
+        echo ""
+        exit 1
+    fi
+fi
+
+exit 0

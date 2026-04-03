@@ -230,7 +230,9 @@ class SkillEvolutionBus:
         if self._runner_ref is None:
             return None
         for loader in getattr(self._runner_ref, "_skill_loader_cache", {}).values():
-            return getattr(loader, "relevance", None)
+            rel = getattr(loader, "relevance", None)
+            if rel is not None:
+                return rel
         return None
 
     def _get_embedder(self):

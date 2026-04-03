@@ -677,20 +677,36 @@ NotebookLM synthesis: {notebook_summary or '(none)'}
 
 Return JSON only:
 {{
-  "goal": "single sentence goal",
+  "goal": "single sentence describing what to build",
+  "background_context": "2-3 sentences on project motivation and existing situation (different from goal)",
+  "problem_statement": "the specific pain point or gap this project solves (different angle from goal)",
+  "target_path": "absolute directory path where the project should be created, or empty string if not specified",
   "constraints": ["constraint"],
   "required_skills": ["snake_case_skill"],
   "role_hints": ["snake_case_role"],
-  "deliverables": ["deliverable"],
+  "deliverables": ["short functional deliverable name"],
   "risks": ["risk"],
   "research_notes": ["note"],
-  "tech_stack": ["option"]
+  "tech_stack": ["specific technology with version if known"],
+  "data_model": [{{"entity": "EntityName", "fields": ["field1", "field2"], "storage": "sqlite|json|memory"}}],
+  "user_flows": ["actor: action -> system response"],
+  "non_goals": ["what this project will NOT do"],
+  "architecture_style": "desktop_gui|web_app|cli|api_server|library"
 }}
 
 Rules:
 - required_skills: 3 to 8 concrete skills in English snake_case.
 - role_hints: 2 to 5 practical implementation roles.
-- deliverables and risks should be short Korean phrases.
+- goal: one clear sentence stating what is being built.
+- background_context: 2-3 sentences explaining WHY this is needed. Do NOT repeat the goal sentence.
+- problem_statement: the pain point or gap. Must differ from goal and background_context in perspective.
+- target_path: if the user specifies a directory (e.g. "C:\\Project\\" or "/home/user/projects/"), extract the full absolute path. Otherwise empty string.
+- deliverables: functional units, NOT file paths or role names.
+  BAD: "C:\\Project\\lotto.exe (단독 실행 파일)"  GOOD: "로또 번호 추천 실행파일"
+- tech_stack: be specific. BAD: ["Python"]  GOOD: ["Python 3.11", "tkinter", "SQLite", "PyInstaller"]
+- data_model: list key entities with their fields and storage backend.
+- user_flows: concrete user journeys. e.g. "사용자: 앱 실행 -> 시스템: 최신 데이터 자동 갱신"
+- non_goals: explicitly state out-of-scope items.
 - Use the evidence bundle to ground deliverables, risks, and implementation constraints when evidence is available.
 - Prefer concrete modules, interfaces, verification targets, and existing project documents over generic placeholders.
         """.strip()

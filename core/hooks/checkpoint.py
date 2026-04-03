@@ -60,9 +60,19 @@ class CheckpointHook(ContinuationHook):
                     serializable[key] = val
             serializable["_last_result_ok"] = result.get("ok", False) if isinstance(result, dict) else bool(result)
 
-            with open(path, "w", encoding="utf-8") as f:
+            tmp_path = path + ".tmp"
+            with open(tmp_path, "w", encoding="utf-8") as f:
                 json.dump(serializable, f, ensure_ascii=False, indent=2, default=str)
+                f.flush()
+                os.fsync(f.fileno())
+            os.replace(tmp_path, path)
         except Exception as e:
             print(f"⚠️ [Checkpoint] Failed to save: {e}")
+            # 실패 시 tmp 파일 정리
+            try:
+                if os.path.exists(path + ".tmp"):
+                    os.remove(path + ".tmp")
+            except OSError:
+                pass
 
         return result

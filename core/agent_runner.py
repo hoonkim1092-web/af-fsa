@@ -591,8 +591,10 @@ class AgentRunner:
             self._skill_loader_cache[model_name] = AdaptiveSkillLoader.for_model(model_name)
         return self._skill_loader_cache[model_name]
 
+    _SKILL_CACHE_MAX = 64
+
     def load_skills(self, agent: dict, task_input: str = "") -> list:
-        # Legacy support + caching
+        # Legacy support + caching (bounded to _SKILL_CACHE_MAX entries)
         if not hasattr(self, "_skill_module_cache"):
             self._skill_module_cache = {}
         self._knowledge_skills = []
@@ -634,6 +636,11 @@ class AgentRunner:
                         setattr(module, "__skill_id__", sid)
 
                         self._skill_module_cache[sid] = (skill_py, cur_mtime, module)
+                        # 캐시 크기 제한: 초과 시 가장 오래된 항목 제거
+                        if len(self._skill_module_cache) > self._SKILL_CACHE_MAX:
+                            oldest_key = next(iter(self._skill_module_cache))
+                            self._skill_module_cache.pop(oldest_key, None)
+                            sys.modules.pop(f"skills.{oldest_key}", None)
                         loaded_skills.append(module)
                         _safe_print(f"[Runner] Action skill loaded: {sid}")
                 except Exception as e:
@@ -861,6 +868,14 @@ class AgentRunner:
                     break
 
         def _flush_trace(result: dict):
+            # 글로벌 토큰 예산 기록
+            try:
+                from core.run_budget import get_run_budget
+                _text = str(result.get("text", "") or "")
+                if _text:
+                    get_run_budget().record(_text)
+            except Exception:
+                pass
             data = {
                 "run_id": run_id,
                 "project_id": project_id,
@@ -919,6 +934,12 @@ class AgentRunner:
         except Exception as _sse_err:
             _safe_print(f"[Runner] SkillSelfEvolutionHook registration failed: {_sse_err}")
 
+        try:
+            from core.hooks.code_review_doc import CodeReviewDocHook
+            bus.register(CodeReviewDocHook())
+        except Exception as _cr_err:
+            _safe_print(f"[Runner] CodeReviewDocHook registration failed: {_cr_err}")
+
         _mem_ki_hook = None
         _mem_mc_hook = None
         try:
@@ -955,9 +976,19 @@ class AgentRunner:
         from core.model_router import print_startup_routing_notice
         print_startup_routing_notice()
 
-        cli_providers = get_requested_cli_providers()
+        all_cli_providers = get_requested_cli_providers()
         role_summary = agent.get("role", "") or (agent.get("identity", {}) or {}).get("role_summary", "")
         agent_name = agent.get("name", "")
+
+        # 역할 기반 최적 프로바이더를 첫 번째에, 나머지를 폴백으로 정렬
+        if len(all_cli_providers) > 1:
+            preferred = self.mr.pick_provider(agent_config=agent)
+            if preferred and preferred in all_cli_providers:
+                cli_providers = [preferred] + [p for p in all_cli_providers if p != preferred]
+            else:
+                cli_providers = all_cli_providers
+        else:
+            cli_providers = all_cli_providers
         engine_id = _infer_engine_id(role_summary or agent_name)
 
         # preferred provider 미구독 시 가용 provider 기반 engine으로 fallback

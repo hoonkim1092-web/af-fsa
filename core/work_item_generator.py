@@ -136,16 +136,40 @@ def _generate_feature_plan(
     role_plan: dict[str, Any],
 ) -> str:
     goal = _clean(project_brief.get("goal") or "")
+    background_context = _clean(project_brief.get("background_context") or "")
+    problem_statement = _clean(project_brief.get("problem_statement") or "")
     deliverables = _clean_list(project_brief.get("deliverables"))
     constraints = _clean_list(project_brief.get("constraints"))
+    risks = _clean_list(project_brief.get("risks"))
+    non_goals = _clean_list(project_brief.get("non_goals"))
     modules = [m for m in (role_plan.get("modules") or []) if isinstance(m, dict)]
-    scope_lines = "\n".join(f"- {_clean(m.get('name'))}" for m in modules if _clean(m.get("name")))
-    deliverables_lines = "\n".join(f"- {item}" for item in deliverables) if deliverables else "- (auto-generate needed)"
-    constraints_lines = "\n".join(f"- {item}" for item in constraints) if constraints else "- none"
     roles = [r for r in (role_plan.get("roles") or []) if isinstance(r, dict)]
+
+    # Scope: module name + summary (1줄)
+    scope_lines = "\n".join(
+        f"- **{_clean(m.get('name'))}**: {_trim_text(m.get('summary'), 120)}"
+        for m in modules if _clean(m.get("name"))
+    )
+    deliverables_lines = "\n".join(f"- {item}" for item in deliverables) if deliverables else "- (auto-generate needed)"
+
+    # Non-Goals: brief에서 가져오고 없으면 placeholder
+    non_goals_lines = "\n".join(f"- {item}" for item in non_goals) if non_goals else "- (edit required)"
+
+    # Stakeholders: 역할 이름 + 목적
     stakeholder_lines = "\n".join(
-        f"- {_clean(role.get('name') or role.get('id'))}" for role in roles if _clean(role.get("name") or role.get("id"))
+        f"- {_clean(r.get('name') or r.get('id'))}: {_trim_text(r.get('objective'), 80)}"
+        for r in roles if _clean(r.get("name") or r.get("id"))
     ) or "- (auto-generate needed)"
+
+    # Success Metrics: deliverable별 측정 기준 (Goals와 다른 관점)
+    metrics_lines = "\n".join(
+        f"- {item} — 완성 및 동작 검증됨" for item in deliverables
+    ) if deliverables else "- (edit required)"
+
+    # Risks: brief.risks + constraints 합산
+    risk_items = risks + [c for c in constraints if any(kw in c for kw in ["제약", "불가", "없이", "미연결", "캐시"])]
+    risks_lines = "\n".join(f"- {item}" for item in risk_items) if risk_items else "\n".join(f"- {item}" for item in constraints) if constraints else "- none"
+
     research_lines = _research_bullets(project_brief)
     reference_lines = _reference_bullets(project_brief)
 
@@ -157,21 +181,21 @@ def _generate_feature_plan(
         "- status: draft\n"
         f"- last_updated: {now_iso()}\n\n"
         "## Background\n\n"
-        f"{goal or '(additional summary needed)'}\n\n"
+        f"{background_context or goal or '(additional summary needed)'}\n\n"
         "## Problem Statement\n\n"
-        f"{goal or '(additional summary needed)'}\n\n"
+        f"{problem_statement or '(edit required)'}\n\n"
         "## Goals\n\n"
         f"{deliverables_lines}\n\n"
         "## Non-Goals\n\n"
-        "- (edit required)\n\n"
+        f"{non_goals_lines}\n\n"
         "## Scope\n\n"
         f"{scope_lines or '- (auto-generate needed)'}\n\n"
         "## Stakeholders\n\n"
         f"{stakeholder_lines}\n\n"
         "## Success Metrics\n\n"
-        f"{deliverables_lines}\n\n"
+        f"{metrics_lines}\n\n"
         "## Risks and Assumptions\n\n"
-        f"{constraints_lines}\n\n"
+        f"{risks_lines}\n\n"
         "## Evidence\n\n"
         f"{research_lines}\n\n"
         "## References\n\n"
@@ -190,30 +214,68 @@ def _generate_feature_spec(
     goal = _clean(project_brief.get("goal") or "")
     modules = [m for m in (role_plan.get("modules") or []) if isinstance(m, dict)]
     all_tasks = [t for t in (task_board.get("tasks") or []) if isinstance(t, dict)]
+    user_flows = _clean_list(project_brief.get("user_flows"))
+    constraints = _clean_list(project_brief.get("constraints"))
+    non_goals = _clean_list(project_brief.get("non_goals"))
+    data_model = project_brief.get("data_model") or []
     research_lines = _research_bullets(project_brief)
     reference_lines = _reference_bullets(project_brief)
 
+    # User Scenarios: brief.user_flows 우선, 없으면 module summary 활용
+    if user_flows:
+        scenario_lines = [f"- {flow}" for flow in user_flows]
+    else:
+        scenario_lines = []
+        for module in modules:
+            summary = _clean(module.get("summary") or "")
+            if summary:
+                scenario_lines.append(f"- {summary}")
+    scenario_text = "\n".join(scenario_lines) or "- (edit required)"
+
+    # Functional Requirements: feature_slices (구체적 구현 단위)
     req_lines: list[str] = []
     for module in modules:
-        for item in _clean_list(module.get("feature_slices")):
-            req_lines.append(f"- {item}")
+        name = _clean(module.get("name") or "")
+        slices = _clean_list(module.get("feature_slices"))
+        if slices:
+            for item in slices:
+                req_lines.append(f"- [{name}] {item}")
+        elif name:
+            summary = _clean(module.get("summary") or "")
+            req_lines.append(f"- [{name}] {summary or name}")
     req_text = "\n".join(req_lines) or "- (auto-generate needed)"
 
+    # Non-Functional Requirements: constraints 중 비기능 항목 추출
+    nfr_keywords = ["성능", "속도", "보안", "안정", "오프라인", "캐시", "용량", "호환", "인터넷 없이", "단독 실행"]
+    nfr_lines = [f"- {c}" for c in constraints if any(kw in c for kw in nfr_keywords)]
+    nfr_text = "\n".join(nfr_lines) if nfr_lines else "- (edit required)"
+
+    # Inputs / Outputs: data_model에서 생성
+    io_lines: list[str] = []
+    for entity in (data_model if isinstance(data_model, list) else []):
+        if not isinstance(entity, dict):
+            continue
+        ename = _clean(entity.get("entity") or "")
+        fields = _clean_list(entity.get("fields"))
+        storage = _clean(entity.get("storage") or "")
+        if ename:
+            field_str = ", ".join(fields[:6]) if fields else "—"
+            io_lines.append(f"- **{ename}** [{storage}]: {field_str}")
+    io_text = "\n".join(io_lines) if io_lines else "- (edit required)"
+
+    # Acceptance Criteria: build/verify 태스크의 acceptance만 (scope 제외)
     acceptance_lines: list[str] = []
     for task in all_tasks:
+        if _clean(task.get("phase") or "") == "scope":
+            continue
         for acc in _clean_list(task.get("acceptance")):
             bullet = f"- {acc}"
             if bullet not in acceptance_lines:
                 acceptance_lines.append(bullet)
     acceptance_text = "\n".join(acceptance_lines) or "- (auto-generate needed)"
 
-    scenario_lines: list[str] = []
-    for module in modules:
-        name = _clean(module.get("name") or "")
-        summary = _clean(module.get("summary") or "")
-        if name:
-            scenario_lines.append(f"- {name}: {summary}")
-    scenario_text = "\n".join(scenario_lines) or "- (edit required)"
+    # Out Of Scope
+    out_of_scope_text = "\n".join(f"- {item}" for item in non_goals) if non_goals else "- (edit required)"
 
     return (
         "# Feature Spec\n\n"
@@ -229,9 +291,9 @@ def _generate_feature_spec(
         "## Functional Requirements\n\n"
         f"{req_text}\n\n"
         "## Non-Functional Requirements\n\n"
-        "- (edit required)\n\n"
+        f"{nfr_text}\n\n"
         "## Inputs and Outputs\n\n"
-        "- (edit required)\n\n"
+        f"{io_text}\n\n"
         "## Exceptions and Failure Scenarios\n\n"
         "- (edit required)\n\n"
         "## Existing Behavior To Preserve\n\n"
@@ -243,7 +305,7 @@ def _generate_feature_spec(
         "## References\n\n"
         f"{reference_lines}\n\n"
         "## Out Of Scope\n\n"
-        "- (edit required)\n"
+        f"{out_of_scope_text}\n"
     )
 
 
@@ -255,31 +317,79 @@ def _generate_implementation_design(
     goal = _clean(project_brief.get("goal") or "")
     modules = [m for m in (role_plan.get("modules") or []) if isinstance(m, dict)]
     execution_strategy = _clean(role_plan.get("execution_strategy") or "parallel")
+    tech_stack = _clean_list(project_brief.get("tech_stack"))
+    architecture_style = _clean(project_brief.get("architecture_style") or "")
+    data_model = project_brief.get("data_model") or []
+    risks = _clean_list(project_brief.get("risks"))
+    constraints = _clean_list(project_brief.get("constraints"))
     research_lines = _research_bullets(project_brief)
     reference_lines = _reference_bullets(project_brief)
 
+    # Design Summary: goal + architecture + tech stack
+    tech_str = ", ".join(tech_stack) if tech_stack else ""
+    design_summary_parts = [goal or "(edit required)"]
+    if architecture_style:
+        design_summary_parts.append(f"아키텍처: {architecture_style}")
+    if tech_str:
+        design_summary_parts.append(f"기술 스택: {tech_str}")
+    design_summary_parts.append(f"실행 전략: {execution_strategy}")
+    design_summary = "\n\n".join(design_summary_parts)
+
+    # Planned Modules
     module_lines: list[str] = []
     for module in modules:
         name = _clean(module.get("name") or "")
         owner = _clean(module.get("owner_role") or "")
         summary = _clean(module.get("summary") or "")
         depends = _clean_list(module.get("depends_on"))
+        delivs = _clean_list(module.get("deliverables"))
+        slices = _clean_list(module.get("feature_slices"))
         if name:
             module_lines.append(f"### {name}")
             module_lines.append(f"- owner: {owner}")
             module_lines.append(f"- objective: {summary}")
             if depends:
                 module_lines.append(f"- depends_on: {', '.join(depends)}")
+            if delivs:
+                module_lines.append(f"- deliverables: {', '.join(delivs)}")
+            if slices:
+                module_lines.append(f"- feature_slices: {', '.join(slices)}")
             module_lines.append("")
     module_text = "\n".join(module_lines) or "- (auto-generate needed)"
 
+    # Data Flow: 실제 depends_on 기반 화살표
+    # 먼저 id→name 맵 생성
+    id_to_name = {_clean(m.get("id") or ""): _clean(m.get("name") or "") for m in modules if _clean(m.get("id") or "")}
     flow_lines: list[str] = []
-    for index, module in enumerate(modules, start=1):
-        name = _clean(module.get("name") or f"Module {index}")
+    for module in modules:
+        name = _clean(module.get("name") or "")
         depends = _clean_list(module.get("depends_on"))
-        arrow = f"{', '.join(depends)} -> " if depends else ""
-        flow_lines.append(f"{index}. {arrow}{name}")
+        dep_names = [id_to_name.get(d, d) for d in depends if d]
+        if dep_names:
+            flow_lines.append(f"- {' + '.join(dep_names)} → **{name}**")
+        else:
+            flow_lines.append(f"- (시작) → **{name}**")
     flow_text = "\n".join(flow_lines) or "- (auto-generate needed)"
+
+    # State / Data Model
+    data_model_lines: list[str] = []
+    for entity in (data_model if isinstance(data_model, list) else []):
+        if not isinstance(entity, dict):
+            continue
+        ename = _clean(entity.get("entity") or "")
+        fields = _clean_list(entity.get("fields"))
+        storage = _clean(entity.get("storage") or "")
+        if ename:
+            field_str = ", ".join(fields) if fields else "—"
+            data_model_lines.append(f"- **{ename}** ({storage}): {field_str}")
+    data_model_text = "\n".join(data_model_lines) if data_model_lines else "- (edit required)"
+
+    # Risks: brief.risks + 기술적 constraints
+    risk_items = list(risks)
+    for c in constraints:
+        if any(kw in c for kw in ["불가", "없이", "캐시", "실패", "오류", "제약"]):
+            risk_items.append(c)
+    risks_text = "\n".join(f"- {r}" for r in risk_items) if risk_items else "- (edit required)"
 
     return (
         "# Implementation Design\n\n"
@@ -290,8 +400,7 @@ def _generate_implementation_design(
         "- status: draft\n"
         f"- last_updated: {now_iso()}\n\n"
         "## Design Summary\n\n"
-        f"{goal or '(edit required)'}\n"
-        f"execution_strategy: {execution_strategy}\n\n"
+        f"{design_summary}\n\n"
         "## Planned Modules\n\n"
         f"{module_text}\n\n"
         "## Data Flow\n\n"
@@ -299,13 +408,13 @@ def _generate_implementation_design(
         "## Interface Impact\n\n"
         "- (edit required)\n\n"
         "## State And Data Model\n\n"
-        "- (edit required)\n\n"
+        f"{data_model_text}\n\n"
         "## Compatibility Considerations\n\n"
         "- (edit required)\n\n"
         "## Migration Requirement\n\n"
         "- none\n\n"
         "## Risks\n\n"
-        "- (edit required)\n\n"
+        f"{risks_text}\n\n"
         "## Alternatives Considered\n\n"
         "- (edit required)\n\n"
         "## Design Evidence\n\n"
@@ -373,7 +482,14 @@ def generate_work_items(
     role_plan: dict[str, Any],
     task_board: dict[str, Any],
 ) -> dict[str, str]:
-    work_dir = os.path.join(os.path.abspath(workspace), WORK_ITEMS_DIR_REL, slug)
+    # target_path가 있으면 프로젝트 디렉토리에 문서를 생성하고,
+    # 없으면 기존처럼 workspace(agent-factory 내부)에 생성한다.
+    target_path = _clean(project_brief.get("target_path") or "")
+    if target_path and os.path.isabs(target_path):
+        doc_root = os.path.abspath(target_path)
+    else:
+        doc_root = os.path.abspath(workspace)
+    work_dir = os.path.join(doc_root, WORK_ITEMS_DIR_REL, slug)
     os.makedirs(work_dir, exist_ok=True)
 
     template_dir = os.path.join(os.path.abspath(workspace), TEMPLATE_DIR_REL)
@@ -402,7 +518,7 @@ def generate_work_items(
     write_text(tasks_path, tasks_content)
     files["implementation-tasks.md"] = tasks_path
 
-    gate = ApprovalGate(workspace, slug)
+    gate = ApprovalGate(doc_root, slug)
     gate.initialize(work_item_id)
     files["approval-gate.md"] = gate.gate_path
 

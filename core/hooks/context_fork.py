@@ -226,7 +226,9 @@ def _invoke_with_timeout(fn, prompt: str, timeout_sec: int) -> str | None:
     thread.join(timeout=timeout_sec)
 
     if thread.is_alive():
-        # 타임아웃 - 스레드가 아직 실행 중이지만 daemon이므로 무시
+        # 타임아웃 - daemon 스레드이므로 프로세스 종료 시 자동 정리됨.
+        # 단, LLM 호출이 계속 진행 중일 수 있으므로 경고 출력.
+        print(f"⚠️ [ContextFork] LLM call timed out after {timeout_sec}s — daemon thread abandoned")
         return None
     if error_holder[0] is not None:
         raise error_holder[0]

@@ -271,10 +271,11 @@ class ISELoop:
             return 3
         elif redesign_count >= 1 and ledger.has_skill_failure():
             return 4
-        elif redesign_count >= 2 or ledger.decompose_count() == 0:
-            return 5
         else:
-            # 모든 레벨 순회 후에도 실패: Level 2로 리셋 (새 피벗 시도)
+            # redesign_count >= 2 또는 decompose_count == 0 이면 Level 5
+            # 그 외 (decompose 이력 있고 redesign < 2): Level 2로 리셋 (새 피벗 시도)
+            if redesign_count >= 2 or ledger.decompose_count() == 0:
+                return 5
             return 2
 
     # ── 스킬 진화 ──

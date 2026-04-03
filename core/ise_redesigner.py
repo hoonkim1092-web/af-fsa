@@ -110,8 +110,11 @@ JSON으로 답변:
         except Exception as e:
             print_agent_msg("ISERedesigner", f"피벗 생성 실패: {e}", "⚠️")
 
-        # 폴백: 단순 피드백
-        return self.apply_retry_feedback(original_task, analysis)
+        # 폴백: 단순 피드백 (무한 재시도 방지를 위해 실패 마커 포함)
+        return (
+            f"[ISE PIVOT FAILED — fallback to retry feedback]\n"
+            + self.apply_retry_feedback(original_task, analysis)
+        )
 
     # ── Level 3: 설계 재시작 ──
 
@@ -170,8 +173,11 @@ JSON으로 답변:
         except Exception as e:
             print_agent_msg("ISERedesigner", f"재설계 생성 실패: {e}", "⚠️")
 
-        # 폴백: 피벗
-        return self.apply_pivot(original_task, analysis, ledger)
+        # 폴백: 피벗 (무한 재시도 방지를 위해 실패 마커 포함)
+        return (
+            f"[ISE REDESIGN FAILED — fallback to pivot]\n"
+            + self.apply_pivot(original_task, analysis, ledger)
+        )
 
     # ── Level 5: 태스크 분해 ──
 

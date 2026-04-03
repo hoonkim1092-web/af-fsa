@@ -12,7 +12,7 @@ from core.agent_runner import AgentRunner
 from core.ast_memory_hub import AstMemoryHub
 from core.continuity import OrchestratorManifestStore, workspace_runtime_file
 from core.evaluator import StrategyEvaluator
-from core.llm_engine import LLMEngine
+from core.control_plane_llm import ControlPlaneLLM as LLMEngine  # CLI-capable replacement
 from core.manager import AgentManager
 from core.project_mailbox import load_mailbox_messages, mailbox_prompt_digest
 from core.project_task_board import (
@@ -54,6 +54,7 @@ class DynamicOrchestrator:
         self.active_assignments: Dict[str, Dict[str, Any]] = {}
         # 개선 7: 태스크 완료 이벤트 — 하드코딩 sleep(2) 대신 적응적 대기에 사용
         self._task_done_event: asyncio.Event = asyncio.Event()
+        self._state_lock: asyncio.Lock = asyncio.Lock()
         self.state_board: Dict[str, Any] = {
             "completed_subtasks": [],
             "failed_subtasks": [],
@@ -61,6 +62,10 @@ class DynamicOrchestrator:
             "agents_status": {},
             "current_status": "",
         }
+        self._task_retry_count: Dict[str, int] = {}  # task_id → 실패 횟수
+        self._max_task_retries = 3
+        self._last_completion_cycle: int = 0
+        self._stall_threshold: int = 5  # 5사이클 동안 완료 없으면 stall
         self.memory_hub = AstMemoryHub()
         self.evaluator = StrategyEvaluator(model_name=engine_id)
         self._workspace: str | None = None
@@ -231,6 +236,38 @@ class DynamicOrchestrator:
 
         return tasks
 
+    def _dispatch_from_board(self, available_roles: List[str], workspace: str) -> List[Dict[str, str]]:
+        """Rule-based task dispatch. Board + dependency 기반, LLM 토큰 0."""
+        return self._fallback_next_tasks(available_roles, workspace)
+
+    def _needs_llm_intervention(self, cycle: int, workspace: str) -> bool:
+        """LLM 개입이 필요한 이벤트가 있는지 판단한다."""
+        # 1. 첫 사이클 (초기 계획 수립)
+        if cycle == 1:
+            return True
+        # 2. 블로커 존재
+        try:
+            blockers = [
+                m for m in load_mailbox_messages(workspace)
+                if m.get("type") == "blocker" and str(m.get("status") or "pending") == "pending"
+            ]
+            if blockers:
+                return True
+        except Exception:
+            pass
+        # 3. Stall 감지 (N사이클 동안 완료 없음)
+        cycles_since = cycle - self._last_completion_cycle
+        if cycles_since >= self._stall_threshold and cycle > self._stall_threshold:
+            return True
+        # 4. 전략 피벗 필요 (최근 5건 중 impl 실패 3건 이상)
+        recent_failures = len([
+            f for f in self.state_board["failed_subtasks"][-5:]
+            if f.get("failure_category") != "infra"
+        ])
+        if recent_failures >= 3:
+            return True
+        return False
+
     async def _lilith_decide_next(
         self,
         project_desc: str,
@@ -256,8 +293,12 @@ class DynamicOrchestrator:
                 todo_content = handle.read()
 
         # 개선 3: blocker 메시지를 별도로 감지하여 LLM에 강조
+        try:
+            raw_mailbox = load_mailbox_messages(target_workspace)
+        except Exception:
+            raw_mailbox = []
         blocker_messages = [
-            m for m in load_mailbox_messages(target_workspace)
+            m for m in raw_mailbox
             if m.get("type") == "blocker" and str(m.get("status") or "pending") == "pending"
         ]
         blocker_section = ""
@@ -315,12 +356,15 @@ class DynamicOrchestrator:
                 if task_key and task_key in completed:
                     continue
                 filtered_tasks.append(task)
-            log_path = self._runtime_file("dynamic_log.txt", target_workspace)
-            with log_path.open("a", encoding="utf-8") as handle:
-                handle.write(
-                    f"\n[Lilith] Cycle: {getattr(self, '_current_cycle', '?')}\n"
-                    f"Roles: {available_roles}\nTasks: {tasks}\nFilteredTasks: {filtered_tasks}\nRaw: {json.dumps(data, ensure_ascii=False)}\n"
-                )
+            try:
+                log_path = self._runtime_file("dynamic_log.txt", target_workspace)
+                with log_path.open("a", encoding="utf-8") as handle:
+                    handle.write(
+                        f"\n[Lilith] Cycle: {getattr(self, '_current_cycle', '?')}\n"
+                        f"Roles: {available_roles}\nTasks: {tasks}\nFilteredTasks: {filtered_tasks}\nRaw: {json.dumps(data, ensure_ascii=False)}\n"
+                    )
+            except Exception:
+                pass  # 로그 실패는 오케스트레이션에 영향 없음
 
             if not filtered_tasks:
                 fallback_tasks = self._fallback_next_tasks(available_roles, target_workspace)
@@ -337,6 +381,15 @@ class DynamicOrchestrator:
             if fallback_tasks:
                 return fallback_tasks
             return []
+
+    async def _lilith_intervene(
+        self,
+        project_desc: str,
+        roles: List[str],
+        workspace: str | None = None,
+    ) -> List[Dict[str, str]]:
+        """LLM 개입이 필요할 때만 호출되는 Lilith LLM 경로."""
+        return await self._lilith_decide_next(project_desc, roles, workspace)
 
     def _resolve_task_meta(
         self,
@@ -376,6 +429,91 @@ class DynamicOrchestrator:
             return data
         except (TypeError, ValueError):
             return str(data)
+
+    def _cross_verified_evaluate(self, role: str, instruction: str, error_log: str, workspace: str) -> dict:
+        """교차검증 기반 실패 평가 + 자가진화. CLI 2개 이상이면 교차검증, 아니면 단일 evaluator."""
+        try:
+            from core.cross_verification import CrossVerificationLoop
+
+            pairs = self.mr.pick_multiple() if hasattr(self.mr, 'pick_multiple') else []
+            if len(pairs) >= 2:
+                loop = CrossVerificationLoop(workspace=workspace, level="dynamic", max_rounds=1)
+                eval_task = (
+                    f"다음 실행 결과의 실패 원인을 분석하고 수정 방향을 제시하세요.\n\n"
+                    f"[역할] {role}\n[태스크]\n{instruction}\n\n"
+                    f"[오류 로그]\n{error_log[:2000]}\n\n"
+                    f'반드시 JSON으로 답변하세요:\n'
+                    f'{{"action": "retry"|"abort", '
+                    f'"reasoning": "분석 내용", '
+                    f'"new_instruction": "수정된 태스크 지시"}}'
+                )
+                judgment = loop.run(eval_task, "당신은 코드 디버깅 전문가입니다.")
+
+                # 자가진화: failure_patterns가 있으면 관련 스킬 진화 트리거
+                if judgment.failure_patterns:
+                    self._try_evolve_from_patterns(judgment.failure_patterns, error_log, workspace)
+
+                if judgment.verdict in ("pass", "partial") and judgment.merged_output:
+                    import re as _re, json as _json
+                    match = _re.search(r'\{[\s\S]*"action"[\s\S]*\}', judgment.merged_output)
+                    if match:
+                        data = _json.loads(match.group())
+                        action = str(data.get("action", "abort")).strip().lower()
+                        if action in ("retry", "abort"):
+                            print_agent_msg("CrossVerify", f"교차검증 판정: {action}", "")
+                            return {
+                                "action": action,
+                                "reasoning": str(data.get("reasoning", "")),
+                                "new_instruction": str(data.get("new_instruction", "")),
+                            }
+        except Exception as exc:
+            print_agent_msg("CrossVerify", f"교차검증 실패, 단일 evaluator 폴백: {exc}", "")
+
+        return self.evaluator.evaluate_failure(role=role, instruction=instruction, error_log=error_log)
+
+    def _try_evolve_from_patterns(self, failure_patterns: list, error_log: str, workspace: str) -> None:
+        """failure_patterns에서 관련 스킬을 찾아 자가진화를 시도한다."""
+        try:
+            import re as _re
+            from core.skill_creator import evolve_skill
+            from core.skill_evolution_bus import SkillEvolutionBus
+
+            skills_dir = os.path.join(os.path.dirname(__file__), "..", "skills")
+            if not os.path.isdir(skills_dir):
+                return
+
+            skill_names = [
+                d for d in os.listdir(skills_dir)
+                if os.path.isdir(os.path.join(skills_dir, d)) and not d.startswith(".")
+            ]
+            feedback = f"failure_patterns: {failure_patterns}"
+            evolved = []
+
+            for pattern in failure_patterns:
+                keywords = _re.split(r"[_\-:/ ]+", str(pattern).lower())
+                for skill_name in skill_names:
+                    name_lower = skill_name.lower().replace("-", "_")
+                    if any(kw and kw in name_lower for kw in keywords if len(kw) > 2):
+                        skill_dir = os.path.join(skills_dir, skill_name)
+                        ok = evolve_skill(skill_dir, feedback=feedback, error_log=error_log[:1000])
+                        if ok:
+                            evolved.append(skill_name)
+                            print_agent_msg("Evolve", f"스킬 진화 성공: {skill_name}", "")
+
+            if evolved:
+                try:
+                    bus = SkillEvolutionBus()
+                    for name in evolved:
+                        bus.on_skill_evolved(
+                            skill_name=name,
+                            trigger="cross_verification_orchestrator",
+                            old_version="",
+                            new_version="",
+                        )
+                except Exception:
+                    pass
+        except Exception as exc:
+            print_agent_msg("Evolve", f"자가진화 시도 실패 (무시): {exc}", "")
 
     async def _run_agent_in_thread(
         self,
@@ -425,8 +563,13 @@ class DynamicOrchestrator:
         with open(task_file, "w", encoding="utf-8") as fh:
             json.dump(task_payload, fh, ensure_ascii=False, indent=2)
 
-        worker_script = str(Path(__file__).parent / "agent_worker.py")
-        cmd = [sys.executable, worker_script, "--task-file", task_file, "--result-file", result_file]
+        # PyInstaller frozen exe → "af.exe worker --task-file ..."
+        # 일반 Python → "python core/agent_worker.py --task-file ..."
+        if getattr(sys, "frozen", False):
+            cmd = [sys.executable, "worker", "--task-file", task_file, "--result-file", result_file]
+        else:
+            worker_script = str(Path(__file__).parent / "agent_worker.py")
+            cmd = [sys.executable, worker_script, "--task-file", task_file, "--result-file", result_file]
 
         popen_kwargs: Dict[str, Any] = {}
         if sys.platform == "win32":
@@ -464,7 +607,8 @@ class DynamicOrchestrator:
         task_id: str = "",
     ):
         print_agent_msg("System", f"Dispatching [{role}] -> {subtask[:50]}...", "")
-        self.state_board["agents_status"][role] = "working"
+        async with self._state_lock:
+            self.state_board["agents_status"][role] = "working"
         if self._visualizer and not self.terminal_per_agent:
             self._visualizer.update_from_status(role, "working", task_summary=subtask[:30])
 
@@ -499,10 +643,12 @@ class DynamicOrchestrator:
                 )
 
             if result and result.get("ok"):
+                self._last_completion_cycle = getattr(self, '_current_cycle', 0)
                 completed_entry = {"role": role, "subtask": subtask, "result": "Success"}
                 if task_id:
                     completed_entry["task_id"] = task_id
-                self.state_board["completed_subtasks"].append(completed_entry)
+                async with self._state_lock:
+                    self.state_board["completed_subtasks"].append(completed_entry)
                 update_project_board_task(target_workspace, role, subtask, "completed", note="Success", task_id=task_id)
                 await self.memory_hub.update_ast_state(
                     filepath=f"Project_Scope_{role}",
@@ -516,40 +662,70 @@ class DynamicOrchestrator:
             else:
                 reason = result.get("reason", "Unknown error") if result else "No result"
                 print_agent_msg(role, f"Task failed: {reason[:100]}", "")
+                _retry_key = task_id or f"{role}:{subtask[:60]}"
+                self._task_retry_count[_retry_key] = self._task_retry_count.get(_retry_key, 0) + 1
                 if self._visualizer and not self.terminal_per_agent:
                     self._visualizer.mark_failed(role)
-                eval_res = await asyncio.to_thread(
-                    self.evaluator.evaluate_failure,
-                    role=role,
-                    instruction=subtask,
-                    error_log=reason,
-                )
-                evaluator_action = str(eval_res.get("action") or "abort").strip().lower()
-                evaluator_advice = str(eval_res.get("new_instruction") or "").strip()
-                failed_entry = {
-                    "role": role,
-                    "subtask": subtask,
-                    "reason": reason,
-                    "evaluator_action": evaluator_action,
-                    "evaluator_advice": evaluator_advice,
-                }
-                if task_id:
-                    failed_entry["task_id"] = task_id
-                self.state_board["failed_subtasks"].append(failed_entry)
-                retry_note = reason if not evaluator_advice else f"{reason} | advice: {evaluator_advice}"
-                next_status = "blocked" if evaluator_action == "retry" else "failed"
-                update_project_board_task(target_workspace, role, subtask, next_status, note=retry_note, task_id=task_id)
+
+                # ── 실패 분류: INFRA vs IMPLEMENTATION ──
+                from core.failure_classifier import classify_failure, FailureCategory
+                _failure_cat = classify_failure(reason)
+
+                if _failure_cat == FailureCategory.INFRA:
+                    # infra 실패: evaluator 호출 안 함 (evaluator 자체도 실패할 수 있음)
+                    failed_entry = {
+                        "role": role, "subtask": subtask, "reason": reason,
+                        "failure_category": "infra",
+                        "evaluator_action": "abort",
+                        "evaluator_advice": "",
+                    }
+                    if task_id:
+                        failed_entry["task_id"] = task_id
+                    async with self._state_lock:
+                        self.state_board["failed_subtasks"].append(failed_entry)
+                    print_agent_msg(role, f"Infra failure — no retry: {reason[:80]}", "")
+                    update_project_board_task(
+                        target_workspace, role, subtask, "failed",
+                        note=f"infra_failure: {reason}", task_id=task_id,
+                    )
+                else:
+                    # implementation 실패: 기존 evaluator 경로
+                    eval_res = await asyncio.to_thread(
+                        self._cross_verified_evaluate,
+                        role=role,
+                        instruction=subtask,
+                        error_log=reason,
+                        workspace=target_workspace,
+                    )
+                    evaluator_action = str(eval_res.get("action") or "abort").strip().lower()
+                    evaluator_advice = str(eval_res.get("new_instruction") or "").strip()
+                    failed_entry = {
+                        "role": role,
+                        "subtask": subtask,
+                        "reason": reason,
+                        "evaluator_action": evaluator_action,
+                        "evaluator_advice": evaluator_advice,
+                    }
+                    if task_id:
+                        failed_entry["task_id"] = task_id
+                    async with self._state_lock:
+                        self.state_board["failed_subtasks"].append(failed_entry)
+                    retry_note = reason if not evaluator_advice else f"{reason} | advice: {evaluator_advice}"
+                    next_status = "blocked" if evaluator_action == "retry" else "failed"
+                    update_project_board_task(target_workspace, role, subtask, next_status, note=retry_note, task_id=task_id)
                 self._sync_manifest()
         except Exception as exc:
             crashed_entry = {"role": role, "subtask": subtask, "reason": str(exc)}
             if task_id:
                 crashed_entry["task_id"] = task_id
-            self.state_board["failed_subtasks"].append(crashed_entry)
+            async with self._state_lock:
+                self.state_board["failed_subtasks"].append(crashed_entry)
             update_project_board_task(target_workspace, role, subtask, "failed", note=str(exc), task_id=task_id)
             print_agent_msg(role, f"Task crashed: {exc}", "")
             self._sync_manifest()
         finally:
-            self.state_board["agents_status"][role] = "idle"
+            async with self._state_lock:
+                self.state_board["agents_status"][role] = "idle"
             if self._visualizer and not self.terminal_per_agent:
                 self._visualizer.update_from_status(role, "idle")
             self.active_tasks.pop(run_id, None)
@@ -580,14 +756,45 @@ class DynamicOrchestrator:
                 self._visualizer.print_dashboard()
 
         cycle = 0
-        max_cycles = 15
+        max_cycles = 30
 
         while cycle < max_cycles:
+            # 글로벌 토큰 예산 체크
+            try:
+                from core.run_budget import get_run_budget
+                if get_run_budget().is_exhausted():
+                    print_agent_msg("Lilith", "Run budget exhausted — stopping.", "")
+                    break
+            except Exception:
+                pass
+
             cycle += 1
             self._current_cycle = cycle
-            print_agent_msg("Lilith", f"--- Dynamic Sync Cycle {cycle} ---", "")
+            print_agent_msg("Lilith", f"--- Cycle {cycle} ---", "")
 
-            new_tasks = await self._lilith_decide_next(project_desc, roles, target_workspace)
+            # Stall 감지 로그
+            cycles_since_completion = cycle - self._last_completion_cycle
+            if cycles_since_completion >= self._stall_threshold and cycle > self._stall_threshold:
+                print_agent_msg("Lilith", f"No progress for {cycles_since_completion} cycles — stall detected", "")
+
+            # 1. idle 에이전트 확인
+            available_roles = [r for r in roles if self.state_board["agents_status"].get(r) == "idle"]
+            if not available_roles:
+                # 모든 에이전트 working → 이벤트 대기
+                self._task_done_event.clear()
+                try:
+                    await asyncio.wait_for(self._task_done_event.wait(), timeout=10.0)
+                except asyncio.TimeoutError:
+                    pass
+                continue
+
+            # 2. Rule-based dispatch (0 LLM tokens)
+            new_tasks = self._dispatch_from_board(available_roles, target_workspace)
+
+            # 3. Board에 태스크 없고 LLM 개입 필요 시에만 LLM 호출
+            if not new_tasks and self._needs_llm_intervention(cycle, target_workspace):
+                new_tasks = await self._lilith_intervene(project_desc, roles, target_workspace)
+
             if not new_tasks:
                 active_workers = [
                     r for r, status in self.state_board["agents_status"].items() if status == "working"
@@ -596,7 +803,6 @@ class DynamicOrchestrator:
                     print_agent_msg("Lilith", "No more tasks to assign and no agents are working.", "")
                     break
                 print_agent_msg("Lilith", f"Waiting for active agents: {', '.join(active_workers)}", "")
-                # 개선 7: 태스크 완료 이벤트를 기다리되 최대 10초까지만 대기
                 self._task_done_event.clear()
                 try:
                     await asyncio.wait_for(self._task_done_event.wait(), timeout=10.0)
@@ -604,12 +810,29 @@ class DynamicOrchestrator:
                     pass
                 continue
 
+            # 4. Dispatch tasks (retry gate, infra gate, role/idle 체크)
             dispatched = False
             for task in new_tasks:
                 role = task.get("assigned_role")
                 instruction = task.get("subtask_instruction", "")
                 plan_task_id = str(task.get("task_id") or "")
                 if role == "__placeholder__":
+                    continue
+                # retry 횟수 초과 시 해당 태스크 스킵
+                retry_key = plan_task_id or f"{role}:{instruction[:60]}"
+                if self._task_retry_count.get(retry_key, 0) >= self._max_task_retries:
+                    print_agent_msg("Lilith", f"[{role}] 태스크 {self._max_task_retries}회 실패 — 스킵", "")
+                    update_project_board_task(target_workspace, role, instruction, "failed",
+                                             note=f"max_retries({self._max_task_retries}) exceeded", task_id=plan_task_id)
+                    continue
+                # infra 실패한 태스크는 재디스패치 안 함
+                _last_fails = [
+                    f for f in self.state_board["failed_subtasks"]
+                    if f.get("task_id") == plan_task_id
+                    or f"{f.get('role')}:{str(f.get('subtask', ''))[:60]}" == retry_key
+                ]
+                if _last_fails and _last_fails[-1].get("failure_category") == "infra":
+                    print_agent_msg("Lilith", f"[{role}] infra 실패 — 재시도 안 함", "")
                     continue
                 if role and instruction and role in roles and self.state_board["agents_status"].get(role) == "idle":
                     run_token = f"run_{int(time.time())}_{role}_{uuid.uuid4().hex[:6]}"
@@ -629,11 +852,15 @@ class DynamicOrchestrator:
                     self.active_tasks[run_token] = task_obj
                     dispatched = True
 
-            # 개선 7: 태스크를 하나라도 디스패치했으면 즉시 다음 사이클; 아니면 짧게 대기
             if not dispatched:
                 await asyncio.sleep(1)
 
-        self.state_board["current_status"] = "stopped_max_cycles" if cycle >= max_cycles else "completed"
+        if cycle >= max_cycles:
+            self.state_board["current_status"] = "stopped_max_cycles"
+        elif self.state_board["failed_subtasks"]:
+            self.state_board["current_status"] = "partial"
+        else:
+            self.state_board["current_status"] = "completed"
         self._sync_manifest(force=True)
 
         if self.active_tasks:

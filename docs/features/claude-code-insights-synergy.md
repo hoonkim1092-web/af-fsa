@@ -1,8 +1,10 @@
 # Claude Code 인사이트 × Agent-Factory 시너지 분석
 
-**작성일:** 2026-04-01  
-**최종 수정:** 2026-04-01 (멀티 프로바이더 호환성 분석 + 메모리 기반 캐시 공유 전략 추가)  
-**상태:** 분석 완료, 구현 대기
+> ℹ️ **상위 전략 문서** — 런타임 설계(daemon, worker, checkpoint)는 `2026-04-03-design-unified-v3.md`로 이관되었습니다. 이 문서는 **컨텍스트/메모리/UX 전략**(SharedContextBuilder, PROJECT_CONTEXT.md, compaction 정책)만 유지합니다.
+
+**작성일:** 2026-04-01
+**최종 수정:** 2026-04-03 (역할 분리 명시, 사실관계 수정)
+**상태:** 전략 문서 (런타임 설계는 v3로 이관)
 
 ---
 
@@ -23,7 +25,7 @@ agent-factory는 이미 상당히 고도화된 시스템:
 - `core/control/`: sidecar 아키텍처의 유지보수 레이어
 - `core/concurrency.py`: circuit breaker, heartbeat 모니터링
 
-**하지만 CLAUDE.md가 없고**, Claude Code 자체 기능과의 직접 연동은 아직 미개발.
+**CLAUDE.md, GEMINI.md, AGENTS.md는 이미 존재**하지만, 공통 소스인 `PROJECT_CONTEXT.md`는 미생성. Claude Code 자체 기능과의 직접 연동은 아직 미개발.
 
 ---
 
@@ -31,7 +33,7 @@ agent-factory는 이미 상당히 고도화된 시스템:
 
 | # | 인사이트 | 현재 상태 | 시너지 레벨 |
 |---|---------|----------|-----------|
-| 2 | CLAUDE.md 최적화 | **없음** — 최대 기회 | ★★★★★ |
+| 2 | CLAUDE.md 최적화 | **존재** — PROJECT_CONTEXT.md 공통 소스 미생성 | ★★★★☆ |
 | 3 | 병렬 캐시 공유 | DynamicOrchestrator 존재, 캐시 최적화 미적용 | ★★★★★ |
 | 4 | 권한 자동화 | settings.local.json에 150+규칙 이미 있음 | ★★★☆☆ |
 | 5 | /compact 전략 | context_window_manager.py 존재 | ★★★★☆ |
@@ -79,7 +81,7 @@ Claude 전용 표현 (기존)              →  Provider-Agnostic 표현 (수정
 ### Phase 0: Provider별 Context 파일 전략 — 즉시 효과, 비용 0
 > 인사이트 #2 적용
 
-agent-factory에는 CLAUDE.md가 **아예 없음**. 각 프로바이더별 context 파일을 생성하면 "맞춤형 비서"로 동작.
+agent-factory에는 CLAUDE.md, GEMINI.md, AGENTS.md가 **이미 존재**. 남은 과제는 공통 소스 `PROJECT_CONTEXT.md`를 만들어 3개 파일의 중복을 제거하는 것.
 
 **프로바이더별 파일:**
 ```

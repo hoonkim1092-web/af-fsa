@@ -19,6 +19,7 @@ a = Analysis(
     hiddenimports=[
         # ── core ──
         'core.agent_runner',
+        'core.agent_worker',
         'core.agent_specializer',
         'core.approval_gate',
         'core.ast_engine',
@@ -28,6 +29,7 @@ a = Analysis(
         'core.capability_intent',
         'core.concurrency',
         'core.config_paths',
+        'core.control_plane_llm',
         'core.context_window_manager',
         'core.dashboard',
         'core.destructive_guard',
@@ -38,6 +40,7 @@ a = Analysis(
         'core.engine_auth',
         'core.evaluator',
         'core.executor',
+        'core.failure_classifier',
         'core.external_skill_candidate_importer',
         'core.external_skill_source_ids',
         'core.external_skill_sources',
@@ -68,6 +71,7 @@ a = Analysis(
         'core.registry',
         'core.registry_manager',
         'core.role_decomposer',
+        'core.run_budget',
         'core.runner',
         'core.security_guard',
         'core.security_scanner',
@@ -115,6 +119,7 @@ a = Analysis(
         'core.hooks.lsp_check',
         'core.hooks.memory_consolidation',
         'core.hooks.skill_self_evolution',
+        'core.hooks.code_review_doc',
         # ── core.memory_system ──
         'core.memory_system',
         'core.memory_system.models',
