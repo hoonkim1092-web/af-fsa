@@ -1,0 +1,18 @@
+{
+  "key": "assistant json  issues     Policy violation skill uses open to write files but allowed_tools only permits read_file Writ",
+  "value": "[assistant] ```json {   \"issues\": [     \"Policy violation: skill uses `open()` to write files, but `allowed_tools` only permits `read_file`. Writing to the filesystem is not declared and contradicts `destructive: false`.\",     \"The `apply()` function writes...",
+  "category": "claude_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "claude_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-04-02T03:57:25.947845+00:00",
+  "updated_at": "2026-04-02T03:57:25.947845+00:00",
+  "details": {
+    "text": "[assistant] ```json\n{\n  \"issues\": [\n    \"Policy violation: skill uses `open()` to write files, but `allowed_tools` only permits `read_file`. Writing to the filesystem is not declared and contradicts `destructive: false`.\",\n    \"The `apply()` function writes arbitrary files via `open(target, 'w')` without validating that the target path is actually inside `artifacts_dir`, enabling path traversal (e.g., `artifacts_dir = '../../etc'`).\",\n    \"No guard ensures `artifacts_dir` exists before writing; `open()` will raise `FileNotFoundError` if intermediate directories are missing, causing a runtime failure that the self-test won't catch unless `artifacts_dir` is pre-created.\",\n    \"The `test()` function has a destructive side-effect: when `artifacts_dir` is provided it calls `apply(ctx)` with `dry_run` defaulting to `False`, actually writing files during what should be an isolated self-test.\",\n    \"Hidden eval `hidden-policy-stability` passes `dry_run: true` at top-level ctx, which `apply()` honours — but the contract eval `contract-basic-ok` does not set `dry_run`, so `apply()` will attempt a real write. With no `artifacts_dir` in the contract ctx it silently returns `wrote: None`, which technically passes but means the core capability (writing a skeleton) is never exercised by the contract test.\",\n    \"String formatting in `skeleton` uses `{{` / `}}` brace escaping inside an `.format()` call, producing literal braces in the output — the generated skeleton is syntactically valid Python but the dicts are literal `{\\\"ok\\\": True, ...}` strings, not real dicts. The generated skill would fail at runtime.\"\n  ],\n  \"should_repair\": true,\n  \"summary\": \"The candidate violates its own declared policy (`allowed_tools: [read_file]`, `destructive: false`) by writing files with `open()`. The self-test is not isolated — it performs real writes. The generated skeleton uses `.format()` brace escaping that produces valid-looking but semantically broken output. Path traversal is unchecked. Repair should: (1) gate all writes behind an explicit policy check or remove write capability and document it as read-only analysis, (2) make `test()` always use `dry_run=True`, (3) validate `artifacts_dir` paths, and (4) fix skeleton generation to produce actually-runnable Python.\"\n}\n```",
+    "event_timestamp": "2026-04-02T03:57:24.903Z",
+    "session_file": "C:/Users/home/.claude/projects/C--Project-agent-factory-tests--tmp-af-test-e9d32c55-runs-run-builder-no-key/eb6b8df2-b8ca-4a7c-af00-86e463ca96aa.jsonl",
+    "session_line": 5,
+    "provider": "claude"
+  }
+}

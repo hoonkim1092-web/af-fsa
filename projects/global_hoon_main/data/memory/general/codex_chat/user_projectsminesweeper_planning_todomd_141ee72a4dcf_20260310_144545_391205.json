@@ -1,18 +1,18 @@
-{
-  "key": "user  projectsminesweeper 생성 planning todomd 역할에이전트 세팅        이때는 어쩐 자료를 가지고 에이던트 셋팅하는 거지",
-  "value": "[user] : projects/minesweeper/ 생성, planning/, .todo.md, 역할/에이전트 세팅        이때는 어쩐 자료를 가지고 에이던트 셋팅하는 거지?",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T14:45:45.391268+00:00",
-  "updated_at": "2026-03-10T14:45:45.391268+00:00",
-  "details": {
-    "text": "[user] : projects/minesweeper/ 생성, planning/, .todo.md, 역할/에이전트 세팅        이때는 어쩐 자료를 가지고 에이던트 셋팅하는 거지?",
-    "event_timestamp": "2026-03-10T13:56:23.922Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
-    "session_line": 266,
-    "provider": "codex"
-  }
+{
+  "key": "user  projectsminesweeper 생성 planning todomd 역할에이전트 세팅        이때는 어쩐 자료를 가지고 에이던트 셋팅하는 거지",
+  "value": "[user] : projects/minesweeper/ 생성, planning/, .todo.md, 역할/에이전트 세팅        이때는 어쩐 자료를 가지고 에이던트 셋팅하는 거지?",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T14:45:45.391268+00:00",
+  "updated_at": "2026-03-10T14:45:45.391268+00:00",
+  "details": {
+    "text": "[user] : projects/minesweeper/ 생성, planning/, .todo.md, 역할/에이전트 세팅        이때는 어쩐 자료를 가지고 에이던트 셋팅하는 거지?",
+    "event_timestamp": "2026-03-10T13:56:23.922Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
+    "session_line": 266,
+    "provider": "codex"
+  }
 }

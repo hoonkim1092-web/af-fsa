@@ -1,18 +1,18 @@
-{
-  "key": "user pc를 옮겨가면서 이어하기 할려면",
-  "value": "[user] pc를 옮겨가면서 이어하기 할려면?",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T06:08:25.401957+00:00",
-  "updated_at": "2026-03-10T06:08:25.401957+00:00",
-  "details": {
-    "text": "[user] pc를 옮겨가면서 이어하기 할려면?",
-    "event_timestamp": "2026-03-10T01:47:44.916Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
-    "session_line": 187,
-    "provider": "codex"
-  }
+{
+  "key": "user pc를 옮겨가면서 이어하기 할려면",
+  "value": "[user] pc를 옮겨가면서 이어하기 할려면?",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T06:08:25.401957+00:00",
+  "updated_at": "2026-03-10T06:08:25.401957+00:00",
+  "details": {
+    "text": "[user] pc를 옮겨가면서 이어하기 할려면?",
+    "event_timestamp": "2026-03-10T01:47:44.916Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 187,
+    "provider": "codex"
+  }
 }

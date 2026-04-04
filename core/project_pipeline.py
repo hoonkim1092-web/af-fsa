@@ -247,25 +247,65 @@ class ProjectPipeline:
         evidence: dict,
         rewrite_fn,
         score_fn,
-        max_iterations: int = 3,
-        convergence_threshold: float = 0.05,
+        max_iterations: int = 5,
+        convergence_threshold: float = 0.02,
+        min_iterations: int = 2,
+        critique_fn=None,
     ) -> tuple[dict, float, int]:
-        """수렴 감지 기반 revision loop.
+        """자가진화 revision loop: 비평 → 수정 → 재비평 → 수정.
 
-        score delta < threshold이면 조기 종료.
+        ISE StrategyLedger와 동일한 원리:
+        - 매 iteration마다 새로운 비평 (critique_fn)
+        - 이전 실패/무개선 시도 이력을 rewrite_fn에 주입
+        - 같은 수정을 반복하지 않도록 학습
+
+        critique_fn(artifact, evidence) → dict: 새 비평 결과
+        없으면 초기 critique_feedback 재사용 (하위호환).
+
         Returns: (최종 artifact, 최종 score, 실제 반복 횟수)
         """
         current = dict(draft)
         previous_score = score_fn(current)
+        live_feedback = dict(critique_feedback)
 
         if max_iterations <= 0:
             return current, previous_score, 0
 
         actual_iterations = 0
+        consecutive_no_gain = 0
+        best_artifact, best_score = dict(current), previous_score
+
+        # ── 자가진화 이력: ISE StrategyLedger와 동일 패턴 ──
+        revision_history: list[dict] = []
+
         for i in range(max_iterations):
             actual_iterations = i + 1
+
+            # ── Step 1: 비평(critique) — 매 iteration마다 재평가
+            if critique_fn is not None and actual_iterations > 1:
+                try:
+                    live_feedback = critique_fn(current, evidence)
+                    print(f"[RevisionLoop] iter={actual_iterations} re-critique score={live_feedback.get('score', '?')}")
+                except Exception as exc:
+                    print(f"[RevisionLoop] critique_fn failed at iter {actual_iterations}: {exc}")
+
+            # ── Step 2: 이전 시도 이력을 피드백에 주입
+            if revision_history:
+                live_feedback = dict(live_feedback)
+                history_lines = []
+                for h in revision_history[-3:]:
+                    history_lines.append(
+                        f"- iter {h['iter']}: score {h['score']:.3f} "
+                        f"(delta {h['delta']:+.3f}) — {h['summary']}"
+                    )
+                live_feedback["_revision_history"] = (
+                    "[이전 수정 시도 — 같은 접근을 반복하지 마세요]\n"
+                    + "\n".join(history_lines)
+                )
+
+            # ── Step 3: 수정(rewrite) — 최신 비평 + 이력 기반
             try:
-                revised = rewrite_fn(current, critique_feedback, evidence)
+                revised = rewrite_fn(current, live_feedback, evidence)
             except Exception as exc:
                 print(f"[RevisionLoop] rewrite_fn failed at iteration {actual_iterations}: {exc}")
                 break
@@ -274,15 +314,33 @@ class ProjectPipeline:
             delta = new_score - previous_score
             print(f"[RevisionLoop] iter={actual_iterations} score={new_score:.3f} delta={delta:+.3f}")
 
-            if delta < convergence_threshold:
+            # ── Step 4: 이력 기록 (자가진화 학습 데이터)
+            revision_history.append({
+                "iter": actual_iterations,
+                "score": new_score,
+                "delta": delta,
+                "summary": "improved" if delta > 0 else "no gain" if delta == 0 else "regressed",
+                "feedback_keys": list(live_feedback.get("confirmed_gaps", []))[:3],
+            })
+
+            if new_score > best_score:
+                best_artifact, best_score = dict(revised), new_score
+                consecutive_no_gain = 0
+            else:
+                consecutive_no_gain += 1
+
+            # ── 수렴 판단: min_iterations 충족 후
+            if actual_iterations >= min_iterations and consecutive_no_gain >= 2:
+                print(f"[RevisionLoop] 수렴 — 연속 {consecutive_no_gain}회 무개선 (iter={actual_iterations})")
+                break
+
+            if actual_iterations >= min_iterations and delta < convergence_threshold:
                 print(f"[RevisionLoop] 수렴 감지 (delta={delta:.3f} < {convergence_threshold})")
-                if delta > 0:
-                    current, previous_score = revised, new_score
                 break
 
             current, previous_score = revised, new_score
 
-        return current, previous_score, actual_iterations
+        return best_artifact, best_score, actual_iterations
 
     # ── Targeted Final Rewrite ───────────────────────────────────────────
 

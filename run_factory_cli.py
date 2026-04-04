@@ -13,6 +13,23 @@ if hasattr(sys.stdout, "reconfigure"):
 FACTORY_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(FACTORY_DIR)
 
+# .env 자동 로드 — TAVILY_API_KEY 등 외부 서비스 키 포함
+def _load_dotenv() -> None:
+    env_path = os.path.join(FACTORY_DIR, ".env")
+    if not os.path.isfile(env_path):
+        return
+    with open(env_path, encoding="utf-8") as f:
+        for line in f:
+            raw = line.strip()
+            if not raw or raw.startswith("#") or "=" not in raw:
+                continue
+            k, v = raw.split("=", 1)
+            k, v = k.strip(), v.strip().strip('"').strip("'")
+            if k and k not in os.environ:
+                os.environ[k] = v
+
+_load_dotenv()
+
 CLI_PROVIDER_CHOICES = ("claude_cli", "gemini_cli", "codex_cli")
 CLI_PROVIDER_COMMAND_ENVS = {
     "claude_cli": "AGENT_CLAUDE_CLI_COMMAND",

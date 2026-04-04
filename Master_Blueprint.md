@@ -853,6 +853,7 @@ model_utils.py (독립 모듈)
 
 | 날짜 | 버전 | 변경 내용 |
 |------|------|----------|
+| 2026-04-04 | v1.0.3 | feat(session): revision_loop 학습 루프 (critique_fn + revision_history + best_artifact), run_factory_cli .env 자동로드, JudgmentLedger 설계, 세션 핸드오프 문서 |
 | 2026-04-03 | v1.0.3 | feat(skill-discovery): cross-cli-skill-discovery v3 — get_external_skill_roots(personal>project 순서), ClaudeOfficialSkillSource 추가, _extract_skill_id(frontmatter name 우선), should_rescan_external(mtime 기반), ensure_skills_loaded(external_scanned 플래그), claude_official 소스 ID, 하위 호환 alias 유지 |
 | 2026-04-03 | v1.0.3 | feat(policy): roles.max 상한 제거 — 리서치 기반 LLM 자율 역할 결정. prefer를 single_responsibility로 변경하여 각 에이전트가 한 가지 책임만 담당하도록 유도 |
 | 2026-04-03 | v1.0.3 | fix(bootstrap): _build_policy_rules() — granularity 및 max/min_tasks_per_module이 LLM 프롬프트에 미주입되는 버그 수정. policy.yaml 태스크 분할 정책이 실제 LLM에 전달됨 |

@@ -1,18 +1,18 @@
-{
-  "key": "user rojectsgemini_e2e projectsglobal_hoon_maindatamemory 파일들은 사용안하는 파일인가",
-  "value": "[user] rojects/gemini_e2e/, projects/global_hoon_main/data/memory/... 파일들은 사용안하는 파일인가?",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T16:56:09.372174+00:00",
-  "updated_at": "2026-03-09T16:56:09.372174+00:00",
-  "details": {
-    "text": "[user] rojects/gemini_e2e/, projects/global_hoon_main/data/memory/... 파일들은 사용안하는 파일인가?",
-    "event_timestamp": "2026-03-09T16:51:57.106Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
-    "session_line": 1839,
-    "provider": "codex"
-  }
+{
+  "key": "user rojectsgemini_e2e projectsglobal_hoon_maindatamemory 파일들은 사용안하는 파일인가",
+  "value": "[user] rojects/gemini_e2e/, projects/global_hoon_main/data/memory/... 파일들은 사용안하는 파일인가?",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T16:56:09.372174+00:00",
+  "updated_at": "2026-03-09T16:56:09.372174+00:00",
+  "details": {
+    "text": "[user] rojects/gemini_e2e/, projects/global_hoon_main/data/memory/... 파일들은 사용안하는 파일인가?",
+    "event_timestamp": "2026-03-09T16:51:57.106Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 1839,
+    "provider": "codex"
+  }
 }
