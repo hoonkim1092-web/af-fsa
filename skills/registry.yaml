@@ -5,11 +5,11 @@ skills:
     - abc
     id: abc
     last_test_ok: true
-    meta_path: D:\warkSpaces\agent-factory\tests\_tmp\af-test-39cd9c53\skills\abc\meta.yaml
+    meta_path: D:\hoonProJect\worktrees\agent-factory\tests\_tmp\af-test-2e4b4bcc\skills\abc\meta.yaml
     name: abc
-    path: D:\warkSpaces\agent-factory\tests\_tmp\af-test-39cd9c53\skills\abc\skill.py
+    path: D:\hoonProJect\worktrees\agent-factory\tests\_tmp\af-test-2e4b4bcc\skills\abc\skill.py
     status: active
-    updated_at: '2026-03-23T09:48:53'
+    updated_at: '2026-04-03T15:04:25'
     version: 0.1.0
   accept_changes:
     capabilities:
@@ -985,14 +985,14 @@ skills:
     - new_skill
     dependencies: []
     id: new_skill
-    last_eval_report: D:\warkSpaces\agent-factory\skills\new_skill\skill-eval-report.json
+    last_eval_report: D:\hoonProJect\worktrees\agent-factory\skills\new_skill\skill-eval-report.json
     last_test_ok: false
     lifecycle_stage: candidate
     meta_path: skills/new_skill/meta.yaml
     name: new_skill
     path: skills/new_skill/skill.py
     promotion_reason: external_eval_passed
-    promotion_updated_at: '2026-03-23T09:48:54'
+    promotion_updated_at: '2026-04-03T15:04:29'
     purpose: ''
     skill_id: new_skill
     skill_name: new_skill

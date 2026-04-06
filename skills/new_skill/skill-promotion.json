@@ -12,14 +12,14 @@
     "shadow_delta": 0.0,
     "shadow_cases": 0,
     "recommended_stage": "candidate",
-    "feedback_total_events": 0,
-    "feedback_current_stage": "",
+    "feedback_total_events": 3,
+    "feedback_current_stage": "candidate",
     "runtime_total": 0,
     "runtime_success_rate": 0.0,
     "runtime_ready_for_active": false,
     "runtime_regressed": false,
-    "historical_score": 50
+    "historical_score": 52
   },
   "promotion_path": "D:\\hoonProJect\\worktrees\\agent-factory\\skills\\new_skill\\skill-promotion.json",
-  "written_at": "2026-04-01T14:30:16"
+  "written_at": "2026-04-03T15:04:29"
 }
