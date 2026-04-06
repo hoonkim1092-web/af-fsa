@@ -1,18 +1,18 @@
-{
-  "key": "assistant RegistryManager까지 억지로 태우는 대신 실제로 중요한 Claude cache - importer - resolver 체인을 직접 검증하겠습니다 그 경로가 문제 없으면 가져오기 자체는 정",
-  "value": "[assistant] `RegistryManager`까지 억지로 태우는 대신, 실제로 중요한 `Claude cache -> importer -> resolver` 체인을 직접 검증하겠습니다. 그 경로가 문제 없으면 가져오기 자체는 정상이라고 보면 됩니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T17:40:38.006127+00:00",
-  "updated_at": "2026-03-10T17:40:38.006127+00:00",
-  "details": {
-    "text": "[assistant] `RegistryManager`까지 억지로 태우는 대신, 실제로 중요한 `Claude cache -> importer -> resolver` 체인을 직접 검증하겠습니다. 그 경로가 문제 없으면 가져오기 자체는 정상이라고 보면 됩니다.",
-    "event_timestamp": "2026-03-10T15:51:41.985Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
-    "session_line": 1830,
-    "provider": "codex"
-  }
+{
+  "key": "assistant RegistryManager까지 억지로 태우는 대신 실제로 중요한 Claude cache - importer - resolver 체인을 직접 검증하겠습니다 그 경로가 문제 없으면 가져오기 자체는 정",
+  "value": "[assistant] `RegistryManager`까지 억지로 태우는 대신, 실제로 중요한 `Claude cache -> importer -> resolver` 체인을 직접 검증하겠습니다. 그 경로가 문제 없으면 가져오기 자체는 정상이라고 보면 됩니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:38.006127+00:00",
+  "updated_at": "2026-03-10T17:40:38.006127+00:00",
+  "details": {
+    "text": "[assistant] `RegistryManager`까지 억지로 태우는 대신, 실제로 중요한 `Claude cache -> importer -> resolver` 체인을 직접 검증하겠습니다. 그 경로가 문제 없으면 가져오기 자체는 정상이라고 보면 됩니다.",
+    "event_timestamp": "2026-03-10T15:51:41.985Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
+    "session_line": 1830,
+    "provider": "codex"
+  }
 }

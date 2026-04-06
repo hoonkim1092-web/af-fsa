@@ -1,18 +1,18 @@
-{
-  "key": "assistant 그건 API key를 쓰려고 한 것이 아니라 아직 인증 방식이 하나도 선택되지 않았을 때 Gemini CLI가 보여주는 공통 안내문입니다정확히는 두 단계였습니다1 처음 제가 gemini를 그냥 띄웠",
-  "value": "[assistant] 그건 `API key를 쓰려고 한 것`이 아니라, `아직 인증 방식이 하나도 선택되지 않았을 때 Gemini CLI가 보여주는 공통 안내문`입니다.  정확히는 두 단계였습니다.  1. 처음 제가 `gemini`를 그냥 띄웠을 때 - 인증 타입이 비어 있었음 - 그래서 Gemini CLI가   `GEMINI_API_KEY`, `GOOGLE_GENAI_USE_VERTEXAI`, `GOOGLE_GENAI_USE_GCA`   중 하나로 인증...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T06:08:25.465420+00:00",
-  "updated_at": "2026-03-10T06:08:25.465420+00:00",
-  "details": {
-    "text": "[assistant] 그건 `API key를 쓰려고 한 것`이 아니라, `아직 인증 방식이 하나도 선택되지 않았을 때 Gemini CLI가 보여주는 공통 안내문`입니다.\n\n정확히는 두 단계였습니다.\n\n1. 처음 제가 `gemini`를 그냥 띄웠을 때\n- 인증 타입이 비어 있었음\n- 그래서 Gemini CLI가\n  `GEMINI_API_KEY`, `GOOGLE_GENAI_USE_VERTEXAI`, `GOOGLE_GENAI_USE_GCA`\n  중 하나로 인증 방식을 정하라고 안내한 겁니다\n- 이건 \"API key를 꼭 써라\"가 아니라 \"셋 중 하나를 정해라\"입니다\n\n2. 그다음 `GOOGLE_GENAI_USE_GCA=true`를 넣고 다시 띄웠을 때\n- 바로 브라우저 Google 로그인 단계로 넘어갔습니다\n- 즉 이 시점부터는 API key 경로가 아니라 OAuth 로그인 경로로 간 겁니다\n\n이 저장소 코드도 원래 그렇게 되어 있습니다.\n\n- [cli.py](D:/hoonProJect/worktrees/agent-factory/core/providers/cli.py#L255) 에서 `gemini_cli` 실행 시 `GEMINI_API_KEY`, `GOOGLE_API_KEY`를 일부러 지웁니다\n- [cli.py](D:/hoonProJect/worktrees/agent-factory/core/providers/cli.py#L258) 에서 `GOOGLE_GENAI_USE_GCA=true`를 넣습니다\n- [session_adapter.py](D:/hoonProJect/worktrees/agent-factory/core/providers/session_adapter.py#L287) 에서도 Gemini 전용 세션 설정을 따로 씁니다\n\n즉 지금 방향은 맞습니다.\n- API key 안 씀\n- Google 로그인(OAuth/GCA)으로 가는 중\n- 처음 본 메시지는 인증 방식 미선택 상태의 일반 에러였을 뿐입니다\n\n원하면 바로 이어서 Gemini OAuth 로그인만 완료하고, 그 다음 프로젝트 생성/코스 생성/수정 테스트까지 진행하겠습니다.",
-    "event_timestamp": "2026-03-10T04:48:35.389Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
-    "session_line": 466,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 그건 API key를 쓰려고 한 것이 아니라 아직 인증 방식이 하나도 선택되지 않았을 때 Gemini CLI가 보여주는 공통 안내문입니다정확히는 두 단계였습니다1 처음 제가 gemini를 그냥 띄웠",
+  "value": "[assistant] 그건 `API key를 쓰려고 한 것`이 아니라, `아직 인증 방식이 하나도 선택되지 않았을 때 Gemini CLI가 보여주는 공통 안내문`입니다.  정확히는 두 단계였습니다.  1. 처음 제가 `gemini`를 그냥 띄웠을 때 - 인증 타입이 비어 있었음 - 그래서 Gemini CLI가   `GEMINI_API_KEY`, `GOOGLE_GENAI_USE_VERTEXAI`, `GOOGLE_GENAI_USE_GCA`   중 하나로 인증...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T06:08:25.465420+00:00",
+  "updated_at": "2026-03-10T06:08:25.465420+00:00",
+  "details": {
+    "text": "[assistant] 그건 `API key를 쓰려고 한 것`이 아니라, `아직 인증 방식이 하나도 선택되지 않았을 때 Gemini CLI가 보여주는 공통 안내문`입니다.\n\n정확히는 두 단계였습니다.\n\n1. 처음 제가 `gemini`를 그냥 띄웠을 때\n- 인증 타입이 비어 있었음\n- 그래서 Gemini CLI가\n  `GEMINI_API_KEY`, `GOOGLE_GENAI_USE_VERTEXAI`, `GOOGLE_GENAI_USE_GCA`\n  중 하나로 인증 방식을 정하라고 안내한 겁니다\n- 이건 \"API key를 꼭 써라\"가 아니라 \"셋 중 하나를 정해라\"입니다\n\n2. 그다음 `GOOGLE_GENAI_USE_GCA=true`를 넣고 다시 띄웠을 때\n- 바로 브라우저 Google 로그인 단계로 넘어갔습니다\n- 즉 이 시점부터는 API key 경로가 아니라 OAuth 로그인 경로로 간 겁니다\n\n이 저장소 코드도 원래 그렇게 되어 있습니다.\n\n- [cli.py](D:/hoonProJect/worktrees/agent-factory/core/providers/cli.py#L255) 에서 `gemini_cli` 실행 시 `GEMINI_API_KEY`, `GOOGLE_API_KEY`를 일부러 지웁니다\n- [cli.py](D:/hoonProJect/worktrees/agent-factory/core/providers/cli.py#L258) 에서 `GOOGLE_GENAI_USE_GCA=true`를 넣습니다\n- [session_adapter.py](D:/hoonProJect/worktrees/agent-factory/core/providers/session_adapter.py#L287) 에서도 Gemini 전용 세션 설정을 따로 씁니다\n\n즉 지금 방향은 맞습니다.\n- API key 안 씀\n- Google 로그인(OAuth/GCA)으로 가는 중\n- 처음 본 메시지는 인증 방식 미선택 상태의 일반 에러였을 뿐입니다\n\n원하면 바로 이어서 Gemini OAuth 로그인만 완료하고, 그 다음 프로젝트 생성/코스 생성/수정 테스트까지 진행하겠습니다.",
+    "event_timestamp": "2026-03-10T04:48:35.389Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 466,
+    "provider": "codex"
+  }
 }

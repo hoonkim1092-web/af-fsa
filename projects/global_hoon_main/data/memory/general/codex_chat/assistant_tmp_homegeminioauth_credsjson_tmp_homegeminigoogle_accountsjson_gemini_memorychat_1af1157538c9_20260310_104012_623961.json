@@ -1,18 +1,18 @@
-{
-  "key": "assistant tmp_homegeminioauth_credsjson tmp_homegeminigoogle_accountsjson 같은 Gemini 인증 파일과 대량의 memorychat 로그가 같이 스테이징돼 있",
-  "value": "[assistant] `.tmp_home/.gemini/oauth_creds.json`, `.tmp_home/.gemini/google_accounts.json` 같은 Gemini 인증 파일과 대량의 memory/chat 로그가 같이 스테이징돼 있습니다. 그대로 전부 푸시하면 위험합니다.  그대로 전부 커밋/푸시할까요, 아니면 인증 파일과 로그성 산출물은 빼고 코드/문서만 올릴까요?",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T10:40:12.624020+00:00",
-  "updated_at": "2026-03-10T10:40:12.624020+00:00",
-  "details": {
-    "text": "[assistant] `.tmp_home/.gemini/oauth_creds.json`, `.tmp_home/.gemini/google_accounts.json` 같은 Gemini 인증 파일과 대량의 memory/chat 로그가 같이 스테이징돼 있습니다. 그대로 전부 푸시하면 위험합니다.\n\n그대로 전부 커밋/푸시할까요, 아니면 인증 파일과 로그성 산출물은 빼고 코드/문서만 올릴까요?",
-    "event_timestamp": "2026-03-10T10:34:00.255Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
-    "session_line": 2250,
-    "provider": "codex"
-  }
+{
+  "key": "assistant tmp_homegeminioauth_credsjson tmp_homegeminigoogle_accountsjson 같은 Gemini 인증 파일과 대량의 memorychat 로그가 같이 스테이징돼 있",
+  "value": "[assistant] `.tmp_home/.gemini/oauth_creds.json`, `.tmp_home/.gemini/google_accounts.json` 같은 Gemini 인증 파일과 대량의 memory/chat 로그가 같이 스테이징돼 있습니다. 그대로 전부 푸시하면 위험합니다.  그대로 전부 커밋/푸시할까요, 아니면 인증 파일과 로그성 산출물은 빼고 코드/문서만 올릴까요?",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T10:40:12.624020+00:00",
+  "updated_at": "2026-03-10T10:40:12.624020+00:00",
+  "details": {
+    "text": "[assistant] `.tmp_home/.gemini/oauth_creds.json`, `.tmp_home/.gemini/google_accounts.json` 같은 Gemini 인증 파일과 대량의 memory/chat 로그가 같이 스테이징돼 있습니다. 그대로 전부 푸시하면 위험합니다.\n\n그대로 전부 커밋/푸시할까요, 아니면 인증 파일과 로그성 산출물은 빼고 코드/문서만 올릴까요?",
+    "event_timestamp": "2026-03-10T10:34:00.255Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 2250,
+    "provider": "codex"
+  }
 }

@@ -1,18 +1,18 @@
-{
-  "key": "assistant 엔트리포인트 전체 경로에서는 provider까지 가기 전에 NoneTypetext 예외가 터졌습니다 스택을 재현해서 정확한 지점 확인 후 바로 수정하겠습니다",
-  "value": "[assistant] 엔트리포인트 전체 경로에서는 provider까지 가기 전에 `NoneType.text` 예외가 터졌습니다. 스택을 재현해서 정확한 지점 확인 후 바로 수정하겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T15:47:34.199168+00:00",
-  "updated_at": "2026-03-09T15:47:34.199168+00:00",
-  "details": {
-    "text": "[assistant] 엔트리포인트 전체 경로에서는 provider까지 가기 전에 `NoneType.text` 예외가 터졌습니다. 스택을 재현해서 정확한 지점 확인 후 바로 수정하겠습니다.",
-    "event_timestamp": "2026-03-09T15:43:23.832Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
-    "session_line": 713,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 엔트리포인트 전체 경로에서는 provider까지 가기 전에 NoneTypetext 예외가 터졌습니다 스택을 재현해서 정확한 지점 확인 후 바로 수정하겠습니다",
+  "value": "[assistant] 엔트리포인트 전체 경로에서는 provider까지 가기 전에 `NoneType.text` 예외가 터졌습니다. 스택을 재현해서 정확한 지점 확인 후 바로 수정하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T15:47:34.199168+00:00",
+  "updated_at": "2026-03-09T15:47:34.199168+00:00",
+  "details": {
+    "text": "[assistant] 엔트리포인트 전체 경로에서는 provider까지 가기 전에 `NoneType.text` 예외가 터졌습니다. 스택을 재현해서 정확한 지점 확인 후 바로 수정하겠습니다.",
+    "event_timestamp": "2026-03-09T15:43:23.832Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 713,
+    "provider": "codex"
+  }
 }

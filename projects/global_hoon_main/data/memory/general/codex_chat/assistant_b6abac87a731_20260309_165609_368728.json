@@ -1,18 +1,18 @@
-{
-  "key": "assistant 커밋은 생성됐습니다 마지막으로 브랜치 상태만 확인해서 커밋 외에 남아 있는 로컬 산출물이 무엇인지 정리하겠습니다",
-  "value": "[assistant] 커밋은 생성됐습니다. 마지막으로 브랜치 상태만 확인해서, 커밋 외에 남아 있는 로컬 산출물이 무엇인지 정리하겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T16:56:09.368793+00:00",
-  "updated_at": "2026-03-09T16:56:09.368793+00:00",
-  "details": {
-    "text": "[assistant] 커밋은 생성됐습니다. 마지막으로 브랜치 상태만 확인해서, 커밋 외에 남아 있는 로컬 산출물이 무엇인지 정리하겠습니다.",
-    "event_timestamp": "2026-03-09T16:50:05.836Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
-    "session_line": 1795,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 커밋은 생성됐습니다 마지막으로 브랜치 상태만 확인해서 커밋 외에 남아 있는 로컬 산출물이 무엇인지 정리하겠습니다",
+  "value": "[assistant] 커밋은 생성됐습니다. 마지막으로 브랜치 상태만 확인해서, 커밋 외에 남아 있는 로컬 산출물이 무엇인지 정리하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T16:56:09.368793+00:00",
+  "updated_at": "2026-03-09T16:56:09.368793+00:00",
+  "details": {
+    "text": "[assistant] 커밋은 생성됐습니다. 마지막으로 브랜치 상태만 확인해서, 커밋 외에 남아 있는 로컬 산출물이 무엇인지 정리하겠습니다.",
+    "event_timestamp": "2026-03-09T16:50:05.836Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 1795,
+    "provider": "codex"
+  }
 }

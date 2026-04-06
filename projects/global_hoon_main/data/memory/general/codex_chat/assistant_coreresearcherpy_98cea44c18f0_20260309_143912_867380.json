@@ -1,18 +1,18 @@
-{
-  "key": "assistant coreresearcherpy는 일부 문자열이 깨져 보여서 안전하게 줄 번호 기준으로 다시 잡아서 수정하겠습니다 기능 추가 자체는 동일합니다",
-  "value": "[assistant] `core/researcher.py`는 일부 문자열이 깨져 보여서, 안전하게 줄 번호 기준으로 다시 잡아서 수정하겠습니다. 기능 추가 자체는 동일합니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T14:39:12.867455+00:00",
-  "updated_at": "2026-03-09T14:39:12.867455+00:00",
-  "details": {
-    "text": "[assistant] `core/researcher.py`는 일부 문자열이 깨져 보여서, 안전하게 줄 번호 기준으로 다시 잡아서 수정하겠습니다. 기능 추가 자체는 동일합니다.",
-    "event_timestamp": "2026-03-08T01:54:53.110Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/07/rollout-2026-03-07T23-57-50-019cc8ce-02f3-7c92-a357-f51576977b23.jsonl",
-    "session_line": 2007,
-    "provider": "codex"
-  }
+{
+  "key": "assistant coreresearcherpy는 일부 문자열이 깨져 보여서 안전하게 줄 번호 기준으로 다시 잡아서 수정하겠습니다 기능 추가 자체는 동일합니다",
+  "value": "[assistant] `core/researcher.py`는 일부 문자열이 깨져 보여서, 안전하게 줄 번호 기준으로 다시 잡아서 수정하겠습니다. 기능 추가 자체는 동일합니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T14:39:12.867455+00:00",
+  "updated_at": "2026-03-09T14:39:12.867455+00:00",
+  "details": {
+    "text": "[assistant] `core/researcher.py`는 일부 문자열이 깨져 보여서, 안전하게 줄 번호 기준으로 다시 잡아서 수정하겠습니다. 기능 추가 자체는 동일합니다.",
+    "event_timestamp": "2026-03-08T01:54:53.110Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/07/rollout-2026-03-07T23-57-50-019cc8ce-02f3-7c92-a357-f51576977b23.jsonl",
+    "session_line": 2007,
+    "provider": "codex"
+  }
 }

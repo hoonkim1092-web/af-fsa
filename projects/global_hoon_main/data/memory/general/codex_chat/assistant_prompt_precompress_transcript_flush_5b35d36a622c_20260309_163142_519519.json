@@ -1,18 +1,18 @@
-{
-  "key": "assistant 새 prompt 포맷도 반영됐지만 아직 PreCompress에서 종료가 안 됩니다 transcript가 디스크에 flush될 때까지 잠깐 기다렸다가 이번에는 실제 답이 나왔는지 바로 보겠습니다",
-  "value": "[assistant] 새 prompt 포맷도 반영됐지만 아직 `PreCompress`에서 종료가 안 됩니다. transcript가 디스크에 flush될 때까지 잠깐 기다렸다가, 이번에는 실제 답이 나왔는지 바로 보겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T16:31:42.519566+00:00",
-  "updated_at": "2026-03-09T16:31:42.519566+00:00",
-  "details": {
-    "text": "[assistant] 새 prompt 포맷도 반영됐지만 아직 `PreCompress`에서 종료가 안 됩니다. transcript가 디스크에 flush될 때까지 잠깐 기다렸다가, 이번에는 실제 답이 나왔는지 바로 보겠습니다.",
-    "event_timestamp": "2026-03-09T16:30:10.915Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
-    "session_line": 1359,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 새 prompt 포맷도 반영됐지만 아직 PreCompress에서 종료가 안 됩니다 transcript가 디스크에 flush될 때까지 잠깐 기다렸다가 이번에는 실제 답이 나왔는지 바로 보겠습니다",
+  "value": "[assistant] 새 prompt 포맷도 반영됐지만 아직 `PreCompress`에서 종료가 안 됩니다. transcript가 디스크에 flush될 때까지 잠깐 기다렸다가, 이번에는 실제 답이 나왔는지 바로 보겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T16:31:42.519566+00:00",
+  "updated_at": "2026-03-09T16:31:42.519566+00:00",
+  "details": {
+    "text": "[assistant] 새 prompt 포맷도 반영됐지만 아직 `PreCompress`에서 종료가 안 됩니다. transcript가 디스크에 flush될 때까지 잠깐 기다렸다가, 이번에는 실제 답이 나왔는지 바로 보겠습니다.",
+    "event_timestamp": "2026-03-09T16:30:10.915Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 1359,
+    "provider": "codex"
+  }
 }

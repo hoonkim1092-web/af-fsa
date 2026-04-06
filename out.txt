@@ -1,202 +1,202 @@
-============================= test session starts =============================
-platform win32 -- Python 3.14.3, pytest-9.0.2, pluggy-1.6.0
-rootdir: D:\agent-factory
-configfile: pytest.ini
-plugins: anyio-4.12.1
-collected 1 item
-
-tests\test_factory_evolution.py F                                        [100%]
-
-================================== FAILURES ===================================
-_____________________ test_factory_reuses_verified_skill ______________________
-
-monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001C8F9ECA990>
-
-    def test_factory_reuses_verified_skill(monkeypatch):
-        al = _load_launcher(monkeypatch)
-        factory = al.AgentFactory()
-    
-        agent = {"name": "t", "role": "r", "skills": []}
-        factory.agent_mgr.get_or_create = lambda role_spec: agent
-        factory.req.analyze = lambda _agent, _task: {"goal": "g", "missing_skills": ["needs_issue"], "constraints": []}
-        factory._missing_local_skill_files = lambda _agent: []
-        factory.research.research = lambda _agent, _reqs, build_targets=None: {
-            "evidence_pack": {
-                "targets": {
-                    "needs_issue": {
-                        "top_candidate": "issue_tracker",
-                        "verified": True,
-                        "top_score": 90,
-                    }
-                }
-            }
-        }
-    
-        install_calls = []
-        build_calls = []
-        runner_calls = []
-    
-        factory.agent_mgr.install_skills = lambda _role, skill_ids: install_calls.append(list(skill_ids)) or list(skill_ids)
-        factory.builder.build_skill = lambda **kwargs: build_calls.append(kwargs) or (False, None, {"last_test_detail": {"reason": "should_not_build"}})
-        factory.runner.run = lambda run_agent, task_input: runner_calls.append((run_agent, task_input))
-    
->       factory.run(task_input="track issues", role_spec="General", enable_build=True)
-
-tests\test_factory_evolution.py:45: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-
-self = <agent_launcher.AgentFactory object at 0x000001C8FE9D0AD0>
-task_input = 'track issues', role_spec = 'General', enable_build = True
-execution_mode = 'approval'
-
-    def run(self, task_input: str, role_spec: str = "General", enable_build: bool = False, execution_mode: str = "approval"):
-        run_id = f"run_{int(time.time())}"
-        print(f"\nRUN={run_id}")
-        print(f"- Role: {role_spec}")
-        print(f"- Mode: {execution_mode}")
-        print(f"- Task: {task_input}")
-    
-        agent = self.agent_mgr.get_or_create(role_spec)
-        reqs = self.req.analyze(agent, task_input)
-        file_missing = self._missing_local_skill_files(agent)
-    
-        skills = reqs.get("missing_skills", [])
-        initial_targets = list(dict.fromkeys([safe_id(s) for s in skills] + file_missing))
-    
-        skipped_build_targets: list[str] = []
-        if initial_targets and not enable_build:
-            skipped_build_targets = list(initial_targets)
-            print(f"\n[RunOnly] build disabled, skipping: {skipped_build_targets}")
-    
-        if initial_targets and enable_build:
-            # [GAP-3] Unified Pipeline: Himari(Skeleton) -> Builder(Release) -> Registry
->           installed = self.procurer.procure_multiple(
-                agent=agent,
-                skill_names=initial_targets,
-                reqs=reqs,
-                run_id=run_id,
-                execution_mode=execution_mode,
-                approval_gate=self._ask_skill_change_approval,
-            )
-
-agent_launcher.py:211: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-
-self = <core.skill_procurer.SkillOrchestrator object at 0x000001C8FE9D3B60>
-agent = {'name': 't', 'role': 'r', 'skills': []}, skill_names = ['needs_issue']
-reqs = {'constraints': [], 'goal': 'g', 'missing_skills': ['needs_issue']}
-run_id = 'run_1772644029', execution_mode = 'approval'
-approval_gate = <bound method AgentFactory._ask_skill_change_approval of <agent_launcher.AgentFactory object at 0x000001C8FE9D0AD0>>
-
-    def procure_multiple(self, agent, skill_names, reqs, run_id, execution_mode="approval", approval_gate=None):
-        installed = []
-        for name in skill_names:
->           path = procure_skill(name, agent.get("role", "General"))
-                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-core\skill_procurer.py:209: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-
-skill_name = 'needs_issue', role = 'r'
-
-    def procure_skill(skill_name, role):
-        """기존 스킬 검색 → warehouse → forge 순서로 스킬 조달"""
-        purpose_desc = f"Skill intended for {role} to handle {skill_name}"
-        existing_skill_path = check_skill_exists(skill_name, purpose_desc)
-    
-        if existing_skill_path and os.path.exists(existing_skill_path):
-            log("REGISTRY", f"Reusing existing skill: {existing_skill_path}")
-            return existing_skill_path
-    
-        found = glob.glob(os.path.join(WAREHOUSE_DIR, "**", f"{skill_name}.py"), recursive=True)
-        if found:
-            register_skill(skill_name, purpose_desc, found[0])
-            return found[0]
-    
-        forge_path = os.path.join(FORGE_DIR, f"{skill_name}.py")
-        if os.path.exists(forge_path):
-            register_skill(skill_name, purpose_desc, forge_path)
-            return forge_path
-    
->       return forge_new_skill(skill_name, role)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-core\skill_procurer.py:136: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-
-skill_name = 'needs_issue', role = 'r'
-coding_engine = ModelSelection(model='codex-5.3', tier='free_fallback', reason='[codex] OPENAI_API_KEY 없음 또는 allowlist 미매칭 → codex-5.3 고정 (호출 불가 위험)')
-
-    def forge_new_skill(skill_name, role, coding_engine=None):
-        """LLM으로 새 스킬 코드를 생성(포징)"""
-        if coding_engine is None:
-            coding_engine = resolve_dynamic_model("codex")
-    
-        log("FORGE", f"Forging new skill: '{skill_name}' (Engine: {coding_engine})")
-        os.makedirs(FORGE_DIR, exist_ok=True)
-        output_path = os.path.join(FORGE_DIR, f"{skill_name}.py")
-    
->       llm = LLMEngine(model_name=get_best_model([coding_engine]))
-                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-core\skill_procurer.py:148: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-
-priority_list = [ModelSelection(model='codex-5.3', tier='free_fallback', reason='[codex] OPENAI_API_KEY 없음 또는 allowlist 미매칭 → codex-5.3 고정 (호출 불가 위험)')]
-
-    def get_best_model(priority_list: list = None) -> str:
-        """우선순위 리스트 기반 최적 Gemini 모델 선택."""
-        if priority_list is None:
-            # 하드코딩 없이 API 목록에서 최신 모델을 직접 추출
-            return get_dynamic_default_model("pro")
-        available = get_available_models()
-        for p in priority_list:
-            for m in available:
->               if p in m:
-                   ^^^^^^
-E               TypeError: 'in <string>' requires string as left operand, not ModelSelection
-
-model_utils.py:238: TypeError
----------------------------- Captured stdout call -----------------------------
-[model_utils] * Model cache expired.
-[model_utils] * Fetching available models from Google API...
-[model_utils] * Failed to list models: 400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'API key not valid. Please pass a valid API key.', 'status': 'INVALID_ARGUMENT', 'details': [{'@type': 'type.googleapis.com/google.rpc.ErrorInfo', 'reason': 'API_KEY_INVALID', 'domain': 'googleapis.com', 'metadata': {'service': 'generativelanguage.googleapis.com'}}, {'@type': 'type.googleapis.com/google.rpc.LocalizedMessage', 'locale': 'en-US', 'message': 'API key not valid. Please pass a valid API key.'}]}}. Returning fallback list.
-[model_utils] * [Dynamic Default] tier=flash → gemini-2.5-flash
-[model_utils] * Model cache expired.
-[model_utils] * Fetching available models from Google API...
-[model_utils] * Failed to list models: 400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'API key not valid. Please pass a valid API key.', 'status': 'INVALID_ARGUMENT', 'details': [{'@type': 'type.googleapis.com/google.rpc.ErrorInfo', 'reason': 'API_KEY_INVALID', 'domain': 'googleapis.com', 'metadata': {'service': 'generativelanguage.googleapis.com'}}, {'@type': 'type.googleapis.com/google.rpc.LocalizedMessage', 'locale': 'en-US', 'message': 'API key not valid. Please pass a valid API key.'}]}}. Returning fallback list.
-[model_utils] * [Dynamic Default] tier=flash → gemini-2.5-flash
-
-RUN=run_1772644029
-- Role: General
-- Mode: approval
-- Task: track issues
-[model_utils] * Model cache expired.
-[model_utils] * Fetching available models from Google API...
-[model_utils] * Failed to list models: 400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'API key not valid. Please pass a valid API key.', 'status': 'INVALID_ARGUMENT', 'details': [{'@type': 'type.googleapis.com/google.rpc.ErrorInfo', 'reason': 'API_KEY_INVALID', 'domain': 'googleapis.com', 'metadata': {'service': 'generativelanguage.googleapis.com'}}, {'@type': 'type.googleapis.com/google.rpc.LocalizedMessage', 'locale': 'en-US', 'message': 'API key not valid. Please pass a valid API key.'}]}}. Returning fallback list.
-[model_utils] * [Dynamic Default] tier=flash → gemini-2.5-flash
-[model_utils] * Model cache expired.
-[model_utils] * Fetching available models from Google API...
-[model_utils] * Failed to list models: 400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'API key not valid. Please pass a valid API key.', 'status': 'INVALID_ARGUMENT', 'details': [{'@type': 'type.googleapis.com/google.rpc.ErrorInfo', 'reason': 'API_KEY_INVALID', 'domain': 'googleapis.com', 'metadata': {'service': 'generativelanguage.googleapis.com'}}, {'@type': 'type.googleapis.com/google.rpc.LocalizedMessage', 'locale': 'en-US', 'message': 'API key not valid. Please pass a valid API key.'}]}}. Returning fallback list.
-[model_utils] * [Dynamic Default] tier=flash → gemini-2.5-flash
-[LLMEngine Error] 400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'API key not valid. Please pass a valid API key.', 'status': 'INVALID_ARGUMENT', 'details': [{'@type': 'type.googleapis.com/google.rpc.ErrorInfo', 'reason': 'API_KEY_INVALID', 'domain': 'googleapis.com', 'metadata': {'service': 'generativelanguage.googleapis.com'}}, {'@type': 'type.googleapis.com/google.rpc.LocalizedMessage', 'locale': 'en-US', 'message': 'API key not valid. Please pass a valid API key.'}]}}
-[model_utils] * Model cache expired.
-[model_utils] * Fetching available models from Google API...
-[model_utils] * Failed to list models: 400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'API key not valid. Please pass a valid API key.', 'status': 'INVALID_ARGUMENT', 'details': [{'@type': 'type.googleapis.com/google.rpc.ErrorInfo', 'reason': 'API_KEY_INVALID', 'domain': 'googleapis.com', 'metadata': {'service': 'generativelanguage.googleapis.com'}}, {'@type': 'type.googleapis.com/google.rpc.LocalizedMessage', 'locale': 'en-US', 'message': 'API key not valid. Please pass a valid API key.'}]}}. Returning fallback list.
-[FORGE] Forging new skill: 'needs_issue' (Engine: ModelSelection(model='codex-5.3', tier='free_fallback', reason='[codex] OPENAI_API_KEY 없음 또는 allowlist 미매칭 → codex-5.3 고정 (호출 불가 위험)'))
-[model_utils] * Model cache expired.
-[model_utils] * Fetching available models from Google API...
-[model_utils] * Failed to list models: 400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'API key not valid. Please pass a valid API key.', 'status': 'INVALID_ARGUMENT', 'details': [{'@type': 'type.googleapis.com/google.rpc.ErrorInfo', 'reason': 'API_KEY_INVALID', 'domain': 'googleapis.com', 'metadata': {'service': 'generativelanguage.googleapis.com'}}, {'@type': 'type.googleapis.com/google.rpc.LocalizedMessage', 'locale': 'en-US', 'message': 'API key not valid. Please pass a valid API key.'}]}}. Returning fallback list.
------------------------------- Captured log call ------------------------------
-WARNING  google_genai._api_client:_api_client.py:105 Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.
-WARNING  google_genai._api_client:_api_client.py:105 Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.
-WARNING  google_genai._api_client:_api_client.py:105 Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.
-============================== warnings summary ===============================
-tests/test_factory_evolution.py::test_factory_reuses_verified_skill
-  C:\Users\HOME\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\google\genai\types.py:43: DeprecationWarning: '_UnionGenericAlias' is deprecated and slated for removal in Python 3.17
-    VersionedUnionType = Union[builtin_types.UnionType, _UnionGenericAlias]
-
--- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-=========================== short test summary info ===========================
-FAILED tests/test_factory_evolution.py::test_factory_reuses_verified_skill - ...
-======================== 1 failed, 1 warning in 5.28s =========================
+============================= test session starts =============================
+platform win32 -- Python 3.14.3, pytest-9.0.2, pluggy-1.6.0
+rootdir: D:\agent-factory
+configfile: pytest.ini
+plugins: anyio-4.12.1
+collected 1 item
+
+tests\test_factory_evolution.py F                                        [100%]
+
+================================== FAILURES ===================================
+_____________________ test_factory_reuses_verified_skill ______________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001C8F9ECA990>
+
+    def test_factory_reuses_verified_skill(monkeypatch):
+        al = _load_launcher(monkeypatch)
+        factory = al.AgentFactory()
+    
+        agent = {"name": "t", "role": "r", "skills": []}
+        factory.agent_mgr.get_or_create = lambda role_spec: agent
+        factory.req.analyze = lambda _agent, _task: {"goal": "g", "missing_skills": ["needs_issue"], "constraints": []}
+        factory._missing_local_skill_files = lambda _agent: []
+        factory.research.research = lambda _agent, _reqs, build_targets=None: {
+            "evidence_pack": {
+                "targets": {
+                    "needs_issue": {
+                        "top_candidate": "issue_tracker",
+                        "verified": True,
+                        "top_score": 90,
+                    }
+                }
+            }
+        }
+    
+        install_calls = []
+        build_calls = []
+        runner_calls = []
+    
+        factory.agent_mgr.install_skills = lambda _role, skill_ids: install_calls.append(list(skill_ids)) or list(skill_ids)
+        factory.builder.build_skill = lambda **kwargs: build_calls.append(kwargs) or (False, None, {"last_test_detail": {"reason": "should_not_build"}})
+        factory.runner.run = lambda run_agent, task_input: runner_calls.append((run_agent, task_input))
+    
+>       factory.run(task_input="track issues", role_spec="General", enable_build=True)
+
+tests\test_factory_evolution.py:45: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <agent_launcher.AgentFactory object at 0x000001C8FE9D0AD0>
+task_input = 'track issues', role_spec = 'General', enable_build = True
+execution_mode = 'approval'
+
+    def run(self, task_input: str, role_spec: str = "General", enable_build: bool = False, execution_mode: str = "approval"):
+        run_id = f"run_{int(time.time())}"
+        print(f"\nRUN={run_id}")
+        print(f"- Role: {role_spec}")
+        print(f"- Mode: {execution_mode}")
+        print(f"- Task: {task_input}")
+    
+        agent = self.agent_mgr.get_or_create(role_spec)
+        reqs = self.req.analyze(agent, task_input)
+        file_missing = self._missing_local_skill_files(agent)
+    
+        skills = reqs.get("missing_skills", [])
+        initial_targets = list(dict.fromkeys([safe_id(s) for s in skills] + file_missing))
+    
+        skipped_build_targets: list[str] = []
+        if initial_targets and not enable_build:
+            skipped_build_targets = list(initial_targets)
+            print(f"\n[RunOnly] build disabled, skipping: {skipped_build_targets}")
+    
+        if initial_targets and enable_build:
+            # [GAP-3] Unified Pipeline: Himari(Skeleton) -> Builder(Release) -> Registry
+>           installed = self.procurer.procure_multiple(
+                agent=agent,
+                skill_names=initial_targets,
+                reqs=reqs,
+                run_id=run_id,
+                execution_mode=execution_mode,
+                approval_gate=self._ask_skill_change_approval,
+            )
+
+agent_launcher.py:211: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <core.skill_procurer.SkillOrchestrator object at 0x000001C8FE9D3B60>
+agent = {'name': 't', 'role': 'r', 'skills': []}, skill_names = ['needs_issue']
+reqs = {'constraints': [], 'goal': 'g', 'missing_skills': ['needs_issue']}
+run_id = 'run_1772644029', execution_mode = 'approval'
+approval_gate = <bound method AgentFactory._ask_skill_change_approval of <agent_launcher.AgentFactory object at 0x000001C8FE9D0AD0>>
+
+    def procure_multiple(self, agent, skill_names, reqs, run_id, execution_mode="approval", approval_gate=None):
+        installed = []
+        for name in skill_names:
+>           path = procure_skill(name, agent.get("role", "General"))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+core\skill_procurer.py:209: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+skill_name = 'needs_issue', role = 'r'
+
+    def procure_skill(skill_name, role):
+        """기존 스킬 검색 → warehouse → forge 순서로 스킬 조달"""
+        purpose_desc = f"Skill intended for {role} to handle {skill_name}"
+        existing_skill_path = check_skill_exists(skill_name, purpose_desc)
+    
+        if existing_skill_path and os.path.exists(existing_skill_path):
+            log("REGISTRY", f"Reusing existing skill: {existing_skill_path}")
+            return existing_skill_path
+    
+        found = glob.glob(os.path.join(WAREHOUSE_DIR, "**", f"{skill_name}.py"), recursive=True)
+        if found:
+            register_skill(skill_name, purpose_desc, found[0])
+            return found[0]
+    
+        forge_path = os.path.join(FORGE_DIR, f"{skill_name}.py")
+        if os.path.exists(forge_path):
+            register_skill(skill_name, purpose_desc, forge_path)
+            return forge_path
+    
+>       return forge_new_skill(skill_name, role)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+core\skill_procurer.py:136: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+skill_name = 'needs_issue', role = 'r'
+coding_engine = ModelSelection(model='codex-5.3', tier='free_fallback', reason='[codex] OPENAI_API_KEY 없음 또는 allowlist 미매칭 → codex-5.3 고정 (호출 불가 위험)')
+
+    def forge_new_skill(skill_name, role, coding_engine=None):
+        """LLM으로 새 스킬 코드를 생성(포징)"""
+        if coding_engine is None:
+            coding_engine = resolve_dynamic_model("codex")
+    
+        log("FORGE", f"Forging new skill: '{skill_name}' (Engine: {coding_engine})")
+        os.makedirs(FORGE_DIR, exist_ok=True)
+        output_path = os.path.join(FORGE_DIR, f"{skill_name}.py")
+    
+>       llm = LLMEngine(model_name=get_best_model([coding_engine]))
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+core\skill_procurer.py:148: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+priority_list = [ModelSelection(model='codex-5.3', tier='free_fallback', reason='[codex] OPENAI_API_KEY 없음 또는 allowlist 미매칭 → codex-5.3 고정 (호출 불가 위험)')]
+
+    def get_best_model(priority_list: list = None) -> str:
+        """우선순위 리스트 기반 최적 Gemini 모델 선택."""
+        if priority_list is None:
+            # 하드코딩 없이 API 목록에서 최신 모델을 직접 추출
+            return get_dynamic_default_model("pro")
+        available = get_available_models()
+        for p in priority_list:
+            for m in available:
+>               if p in m:
+                   ^^^^^^
+E               TypeError: 'in <string>' requires string as left operand, not ModelSelection
+
+model_utils.py:238: TypeError
+---------------------------- Captured stdout call -----------------------------
+[model_utils] * Model cache expired.
+[model_utils] * Fetching available models from Google API...
+[model_utils] * Failed to list models: 400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'API key not valid. Please pass a valid API key.', 'status': 'INVALID_ARGUMENT', 'details': [{'@type': 'type.googleapis.com/google.rpc.ErrorInfo', 'reason': 'API_KEY_INVALID', 'domain': 'googleapis.com', 'metadata': {'service': 'generativelanguage.googleapis.com'}}, {'@type': 'type.googleapis.com/google.rpc.LocalizedMessage', 'locale': 'en-US', 'message': 'API key not valid. Please pass a valid API key.'}]}}. Returning fallback list.
+[model_utils] * [Dynamic Default] tier=flash → gemini-2.5-flash
+[model_utils] * Model cache expired.
+[model_utils] * Fetching available models from Google API...
+[model_utils] * Failed to list models: 400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'API key not valid. Please pass a valid API key.', 'status': 'INVALID_ARGUMENT', 'details': [{'@type': 'type.googleapis.com/google.rpc.ErrorInfo', 'reason': 'API_KEY_INVALID', 'domain': 'googleapis.com', 'metadata': {'service': 'generativelanguage.googleapis.com'}}, {'@type': 'type.googleapis.com/google.rpc.LocalizedMessage', 'locale': 'en-US', 'message': 'API key not valid. Please pass a valid API key.'}]}}. Returning fallback list.
+[model_utils] * [Dynamic Default] tier=flash → gemini-2.5-flash
+
+RUN=run_1772644029
+- Role: General
+- Mode: approval
+- Task: track issues
+[model_utils] * Model cache expired.
+[model_utils] * Fetching available models from Google API...
+[model_utils] * Failed to list models: 400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'API key not valid. Please pass a valid API key.', 'status': 'INVALID_ARGUMENT', 'details': [{'@type': 'type.googleapis.com/google.rpc.ErrorInfo', 'reason': 'API_KEY_INVALID', 'domain': 'googleapis.com', 'metadata': {'service': 'generativelanguage.googleapis.com'}}, {'@type': 'type.googleapis.com/google.rpc.LocalizedMessage', 'locale': 'en-US', 'message': 'API key not valid. Please pass a valid API key.'}]}}. Returning fallback list.
+[model_utils] * [Dynamic Default] tier=flash → gemini-2.5-flash
+[model_utils] * Model cache expired.
+[model_utils] * Fetching available models from Google API...
+[model_utils] * Failed to list models: 400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'API key not valid. Please pass a valid API key.', 'status': 'INVALID_ARGUMENT', 'details': [{'@type': 'type.googleapis.com/google.rpc.ErrorInfo', 'reason': 'API_KEY_INVALID', 'domain': 'googleapis.com', 'metadata': {'service': 'generativelanguage.googleapis.com'}}, {'@type': 'type.googleapis.com/google.rpc.LocalizedMessage', 'locale': 'en-US', 'message': 'API key not valid. Please pass a valid API key.'}]}}. Returning fallback list.
+[model_utils] * [Dynamic Default] tier=flash → gemini-2.5-flash
+[LLMEngine Error] 400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'API key not valid. Please pass a valid API key.', 'status': 'INVALID_ARGUMENT', 'details': [{'@type': 'type.googleapis.com/google.rpc.ErrorInfo', 'reason': 'API_KEY_INVALID', 'domain': 'googleapis.com', 'metadata': {'service': 'generativelanguage.googleapis.com'}}, {'@type': 'type.googleapis.com/google.rpc.LocalizedMessage', 'locale': 'en-US', 'message': 'API key not valid. Please pass a valid API key.'}]}}
+[model_utils] * Model cache expired.
+[model_utils] * Fetching available models from Google API...
+[model_utils] * Failed to list models: 400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'API key not valid. Please pass a valid API key.', 'status': 'INVALID_ARGUMENT', 'details': [{'@type': 'type.googleapis.com/google.rpc.ErrorInfo', 'reason': 'API_KEY_INVALID', 'domain': 'googleapis.com', 'metadata': {'service': 'generativelanguage.googleapis.com'}}, {'@type': 'type.googleapis.com/google.rpc.LocalizedMessage', 'locale': 'en-US', 'message': 'API key not valid. Please pass a valid API key.'}]}}. Returning fallback list.
+[FORGE] Forging new skill: 'needs_issue' (Engine: ModelSelection(model='codex-5.3', tier='free_fallback', reason='[codex] OPENAI_API_KEY 없음 또는 allowlist 미매칭 → codex-5.3 고정 (호출 불가 위험)'))
+[model_utils] * Model cache expired.
+[model_utils] * Fetching available models from Google API...
+[model_utils] * Failed to list models: 400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'API key not valid. Please pass a valid API key.', 'status': 'INVALID_ARGUMENT', 'details': [{'@type': 'type.googleapis.com/google.rpc.ErrorInfo', 'reason': 'API_KEY_INVALID', 'domain': 'googleapis.com', 'metadata': {'service': 'generativelanguage.googleapis.com'}}, {'@type': 'type.googleapis.com/google.rpc.LocalizedMessage', 'locale': 'en-US', 'message': 'API key not valid. Please pass a valid API key.'}]}}. Returning fallback list.
+------------------------------ Captured log call ------------------------------
+WARNING  google_genai._api_client:_api_client.py:105 Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.
+WARNING  google_genai._api_client:_api_client.py:105 Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.
+WARNING  google_genai._api_client:_api_client.py:105 Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.
+============================== warnings summary ===============================
+tests/test_factory_evolution.py::test_factory_reuses_verified_skill
+  C:\Users\HOME\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\google\genai\types.py:43: DeprecationWarning: '_UnionGenericAlias' is deprecated and slated for removal in Python 3.17
+    VersionedUnionType = Union[builtin_types.UnionType, _UnionGenericAlias]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_factory_evolution.py::test_factory_reuses_verified_skill - ...
+======================== 1 failed, 1 warning in 5.28s =========================

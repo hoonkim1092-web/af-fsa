@@ -1,18 +1,18 @@
-{
-  "key": "assistant 실제로 보려면 테스트 통과만으로는 부족합니다 지금은 agent-factory CLI 진입점과 이 저장소 안에서 자기 경로로 최소 실행이 되는지 바로 확인하겠습니다",
-  "value": "[assistant] 실제로 보려면 테스트 통과만으로는 부족합니다. 지금은 `agent-factory` CLI 진입점과, 이 저장소 안에서 자기 경로로 최소 실행이 되는지 바로 확인하겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T17:40:38.112771+00:00",
-  "updated_at": "2026-03-10T17:40:38.112771+00:00",
-  "details": {
-    "text": "[assistant] 실제로 보려면 테스트 통과만으로는 부족합니다. 지금은 `agent-factory` CLI 진입점과, 이 저장소 안에서 자기 경로로 최소 실행이 되는지 바로 확인하겠습니다.",
-    "event_timestamp": "2026-03-10T17:33:30.561Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/11/rollout-2026-03-11T01-30-46-019cd896-2cfb-7692-a889-53fc50ef1599.jsonl",
-    "session_line": 714,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 실제로 보려면 테스트 통과만으로는 부족합니다 지금은 agent-factory CLI 진입점과 이 저장소 안에서 자기 경로로 최소 실행이 되는지 바로 확인하겠습니다",
+  "value": "[assistant] 실제로 보려면 테스트 통과만으로는 부족합니다. 지금은 `agent-factory` CLI 진입점과, 이 저장소 안에서 자기 경로로 최소 실행이 되는지 바로 확인하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:38.112771+00:00",
+  "updated_at": "2026-03-10T17:40:38.112771+00:00",
+  "details": {
+    "text": "[assistant] 실제로 보려면 테스트 통과만으로는 부족합니다. 지금은 `agent-factory` CLI 진입점과, 이 저장소 안에서 자기 경로로 최소 실행이 되는지 바로 확인하겠습니다.",
+    "event_timestamp": "2026-03-10T17:33:30.561Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/11/rollout-2026-03-11T01-30-46-019cd896-2cfb-7692-a889-53fc50ef1599.jsonl",
+    "session_line": 714,
+    "provider": "codex"
+  }
 }

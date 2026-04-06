@@ -1,18 +1,18 @@
-{
-  "key": "assistant Gemini CLI는 설치됐고 NO_BROWSERtrue 수동 인증으로 URL과 코드 입력 프롬프트까지는 확인했습니다 이제 실제 프로젝트 생성수정 테스트를 계속하려면 Gemini 인증을 한 번 완료",
-  "value": "[assistant] Gemini CLI는 설치됐고, `NO_BROWSER=true` 수동 인증으로 URL과 코드 입력 프롬프트까지는 확인했습니다. 이제 실제 프로젝트 생성/수정 테스트를 계속하려면 Gemini 인증을 한 번 완료해야 합니다.  Gemini 인증용 창을 띄워서 바로 로그인 진행할까요?",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T06:08:25.463311+00:00",
-  "updated_at": "2026-03-10T06:08:25.463311+00:00",
-  "details": {
-    "text": "[assistant] Gemini CLI는 설치됐고, `NO_BROWSER=true` 수동 인증으로 URL과 코드 입력 프롬프트까지는 확인했습니다. 이제 실제 프로젝트 생성/수정 테스트를 계속하려면 Gemini 인증을 한 번 완료해야 합니다.\n\nGemini 인증용 창을 띄워서 바로 로그인 진행할까요?",
-    "event_timestamp": "2026-03-10T04:47:57.842Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
-    "session_line": 457,
-    "provider": "codex"
-  }
+{
+  "key": "assistant Gemini CLI는 설치됐고 NO_BROWSERtrue 수동 인증으로 URL과 코드 입력 프롬프트까지는 확인했습니다 이제 실제 프로젝트 생성수정 테스트를 계속하려면 Gemini 인증을 한 번 완료",
+  "value": "[assistant] Gemini CLI는 설치됐고, `NO_BROWSER=true` 수동 인증으로 URL과 코드 입력 프롬프트까지는 확인했습니다. 이제 실제 프로젝트 생성/수정 테스트를 계속하려면 Gemini 인증을 한 번 완료해야 합니다.  Gemini 인증용 창을 띄워서 바로 로그인 진행할까요?",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T06:08:25.463311+00:00",
+  "updated_at": "2026-03-10T06:08:25.463311+00:00",
+  "details": {
+    "text": "[assistant] Gemini CLI는 설치됐고, `NO_BROWSER=true` 수동 인증으로 URL과 코드 입력 프롬프트까지는 확인했습니다. 이제 실제 프로젝트 생성/수정 테스트를 계속하려면 Gemini 인증을 한 번 완료해야 합니다.\n\nGemini 인증용 창을 띄워서 바로 로그인 진행할까요?",
+    "event_timestamp": "2026-03-10T04:47:57.842Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 457,
+    "provider": "codex"
+  }
 }

@@ -1,18 +1,18 @@
-{
-  "key": "assistant codex login --device-auth is runningOpen httpsauthopenaicomcodexdevice and enter this one-time code OO2K-U9AZY",
-  "value": "[assistant] `codex login --device-auth` is running.  Open `https://auth.openai.com/codex/device` and enter this one-time code: `OO2K-U9AZY`  It was issued on March 10, 2026 and expires about 15 minutes after issuance. If you want, I can check again after yo...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T14:45:45.362514+00:00",
-  "updated_at": "2026-03-10T14:45:45.362514+00:00",
-  "details": {
-    "text": "[assistant] `codex login --device-auth` is running.\n\nOpen `https://auth.openai.com/codex/device` and enter this one-time code: `OO2K-U9AZY`\n\nIt was issued on March 10, 2026 and expires about 15 minutes after issuance. If you want, I can check again after you complete the browser step and confirm the login finished.",
-    "event_timestamp": "2026-03-10T12:30:51.912Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-26-38-019cd7b6-a943-76b0-a5ca-ea4ca0db60e7.jsonl",
-    "session_line": 46,
-    "provider": "codex"
-  }
+{
+  "key": "assistant codex login --device-auth is runningOpen httpsauthopenaicomcodexdevice and enter this one-time code OO2K-U9AZY",
+  "value": "[assistant] `codex login --device-auth` is running.  Open `https://auth.openai.com/codex/device` and enter this one-time code: `OO2K-U9AZY`  It was issued on March 10, 2026 and expires about 15 minutes after issuance. If you want, I can check again after yo...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T14:45:45.362514+00:00",
+  "updated_at": "2026-03-10T14:45:45.362514+00:00",
+  "details": {
+    "text": "[assistant] `codex login --device-auth` is running.\n\nOpen `https://auth.openai.com/codex/device` and enter this one-time code: `OO2K-U9AZY`\n\nIt was issued on March 10, 2026 and expires about 15 minutes after issuance. If you want, I can check again after you complete the browser step and confirm the login finished.",
+    "event_timestamp": "2026-03-10T12:30:51.912Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-26-38-019cd7b6-a943-76b0-a5ca-ea4ca0db60e7.jsonl",
+    "session_line": 46,
+    "provider": "codex"
+  }
 }

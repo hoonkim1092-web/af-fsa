@@ -1,18 +1,18 @@
-{
-  "key": "assistant 맞습니다 Git만 기준이면 회사 PC에서 그대로 이어하기가 약해집니다다만 이 레포는 원래 그걸 Git으로 해결하려는 구조가 아니라 global memory  DBcontext sync로 해결하려는 ",
-  "value": "[assistant] 맞습니다. `Git만` 기준이면 회사 PC에서 그대로 이어하기가 약해집니다.  다만 이 레포는 원래 그걸 `Git`으로 해결하려는 구조가 아니라 `global memory + DB/context sync`로 해결하려는 쪽입니다.  근거는 이렇습니다. - Codex 세션이 끝나면 global memory로 브리지합니다: [session_adapter.py](/D:/warkSpaces/agent-factory/core/providers/s...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T17:40:38.051154+00:00",
-  "updated_at": "2026-03-10T17:40:38.051154+00:00",
-  "details": {
-    "text": "[assistant] 맞습니다. `Git만` 기준이면 회사 PC에서 그대로 이어하기가 약해집니다.\n\n다만 이 레포는 원래 그걸 `Git`으로 해결하려는 구조가 아니라 `global memory + DB/context sync`로 해결하려는 쪽입니다.\n\n근거는 이렇습니다.\n- Codex 세션이 끝나면 global memory로 브리지합니다: [session_adapter.py](/D:/warkSpaces/agent-factory/core/providers/session_adapter.py#L420), [session_bridge.py](/D:/warkSpaces/agent-factory/scripts/session_bridge.py#L192), [session_bridge.py](/D:/warkSpaces/agent-factory/scripts/session_bridge.py#L441)\n- 그 global memory가 cross-project continuity의 주 소스라고 코드에 적혀 있습니다: [project_context_sync.py](/D:/warkSpaces/agent-factory/scripts/project_context_sync.py#L439)\n- `resume_brief.md`도 세션 준비/종료 때 계속 다시 씁니다: [session_adapter.py](/D:/warkSpaces/agent-factory/core/providers/session_adapter.py#L389), [session_adapter.py](/D:/warkSpaces/agent-factory/core/providers/session_adapter.py#L426)\n\n즉 설계 의도는:\n- 코드/설정은 `git push`\n- 런타임 메모리/세션 continuity는 `start_db`/`end_db` 같은 sync 경로\n\n그래서 제가 이번 커밋에서 런타임 메모리를 안 넣은 이유는 3개입니다.\n- 지금 워크트리의 메모리 JSON이 너무 많아서 코드 커밋이 세션 로그 커밋으로 오염됨\n- 개인 세션 내용까지 같이 푸시될 수 있음\n- 이 시스템은 애초에 그 파일들을 DB sync 쪽 자산으로 보는 편임\n\n하지만 네 말도 맞습니다.\n- 네 운영 방식이 `DB sync 없이 Git만으로 회사 PC 이어하기`라면\n- 런타임 메모리를 안 푸시하면 continuity가 약해집니다\n\n내 판단:\n- 지금 구조 기준 정석은 `회사 PC에서도 start_db agent-factory`로 메모리 가져오기\n- 만약 네가 진짜 `Git-only continuation`을 원하면 정책을 바꿔야 합니다\n\n그 경우 선택지는 2개입니다.\n1. `resume_brief.md`, `.af_manifest.json`, `.af_runtime/cli_sessions/*.json`, `projects/global_*/data/memory/**`까지 Git sync 대상으로 명시\n2. 반대로 지금처럼 runtime은 Git에서 빼고, `start_db/end_db`를 필수 운영 규칙으로 고정\n\n한 줄로 답하면:\n- 내가 안 푸시한 건 “필요 없어서”가 아니라 “이 레포 설계상 메모리는 Git보다 DB sync 쪽 자산으로 봤기 때문”입니다.\n- 하지만 네 운영이 Git-only면, 네 말대로 그 정책은 안 맞습니다.\n\n원하면 다음으로 바로\n- `Git-only continuity`로 갈지\n- `DB-sync continuity`로 갈지\n기준 잡고 거기에 맞게 `.gitignore`, sync 정책, 커밋 범위까지 정리해드리겠습니다.",
-    "event_timestamp": "2026-03-10T16:29:14.097Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
-    "session_line": 2334,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 맞습니다 Git만 기준이면 회사 PC에서 그대로 이어하기가 약해집니다다만 이 레포는 원래 그걸 Git으로 해결하려는 구조가 아니라 global memory  DBcontext sync로 해결하려는 ",
+  "value": "[assistant] 맞습니다. `Git만` 기준이면 회사 PC에서 그대로 이어하기가 약해집니다.  다만 이 레포는 원래 그걸 `Git`으로 해결하려는 구조가 아니라 `global memory + DB/context sync`로 해결하려는 쪽입니다.  근거는 이렇습니다. - Codex 세션이 끝나면 global memory로 브리지합니다: [session_adapter.py](/D:/warkSpaces/agent-factory/core/providers/s...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:38.051154+00:00",
+  "updated_at": "2026-03-10T17:40:38.051154+00:00",
+  "details": {
+    "text": "[assistant] 맞습니다. `Git만` 기준이면 회사 PC에서 그대로 이어하기가 약해집니다.\n\n다만 이 레포는 원래 그걸 `Git`으로 해결하려는 구조가 아니라 `global memory + DB/context sync`로 해결하려는 쪽입니다.\n\n근거는 이렇습니다.\n- Codex 세션이 끝나면 global memory로 브리지합니다: [session_adapter.py](/D:/warkSpaces/agent-factory/core/providers/session_adapter.py#L420), [session_bridge.py](/D:/warkSpaces/agent-factory/scripts/session_bridge.py#L192), [session_bridge.py](/D:/warkSpaces/agent-factory/scripts/session_bridge.py#L441)\n- 그 global memory가 cross-project continuity의 주 소스라고 코드에 적혀 있습니다: [project_context_sync.py](/D:/warkSpaces/agent-factory/scripts/project_context_sync.py#L439)\n- `resume_brief.md`도 세션 준비/종료 때 계속 다시 씁니다: [session_adapter.py](/D:/warkSpaces/agent-factory/core/providers/session_adapter.py#L389), [session_adapter.py](/D:/warkSpaces/agent-factory/core/providers/session_adapter.py#L426)\n\n즉 설계 의도는:\n- 코드/설정은 `git push`\n- 런타임 메모리/세션 continuity는 `start_db`/`end_db` 같은 sync 경로\n\n그래서 제가 이번 커밋에서 런타임 메모리를 안 넣은 이유는 3개입니다.\n- 지금 워크트리의 메모리 JSON이 너무 많아서 코드 커밋이 세션 로그 커밋으로 오염됨\n- 개인 세션 내용까지 같이 푸시될 수 있음\n- 이 시스템은 애초에 그 파일들을 DB sync 쪽 자산으로 보는 편임\n\n하지만 네 말도 맞습니다.\n- 네 운영 방식이 `DB sync 없이 Git만으로 회사 PC 이어하기`라면\n- 런타임 메모리를 안 푸시하면 continuity가 약해집니다\n\n내 판단:\n- 지금 구조 기준 정석은 `회사 PC에서도 start_db agent-factory`로 메모리 가져오기\n- 만약 네가 진짜 `Git-only continuation`을 원하면 정책을 바꿔야 합니다\n\n그 경우 선택지는 2개입니다.\n1. `resume_brief.md`, `.af_manifest.json`, `.af_runtime/cli_sessions/*.json`, `projects/global_*/data/memory/**`까지 Git sync 대상으로 명시\n2. 반대로 지금처럼 runtime은 Git에서 빼고, `start_db/end_db`를 필수 운영 규칙으로 고정\n\n한 줄로 답하면:\n- 내가 안 푸시한 건 “필요 없어서”가 아니라 “이 레포 설계상 메모리는 Git보다 DB sync 쪽 자산으로 봤기 때문”입니다.\n- 하지만 네 운영이 Git-only면, 네 말대로 그 정책은 안 맞습니다.\n\n원하면 다음으로 바로\n- `Git-only continuity`로 갈지\n- `DB-sync continuity`로 갈지\n기준 잡고 거기에 맞게 `.gitignore`, sync 정책, 커밋 범위까지 정리해드리겠습니다.",
+    "event_timestamp": "2026-03-10T16:29:14.097Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
+    "session_line": 2334,
+    "provider": "codex"
+  }
 }

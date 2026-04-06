@@ -1,18 +1,18 @@
-{
-  "key": "assistant 지금부터는 이렇게 하면 됩니다agent-factory가 Codex를 자동 실행할 때- 최신 코드 기준으로 그대로 실행- Codex provider는 이제 --ask-for-approval never",
-  "value": "[assistant] 지금부터는 이렇게 하면 됩니다.  `agent-factory`가 Codex를 자동 실행할 때: - 최신 코드 기준으로 그대로 실행 - Codex provider는 이제 `--ask-for-approval never --sandbox workspace-write`로 뜹니다  직접 Codex를 수동 실행할 때: ```powershell & 'C:\\Users\\HOON\\AppData\\Roaming\\npm\\codex.cmd' --ask-for-...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T06:58:54.437672+00:00",
-  "updated_at": "2026-03-10T06:58:54.437672+00:00",
-  "details": {
-    "text": "[assistant] 지금부터는 이렇게 하면 됩니다.\n\n`agent-factory`가 Codex를 자동 실행할 때:\n- 최신 코드 기준으로 그대로 실행\n- Codex provider는 이제 `--ask-for-approval never --sandbox workspace-write`로 뜹니다\n\n직접 Codex를 수동 실행할 때:\n```powershell\n& 'C:\\Users\\HOON\\AppData\\Roaming\\npm\\codex.cmd' --ask-for-approval never --sandbox workspace-write exec \"지시문...\"\n```\n\n중요한 점:\n- `--full-auto`만 쓰면 안 됩니다\n  이건 실제로 `on-request`라 승인창이 뜰 수 있습니다\n- 작업 대상이 workspace 밖이면 샌드박스 때문에 막힐 수 있습니다\n  그 경우는 승인창 대신 실패로 돌아오게 하는 게 현재 목표 설정입니다\n\n실무적으로는:\n1. 자동 실행은 factory 경로로만 쓴다\n2. 수동 실행이 필요하면 `never + workspace-write`를 명시한다\n3. 수정할 파일은 가능하면 현재 workspace 안에 둔다\n\n원하면 다음으로 제가\n- 실제 실행 명령을 한 줄 배치/스크립트로 만들어주거나\n- `run_factory_cli.py` 기본 모드까지 자동실행 쪽으로 더 고정해드리겠습니다.",
-    "event_timestamp": "2026-03-10T06:26:39.139Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
-    "session_line": 1043,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 지금부터는 이렇게 하면 됩니다agent-factory가 Codex를 자동 실행할 때- 최신 코드 기준으로 그대로 실행- Codex provider는 이제 --ask-for-approval never",
+  "value": "[assistant] 지금부터는 이렇게 하면 됩니다.  `agent-factory`가 Codex를 자동 실행할 때: - 최신 코드 기준으로 그대로 실행 - Codex provider는 이제 `--ask-for-approval never --sandbox workspace-write`로 뜹니다  직접 Codex를 수동 실행할 때: ```powershell & 'C:\\Users\\HOON\\AppData\\Roaming\\npm\\codex.cmd' --ask-for-...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T06:58:54.437672+00:00",
+  "updated_at": "2026-03-10T06:58:54.437672+00:00",
+  "details": {
+    "text": "[assistant] 지금부터는 이렇게 하면 됩니다.\n\n`agent-factory`가 Codex를 자동 실행할 때:\n- 최신 코드 기준으로 그대로 실행\n- Codex provider는 이제 `--ask-for-approval never --sandbox workspace-write`로 뜹니다\n\n직접 Codex를 수동 실행할 때:\n```powershell\n& 'C:\\Users\\HOON\\AppData\\Roaming\\npm\\codex.cmd' --ask-for-approval never --sandbox workspace-write exec \"지시문...\"\n```\n\n중요한 점:\n- `--full-auto`만 쓰면 안 됩니다\n  이건 실제로 `on-request`라 승인창이 뜰 수 있습니다\n- 작업 대상이 workspace 밖이면 샌드박스 때문에 막힐 수 있습니다\n  그 경우는 승인창 대신 실패로 돌아오게 하는 게 현재 목표 설정입니다\n\n실무적으로는:\n1. 자동 실행은 factory 경로로만 쓴다\n2. 수동 실행이 필요하면 `never + workspace-write`를 명시한다\n3. 수정할 파일은 가능하면 현재 workspace 안에 둔다\n\n원하면 다음으로 제가\n- 실제 실행 명령을 한 줄 배치/스크립트로 만들어주거나\n- `run_factory_cli.py` 기본 모드까지 자동실행 쪽으로 더 고정해드리겠습니다.",
+    "event_timestamp": "2026-03-10T06:26:39.139Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 1043,
+    "provider": "codex"
+  }
 }

@@ -1,18 +1,18 @@
-{
-  "key": "assistant 프로젝트 생성 시 실제 코드가 생성되도록 경로를 정리했고 활성 클론에도 반영했습니다 핵심 수정은 coreengine_authpyDwarkSpacesagent-factorycoreengine_auth",
-  "value": "[assistant] 프로젝트 생성 시 실제 코드가 생성되도록 경로를 정리했고, 활성 클론에도 반영했습니다. 핵심 수정은 [core/engine_auth.py](D:/warkSpaces/agent-factory/core/engine_auth.py), [core/config_paths.py](D:/warkSpaces/agent-factory/core/config_paths.py), [core/manager.py](D:/warkSpaces/agent-facto...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T14:45:45.343527+00:00",
-  "updated_at": "2026-03-10T14:45:45.343527+00:00",
-  "details": {
-    "text": "[assistant] 프로젝트 생성 시 실제 코드가 생성되도록 경로를 정리했고, 활성 클론에도 반영했습니다. 핵심 수정은 [core/engine_auth.py](D:/warkSpaces/agent-factory/core/engine_auth.py), [core/config_paths.py](D:/warkSpaces/agent-factory/core/config_paths.py), [core/manager.py](D:/warkSpaces/agent-factory/core/manager.py), [core/project_pipeline.py](D:/warkSpaces/agent-factory/core/project_pipeline.py), [core/dynamic_orchestrator.py](D:/warkSpaces/agent-factory/core/dynamic_orchestrator.py)입니다. 새 역할 에이전트에 기본 `file_handler`/`core_memory`를 붙이고, keyless CLI bootstrap fallback과 TODO 기반 오케스트레이션을 보강했습니다. 회귀는 `tests/test_project_overrides.py`, `tests/test_project_pipeline.py`, `tests/test_dynamic_orchestrator_workspace_scope.py`로 다시 돌렸고 두 트리 모두 종료코드 `0`이었습니다.\n\n실제 외부 `D:\\` 경로 라이브 스모크도 확인됐습니다. 성공 사례는 `D:\\af_project_pipeline_live_smoke_1773079586`이고, [index.html](D:/af_project_pipeline_live_smoke_1773079586/index.html), [style.css](D:/af_project_pipeline_live_smoke_1773079586/style.css), [script.js](D:/af_project_pipeline_live_smoke_1773079586/script.js)가 생성됐습니다. [qa_report.json](D:/af_project_pipeline_live_smoke_1773079586/qa_report.json)에는 `all_passed: true`가 남아 있고, [script.js](D:/af_project_pipeline_live_smoke_1773079586/script.js)에서 `window.PIPELINE_LIVE_OK = \"PIPELINE_LIVE_OK\"`도 확인했습니다.\n\n추가로 재실행 중 드러난 오케스트레이터 버그 두 개도 같이 잡았습니다. 완료된 TODO 재할당 차단과 role-scoped TODO의 교차 할당 금지입니다. 다만 post-fix 라이브 재실행은 Gemini CLI 세션이 부모 프로세스보다 늦게 정리되는 현상이 있어서, 새 런에서 `dashboard.json`의 최종 완료 상태까지는 다시 깔끔하게 채집하지 못했습니다. 변경은 작업복사본에 반영돼 있고 커밋은 아직 안 했습니다.",
-    "event_timestamp": "2026-03-09T18:16:24.006Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
-    "session_line": 3444,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 프로젝트 생성 시 실제 코드가 생성되도록 경로를 정리했고 활성 클론에도 반영했습니다 핵심 수정은 coreengine_authpyDwarkSpacesagent-factorycoreengine_auth",
+  "value": "[assistant] 프로젝트 생성 시 실제 코드가 생성되도록 경로를 정리했고, 활성 클론에도 반영했습니다. 핵심 수정은 [core/engine_auth.py](D:/warkSpaces/agent-factory/core/engine_auth.py), [core/config_paths.py](D:/warkSpaces/agent-factory/core/config_paths.py), [core/manager.py](D:/warkSpaces/agent-facto...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T14:45:45.343527+00:00",
+  "updated_at": "2026-03-10T14:45:45.343527+00:00",
+  "details": {
+    "text": "[assistant] 프로젝트 생성 시 실제 코드가 생성되도록 경로를 정리했고, 활성 클론에도 반영했습니다. 핵심 수정은 [core/engine_auth.py](D:/warkSpaces/agent-factory/core/engine_auth.py), [core/config_paths.py](D:/warkSpaces/agent-factory/core/config_paths.py), [core/manager.py](D:/warkSpaces/agent-factory/core/manager.py), [core/project_pipeline.py](D:/warkSpaces/agent-factory/core/project_pipeline.py), [core/dynamic_orchestrator.py](D:/warkSpaces/agent-factory/core/dynamic_orchestrator.py)입니다. 새 역할 에이전트에 기본 `file_handler`/`core_memory`를 붙이고, keyless CLI bootstrap fallback과 TODO 기반 오케스트레이션을 보강했습니다. 회귀는 `tests/test_project_overrides.py`, `tests/test_project_pipeline.py`, `tests/test_dynamic_orchestrator_workspace_scope.py`로 다시 돌렸고 두 트리 모두 종료코드 `0`이었습니다.\n\n실제 외부 `D:\\` 경로 라이브 스모크도 확인됐습니다. 성공 사례는 `D:\\af_project_pipeline_live_smoke_1773079586`이고, [index.html](D:/af_project_pipeline_live_smoke_1773079586/index.html), [style.css](D:/af_project_pipeline_live_smoke_1773079586/style.css), [script.js](D:/af_project_pipeline_live_smoke_1773079586/script.js)가 생성됐습니다. [qa_report.json](D:/af_project_pipeline_live_smoke_1773079586/qa_report.json)에는 `all_passed: true`가 남아 있고, [script.js](D:/af_project_pipeline_live_smoke_1773079586/script.js)에서 `window.PIPELINE_LIVE_OK = \"PIPELINE_LIVE_OK\"`도 확인했습니다.\n\n추가로 재실행 중 드러난 오케스트레이터 버그 두 개도 같이 잡았습니다. 완료된 TODO 재할당 차단과 role-scoped TODO의 교차 할당 금지입니다. 다만 post-fix 라이브 재실행은 Gemini CLI 세션이 부모 프로세스보다 늦게 정리되는 현상이 있어서, 새 런에서 `dashboard.json`의 최종 완료 상태까지는 다시 깔끔하게 채집하지 못했습니다. 변경은 작업복사본에 반영돼 있고 커밋은 아직 안 했습니다.",
+    "event_timestamp": "2026-03-09T18:16:24.006Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 3444,
+    "provider": "codex"
+  }
 }

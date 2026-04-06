@@ -1,18 +1,18 @@
-{
-  "key": "assistant 상태 확인 서브커맨드는 확인됐습니다 저장된 Codex 인증 정보를 직접 읽어 보겠습니다",
-  "value": "[assistant] 상태 확인 서브커맨드는 확인됐습니다. 저장된 Codex 인증 정보를 직접 읽어 보겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T14:39:12.902140+00:00",
-  "updated_at": "2026-03-09T14:39:12.902140+00:00",
-  "details": {
-    "text": "[assistant] 상태 확인 서브커맨드는 확인됐습니다. 저장된 Codex 인증 정보를 직접 읽어 보겠습니다.",
-    "event_timestamp": "2026-03-09T13:54:52.562Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T22-53-58-019cd2e0-4483-7943-8fd7-1e4deab29ea9.jsonl",
-    "session_line": 46,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 상태 확인 서브커맨드는 확인됐습니다 저장된 Codex 인증 정보를 직접 읽어 보겠습니다",
+  "value": "[assistant] 상태 확인 서브커맨드는 확인됐습니다. 저장된 Codex 인증 정보를 직접 읽어 보겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T14:39:12.902140+00:00",
+  "updated_at": "2026-03-09T14:39:12.902140+00:00",
+  "details": {
+    "text": "[assistant] 상태 확인 서브커맨드는 확인됐습니다. 저장된 Codex 인증 정보를 직접 읽어 보겠습니다.",
+    "event_timestamp": "2026-03-09T13:54:52.562Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T22-53-58-019cd2e0-4483-7943-8fd7-1e4deab29ea9.jsonl",
+    "session_line": 46,
+    "provider": "codex"
+  }
 }

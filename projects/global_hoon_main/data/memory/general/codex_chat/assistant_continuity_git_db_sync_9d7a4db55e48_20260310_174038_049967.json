@@ -1,18 +1,18 @@
-{
-  "key": "assistant 메모리continuity 쪽이 실제로는 Git보다 DB sync 경로를 우선으로 두고 있습니다 그 전제에서 왜 제가 런타임 메모리를 커밋에서 뺐는지 바로 정리하겠습니다",
-  "value": "[assistant] 메모리/continuity 쪽이 실제로는 Git보다 DB sync 경로를 우선으로 두고 있습니다. 그 전제에서 왜 제가 런타임 메모리를 커밋에서 뺐는지 바로 정리하겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T17:40:38.050047+00:00",
-  "updated_at": "2026-03-10T17:40:38.050047+00:00",
-  "details": {
-    "text": "[assistant] 메모리/continuity 쪽이 실제로는 Git보다 DB sync 경로를 우선으로 두고 있습니다. 그 전제에서 왜 제가 런타임 메모리를 커밋에서 뺐는지 바로 정리하겠습니다.",
-    "event_timestamp": "2026-03-10T16:29:02.477Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
-    "session_line": 2332,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 메모리continuity 쪽이 실제로는 Git보다 DB sync 경로를 우선으로 두고 있습니다 그 전제에서 왜 제가 런타임 메모리를 커밋에서 뺐는지 바로 정리하겠습니다",
+  "value": "[assistant] 메모리/continuity 쪽이 실제로는 Git보다 DB sync 경로를 우선으로 두고 있습니다. 그 전제에서 왜 제가 런타임 메모리를 커밋에서 뺐는지 바로 정리하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:38.050047+00:00",
+  "updated_at": "2026-03-10T17:40:38.050047+00:00",
+  "details": {
+    "text": "[assistant] 메모리/continuity 쪽이 실제로는 Git보다 DB sync 경로를 우선으로 두고 있습니다. 그 전제에서 왜 제가 런타임 메모리를 커밋에서 뺐는지 바로 정리하겠습니다.",
+    "event_timestamp": "2026-03-10T16:29:02.477Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
+    "session_line": 2332,
+    "provider": "codex"
+  }
 }

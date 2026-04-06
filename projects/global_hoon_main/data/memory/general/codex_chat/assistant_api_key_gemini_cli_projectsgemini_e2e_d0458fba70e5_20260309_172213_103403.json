@@ -1,18 +1,18 @@
-{
-  "key": "assistant 자동 회귀는 통과했습니다 한 번 더 의미 있는 검증으로 API key 없이 Gemini 로그인 세션만 타는 실제 CLI 스모크를 projectsgemini_e2e에서 돌려보겠습니다",
-  "value": "[assistant] 자동 회귀는 통과했습니다. 한 번 더 의미 있는 검증으로, API key 없이 Gemini 로그인 세션만 타는 실제 CLI 스모크를 `projects/gemini_e2e`에서 돌려보겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T17:22:13.103483+00:00",
-  "updated_at": "2026-03-09T17:22:13.103483+00:00",
-  "details": {
-    "text": "[assistant] 자동 회귀는 통과했습니다. 한 번 더 의미 있는 검증으로, API key 없이 Gemini 로그인 세션만 타는 실제 CLI 스모크를 `projects/gemini_e2e`에서 돌려보겠습니다.",
-    "event_timestamp": "2026-03-09T16:56:19.111Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
-    "session_line": 1948,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 자동 회귀는 통과했습니다 한 번 더 의미 있는 검증으로 API key 없이 Gemini 로그인 세션만 타는 실제 CLI 스모크를 projectsgemini_e2e에서 돌려보겠습니다",
+  "value": "[assistant] 자동 회귀는 통과했습니다. 한 번 더 의미 있는 검증으로, API key 없이 Gemini 로그인 세션만 타는 실제 CLI 스모크를 `projects/gemini_e2e`에서 돌려보겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T17:22:13.103483+00:00",
+  "updated_at": "2026-03-09T17:22:13.103483+00:00",
+  "details": {
+    "text": "[assistant] 자동 회귀는 통과했습니다. 한 번 더 의미 있는 검증으로, API key 없이 Gemini 로그인 세션만 타는 실제 CLI 스모크를 `projects/gemini_e2e`에서 돌려보겠습니다.",
+    "event_timestamp": "2026-03-09T16:56:19.111Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 1948,
+    "provider": "codex"
+  }
 }

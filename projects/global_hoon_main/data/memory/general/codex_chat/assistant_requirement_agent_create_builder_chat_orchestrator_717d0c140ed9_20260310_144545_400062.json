@@ -1,18 +1,18 @@
-{
-  "key": "assistant 어떤 단계에서 어떤 모델 슬롯을 고르는지도 같이 확인하겠습니다 requirement agent_create builder chat orchestrator가 어디서 쓰이는지 보여드리면 흐름이 더 명확",
-  "value": "[assistant] 어떤 단계에서 어떤 모델 슬롯을 고르는지도 같이 확인하겠습니다. `requirement`, `agent_create`, `builder`, `chat`, `orchestrator`가 어디서 쓰이는지 보여드리면 흐름이 더 명확해집니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T14:45:45.400139+00:00",
-  "updated_at": "2026-03-10T14:45:45.400139+00:00",
-  "details": {
-    "text": "[assistant] 어떤 단계에서 어떤 모델 슬롯을 고르는지도 같이 확인하겠습니다. `requirement`, `agent_create`, `builder`, `chat`, `orchestrator`가 어디서 쓰이는지 보여드리면 흐름이 더 명확해집니다.",
-    "event_timestamp": "2026-03-10T14:13:51.678Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
-    "session_line": 378,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 어떤 단계에서 어떤 모델 슬롯을 고르는지도 같이 확인하겠습니다 requirement agent_create builder chat orchestrator가 어디서 쓰이는지 보여드리면 흐름이 더 명확",
+  "value": "[assistant] 어떤 단계에서 어떤 모델 슬롯을 고르는지도 같이 확인하겠습니다. `requirement`, `agent_create`, `builder`, `chat`, `orchestrator`가 어디서 쓰이는지 보여드리면 흐름이 더 명확해집니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T14:45:45.400139+00:00",
+  "updated_at": "2026-03-10T14:45:45.400139+00:00",
+  "details": {
+    "text": "[assistant] 어떤 단계에서 어떤 모델 슬롯을 고르는지도 같이 확인하겠습니다. `requirement`, `agent_create`, `builder`, `chat`, `orchestrator`가 어디서 쓰이는지 보여드리면 흐름이 더 명확해집니다.",
+    "event_timestamp": "2026-03-10T14:13:51.678Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
+    "session_line": 378,
+    "provider": "codex"
+  }
 }

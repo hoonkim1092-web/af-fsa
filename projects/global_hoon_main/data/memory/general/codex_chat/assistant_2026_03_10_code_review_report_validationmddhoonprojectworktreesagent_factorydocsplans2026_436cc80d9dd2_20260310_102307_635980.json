@@ -1,18 +1,18 @@
-{
-  "key": "assistant 검증 문서를 작성해 뒀습니다 본문은 2026-03-10-code-review-report-validationmdDhoonProJectworktreesagent-factorydocsplans2026-",
-  "value": "[assistant] 검증 문서를 작성해 뒀습니다. 본문은 [2026-03-10-code-review-report-validation.md](/D:/hoonProJect/worktrees/agent-factory/docs/plans/2026-03-10-code-review-report-validation.md)이고, 변경 이력은 [change_history.md](/D:/hoonProJect/worktrees/agent-factory/docs/change_...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T10:23:07.636443+00:00",
-  "updated_at": "2026-03-10T10:23:07.636443+00:00",
-  "details": {
-    "text": "[assistant] 검증 문서를 작성해 뒀습니다. 본문은 [2026-03-10-code-review-report-validation.md](/D:/hoonProJect/worktrees/agent-factory/docs/plans/2026-03-10-code-review-report-validation.md)이고, 변경 이력은 [change_history.md](/D:/hoonProJect/worktrees/agent-factory/docs/change_history.md)에 남겼습니다.\n\n핵심 결론은 이렇습니다.\n\n- 보고서 방향은 대체로 맞습니다. 중복 가드와 샌드박스 헬퍼, `agent_runner.py` 비대화, wildcard import, `config_paths.py` import-time side effect, `minesweeper` 하드코딩, 취약한 JSON 파싱, 루트 오염, `_gemini_keys` 전역 상태 문제는 현재도 유효합니다. 근거 예시는 [agent_runner.py](/D:/hoonProJect/worktrees/agent-factory/core/agent_runner.py#L20), [agent_runner.py](/D:/hoonProJect/worktrees/agent-factory/core/agent_runner.py#L110), [security_guard.py](/D:/hoonProJect/worktrees/agent-factory/core/security_guard.py#L86), [config_paths.py](/D:/hoonProJect/worktrees/agent-factory/core/config_paths.py#L98), [llm_engine.py](/D:/hoonProJect/worktrees/agent-factory/core/llm_engine.py#L87), [llm_engine.py](/D:/hoonProJect/worktrees/agent-factory/core/llm_engine.py#L184), [run_factory_cli.py](/D:/hoonProJect/worktrees/agent-factory/run_factory_cli.py#L21)입니다.\n- 다만 보고서를 그대로 패치 계획으로 쓰면 안 됩니다. `code_review_report.md`는 [code_review_report.md](/D:/hoonProJect/worktrees/agent-factory/code_review_report.md#L14)에서 `core/model_utils.py`를 언급하지만 현재 트리에 그 파일은 없습니다. 또 `safe_id` 중복도 실제로는 보고서보다 더 넓습니다.\n- 추가로, 보고서에 없는 현재 라이브 회귀도 하나 확인됐습니다. 오케스트레이터 resume 복원 테스트가 [test_orchestrator_manifest.py](/D:/hoonProJect/worktrees/agent-factory/tests/test_orchestrator_manifest.py#L125)에서 `interrupted_subtasks` 누락으로 실패합니다.\n\n문서에는 단계별 수정 순서를 명시했습니다. 우선순위는 `security_guard` 단일화 -> `generate_json()` 보강 -> orchestrator resume 회귀 수정 -> `minesweeper` 하드코드 제거 -> wildcard import/safe_id 정리 순서입니다. 즉, “리뷰 항목 전체 일괄 반영”이 아니라 “정확성/격리 버그 먼저, 구조 정리는 그 다음”으로 가야 한다는 결론입니다.\n\n검증은 이 턴에서 다시 돌렸습니다.\n\n- `python -m pytest tests/test_request_router.py tests/test_project_pipeline.py tests/test_dynamic_orchestrator_workspace_scope.py -q` -> `8 passed, 1 warning`\n- `python -m pytest tests/test_orchestrator_manifest.py::test_dynamic_orchestrator_writes_manifest_and_restores_interruptions -q` -> `1 failed`\n\n참고로 이번에 만든 두 문서는 현재 Git 기준 `untracked` 상태입니다. 원하면 다음 단계로 문서의 Phase 1부터 실제 코드 수정까지 바로 이어서 하겠습니다.",
-    "event_timestamp": "2026-03-10T08:50:25.902Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
-    "session_line": 1810,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 검증 문서를 작성해 뒀습니다 본문은 2026-03-10-code-review-report-validationmdDhoonProJectworktreesagent-factorydocsplans2026-",
+  "value": "[assistant] 검증 문서를 작성해 뒀습니다. 본문은 [2026-03-10-code-review-report-validation.md](/D:/hoonProJect/worktrees/agent-factory/docs/plans/2026-03-10-code-review-report-validation.md)이고, 변경 이력은 [change_history.md](/D:/hoonProJect/worktrees/agent-factory/docs/change_...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T10:23:07.636443+00:00",
+  "updated_at": "2026-03-10T10:23:07.636443+00:00",
+  "details": {
+    "text": "[assistant] 검증 문서를 작성해 뒀습니다. 본문은 [2026-03-10-code-review-report-validation.md](/D:/hoonProJect/worktrees/agent-factory/docs/plans/2026-03-10-code-review-report-validation.md)이고, 변경 이력은 [change_history.md](/D:/hoonProJect/worktrees/agent-factory/docs/change_history.md)에 남겼습니다.\n\n핵심 결론은 이렇습니다.\n\n- 보고서 방향은 대체로 맞습니다. 중복 가드와 샌드박스 헬퍼, `agent_runner.py` 비대화, wildcard import, `config_paths.py` import-time side effect, `minesweeper` 하드코딩, 취약한 JSON 파싱, 루트 오염, `_gemini_keys` 전역 상태 문제는 현재도 유효합니다. 근거 예시는 [agent_runner.py](/D:/hoonProJect/worktrees/agent-factory/core/agent_runner.py#L20), [agent_runner.py](/D:/hoonProJect/worktrees/agent-factory/core/agent_runner.py#L110), [security_guard.py](/D:/hoonProJect/worktrees/agent-factory/core/security_guard.py#L86), [config_paths.py](/D:/hoonProJect/worktrees/agent-factory/core/config_paths.py#L98), [llm_engine.py](/D:/hoonProJect/worktrees/agent-factory/core/llm_engine.py#L87), [llm_engine.py](/D:/hoonProJect/worktrees/agent-factory/core/llm_engine.py#L184), [run_factory_cli.py](/D:/hoonProJect/worktrees/agent-factory/run_factory_cli.py#L21)입니다.\n- 다만 보고서를 그대로 패치 계획으로 쓰면 안 됩니다. `code_review_report.md`는 [code_review_report.md](/D:/hoonProJect/worktrees/agent-factory/code_review_report.md#L14)에서 `core/model_utils.py`를 언급하지만 현재 트리에 그 파일은 없습니다. 또 `safe_id` 중복도 실제로는 보고서보다 더 넓습니다.\n- 추가로, 보고서에 없는 현재 라이브 회귀도 하나 확인됐습니다. 오케스트레이터 resume 복원 테스트가 [test_orchestrator_manifest.py](/D:/hoonProJect/worktrees/agent-factory/tests/test_orchestrator_manifest.py#L125)에서 `interrupted_subtasks` 누락으로 실패합니다.\n\n문서에는 단계별 수정 순서를 명시했습니다. 우선순위는 `security_guard` 단일화 -> `generate_json()` 보강 -> orchestrator resume 회귀 수정 -> `minesweeper` 하드코드 제거 -> wildcard import/safe_id 정리 순서입니다. 즉, “리뷰 항목 전체 일괄 반영”이 아니라 “정확성/격리 버그 먼저, 구조 정리는 그 다음”으로 가야 한다는 결론입니다.\n\n검증은 이 턴에서 다시 돌렸습니다.\n\n- `python -m pytest tests/test_request_router.py tests/test_project_pipeline.py tests/test_dynamic_orchestrator_workspace_scope.py -q` -> `8 passed, 1 warning`\n- `python -m pytest tests/test_orchestrator_manifest.py::test_dynamic_orchestrator_writes_manifest_and_restores_interruptions -q` -> `1 failed`\n\n참고로 이번에 만든 두 문서는 현재 Git 기준 `untracked` 상태입니다. 원하면 다음 단계로 문서의 Phase 1부터 실제 코드 수정까지 바로 이어서 하겠습니다.",
+    "event_timestamp": "2026-03-10T08:50:25.902Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 1810,
+    "provider": "codex"
+  }
 }

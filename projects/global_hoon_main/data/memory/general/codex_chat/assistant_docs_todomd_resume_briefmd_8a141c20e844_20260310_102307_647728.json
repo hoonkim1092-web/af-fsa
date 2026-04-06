@@ -1,18 +1,18 @@
-{
-  "key": "assistant 자동 생성 마크다운 중 현재 바로 잡을 수 있는 건 docs todomd resume_briefmd입니다 이 세 경로를 같은 언어 정책으로 묶으면 앞으로 생성되는 핵심 문서는 대부분 같은 규칙을 따",
-  "value": "[assistant] 자동 생성 마크다운 중 현재 바로 잡을 수 있는 건 `docs/*`, `.todo.md`, `resume_brief.md`입니다. 이 세 경로를 같은 언어 정책으로 묶으면 “앞으로 생성되는 핵심 문서”는 대부분 같은 규칙을 따르게 됩니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T10:23:07.647796+00:00",
-  "updated_at": "2026-03-10T10:23:07.647796+00:00",
-  "details": {
-    "text": "[assistant] 자동 생성 마크다운 중 현재 바로 잡을 수 있는 건 `docs/*`, `.todo.md`, `resume_brief.md`입니다. 이 세 경로를 같은 언어 정책으로 묶으면 “앞으로 생성되는 핵심 문서”는 대부분 같은 규칙을 따르게 됩니다.",
-    "event_timestamp": "2026-03-10T08:58:30.115Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
-    "session_line": 1877,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 자동 생성 마크다운 중 현재 바로 잡을 수 있는 건 docs todomd resume_briefmd입니다 이 세 경로를 같은 언어 정책으로 묶으면 앞으로 생성되는 핵심 문서는 대부분 같은 규칙을 따",
+  "value": "[assistant] 자동 생성 마크다운 중 현재 바로 잡을 수 있는 건 `docs/*`, `.todo.md`, `resume_brief.md`입니다. 이 세 경로를 같은 언어 정책으로 묶으면 “앞으로 생성되는 핵심 문서”는 대부분 같은 규칙을 따르게 됩니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T10:23:07.647796+00:00",
+  "updated_at": "2026-03-10T10:23:07.647796+00:00",
+  "details": {
+    "text": "[assistant] 자동 생성 마크다운 중 현재 바로 잡을 수 있는 건 `docs/*`, `.todo.md`, `resume_brief.md`입니다. 이 세 경로를 같은 언어 정책으로 묶으면 “앞으로 생성되는 핵심 문서”는 대부분 같은 규칙을 따르게 됩니다.",
+    "event_timestamp": "2026-03-10T08:58:30.115Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 1877,
+    "provider": "codex"
+  }
 }

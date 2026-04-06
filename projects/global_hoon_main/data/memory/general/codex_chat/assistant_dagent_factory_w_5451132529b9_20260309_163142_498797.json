@@ -1,18 +1,18 @@
-{
-  "key": "assistant 방금 실패는 Dagent-factory 본체 모듈이 먼저 잡혀서 난 겁니다 작업트리 w를 실제 루트로 실행해 검증하고 필요하면 그쪽 코드 상태도 같이 맞추겠습니다",
-  "value": "[assistant] 방금 실패는 `D:\\agent-factory` 본체 모듈이 먼저 잡혀서 난 겁니다. 작업트리 `w`를 실제 루트로 실행해 검증하고, 필요하면 그쪽 코드 상태도 같이 맞추겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T16:31:42.498851+00:00",
-  "updated_at": "2026-03-09T16:31:42.498851+00:00",
-  "details": {
-    "text": "[assistant] 방금 실패는 `D:\\agent-factory` 본체 모듈이 먼저 잡혀서 난 겁니다. 작업트리 `w`를 실제 루트로 실행해 검증하고, 필요하면 그쪽 코드 상태도 같이 맞추겠습니다.",
-    "event_timestamp": "2026-03-09T16:16:01.948Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
-    "session_line": 1025,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 방금 실패는 Dagent-factory 본체 모듈이 먼저 잡혀서 난 겁니다 작업트리 w를 실제 루트로 실행해 검증하고 필요하면 그쪽 코드 상태도 같이 맞추겠습니다",
+  "value": "[assistant] 방금 실패는 `D:\\agent-factory` 본체 모듈이 먼저 잡혀서 난 겁니다. 작업트리 `w`를 실제 루트로 실행해 검증하고, 필요하면 그쪽 코드 상태도 같이 맞추겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T16:31:42.498851+00:00",
+  "updated_at": "2026-03-09T16:31:42.498851+00:00",
+  "details": {
+    "text": "[assistant] 방금 실패는 `D:\\agent-factory` 본체 모듈이 먼저 잡혀서 난 겁니다. 작업트리 `w`를 실제 루트로 실행해 검증하고, 필요하면 그쪽 코드 상태도 같이 맞추겠습니다.",
+    "event_timestamp": "2026-03-09T16:16:01.948Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 1025,
+    "provider": "codex"
+  }
 }

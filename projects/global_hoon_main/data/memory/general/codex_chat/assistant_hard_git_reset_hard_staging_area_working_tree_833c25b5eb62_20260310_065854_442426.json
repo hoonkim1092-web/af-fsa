@@ -1,18 +1,18 @@
-{
-  "key": "assistant --hard는 보통 git reset --hard에서 쓰는 옵션입니다뜻- 현재 브랜치 포인터를 옮기고- staging area도 바꾸고- working tree 파일도 강제로 그 커밋 상태로 덮어씁",
-  "value": "[assistant] `--hard`는 보통 `git reset --hard`에서 쓰는 옵션입니다.  뜻: - 현재 브랜치 포인터를 옮기고 - staging area도 바꾸고 - working tree 파일도 강제로 그 커밋 상태로 덮어씁니다  위험한 이유: - 커밋 안 된 로컬 수정이 사라질 수 있습니다 - 파일 삭제/덮어쓰기가 한 번에 일어납니다  예: ```bash git reset --hard HEAD~1 ```  이건 최근 커밋 하나 전으로 돌아가...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T06:58:54.442510+00:00",
-  "updated_at": "2026-03-10T06:58:54.442510+00:00",
-  "details": {
-    "text": "[assistant] `--hard`는 보통 `git reset --hard`에서 쓰는 옵션입니다.\n\n뜻:\n- 현재 브랜치 포인터를 옮기고\n- staging area도 바꾸고\n- working tree 파일도 강제로 그 커밋 상태로 덮어씁니다\n\n위험한 이유:\n- 커밋 안 된 로컬 수정이 사라질 수 있습니다\n- 파일 삭제/덮어쓰기가 한 번에 일어납니다\n\n예:\n```bash\ngit reset --hard HEAD~1\n```\n\n이건 최근 커밋 하나 전으로 돌아가면서, 현재 작업 파일도 그 상태로 강제 복원합니다.\n\n비슷하게 위험한 것:\n- `git checkout -- <file>`\n- `git clean -fd`\n- `rm`, `del`, `Remove-Item`\n\n그래서 제가 아까 말한 건, 삭제만 막아도 충분하지 않다는 뜻입니다. `git reset --hard`는 겉으로는 \"삭제 명령\"이 아니지만 결과적으로 작업물을 날릴 수 있습니다.",
-    "event_timestamp": "2026-03-10T06:47:08.690Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
-    "session_line": 1060,
-    "provider": "codex"
-  }
+{
+  "key": "assistant --hard는 보통 git reset --hard에서 쓰는 옵션입니다뜻- 현재 브랜치 포인터를 옮기고- staging area도 바꾸고- working tree 파일도 강제로 그 커밋 상태로 덮어씁",
+  "value": "[assistant] `--hard`는 보통 `git reset --hard`에서 쓰는 옵션입니다.  뜻: - 현재 브랜치 포인터를 옮기고 - staging area도 바꾸고 - working tree 파일도 강제로 그 커밋 상태로 덮어씁니다  위험한 이유: - 커밋 안 된 로컬 수정이 사라질 수 있습니다 - 파일 삭제/덮어쓰기가 한 번에 일어납니다  예: ```bash git reset --hard HEAD~1 ```  이건 최근 커밋 하나 전으로 돌아가...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T06:58:54.442510+00:00",
+  "updated_at": "2026-03-10T06:58:54.442510+00:00",
+  "details": {
+    "text": "[assistant] `--hard`는 보통 `git reset --hard`에서 쓰는 옵션입니다.\n\n뜻:\n- 현재 브랜치 포인터를 옮기고\n- staging area도 바꾸고\n- working tree 파일도 강제로 그 커밋 상태로 덮어씁니다\n\n위험한 이유:\n- 커밋 안 된 로컬 수정이 사라질 수 있습니다\n- 파일 삭제/덮어쓰기가 한 번에 일어납니다\n\n예:\n```bash\ngit reset --hard HEAD~1\n```\n\n이건 최근 커밋 하나 전으로 돌아가면서, 현재 작업 파일도 그 상태로 강제 복원합니다.\n\n비슷하게 위험한 것:\n- `git checkout -- <file>`\n- `git clean -fd`\n- `rm`, `del`, `Remove-Item`\n\n그래서 제가 아까 말한 건, 삭제만 막아도 충분하지 않다는 뜻입니다. `git reset --hard`는 겉으로는 \"삭제 명령\"이 아니지만 결과적으로 작업물을 날릴 수 있습니다.",
+    "event_timestamp": "2026-03-10T06:47:08.690Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 1060,
+    "provider": "codex"
+  }
 }

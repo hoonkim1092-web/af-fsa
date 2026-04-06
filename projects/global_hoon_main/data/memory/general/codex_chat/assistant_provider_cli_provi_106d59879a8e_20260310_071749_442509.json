@@ -1,18 +1,18 @@
-{
-  "key": "assistant 삭제리셋 금지 가드는 런타임 정책 변경이라 먼저 각 provider가 실제로 지원하는 차단 수단과 현재 코드의 삽입 지점을 확인하겠습니다 외부 CLI는 프롬프트만으로는 약하니 가능한 경우 provi",
-  "value": "[assistant] 삭제/리셋 금지 가드는 런타임 정책 변경이라, 먼저 각 provider가 실제로 지원하는 차단 수단과 현재 코드의 삽입 지점을 확인하겠습니다. 외부 CLI는 프롬프트만으로는 약하니, 가능한 경우 provider policy 파일과 로컬 가드 둘 다 걸겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T07:17:49.442582+00:00",
-  "updated_at": "2026-03-10T07:17:49.442582+00:00",
-  "details": {
-    "text": "[assistant] 삭제/리셋 금지 가드는 런타임 정책 변경이라, 먼저 각 provider가 실제로 지원하는 차단 수단과 현재 코드의 삽입 지점을 확인하겠습니다. 외부 CLI는 프롬프트만으로는 약하니, 가능한 경우 provider policy 파일과 로컬 가드 둘 다 걸겠습니다.",
-    "event_timestamp": "2026-03-10T07:08:37.857Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
-    "session_line": 1144,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 삭제리셋 금지 가드는 런타임 정책 변경이라 먼저 각 provider가 실제로 지원하는 차단 수단과 현재 코드의 삽입 지점을 확인하겠습니다 외부 CLI는 프롬프트만으로는 약하니 가능한 경우 provi",
+  "value": "[assistant] 삭제/리셋 금지 가드는 런타임 정책 변경이라, 먼저 각 provider가 실제로 지원하는 차단 수단과 현재 코드의 삽입 지점을 확인하겠습니다. 외부 CLI는 프롬프트만으로는 약하니, 가능한 경우 provider policy 파일과 로컬 가드 둘 다 걸겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T07:17:49.442582+00:00",
+  "updated_at": "2026-03-10T07:17:49.442582+00:00",
+  "details": {
+    "text": "[assistant] 삭제/리셋 금지 가드는 런타임 정책 변경이라, 먼저 각 provider가 실제로 지원하는 차단 수단과 현재 코드의 삽입 지점을 확인하겠습니다. 외부 CLI는 프롬프트만으로는 약하니, 가능한 경우 provider policy 파일과 로컬 가드 둘 다 걸겠습니다.",
+    "event_timestamp": "2026-03-10T07:08:37.857Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 1144,
+    "provider": "codex"
+  }
 }

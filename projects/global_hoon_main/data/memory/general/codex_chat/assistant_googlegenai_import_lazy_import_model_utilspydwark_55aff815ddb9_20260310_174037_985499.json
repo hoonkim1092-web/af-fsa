@@ -1,18 +1,18 @@
-{
-  "key": "assistant 수정했습니다 원인은 googlegenai를 실제로 쓰지 않는 경로에서도 import 시점에 끌어오던 구조였고 그걸 전부 lazy import로 바꿨습니다주요 변경- model_utilspyDwark",
-  "value": "[assistant] 수정했습니다. 원인은 `google.genai`를 실제로 쓰지 않는 경로에서도 import 시점에 끌어오던 구조였고, 그걸 전부 lazy import로 바꿨습니다.  주요 변경: - [model_utils.py](/D:/warkSpaces/agent-factory/model_utils.py#L47): Google client를 `_get_genai_client()`로 지연 생성 - [core/agent_runner.py](/D:/war...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T17:40:37.986083+00:00",
-  "updated_at": "2026-03-10T17:40:37.986083+00:00",
-  "details": {
-    "text": "[assistant] 수정했습니다. 원인은 `google.genai`를 실제로 쓰지 않는 경로에서도 import 시점에 끌어오던 구조였고, 그걸 전부 lazy import로 바꿨습니다.\n\n주요 변경:\n- [model_utils.py](/D:/warkSpaces/agent-factory/model_utils.py#L47): Google client를 `_get_genai_client()`로 지연 생성\n- [core/agent_runner.py](/D:/warkSpaces/agent-factory/core/agent_runner.py#L468), [core/agent_runner.py](/D:/warkSpaces/agent-factory/core/agent_runner.py#L611): Gemini SDK import를 SDK 실제 사용 시점으로 이동\n- [core/builder.py](/D:/warkSpaces/agent-factory/core/builder.py#L123): builder의 SDK fallback 경로에서만 `model_utils`/`google.genai` import\n- [core/llm_engine.py](/D:/warkSpaces/agent-factory/core/llm_engine.py#L140): client 생성 시점 import로 변경\n- [core/manager.py](/D:/warkSpaces/agent-factory/core/manager.py#L54), [core/researcher.py](/D:/warkSpaces/agent-factory/core/researcher.py#L154), [core/skill_procurer.py](/D:/warkSpaces/agent-factory/core/skill_procurer.py#L149), [core/skill_registry.py](/D:/warkSpaces/agent-factory/core/skill_registry.py#L140): legacy/SDK 의존 import를 함수 내부로 이동\n- [core/intent.py](/D:/warkSpaces/agent-factory/core/intent.py), [agent_launcher.py](/D:/warkSpaces/agent-factory/agent_launcher.py): 안 쓰는 `google.genai` dead import 제거\n\n검증:\n- `python -W error::DeprecationWarning -m pytest -q tests\\test_external_skill_sources.py tests\\test_skill_procurer_external_fallback.py tests\\test_skill_procurer_logging.py tests\\test_builder_cli_fallback.py tests\\test_external_skill_candidate_importer.py tests\\test_project_policy_defaults.py`\n- 결과: `15 passed`\n- `py_compile`도 통과했습니다.\n\n즉, 방금 보이던 그 `google.genai` DeprecationWarning은 현재 이 테스트 묶음 기준으로는 없어졌습니다.",
-    "event_timestamp": "2026-03-10T15:39:30.069Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
-    "session_line": 1628,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 수정했습니다 원인은 googlegenai를 실제로 쓰지 않는 경로에서도 import 시점에 끌어오던 구조였고 그걸 전부 lazy import로 바꿨습니다주요 변경- model_utilspyDwark",
+  "value": "[assistant] 수정했습니다. 원인은 `google.genai`를 실제로 쓰지 않는 경로에서도 import 시점에 끌어오던 구조였고, 그걸 전부 lazy import로 바꿨습니다.  주요 변경: - [model_utils.py](/D:/warkSpaces/agent-factory/model_utils.py#L47): Google client를 `_get_genai_client()`로 지연 생성 - [core/agent_runner.py](/D:/war...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:37.986083+00:00",
+  "updated_at": "2026-03-10T17:40:37.986083+00:00",
+  "details": {
+    "text": "[assistant] 수정했습니다. 원인은 `google.genai`를 실제로 쓰지 않는 경로에서도 import 시점에 끌어오던 구조였고, 그걸 전부 lazy import로 바꿨습니다.\n\n주요 변경:\n- [model_utils.py](/D:/warkSpaces/agent-factory/model_utils.py#L47): Google client를 `_get_genai_client()`로 지연 생성\n- [core/agent_runner.py](/D:/warkSpaces/agent-factory/core/agent_runner.py#L468), [core/agent_runner.py](/D:/warkSpaces/agent-factory/core/agent_runner.py#L611): Gemini SDK import를 SDK 실제 사용 시점으로 이동\n- [core/builder.py](/D:/warkSpaces/agent-factory/core/builder.py#L123): builder의 SDK fallback 경로에서만 `model_utils`/`google.genai` import\n- [core/llm_engine.py](/D:/warkSpaces/agent-factory/core/llm_engine.py#L140): client 생성 시점 import로 변경\n- [core/manager.py](/D:/warkSpaces/agent-factory/core/manager.py#L54), [core/researcher.py](/D:/warkSpaces/agent-factory/core/researcher.py#L154), [core/skill_procurer.py](/D:/warkSpaces/agent-factory/core/skill_procurer.py#L149), [core/skill_registry.py](/D:/warkSpaces/agent-factory/core/skill_registry.py#L140): legacy/SDK 의존 import를 함수 내부로 이동\n- [core/intent.py](/D:/warkSpaces/agent-factory/core/intent.py), [agent_launcher.py](/D:/warkSpaces/agent-factory/agent_launcher.py): 안 쓰는 `google.genai` dead import 제거\n\n검증:\n- `python -W error::DeprecationWarning -m pytest -q tests\\test_external_skill_sources.py tests\\test_skill_procurer_external_fallback.py tests\\test_skill_procurer_logging.py tests\\test_builder_cli_fallback.py tests\\test_external_skill_candidate_importer.py tests\\test_project_policy_defaults.py`\n- 결과: `15 passed`\n- `py_compile`도 통과했습니다.\n\n즉, 방금 보이던 그 `google.genai` DeprecationWarning은 현재 이 테스트 묶음 기준으로는 없어졌습니다.",
+    "event_timestamp": "2026-03-10T15:39:30.069Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
+    "session_line": 1628,
+    "provider": "codex"
+  }
 }

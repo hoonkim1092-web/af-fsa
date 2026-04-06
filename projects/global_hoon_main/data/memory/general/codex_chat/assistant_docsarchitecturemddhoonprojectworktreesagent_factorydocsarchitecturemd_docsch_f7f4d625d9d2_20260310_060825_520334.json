@@ -1,18 +1,18 @@
-{
-  "key": "assistant 전체 구조를 추적해서 docsarchitecturemdDhoonProJectworktreesagent-factorydocsarchitecturemd 에 상세 문서를 작성했고 변경 기록은 docsch",
-  "value": "[assistant] 전체 구조를 추적해서 [docs/architecture.md](D:/hoonProJect/worktrees/agent-factory/docs/architecture.md) 에 상세 문서를 작성했고, 변경 기록은 [docs/change_history.md](D:/hoonProJect/worktrees/agent-factory/docs/change_history.md) 에 남겼습니다.  이번 문서에는 아래를 단계별로 정리해뒀습니다. - 프...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T06:08:25.520558+00:00",
-  "updated_at": "2026-03-10T06:08:25.520558+00:00",
-  "details": {
-    "text": "[assistant] 전체 구조를 추적해서 [docs/architecture.md](D:/hoonProJect/worktrees/agent-factory/docs/architecture.md) 에 상세 문서를 작성했고, 변경 기록은 [docs/change_history.md](D:/hoonProJect/worktrees/agent-factory/docs/change_history.md) 에 남겼습니다.\n\n이번 문서에는 아래를 단계별로 정리해뒀습니다.\n- 프로젝트 생성 경로: `agent_launcher.py` → `config_paths` → `project_init` → `request_router` → `project_pipeline` → `research_project_brief` → `role_plan` → `.todo.md` → `DynamicOrchestrator`\n- 내부 SDK 실행 경로: `AgentRunner` → 스킬 로드 → Tool Registry → HookEventBus → 시스템 프롬프트 조립 → Gemini SDK ReAct → 툴 호출 → 파일 수정 반영\n- 외부 CLI 세션 경로: `execute_cli_chat` → `prepare_cli_session` → provider별 hook/settings 주입 → CLI subprocess → `cli_hook_bridge` → `session_adapter` → continuity context / `resume_brief.md`\n- 프롬프트 입력/출력 적용 위치: `task_input`이 분석, 계획, 실행 프롬프트로 어떻게 재사용되는지와, 출력이 `stdout`, `state json`, `events jsonl`, `runs`, `resume_brief.md`로 어떻게 남는지\n- 코드 수정 적용 방식: 내부 SDK는 로컬 스킬 함수(`write_file`, `hash_edit`)가 수정하고, 외부 CLI는 각 CLI의 네이티브 편집 툴이 직접 수정한다는 차이\n\n핵심 결론도 문서 첫머리에 명시했습니다. 현재 구조는 단일 런타임이 아니라 `내부 SDK 실행 평면`과 `외부 CLI 세션 실행 평면`이 공존하는 이중 구조입니다. 문서 변경만 한 작업이라 별도 테스트는 돌리지 않았습니다. 참고로 이 두 문서 파일은 현재 새 파일 상태라, 박제를 끝내려면 다음 커밋에 같이 넣는 게 맞습니다.",
-    "event_timestamp": "2026-03-10T05:47:33.293Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
-    "session_line": 949,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 전체 구조를 추적해서 docsarchitecturemdDhoonProJectworktreesagent-factorydocsarchitecturemd 에 상세 문서를 작성했고 변경 기록은 docsch",
+  "value": "[assistant] 전체 구조를 추적해서 [docs/architecture.md](D:/hoonProJect/worktrees/agent-factory/docs/architecture.md) 에 상세 문서를 작성했고, 변경 기록은 [docs/change_history.md](D:/hoonProJect/worktrees/agent-factory/docs/change_history.md) 에 남겼습니다.  이번 문서에는 아래를 단계별로 정리해뒀습니다. - 프...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T06:08:25.520558+00:00",
+  "updated_at": "2026-03-10T06:08:25.520558+00:00",
+  "details": {
+    "text": "[assistant] 전체 구조를 추적해서 [docs/architecture.md](D:/hoonProJect/worktrees/agent-factory/docs/architecture.md) 에 상세 문서를 작성했고, 변경 기록은 [docs/change_history.md](D:/hoonProJect/worktrees/agent-factory/docs/change_history.md) 에 남겼습니다.\n\n이번 문서에는 아래를 단계별로 정리해뒀습니다.\n- 프로젝트 생성 경로: `agent_launcher.py` → `config_paths` → `project_init` → `request_router` → `project_pipeline` → `research_project_brief` → `role_plan` → `.todo.md` → `DynamicOrchestrator`\n- 내부 SDK 실행 경로: `AgentRunner` → 스킬 로드 → Tool Registry → HookEventBus → 시스템 프롬프트 조립 → Gemini SDK ReAct → 툴 호출 → 파일 수정 반영\n- 외부 CLI 세션 경로: `execute_cli_chat` → `prepare_cli_session` → provider별 hook/settings 주입 → CLI subprocess → `cli_hook_bridge` → `session_adapter` → continuity context / `resume_brief.md`\n- 프롬프트 입력/출력 적용 위치: `task_input`이 분석, 계획, 실행 프롬프트로 어떻게 재사용되는지와, 출력이 `stdout`, `state json`, `events jsonl`, `runs`, `resume_brief.md`로 어떻게 남는지\n- 코드 수정 적용 방식: 내부 SDK는 로컬 스킬 함수(`write_file`, `hash_edit`)가 수정하고, 외부 CLI는 각 CLI의 네이티브 편집 툴이 직접 수정한다는 차이\n\n핵심 결론도 문서 첫머리에 명시했습니다. 현재 구조는 단일 런타임이 아니라 `내부 SDK 실행 평면`과 `외부 CLI 세션 실행 평면`이 공존하는 이중 구조입니다. 문서 변경만 한 작업이라 별도 테스트는 돌리지 않았습니다. 참고로 이 두 문서 파일은 현재 새 파일 상태라, 박제를 끝내려면 다음 커밋에 같이 넣는 게 맞습니다.",
+    "event_timestamp": "2026-03-10T05:47:33.293Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 949,
+    "provider": "codex"
+  }
 }

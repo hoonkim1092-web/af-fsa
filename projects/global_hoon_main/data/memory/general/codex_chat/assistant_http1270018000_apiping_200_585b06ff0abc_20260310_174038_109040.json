@@ -1,18 +1,18 @@
-{
-  "key": "assistant 이전 서버는 이미 죽어 있었고 지금은 분리 프로세스로 다시 띄워뒀습니다접속 주소는 http1270018000 입니다 방금 다시 확인한 결과 apiping 이 200으로 응답했고 서버 프로세스도 살아",
-  "value": "[assistant] 이전 서버는 이미 죽어 있었고, 지금은 분리 프로세스로 다시 띄워뒀습니다.  접속 주소는 `http://127.0.0.1:8000` 입니다. 방금 다시 확인한 결과 `/api/ping` 이 `200`으로 응답했고, 서버 프로세스도 살아 있습니다. PID는 `23316` 입니다.  중요한 점은 포트가 바뀌었습니다. 아까 드린 `8123`이 아니라 지금은 `8000`으로 접속해야 합니다. `http://localhost:8000` 도 같이...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T17:40:38.109183+00:00",
-  "updated_at": "2026-03-10T17:40:38.109183+00:00",
-  "details": {
-    "text": "[assistant] 이전 서버는 이미 죽어 있었고, 지금은 분리 프로세스로 다시 띄워뒀습니다.\n\n접속 주소는 `http://127.0.0.1:8000` 입니다. 방금 다시 확인한 결과 `/api/ping` 이 `200`으로 응답했고, 서버 프로세스도 살아 있습니다. PID는 `23316` 입니다.\n\n중요한 점은 포트가 바뀌었습니다. 아까 드린 `8123`이 아니라 지금은 `8000`으로 접속해야 합니다. `http://localhost:8000` 도 같이 시도해보세요. 필요하면 바로 중지까지 하겠습니다.",
-    "event_timestamp": "2026-03-10T17:31:01.116Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/11/rollout-2026-03-11T01-30-46-019cd896-2cfb-7692-a889-53fc50ef1599.jsonl",
-    "session_line": 686,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 이전 서버는 이미 죽어 있었고 지금은 분리 프로세스로 다시 띄워뒀습니다접속 주소는 http1270018000 입니다 방금 다시 확인한 결과 apiping 이 200으로 응답했고 서버 프로세스도 살아",
+  "value": "[assistant] 이전 서버는 이미 죽어 있었고, 지금은 분리 프로세스로 다시 띄워뒀습니다.  접속 주소는 `http://127.0.0.1:8000` 입니다. 방금 다시 확인한 결과 `/api/ping` 이 `200`으로 응답했고, 서버 프로세스도 살아 있습니다. PID는 `23316` 입니다.  중요한 점은 포트가 바뀌었습니다. 아까 드린 `8123`이 아니라 지금은 `8000`으로 접속해야 합니다. `http://localhost:8000` 도 같이...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:38.109183+00:00",
+  "updated_at": "2026-03-10T17:40:38.109183+00:00",
+  "details": {
+    "text": "[assistant] 이전 서버는 이미 죽어 있었고, 지금은 분리 프로세스로 다시 띄워뒀습니다.\n\n접속 주소는 `http://127.0.0.1:8000` 입니다. 방금 다시 확인한 결과 `/api/ping` 이 `200`으로 응답했고, 서버 프로세스도 살아 있습니다. PID는 `23316` 입니다.\n\n중요한 점은 포트가 바뀌었습니다. 아까 드린 `8123`이 아니라 지금은 `8000`으로 접속해야 합니다. `http://localhost:8000` 도 같이 시도해보세요. 필요하면 바로 중지까지 하겠습니다.",
+    "event_timestamp": "2026-03-10T17:31:01.116Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/11/rollout-2026-03-11T01-30-46-019cd896-2cfb-7692-a889-53fc50ef1599.jsonl",
+    "session_line": 686,
+    "provider": "codex"
+  }
 }

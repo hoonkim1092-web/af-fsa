@@ -1,18 +1,18 @@
-{
-  "key": "assistant 클로드 CLI 설치를 진행하겠습니다 먼저 공식 설치 경로를 최신 문서로 확인한 뒤 이 머신에 전역 설치하고 실행 파일이 잡히는지까지 확인하겠습니다",
-  "value": "[assistant] 클로드 CLI 설치를 진행하겠습니다. 먼저 공식 설치 경로를 최신 문서로 확인한 뒤, 이 머신에 전역 설치하고 실행 파일이 잡히는지까지 확인하겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T15:34:46.940265+00:00",
-  "updated_at": "2026-03-09T15:34:46.940265+00:00",
-  "details": {
-    "text": "[assistant] 클로드 CLI 설치를 진행하겠습니다. 먼저 공식 설치 경로를 최신 문서로 확인한 뒤, 이 머신에 전역 설치하고 실행 파일이 잡히는지까지 확인하겠습니다.",
-    "event_timestamp": "2026-03-09T15:15:18.130Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
-    "session_line": 455,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 클로드 CLI 설치를 진행하겠습니다 먼저 공식 설치 경로를 최신 문서로 확인한 뒤 이 머신에 전역 설치하고 실행 파일이 잡히는지까지 확인하겠습니다",
+  "value": "[assistant] 클로드 CLI 설치를 진행하겠습니다. 먼저 공식 설치 경로를 최신 문서로 확인한 뒤, 이 머신에 전역 설치하고 실행 파일이 잡히는지까지 확인하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T15:34:46.940265+00:00",
+  "updated_at": "2026-03-09T15:34:46.940265+00:00",
+  "details": {
+    "text": "[assistant] 클로드 CLI 설치를 진행하겠습니다. 먼저 공식 설치 경로를 최신 문서로 확인한 뒤, 이 머신에 전역 설치하고 실행 파일이 잡히는지까지 확인하겠습니다.",
+    "event_timestamp": "2026-03-09T15:15:18.130Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 455,
+    "provider": "codex"
+  }
 }

@@ -1,18 +1,18 @@
-{
-  "key": "assistant 맞습니다 지금 드러난 건 Gemini만의 인증 문제가 아니라 더 큰 범주의 CLI provider에서 수정 툴을 어떻게 노출하느냐 문제일 가능성이 큽니다 코드 기준으로 provider별 설정 차이를",
-  "value": "[assistant] 맞습니다. 지금 드러난 건 “Gemini만의 인증 문제”가 아니라, 더 큰 범주의 `CLI provider에서 수정 툴을 어떻게 노출하느냐` 문제일 가능성이 큽니다. 코드 기준으로 provider별 설정 차이를 바로 확인해보겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T17:22:13.125835+00:00",
-  "updated_at": "2026-03-09T17:22:13.125835+00:00",
-  "details": {
-    "text": "[assistant] 맞습니다. 지금 드러난 건 “Gemini만의 인증 문제”가 아니라, 더 큰 범주의 `CLI provider에서 수정 툴을 어떻게 노출하느냐` 문제일 가능성이 큽니다. 코드 기준으로 provider별 설정 차이를 바로 확인해보겠습니다.",
-    "event_timestamp": "2026-03-09T17:13:16.693Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
-    "session_line": 2255,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 맞습니다 지금 드러난 건 Gemini만의 인증 문제가 아니라 더 큰 범주의 CLI provider에서 수정 툴을 어떻게 노출하느냐 문제일 가능성이 큽니다 코드 기준으로 provider별 설정 차이를",
+  "value": "[assistant] 맞습니다. 지금 드러난 건 “Gemini만의 인증 문제”가 아니라, 더 큰 범주의 `CLI provider에서 수정 툴을 어떻게 노출하느냐` 문제일 가능성이 큽니다. 코드 기준으로 provider별 설정 차이를 바로 확인해보겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T17:22:13.125835+00:00",
+  "updated_at": "2026-03-09T17:22:13.125835+00:00",
+  "details": {
+    "text": "[assistant] 맞습니다. 지금 드러난 건 “Gemini만의 인증 문제”가 아니라, 더 큰 범주의 `CLI provider에서 수정 툴을 어떻게 노출하느냐` 문제일 가능성이 큽니다. 코드 기준으로 provider별 설정 차이를 바로 확인해보겠습니다.",
+    "event_timestamp": "2026-03-09T17:13:16.693Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 2255,
+    "provider": "codex"
+  }
 }
