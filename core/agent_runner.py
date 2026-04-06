@@ -940,6 +940,12 @@ class AgentRunner:
         except Exception as _cr_err:
             _safe_print(f"[Runner] CodeReviewDocHook registration failed: {_cr_err}")
 
+        try:
+            from core.hooks.design_review_hook import DesignReviewHook
+            bus.register(DesignReviewHook())
+        except Exception as _dr_err:
+            _safe_print(f"[Runner] DesignReviewHook registration failed: {_dr_err}")
+
         _mem_ki_hook = None
         _mem_mc_hook = None
         try:

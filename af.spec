@@ -120,6 +120,8 @@ a = Analysis(
         'core.hooks.memory_consolidation',
         'core.hooks.skill_self_evolution',
         'core.hooks.code_review_doc',
+        'core.hooks.design_review_hook',
+        'core.design_review_utils',
         # ── core.memory_system ──
         'core.memory_system',
         'core.memory_system.models',
