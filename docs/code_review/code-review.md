@@ -1,7 +1,9 @@
 # Code Review — Living Document
 
-> Auto-updated on every `.py` edit (via Claude Code PostToolUse hook) and AF agent run (via CodeReviewDocHook).
-> Persistent across sessions. See `docs/YYYY-MM-DD-code-review.md` for point-in-time snapshots.
+> Last updated: 2026-04-06 11:10
+
+> Auto-updated on every `.py` edit and AF agent run.
+> 출력 경로: `docs/code_review/code-review.md`
 >
 > **Trigger sources**:
 > - Claude Code: `PostToolUse Write|Edit *.py` → `scripts/code_review_updater.py --no-llm`
@@ -67,5 +69,15 @@ _Review skipped (--no-llm or LLM unavailable)_
 **Context**: Claude Code edit session
 
 **Changed (140)**: `.tmp_af_fsa, projects/global_hoon_main/data/memory/general/codex_chat/user_ca7dc36e6f65_20260226_153246_350008.json, projects/global_hoon_main/data/memory/general/codex_chat/user_cabb851c1992_20260309_143912_859945.json, projects/global_hoon_main/data/memory/general/codex_chat/user_cbb54b73614d_20260310_174038_097128.json, projects/global_hoon_main/data/memory/general/codex_chat/user_ccf599881eaa_20260226_153246_242667.json, projects/global_hoon_main/data/memory/general/codex_chat/user_chat_model_routerpy22_ai_938ea52669bb_20260310_144545_412808.json, projects/global_hoon_main/data/memory/general/codex_chat/user_claude_cligemini_clicodex_cli_provider_bcb09452605f_20260309_094923_009767.json, projects/global_hoon_main/data/memory/general/codex_chat/user_claudegeminicodex_end_to_end_fab86188a929_20260309_094923_097039.json, projects/global_hoon_main/data/memory/general/codex_chat/user_cli_03d7531c11cc_20260309_153446_943072.json, projects/global_hoon_main/data/memory/general/codex_chat/user_cli_45b75e61e411_20260309_153446_939720.json, projects/global_hoon_main/data/memory/general/codex_chat/user_cli_681e7aaacae3_20260309_163142_487754.json, projects/global_hoon_main/data/memory/general/codex_chat/user_cli_a94e32c0bcaa_20260309_143912_957271.json, projects/global_hoon_main/data/memory/general/codex_chat/user_cli_cli_7f6d0a6cb8ef_20260309_143912_960564.json, projects/global_hoon_main/data/memory/general/codex_chat/user_code_review_fix_plan_80ed8feaa246_20260310_102307_699843.json, projects/global_hoon_main/data/memory/general/codex_chat/user_code_review_fix_plan_fcc3e6159160_20260310_102307_697332.json ... (+125)`
+
+_Review skipped (--no-llm or LLM unavailable)_
+
+---
+
+## 2026-04-06 11:04 — `agent-factory_harness_Claude_Setup_and_Pipeline_v1` (c3aaa61)
+
+**Context**: Claude Code edit session
+
+**Changed (148)**: `.claude/settings.local.json, .system_generated/cache/document_index.json, core/hooks/code_review_doc.py, data/skill-usage.jsonl, docs/code-review.md, projects/global_hoon_main/data/memory/general/codex_chat/user_ca7dc36e6f65_20260226_153246_350008.json, projects/global_hoon_main/data/memory/general/codex_chat/user_cabb851c1992_20260309_143912_859945.json, projects/global_hoon_main/data/memory/general/codex_chat/user_cbb54b73614d_20260310_174038_097128.json, projects/global_hoon_main/data/memory/general/codex_chat/user_ccf599881eaa_20260226_153246_242667.json, projects/global_hoon_main/data/memory/general/codex_chat/user_chat_model_routerpy22_ai_938ea52669bb_20260310_144545_412808.json, projects/global_hoon_main/data/memory/general/codex_chat/user_claude_cligemini_clicodex_cli_provider_bcb09452605f_20260309_094923_009767.json, projects/global_hoon_main/data/memory/general/codex_chat/user_claudegeminicodex_end_to_end_fab86188a929_20260309_094923_097039.json, projects/global_hoon_main/data/memory/general/codex_chat/user_cli_03d7531c11cc_20260309_153446_943072.json, projects/global_hoon_main/data/memory/general/codex_chat/user_cli_45b75e61e411_20260309_153446_939720.json, projects/global_hoon_main/data/memory/general/codex_chat/user_cli_681e7aaacae3_20260309_163142_487754.json ... (+133)`
 
 _Review skipped (--no-llm or LLM unavailable)_

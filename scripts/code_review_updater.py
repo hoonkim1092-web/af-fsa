@@ -19,7 +19,7 @@ import subprocess
 import sys
 from datetime import datetime
 
-REVIEW_DOC_REL = os.path.join("docs", "code-review.md")
+REVIEW_DOC_REL = os.path.join("docs", "code_review", "code-review.md")
 DIFF_MAX_CHARS = 8000
 
 
@@ -133,6 +133,23 @@ def _atomic_append(path: str, content: str) -> None:
         os.fsync(f.fileno())
 
 
+def _update_last_modified(path: str, date_str: str) -> None:
+    """문서 헤더의 'Last updated:' 날짜를 최신으로 갱신."""
+    try:
+        with open(path, encoding="utf-8") as f:
+            content = f.read()
+        updated = re.sub(
+            r"(> Last updated: ).*",
+            rf"\g<1>{date_str}",
+            content,
+            count=1,
+        )
+        if updated != content:
+            _atomic_write(path, updated)
+    except Exception:
+        pass
+
+
 # ── main logic ───────────────────────────────────────────────────────────────
 
 def _last_logged_commit(doc_path: str) -> str:
@@ -187,12 +204,14 @@ def update_code_review_doc(workspace: str, context: str, no_llm: bool) -> bool:
     if not os.path.exists(doc_path):
         header = (
             "# Code Review — Living Document\n\n"
+            f"> Last updated: {date_str}\n\n"
             "> Auto-updated on every `.py` edit and AF agent run.\n"
-            "> Persistent across sessions. "
-            "See `docs/YYYY-MM-DD-code-review.md` for point-in-time snapshots.\n"
+            "> Persistent across sessions.\n"
         )
         _atomic_write(doc_path, header + section)
     else:
+        # 헤더의 Last updated 날짜 갱신
+        _update_last_modified(doc_path, date_str)
         _atomic_append(doc_path, section)
 
     print(f"[code_review_updater] {doc_path} updated - {len(changed)} changed file(s)")

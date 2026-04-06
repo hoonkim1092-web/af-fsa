@@ -39,7 +39,8 @@
       "Bash(codex exec:*)",
       "Bash(codex mcp-server:*)",
       "Bash(claude mcp:*)",
-      "Bash(claude plugin:*)"
+      "Bash(claude plugin:*)",
+      "Bash(cat D:/hoonProJect/worktrees/agent-factory/.af_review_queue/pending/*.json)"
     ]
   },
   "hooks": {
@@ -55,9 +56,20 @@
           },
           {
             "type": "command",
-            "command": "fp=$TOOL_INPUT_file_path; case \"$fp\" in *.py) python /c/Project/agent-factory/scripts/code_review_updater.py --no-llm 2>/dev/null ;; esac",
+            "command": "fp=$TOOL_INPUT_file_path; case \"$fp\" in *.py) python scripts/code_review_updater.py --no-llm 2>/dev/null ;; esac",
             "timeout": 15,
             "statusMessage": "Code review log update..."
+          },
+          {
+            "type": "command",
+            "command": "fp=$TOOL_INPUT_file_path; python scripts/design_review_trigger.py \"$fp\" 2>/dev/null || true",
+            "timeout": 5,
+            "statusMessage": "Design review check..."
+          },
+          {
+            "type": "command",
+            "command": "for f in .af_review_queue/notifications/*.txt; do [ -f \"$f\" ] && cat \"$f\" && rm -f \"$f\"; done 2>/dev/null || true",
+            "timeout": 3
           }
         ]
       }

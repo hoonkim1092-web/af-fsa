@@ -17,6 +17,9 @@ env/
 # 만약 생성된 에이전트 파일들을 깃에 올리기 싫다면 아래 주석을 푸세요
 # agents/
 
+# --- Design Review Queue (local, auto-generated) ---
+.af_review_queue/
+
 # --- Runtime/Test Artifacts ---
 projects/default/runs/
 projects/agent_factory/runs/
