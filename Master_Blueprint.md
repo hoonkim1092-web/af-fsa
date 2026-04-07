@@ -875,6 +875,7 @@ model_utils.py (독립 모듈)
 
 | 날짜 | 버전 | 변경 내용 |
 |------|------|----------|
+| 2026-04-08 | v1.2.18 | fix(config_paths): PyInstaller exe에서 BASE_DIR이 임시 언팩 폴더(_MEI...)로 잡히는 버그 수정 — sys.frozen 감지 후 sys.executable 기준으로 전환, 프로젝트가 올바른 경로(af.exe 옆)에 생성됨 |
 | 2026-04-07 | v1.0.3 | feat(forge): forge 스킬 품질 파이프라인 — forge_new_skill() 3-helper 분할, evaluate_and_promote() 공통 추출, FORGE_POLICIES, LLM budget 카운터(MAX_LLM_CALLS=15), directory 구조(forge/{name}/{name}.py), sys.path forge guard, propose/apply/test 함수 시그니처, evals.yml 자동 생성(MIN_EVAL_CASES=3), Registry 직접 등록 |
 | 2026-04-04 | v1.0.3 | feat(session): revision_loop 학습 루프 (critique_fn + revision_history + best_artifact), run_factory_cli .env 자동로드, JudgmentLedger 설계, 세션 핸드오프 문서 |
 | 2026-04-03 | v1.0.3 | feat(skill-discovery): cross-cli-skill-discovery v3 — get_external_skill_roots(personal>project 순서), ClaudeOfficialSkillSource 추가, _extract_skill_id(frontmatter name 우선), should_rescan_external(mtime 기반), ensure_skills_loaded(external_scanned 플래그), claude_official 소스 ID, 하위 호환 alias 유지 |

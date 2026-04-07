@@ -1,5 +1,6 @@
 import os
 import re
+import sys
 from config.schema import factory_config
 from core.engine_auth import engine_api_keys_disabled, get_engine_api_key, supports_cli_bootstrap
 
@@ -30,7 +31,12 @@ OPENAI_API_KEY = get_engine_api_key("openai")
 # ────────────────────────────────────────────────────────────────────────────
 # [New SDK] genai.Client은 각 모듈에서 개별 생성 (config_paths는 경로만 담당)
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# PyInstaller exe: sys.executable = C:\tools\af\af.exe → BASE_DIR = C:\tools\af
+# 소스 모드: __file__ = .../core/config_paths.py → BASE_DIR = 레포 루트
+if getattr(sys, "frozen", False):
+    BASE_DIR = os.path.dirname(os.path.abspath(sys.executable))
+else:
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # [Project Specific Path Resolution]
 PROJECTS_DIR = os.path.join(BASE_DIR, "projects")
 GLOBAL_AGENTS_DIR = os.path.join(BASE_DIR, "agents")
