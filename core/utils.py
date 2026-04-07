@@ -240,9 +240,12 @@ def resolve_skill_paths(skill_id: str) -> tuple[str | None, str | None]:
     for py_path, meta_path in ordered:
         if os.path.exists(py_path):
             return py_path, (meta_path if os.path.exists(meta_path) else None)
-    forge_py = os.path.join(SKILLS_DIR, "forge", f"{sid}.py")
-    if os.path.exists(forge_py):
-        return forge_py, None
+    # forge: directory 구조 우선, flat 구조 fallback
+    forge_py_dir = os.path.join(SKILLS_DIR, "forge", sid, f"{sid}.py")
+    forge_py_flat = os.path.join(SKILLS_DIR, "forge", f"{sid}.py")
+    for forge_py in [forge_py_dir, forge_py_flat]:
+        if os.path.exists(forge_py):
+            return forge_py, None
     return None, None
 
 

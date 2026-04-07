@@ -591,6 +591,9 @@ def _load_skill_callable(skill_path: str) -> tuple[dict[str, Any], Callable[[dic
         parent_dir = os.path.dirname(skill_dir)
         added_paths: list[str] = []
         for candidate_path in (skill_dir, parent_dir):
+            # forge 디렉토리면 parent_dir 스킵 — 다른 forge 스킬 오염 방지 (§3.13)
+            if candidate_path == parent_dir and os.path.basename(parent_dir) == "forge":
+                continue
             if candidate_path and candidate_path not in sys.path:
                 sys.path.insert(0, candidate_path)
                 added_paths.append(candidate_path)

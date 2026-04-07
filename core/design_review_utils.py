@@ -215,9 +215,9 @@ def run_sync(filepath: str, workspace: str, source: str) -> None:
         subprocess.run(
             [sys.executable, watcher_script, workspace, "--sync", rel],
             cwd=workspace,
-            timeout=300,
+            timeout=900,
         )
     except subprocess.TimeoutExpired:
-        print("[design-review] sync review timed out (300s)", file=sys.stderr)
+        print("[design-review] sync review timed out (900s)", file=sys.stderr)
     except Exception as e:
         print(f"[design-review] sync review failed: {e}", file=sys.stderr)

@@ -57,11 +57,13 @@ class RequestRouter:
     def route(self, task_input: str, role_spec: str = "", pipeline_mode: str = "auto") -> dict:
         mode = (pipeline_mode or "auto").strip().lower()
         if mode == "project":
+            risk_level = self._assess_risk(task_input, "greenfield", 4, "project")
             return {
                 "pipeline": "project",
                 "intent": "forced",
                 "confidence": 100,
                 "reasoning": "pipeline_mode=project",
+                "risk_level": risk_level,
             }
         if mode == "single":
             return {
@@ -69,6 +71,7 @@ class RequestRouter:
                 "intent": "forced",
                 "confidence": 100,
                 "reasoning": "pipeline_mode=single",
+                "risk_level": "normal",
             }
 
         task_text = (task_input or "").strip()
@@ -99,6 +102,7 @@ class RequestRouter:
             project_score += 2
 
         pipeline = "project" if project_score >= 2 else "single"
+        risk_level = self._assess_risk(task_text, intent, project_score, pipeline)
         route_reason = reasoning or "heuristic fallback"
         route_reason = f"{route_reason}; score={project_score}; role={explicit_role or 'auto'}"
         return {
@@ -106,4 +110,30 @@ class RequestRouter:
             "intent": intent,
             "confidence": confidence,
             "reasoning": route_reason,
+            "risk_level": risk_level,
         }
+
+    @staticmethod
+    def _assess_risk(task_text: str, intent: str, project_score: int, pipeline: str) -> str:
+        """태스크 복잡도 기반 risk_level 결정. normal / elevated / strict."""
+        if pipeline != "project":
+            return "normal"
+        text = (task_text or "").lower()
+        score = 0
+        # greenfield/refactoring은 기본 위험도 상승
+        if intent in {"greenfield", "refactoring"}:
+            score += 1
+        # 긴 요구사항 = 복잡한 프로젝트
+        if len(task_text) >= 80:
+            score += 1
+        # 데이터/보안/인프라 관련 키워드
+        if any(kw in text for kw in ("데이터", "통계", "분석", "크롤", "api", "보안", "인증", "배포", "data", "security", "deploy")):
+            score += 1
+        # 멀티 도메인 (frontend+backend, 데이터+UI 등)
+        if project_score >= 4:
+            score += 1
+        if score >= 3:
+            return "strict"
+        if score >= 1:
+            return "elevated"
+        return "normal"

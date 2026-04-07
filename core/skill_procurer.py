@@ -14,7 +14,7 @@ from core.skill_feedback import SkillFeedbackLoop
 from core.skill_promotion import SkillPromotionManager
 from core.skill_registry import check_skill_exists, register_skill
 from core.skill_retrieval_engine import SkillRetrievalEngine
-from core.utils import now_iso, resolve_knowledge_skill_path, resolve_skill_paths, safe_id, skill_markdown_filenames
+from core.utils import now_iso, read_skill_lock, resolve_knowledge_skill_path, resolve_skill_paths, safe_id, skill_markdown_filenames
 
 
 FACTORY_ROOT = os.getcwd()
@@ -119,12 +119,14 @@ def get_missing_skills(agent_name, required_skills):
 def procure_skill(skill_name, role, skill_type="action"):
     """Find an existing skill or forge a new one."""
     purpose_desc = f"Skill intended for {role} to handle {skill_name}"
-    # check_skill_exists() returns bool (not a path) — look up the actual path separately
+    # registry 확인 — installable 상태도 검증 (§3.6)
     if check_skill_exists(skill_name):
-        existing_skill_path, _ = resolve_skill_paths(skill_name)
-        if existing_skill_path and os.path.exists(existing_skill_path):
-            log("REGISTRY", f"Reusing existing skill: {existing_skill_path}")
-            return existing_skill_path
+        lock_state = read_skill_lock().get("skills", {}).get(safe_id(skill_name), {})
+        if lock_state.get("installable", True):  # 기본값 True (기존 스킬 호환)
+            existing_skill_path, _ = resolve_skill_paths(skill_name)
+            if existing_skill_path and os.path.exists(existing_skill_path):
+                log("REGISTRY", f"Reusing existing skill: {existing_skill_path}")
+                return existing_skill_path
 
     if skill_type == "action":
         found = glob.glob(os.path.join(WAREHOUSE_DIR, "**", f"{skill_name}.py"), recursive=True)
@@ -132,10 +134,13 @@ def procure_skill(skill_name, role, skill_type="action"):
             register_skill(skill_name, purpose_desc, found[0], stype="action", source="warehouse")
             return found[0]
 
-        forge_path = os.path.join(FORGE_DIR, f"{skill_name}.py")
-        if os.path.exists(forge_path):
-            register_skill(skill_name, purpose_desc, forge_path, stype="action", source="forge")
-            return forge_path
+        # forge 경로: directory 구조 우선, flat fallback (§3.3)
+        forge_path_dir = os.path.join(FORGE_DIR, skill_name, f"{skill_name}.py")
+        forge_path_flat = os.path.join(FORGE_DIR, f"{skill_name}.py")
+        for forge_path in [forge_path_dir, forge_path_flat]:
+            if os.path.exists(forge_path):
+                register_skill(skill_name, purpose_desc, forge_path, stype="action", source="forge")
+                return forge_path
     else:
         for base in [WAREHOUSE_DIR, FORGE_DIR]:
             source = "warehouse" if base == WAREHOUSE_DIR else "forge"
@@ -148,9 +153,77 @@ def procure_skill(skill_name, role, skill_type="action"):
     return forge_new_skill(skill_name, role, skill_type=skill_type)
 
 
+# ── forge 전용 정책 (§3.10) ─────────────────────────────────────────────────
 
-def forge_new_skill(skill_name, role, coding_engine=None, skill_type="action"):
-    """Forge a new skill via the legacy dynamic path."""
+FORGE_POLICIES = {
+    "quality_gate": {
+        "installable_statuses": ["candidate", "canary", "active"],
+        "default_stage_on_build": "draft",
+    }
+}
+
+MAX_LLM_CALLS = 15
+
+
+# ── Eval→Promotion 공통 함수 (§3.9) ─────────────────────────────────────────
+
+def evaluate_and_promote(
+    *,
+    skill_name: str,
+    code_path: str,
+    evals_path: str = "",
+    reference_candidate_id: str = "",
+    feedback_loop: SkillFeedbackLoop | None = None,
+    workspace: str | None = None,
+    current_stage: str = "draft",
+    project_policies: dict | None = None,
+) -> dict:
+    """Eval→Promotion 공통 실행. forge_new_skill()과 SkillOrchestrator 양쪽에서 사용."""
+    skill_id = safe_id(skill_name)
+    baseline_skill_path = ""
+    if reference_candidate_id:
+        bp, _ = resolve_skill_paths(reference_candidate_id)
+        baseline_skill_path = bp or ""
+
+    feedback_path = str(getattr(feedback_loop, "feedback_path", "") or "")
+    runs_dir = os.path.join(os.path.abspath(workspace), "runs") if workspace else None
+
+    try:
+        eval_report = SkillEvalHarness().evaluate(
+            code_path,
+            evals_path=evals_path or None,
+            baseline_skill_path=baseline_skill_path or None,
+            feedback_path=feedback_path or None,
+            runs_dir=runs_dir,
+        )
+        decision = SkillPromotionManager(project_policies=project_policies).apply(
+            skill_id,
+            eval_report,
+            current_stage=current_stage,
+            feedback_loop=feedback_loop,
+        )
+        return {
+            "next_stage": getattr(decision, "next_stage", current_stage),
+            "installable": bool(getattr(decision, "installable", False)),
+            "eval_report_path": str(getattr(eval_report, "report_path", "") or ""),
+            "promotion_report_path": str(getattr(decision, "promotion_path", "") or ""),
+            "reason": str(getattr(decision, "reason", "") or ""),
+        }
+    except Exception as exc:
+        log("EVAL", f"evaluate_and_promote failed for '{skill_name}': {exc}")
+        return {
+            "next_stage": current_stage,
+            "installable": False,
+            "eval_report_path": "",
+            "promotion_report_path": "",
+            "reason": f"eval_error: {exc}",
+        }
+
+
+# ── forge 헬퍼 함수 (§3.12) ─────────────────────────────────────────────────
+
+def _prepare_forge_context(skill_name, role, coding_engine=None):
+    """LLM 초기화 + 도메인 힌트 조달 + 프롬프트 구성."""
     from model_utils import get_best_model, resolve_dynamic_model
     from core.llm_engine import LLMEngine
 
@@ -160,31 +233,247 @@ def forge_new_skill(skill_name, role, coding_engine=None, skill_type="action"):
     elif hasattr(coding_engine, "model"):
         coding_engine = coding_engine.model
 
-    log("FORGE", f"Forging new {skill_type} skill: '{skill_name}' (Engine: {coding_engine})")
-    os.makedirs(FORGE_DIR, exist_ok=True)
-
     llm = LLMEngine(model_name=get_best_model([coding_engine]))
 
-    if skill_type == "action":
-        output_path = os.path.join(FORGE_DIR, f"{skill_name}.py")
-        prompt = (
-            f"Write a professional Python CLI tool '{skill_name}.py' for the role '{role}'. "
-            "Use argparse. Provide clean, robust code only. "
-            "Code docstrings and user output MUST be in Korean. Return ONLY the python code."
-        )
+    # LLM 호출 budget 카운터 (§3.8)
+    call_count = [0]
+
+    def counted_generate(prompt_text):
+        call_count[0] += 1
+        if call_count[0] > MAX_LLM_CALLS:
+            raise RuntimeError(f"LLM call budget exceeded: {call_count[0]} > {MAX_LLM_CALLS}")
+        return llm.generate(prompt_text)
+
+    # 도메인 힌트 조달 (§3.4) — warehouse 직접 탐색
+    reference_candidate = None
+    warehouse_matches = glob.glob(os.path.join(WAREHOUSE_DIR, "**", "*.py"), recursive=True)
+    for match_path in warehouse_matches:
+        match_name = os.path.splitext(os.path.basename(match_path))[0]
+        if skill_name in match_name or match_name in skill_name:
+            try:
+                with open(match_path, encoding="utf-8") as f:
+                    reference_candidate = {
+                        "candidate_skill_id": match_name,
+                        "candidate_path": match_path,
+                        "confidence": 0.5,
+                        "code_excerpt": f.read()[:5000],
+                    }
+                break
+            except Exception:
+                pass
+
+    # 프롬프트 구성 (§3.1) — propose/apply/test 함수 기반
+    prompt = (
+        f"Write a Python skill module '{skill_name}.py' for the role '{role}'.\n"
+        "The module MUST implement these three functions:\n"
+        "  def propose(ctx: dict) -> dict:  # 실행 계획 제안. return {'ok': True/False, 'plan': ...}\n"
+        "  def apply(ctx: dict) -> dict:    # ★ 핵심 실행 함수. return {'ok': True/False, 'result': ...}\n"
+        "  def test(ctx: dict) -> dict:     # 자가 검증. return {'ok': True/False, 'details': ...}\n"
+        "apply()가 메인 실행 함수이다. 핵심 로직은 반드시 apply()에 구현하라.\n"
+        "ctx dict에는 'task', 'workspace', 'goal' 등의 키가 포함됩니다.\n"
+        "Code docstrings and user output MUST be in Korean. Return ONLY the python code."
+    )
+
+    # LLM 사전 조회 fallback
+    if not reference_candidate:
         try:
-            code = llm.generate(prompt)
-            code = code.replace("```python", "").replace("```", "").strip()
-            with open(output_path, "w", encoding="utf-8") as handle:
-                handle.write(code)
-            log("FORGE", f"Action forge complete: {output_path}")
-            register_skill(skill_name, f"Dynamically forged action skill for {role}", output_path, stype="action", source="forge")
-            return output_path
+            hint = counted_generate(
+                f"'{skill_name}' 스킬 구현에 필요한 Python 라이브러리와 핵심 패턴을 간략히 설명해."
+            )
+            if hint and hint.strip():
+                prompt += f"\n\n도메인 힌트:\n{hint}"
+        except Exception:
+            pass
+
+    # 스킬 디렉토리 생성 (§3.3)
+    skill_dir = os.path.join(FORGE_DIR, skill_name)
+    os.makedirs(skill_dir, exist_ok=True)
+    output_path = os.path.join(skill_dir, f"{skill_name}.py")
+
+    return {
+        "llm": llm,
+        "coding_engine": coding_engine,
+        "counted_generate": counted_generate,
+        "prompt": prompt,
+        "reference_candidate": reference_candidate,
+        "skill_dir": skill_dir,
+        "output_path": output_path,
+    }
+
+
+def _generate_and_validate_evals(skill_dir, code, counted_generate):
+    """evals.yml 생성 + 검증 + 재시도 (§3.5)."""
+    import yaml
+    from core.utils import strip_code_fences
+
+    evals_prompt = (
+        f"다음 스킬의 apply(ctx) 함수에 대한 "
+        f"테스트 케이스 3~5개를 YAML로 작성해.\n\n"
+        f"```python\n{code}\n```\n\n"
+        "형식:\n"
+        "contract:\n"
+        "  - name: '케이스명'\n"
+        "    ctx: {task: '...', workspace: '/tmp'}\n"
+        "    expect_ok: true/false\n"
+        "YAML만 반환. 코드 펜스 없이."
+    )
+    evals_text = counted_generate(evals_prompt)
+    if not evals_text or not evals_text.strip():
+        raise ValueError("evals 생성 실패: LLM 빈 출력")
+
+    evals_text = strip_code_fences(evals_text)
+    try:
+        parsed = yaml.safe_load(evals_text)
+    except yaml.YAMLError:
+        parsed = None
+
+    if isinstance(parsed, dict):
+        contract_cases = parsed.get("contract") or parsed.get("cases") or []
+    else:
+        contract_cases = []
+
+    MIN_EVAL_CASES = 3
+    if not isinstance(contract_cases, list) or len(contract_cases) < MIN_EVAL_CASES:
+        log("FORGE", f"Eval cases insufficient: {len(contract_cases) if isinstance(contract_cases, list) else 0} < {MIN_EVAL_CASES}, regenerating...")
+        retry_prompt = (
+            f"이전 시도에서 {len(contract_cases) if isinstance(contract_cases, list) else 0}개 케이스만 생성되었습니다. "
+            f"최소 {MIN_EVAL_CASES}개 이상 반드시 생성하세요.\n\n{evals_prompt}"
+        )
+        evals_text = counted_generate(retry_prompt)
+        evals_text = strip_code_fences(evals_text) if evals_text else ""
+        try:
+            parsed = yaml.safe_load(evals_text) or {}
+        except yaml.YAMLError:
+            parsed = {}
+        contract_cases = parsed.get("contract") or parsed.get("cases") or []
+        if not isinstance(contract_cases, list) or len(contract_cases) < MIN_EVAL_CASES:
+            raise ValueError(f"evals 재생성 후에도 부족: {len(contract_cases) if isinstance(contract_cases, list) else 0} < {MIN_EVAL_CASES}")
+
+    evals_path = os.path.join(skill_dir, "evals.yml")
+    normalized = {"contract": contract_cases}
+    with open(evals_path, "w", encoding="utf-8") as f:
+        yaml.dump(normalized, f, allow_unicode=True, default_flow_style=False)
+
+    return evals_path
+
+
+def _evaluate_promote_and_register(skill_name, output_path, evals_path, skill_dir, ref_id):
+    """Eval→Promotion→조건부 등록 (§3.6, §3.9, §3.10)."""
+    from core.skill_registry import get_global_registry, SkillMetadata
+
+    result = evaluate_and_promote(
+        skill_name=skill_name,
+        code_path=output_path,
+        evals_path=evals_path,
+        reference_candidate_id=ref_id,
+        workspace=skill_dir,
+        current_stage="draft",
+        project_policies=FORGE_POLICIES,
+    )
+
+    if result["installable"]:
+        purpose = f"Dynamically forged action skill: {skill_name}"
+        register_skill(skill_name, purpose, output_path, stype="action", source="forge",
+                       status=result["next_stage"])
+        # 메모리 레지스트리 직접 갱신 — auto_load_from_directories는 forge를 SKIP함 (§3.6)
+        try:
+            meta = SkillMetadata(
+                skill_id=safe_id(skill_name),
+                name=skill_name,
+                source_path=output_path,
+                distribution_source="forge",
+            )
+            get_global_registry().register(meta)
         except Exception as exc:
-            log("FORGE", f"Action forge failed: {exc}")
+            log("FORGE", f"Memory registry update failed (non-fatal): {exc}")
+        log("FORGE", f"Forge complete + registered: {output_path} (stage={result['next_stage']})")
+        return output_path
+
+    log("FORGE", f"Forge complete but not installable: {skill_name} (stage={result['next_stage']}, reason={result['reason']})")
+    return None
+
+
+def forge_new_skill(skill_name, role, coding_engine=None, skill_type="action"):
+    """Forge a new skill through the quality pipeline (Forge→Eval→Promotion)."""
+    if skill_type != "action":
+        return _forge_knowledge_skill(skill_name, role, coding_engine)
+
+    log("FORGE", f"Forging new action skill: '{skill_name}' for role '{role}'")
+
+    try:
+        # §4 step 0~1: 준비
+        ctx = _prepare_forge_context(skill_name, role, coding_engine)
+
+        # §4 step 2~3: SkillForge 실행
+        from core.skill_forge import SkillForge
+
+        def _llm_generate_adapter(*, prompt, workspace, run_id, **kwargs):
+            text = ctx["counted_generate"](prompt)
+            if not text or not text.strip():
+                raise ValueError(f"LLM returned blank output (run_id={run_id})")
+            return text, {"run_id": run_id, "model": ctx["coding_engine"]}
+
+        def _llm_text_adapter(*, prompt, system_prompt=None, workspace, run_id, **kwargs):
+            full_prompt = f"{system_prompt}\n\n{prompt}" if system_prompt else prompt
+            text = ctx["counted_generate"](full_prompt)
+            return text, {"run_id": run_id, "model": ctx["coding_engine"]}
+
+        forge = SkillForge(
+            generate_code=_llm_generate_adapter,
+            generate_text=_llm_text_adapter,
+            max_repair_rounds=2,
+        )
+
+        run_id = f"forge_{skill_name}_{now_iso()}"
+        result = forge.run(
+            skill_id=skill_name,
+            base_prompt=ctx["prompt"],
+            workspace=ctx["skill_dir"],
+            run_id=run_id,
+            reference_candidate=ctx["reference_candidate"],
+        )
+
+        if result.critique and result.critique.should_repair:
+            log("FORGE", f"Repair rounds exhausted, code still has issues: {skill_name}")
+
+        # §4 step 4: 코드 저장
+        code = result.code
+        if not code or not code.strip():
+            log("FORGE", f"SkillForge produced empty code: {skill_name}")
             return None
 
+        with open(ctx["output_path"], "w", encoding="utf-8") as handle:
+            handle.write(code)
+        log("FORGE", f"Code saved: {ctx['output_path']}")
+
+        # §4 step 5: evals 생성
+        evals_path = _generate_and_validate_evals(ctx["skill_dir"], code, ctx["counted_generate"])
+
+        # §4 step 6~7: eval→promotion→등록
+        ref_id = ""
+        if ctx["reference_candidate"]:
+            ref_id = ctx["reference_candidate"].get("candidate_skill_id", "")
+
+        return _evaluate_promote_and_register(skill_name, ctx["output_path"], evals_path, ctx["skill_dir"], ref_id)
+
+    except Exception as exc:
+        log("FORGE", f"Action forge failed: {exc}")
+        return None
+
+
+def _forge_knowledge_skill(skill_name, role, coding_engine=None):
+    """Knowledge 스킬 forge — 기존 로직 유지."""
+    from model_utils import resolve_dynamic_model
     from core.skill_creator import create_skill as creator_create
+
+    if coding_engine is None:
+        selected = resolve_dynamic_model("codex")
+        coding_engine = selected.model if hasattr(selected, "model") else str(selected)
+    elif hasattr(coding_engine, "model"):
+        coding_engine = coding_engine.model
+
+    log("FORGE", f"Forging new knowledge skill: '{skill_name}' (Engine: {coding_engine})")
+    os.makedirs(FORGE_DIR, exist_ok=True)
 
     skill_dir = creator_create(
         name=skill_name,
@@ -437,57 +726,38 @@ class SkillOrchestrator:
         feedback_loop: SkillFeedbackLoop,
         workspace: str | None,
     ) -> dict:
+        """Eval→Promotion 실행. 내부적으로 evaluate_and_promote() 공통 함수에 위임."""
         if not code_path or not isinstance(meta, dict):
             return meta
 
-        skill_id = safe_id(str(meta.get("id") or skill_name))
         evals_path = str(meta.get("evals_path") or "").strip()
         if evals_path and not os.path.exists(evals_path):
             evals_path = ""
 
-        baseline_skill_path = ""
         reference_candidate_id = safe_id(str(meta.get("reference_candidate_id") or ""))
-        if reference_candidate_id:
-            baseline_skill_path, _meta_path = resolve_skill_paths(reference_candidate_id)
-            baseline_skill_path = baseline_skill_path or ""
-
-        feedback_path = str(getattr(feedback_loop, "feedback_path", "") or "")
-        runs_dir = os.path.join(os.path.abspath(workspace), "runs") if workspace else None
         current_stage = self._default_build_stage(meta)
 
-        try:
-            eval_report = SkillEvalHarness().evaluate(
-                code_path,
-                evals_path=evals_path or None,
-                baseline_skill_path=baseline_skill_path or None,
-                feedback_path=feedback_path or None,
-                runs_dir=runs_dir,
-            )
-            decision = SkillPromotionManager().apply(
-                skill_id,
-                eval_report,
-                current_stage=current_stage,
-                feedback_loop=feedback_loop,
-            )
-        except Exception as exc:
-            log("EVAL", f"Post-build eval/promotion skipped for '{skill_name}': {exc}")
-            fallback = dict(meta)
-            fallback["status"] = current_stage
-            fallback["lifecycle_stage"] = current_stage
-            fallback["quality_stage"] = current_stage
-            return fallback
+        result = evaluate_and_promote(
+            skill_name=skill_name,
+            code_path=code_path,
+            evals_path=evals_path,
+            reference_candidate_id=reference_candidate_id,
+            feedback_loop=feedback_loop,
+            workspace=workspace,
+            current_stage=current_stage,
+        )
 
         promoted = dict(meta)
-        next_stage = safe_id(str(getattr(decision, "next_stage", "") or current_stage)) or current_stage
+        next_stage = safe_id(str(result.get("next_stage") or current_stage)) or current_stage
         promoted["status"] = next_stage
         promoted["lifecycle_stage"] = next_stage
         promoted["quality_stage"] = next_stage
-        promoted["installable"] = bool(getattr(decision, "installable", False))
-        promoted["last_eval_report"] = str(getattr(eval_report, "report_path", "") or "")
-        promoted["last_promotion_report"] = str(getattr(decision, "promotion_path", "") or "")
-        promoted["promotion_reason"] = str(getattr(decision, "reason", "") or "")
+        promoted["installable"] = result.get("installable", False)
+        promoted["last_eval_report"] = result.get("eval_report_path", "")
+        promoted["last_promotion_report"] = result.get("promotion_report_path", "")
+        promoted["promotion_reason"] = result.get("reason", "")
         promoted["promotion_updated_at"] = now_iso()
-        log("EVAL", f"Promoted built skill '{skill_name}' to '{next_stage}' (installable={bool(getattr(decision, 'installable', False))})")
+        log("EVAL", f"Promoted built skill '{skill_name}' to '{next_stage}' (installable={result.get('installable', False)})")
         return promoted
 
     def _record_selection_feedback(

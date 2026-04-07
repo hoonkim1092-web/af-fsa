@@ -92,6 +92,7 @@
 | `core/skill_eval_harness.py` | 계약/숨겨진/섀도우 테스트 | `SkillEvalHarness` |
 | `core/skill_evolution_bus.py:1-241` | 7단계 캐시 무효화 체인 | `SkillEvolutionBus.on_skill_evolved()` |
 | `core/skill_forge.py` | 코드 생성→비평→수정 루프 | `SkillForge` |
+| `core/skill_procurer.py` | 스킬 조달·forge·평가·승격 | `procure_skill()`, `forge_new_skill()`, `evaluate_and_promote()`, `SkillOrchestrator` |
 | `core/skill_loader.py` | 런타임 스킬 동적 로딩 | `AdaptiveSkillLoader` |
 | `core/skill_promotion.py` | 스킬 라이프사이클 전환 | `SkillPromotionManager` |
 | `core/skill_registry.py` | 스킬 메타데이터 중앙 저장소 | `SkillRegistry` (싱글톤) |
@@ -368,6 +369,27 @@ draft → candidate → canary → active → archived
 **진화 경로:**
 ```
 evolve_skill() → quick_guard() → run_isolated() → version bump → SkillEvolutionBus
+```
+
+**Forge 품질 파이프라인 (`core/skill_procurer.py`):**
+```
+forge_new_skill()
+  ├─ _prepare_forge_context()     # LLM 초기화 + 도메인 힌트 + budget 카운터 (MAX_LLM_CALLS=15)
+  ├─ SkillForge                   # Implementer→Critic→Repair 루프
+  ├─ _generate_and_validate_evals() # evals.yml 자동 생성 (MIN_EVAL_CASES=3)
+  └─ _evaluate_promote_and_register() # Eval→Promotion→Registry 직접 등록
+```
+- **디렉토리 구조**: `skills/forge/{skill_name}/{skill_name}.py` (directory 우선, flat fallback)
+- **함수 시그니처**: `propose(ctx)`, `apply(ctx)`, `test(ctx)` — `apply()`가 핵심 실행
+- **FORGE_POLICIES**: `installable_statuses=["candidate","canary","active"]`
+- **메모리 등록**: `get_global_registry().register()` 직접 호출 (`_SKIP_DIRS`에 "forge" 포함되어 auto_load 불가)
+- **sys.path 보호**: `skill_eval_harness.py`에서 forge parent dir 스킵하여 네임스페이스 충돌 방지
+
+**`evaluate_and_promote()` 공통 함수** — forge와 SkillOrchestrator 양쪽에서 사용:
+```
+evaluate_and_promote(skill_name, code_path, ...) → dict
+  ├─ SkillEvalHarness().evaluate()
+  └─ SkillPromotionManager().apply()
 ```
 
 **캐시 무효화 (7단계, `skill_evolution_bus.py`):**
@@ -853,6 +875,7 @@ model_utils.py (독립 모듈)
 
 | 날짜 | 버전 | 변경 내용 |
 |------|------|----------|
+| 2026-04-07 | v1.0.3 | feat(forge): forge 스킬 품질 파이프라인 — forge_new_skill() 3-helper 분할, evaluate_and_promote() 공통 추출, FORGE_POLICIES, LLM budget 카운터(MAX_LLM_CALLS=15), directory 구조(forge/{name}/{name}.py), sys.path forge guard, propose/apply/test 함수 시그니처, evals.yml 자동 생성(MIN_EVAL_CASES=3), Registry 직접 등록 |
 | 2026-04-04 | v1.0.3 | feat(session): revision_loop 학습 루프 (critique_fn + revision_history + best_artifact), run_factory_cli .env 자동로드, JudgmentLedger 설계, 세션 핸드오프 문서 |
 | 2026-04-03 | v1.0.3 | feat(skill-discovery): cross-cli-skill-discovery v3 — get_external_skill_roots(personal>project 순서), ClaudeOfficialSkillSource 추가, _extract_skill_id(frontmatter name 우선), should_rescan_external(mtime 기반), ensure_skills_loaded(external_scanned 플래그), claude_official 소스 ID, 하위 호환 alias 유지 |
 | 2026-04-03 | v1.0.3 | feat(policy): roles.max 상한 제거 — 리서치 기반 LLM 자율 역할 결정. prefer를 single_responsibility로 변경하여 각 에이전트가 한 가지 책임만 담당하도록 유도 |

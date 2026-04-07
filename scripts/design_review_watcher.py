@@ -41,7 +41,7 @@ PROMPTS_DIR = os.path.join("scripts", "prompts")
 POLL_INTERVAL = 10   # seconds
 QUIET_PERIOD = 8     # seconds — 연속 편집 대기
 IDLE_TIMEOUT = 60    # seconds — 무활동 시 자동 종료
-REVIEW_TIMEOUT = 180 # seconds — 단일 리뷰 실행 제한
+REVIEW_TIMEOUT = 600 # seconds — 단일 리뷰 실행 제한 (codex 자율 탐색 고려)
 
 JUDGE_PRIORITY = ["claude", "codex", "gemini"]
 
@@ -149,33 +149,40 @@ def _read_project_context(workspace: str) -> str:
 
 # ── CLI 실행 ──────────────────────────────────────────────────────────────────
 
-def _build_exec_command(provider: str, prompt: str) -> list[str]:
-    """프로바이더별 실행 명령 구성."""
+def _resolve_cli(name: str) -> str:
+    """CLI 이름을 실제 실행 가능 경로로 해석. Windows .cmd 래퍼 대응."""
+    resolved = shutil.which(name)
+    return resolved if resolved else name
+
+
+def _build_exec_command(provider: str) -> list[str]:
+    """프로바이더별 실행 명�� 구성 (프롬프트는 stdin으로 전달)."""
     if provider == "codex":
-        return ["codex", "exec", "-s", "danger-full-access", prompt]
+        return [_resolve_cli("codex"), "exec", "-s", "danger-full-access"]
     elif provider == "claude":
-        return ["claude", "-p", prompt]
+        return [_resolve_cli("claude"), "-p", "--output-format", "text"]
     elif provider == "gemini":
-        return ["gemini", "-p", prompt]
+        return [_resolve_cli("gemini"), "-p"]
     else:
-        return ["codex", "exec", "-s", "danger-full-access", prompt]
+        return [_resolve_cli("codex"), "exec", "-s", "danger-full-access"]
 
 
 def _run_provider(provider: str, prompt: str, workspace: str) -> str:
-    """프로바이더 CLI 실행. 결과 텍스트 반환."""
-    cmd = _build_exec_command(provider, prompt)
+    """프로바이더 CLI 실행. 프롬프트는 stdin으로 전달."""
+    cmd = _build_exec_command(provider)
     try:
         result = subprocess.run(
             cmd,
+            input=prompt.encode("utf-8"),
             capture_output=True,
-            text=True,
             timeout=REVIEW_TIMEOUT,
             cwd=workspace,
         )
-        output = result.stdout.strip()
-        if not output and result.stderr:
-            return f"(provider error: {result.stderr[:500]})"
-        return output or "(empty response)"
+        stdout = result.stdout.decode("utf-8", errors="replace").strip()
+        stderr = result.stderr.decode("utf-8", errors="replace").strip()
+        if not stdout and stderr:
+            return f"(provider error: {stderr[:500]})"
+        return stdout or "(empty response)"
     except subprocess.TimeoutExpired:
         return f"(timeout: {REVIEW_TIMEOUT}s)"
     except FileNotFoundError:
@@ -186,17 +193,51 @@ def _run_provider(provider: str, prompt: str, workspace: str) -> str:
 
 # ── 리뷰 실행 ─────────────────────────────────────────────────────────────────
 
-def run_critic(provider: str, doc_content: str, context: str, workspace: str) -> str:
+# 자율 탐색 가능 프로바이더: 파일 경로만 전달, 직접 읽기
+_AUTONOMOUS_PROVIDERS = {"codex", "gemini"}
+
+
+def _build_review_prompt(
+    template: str,
+    provider: str,
+    doc_content: str,
+    context: str,
+    rel_path: str,
+    context_path: str,
+) -> str:
+    """프로바이더 특성에 맞는 프롬프트 구성.
+
+    자율 탐색 프로바이더(codex, gemini): 파일 경로만 전달.
+    비자율 프로바이더(claude): 내용 임베딩.
+    """
+    if provider in _AUTONOMOUS_PROVIDERS:
+        return (
+            f"{template}\n\n---\n\n"
+            f"## 지시사항\n\n"
+            f"1. 먼저 `{context_path}` 파일을 읽어 프로젝트 컨텍스트를 파악하라.\n"
+            f"2. 그 다음 `{rel_path}` 파일을 읽고 리뷰하라.\n"
+            f"3. 변경 파일의 호출자/피호출자도 직접 찾아서 읽어라.\n"
+        )
+    return f"{template}\n\n---\n\n## Project Context\n\n{context}\n\n---\n\n## Design Document to Review\n\n{doc_content}"
+
+
+def run_critic(
+    provider: str, doc_content: str, context: str, workspace: str,
+    *, rel_path: str = "", context_path: str = "",
+) -> str:
     """critic 리뷰 실행."""
     template = _load_prompt(workspace, "design_critic")
-    prompt = f"{template}\n\n---\n\n## Project Context\n\n{context}\n\n---\n\n## Design Document to Review\n\n{doc_content}"
+    prompt = _build_review_prompt(template, provider, doc_content, context, rel_path, context_path)
     return _run_provider(provider, prompt, workspace)
 
 
-def run_cross(provider: str, doc_content: str, context: str, workspace: str) -> str:
+def run_cross(
+    provider: str, doc_content: str, context: str, workspace: str,
+    *, rel_path: str = "", context_path: str = "",
+) -> str:
     """cross 리뷰 실행."""
     template = _load_prompt(workspace, "design_cross_review")
-    prompt = f"{template}\n\n---\n\n## Project Context\n\n{context}\n\n---\n\n## Design Document to Review\n\n{doc_content}"
+    prompt = _build_review_prompt(template, provider, doc_content, context, rel_path, context_path)
     return _run_provider(provider, prompt, workspace)
 
 
@@ -283,11 +324,15 @@ def process_review(workspace: str, rel_path: str, trigger_source: str) -> None:
 
     doc_content = _read_document(workspace, rel_path)
     context = _read_project_context(workspace)
+    context_path = os.path.join("docs", "code_review", "code-review.md")
 
     if len(providers) == 1:
         # ── 단일 프로바이더: critic만 ──
         print(f"[watcher] Single provider ({providers[0]}), critic only: {rel_path}")
-        critic_result = run_critic(providers[0], doc_content, context, workspace)
+        critic_result = run_critic(
+            providers[0], doc_content, context, workspace,
+            rel_path=rel_path, context_path=context_path,
+        )
 
         result_path = _write_result(
             workspace, rel_path,
@@ -304,8 +349,14 @@ def process_review(workspace: str, rel_path: str, trigger_source: str) -> None:
 
         # 병렬 실행
         with ThreadPoolExecutor(max_workers=2) as pool:
-            future_critic = pool.submit(run_critic, p_a, doc_content, context, workspace)
-            future_cross = pool.submit(run_cross, p_b, doc_content, context, workspace)
+            future_critic = pool.submit(
+                run_critic, p_a, doc_content, context, workspace,
+                rel_path=rel_path, context_path=context_path,
+            )
+            future_cross = pool.submit(
+                run_cross, p_b, doc_content, context, workspace,
+                rel_path=rel_path, context_path=context_path,
+            )
 
             critic_result = future_critic.result()
             cross_result = future_cross.result()

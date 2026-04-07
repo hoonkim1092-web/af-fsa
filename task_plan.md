@@ -1,39 +1,56 @@
-# Task Plan
+# Task Plan: Review LLM-Powered Document Generation Design
 
 ## Goal
-
-Build the current `agent-factory` CLI artifact from this worktree, verify the executable, and publish the resulting distributable into the deployment repository/branch that serves `af-fsa_v1.2.8`.
+Validate `docs/features/2026-04-07-llm-powered-document-generation.md` against the current Agent Factory codebase and produce a project-specific design review with severity, file:line references, and code quotes.
 
 ## Current Phase
-
-Phase 2
+Phase 1
 
 ## Phases
+### Phase 1: Requirements & Discovery
+- [x] Understand user intent
+- [x] Identify constraints and requirements
+- [ ] Document findings in findings.md
+- **Status:** in_progress
 
-| Status | Phase | Notes |
-| --- | --- | --- |
-| completed | Phase 1: Discovery and deployment target identification | Confirmed build entrypoint is `python build_exe.py`; confirmed deployment repo `https://github.com/hoonkim1092-web/af-fsa.git` exists and serves version branches including `af-fsa_v1.2.8` |
-| in_progress | Phase 2: Build and local verification | Need fresh `dist/af` and `dist/af-1.2.8.zip`, then verify `dist/af/af.exe --help` |
-| pending | Phase 3: Stage deployment repository contents | Clone deployment repo branch `af-fsa_v1.2.8`, replace published payload with fresh build output, preserve expected installer paths |
-| pending | Phase 4: Commit and push deployment repo | Commit deployment changes with a clear message and push to origin |
-| pending | Phase 5: Final verification and handoff | Verify remote push target/commit and report exact results |
+### Phase 2: Planning & Structure
+- [ ] Define technical review approach
+- [ ] Map design assumptions to concrete code paths
+- [ ] Document decisions with rationale
+- **Status:** pending
+
+### Phase 3: Evidence Collection
+- [ ] Read review and design docs
+- [ ] Read required core files with line numbers
+- [ ] Trace related call paths and data structures
+- **Status:** pending
+
+### Phase 4: Analysis & Verification
+- [ ] Check design claims against actual function signatures and flow
+- [ ] Identify regressions, omissions, and new risks
+- [ ] Confirm evidence chain and clarification insertion feasibility
+- **Status:** pending
+
+### Phase 5: Delivery
+- [ ] Prepare findings ordered by severity
+- [ ] Include file references and code quotes
+- [ ] Deliver concise review to user
+- **Status:** pending
 
 ## Key Questions
-
-1. Is `af-fsa_v1.2.8` still the correct publish branch for the current source version? Answer so far: yes, because `version.py` is `1.2.8` and installer URLs point at that branch.
-2. Do we need to modify source files before build, or publish the current worktree state as-is? Answer so far: publish current worktree state unless the build fails and requires targeted fixes.
+1. Do the design document's proposed hook points and data structures match the current code?
+2. Are there missing modules, failure paths, or UI/FSA constraints that the design did not account for?
 
 ## Decisions Made
-
 | Decision | Rationale |
-| --- | --- |
-| Treat external repo `af-fsa` as the deployment repository | `git ls-remote` confirmed it exists separately and contains versioned branches used by installer URLs |
-| Publish branch `af-fsa_v1.2.8` | Current source version is `1.2.8`, and install script downloads from that branch/tag path |
-| Verify with a real build plus `af.exe --help` before push | The task is deployment-oriented and requires artifact-level evidence, not just source inspection |
+|----------|-----------|
+| Use file-based working notes for this review | Task requires many reads and cross-file comparisons |
 
 ## Errors Encountered
-
 | Error | Attempt | Resolution |
-| --- | --- | --- |
-| Sandbox shell failed with `CreateProcessWithLogonW failed: 1326` | 1 | Switched required shell operations to escalated execution |
-| Recursive search for local `af-fsa` directory hit access-denied under unrelated temp directory | 1 | Continued with direct remote inspection via `git ls-remote` instead of broad filesystem recursion |
+|-------|---------|------------|
+| `session-catchup.py` not found under `.claude` path | 1 | Re-ran with actual `.codex` skill path |
+
+## Notes
+- Review output must be codebase-specific only.
+- Findings need severity, file:line, and code quote.
