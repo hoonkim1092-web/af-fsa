@@ -157,8 +157,16 @@ def main(argv: list[str] | None = None):
 
     # ── 인자 없이 실행 → 대화형 PDCA 모드 ──
     if not effective_argv or effective_argv == ["--interactive"]:
+        from core.setup_wizard import check_and_hint
+        check_and_hint()
         projects_root = _resolve_projects_root()
         _launch_interactive_mode(projects_root)
+        return
+
+    # ── setup 서브커맨드: API 키 등록 마법사 ──
+    if effective_argv and effective_argv[0] == "setup":
+        from core.setup_wizard import run_setup
+        run_setup(interactive=True)
         return
 
     # ── worker 서브커맨드: PyInstaller exe에서 에이전트 워커 실행 ──

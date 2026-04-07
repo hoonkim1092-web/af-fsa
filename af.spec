@@ -96,6 +96,7 @@ a = Analysis(
         'core.skill_spec_synthesizer',
         'core.swarm_council',
         'core.synergy_runner',
+        'core.setup_wizard',
         'core.template_input',
         'core.terminal_bridge',
         'core.tool_runtime',
