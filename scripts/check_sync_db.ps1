@@ -54,7 +54,7 @@ function Is-RepoRootAlias([string]$RepoRoot, [string]$ProjectInput) {
 function Load-DotEnv([string]$EnvPath) {
     $map = @{}
     if (-not (Test-Path $EnvPath)) { return $map }
-    Get-Content $EnvPath | ForEach-Object {
+    Get-Content -Path $EnvPath -Encoding utf8 | ForEach-Object {
         $line = $_.Trim()
         if (-not $line -or $line.StartsWith("#") -or -not $line.Contains("=")) { return }
         $idx = $line.IndexOf("=")

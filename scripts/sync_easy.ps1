@@ -97,7 +97,7 @@ if ($env:AGENT_GLOBAL_USER_KEY) {
 if (-not $globalUserKey) {
     $envFile = Join-Path $repoRoot ".env"
     if (Test-Path $envFile) {
-        $line = Get-Content $envFile | Where-Object { $_ -match '^\s*AGENT_GLOBAL_USER_KEY\s*=' } | Select-Object -First 1
+        $line = Get-Content -Path $envFile -Encoding utf8 | Where-Object { $_ -match '^\s*AGENT_GLOBAL_USER_KEY\s*=' } | Select-Object -First 1
         if ($line) {
             $parts = $line -split "=", 2
             if ($parts.Length -eq 2) {

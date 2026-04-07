@@ -24,14 +24,14 @@ if ($userPath -notmatch [regex]::Escape($shortcutsDir)) {
 if (!(Test-Path -Path $PROFILE)) {
     New-Item -ItemType File -Path $PROFILE -Force | Out-Null
 }
-$profileContent = Get-Content -Path $PROFILE -ErrorAction SilentlyContinue
+$profileContent = Get-Content -Path $PROFILE -Encoding utf8 -ErrorAction SilentlyContinue
 $afExists = $profileContent -match "function af "
 $lmExists = $profileContent -match "function lm "
 
 if (!$afExists -or !$lmExists) {
-    Add-Content -Path $PROFILE -Value "`n# Directory Shortcuts"
-    Add-Content -Path $PROFILE -Value "function af { Set-Location `'d:\agent-factory`' }"
-    Add-Content -Path $PROFILE -Value "function lm { Set-Location `'d:\logi-mind-v22`' }"
+    Add-Content -Path $PROFILE -Value "`n# Directory Shortcuts" -Encoding utf8
+    Add-Content -Path $PROFILE -Value "function af { Set-Location `'d:\agent-factory`' }" -Encoding utf8
+    Add-Content -Path $PROFILE -Value "function lm { Set-Location `'d:\logi-mind-v22`' }" -Encoding utf8
     Write-Host "Added 'af' and 'lm' functions to PowerShell Profile ($PROFILE)."
 } else {
     Write-Host "PowerShell profile already contains shortcuts."
@@ -42,14 +42,14 @@ $bashrcPath = "$env:USERPROFILE\.bashrc"
 if (!(Test-Path -Path $bashrcPath)) {
     New-Item -ItemType File -Path $bashrcPath -Force | Out-Null
 }
-$bashrcContent = Get-Content -Path $bashrcPath -ErrorAction SilentlyContinue
+$bashrcContent = Get-Content -Path $bashrcPath -Encoding utf8 -ErrorAction SilentlyContinue
 $bashAfExists = $bashrcContent -match "alias af="
 $bashLmExists = $bashrcContent -match "alias lm="
 
 if (!$bashAfExists -or !$bashLmExists) {
-    Add-Content -Path $bashrcPath -Value "`n# Directory Shortcuts" -Encoding ASCII
-    Add-Content -Path $bashrcPath -Value "alias af='cd /d/agent-factory'" -Encoding ASCII
-    Add-Content -Path $bashrcPath -Value "alias lm='cd /d/logi-mind-v22'" -Encoding ASCII
+    Add-Content -Path $bashrcPath -Value "`n# Directory Shortcuts" -Encoding utf8
+    Add-Content -Path $bashrcPath -Value "alias af='cd /d/agent-factory'" -Encoding utf8
+    Add-Content -Path $bashrcPath -Value "alias lm='cd /d/logi-mind-v22'" -Encoding utf8
     Write-Host "Added 'af' and 'lm' aliases to Git Bash ~/.bashrc."
 } else {
     Write-Host "Git Bash ~/.bashrc already contains shortcuts."

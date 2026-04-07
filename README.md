@@ -1,6 +1,13 @@
-﻿# AI Agent Factory
+# AI Agent Factory
 
-프로젝트 단위로 에이전트를 실행/진화시키는 시스템입니다.
+프로젝트 단위로 에이전트를 실행/진화시키는 시스템입니다.
+
+## Windows UTF-8 주의사항
+
+- 이 저장소의 텍스트 파일은 UTF-8 기준입니다.
+- Windows PowerShell 5.1에서는 BOM 없는 UTF-8 파일을 기본 `Get-Content`로 읽으면 한글이 깨질 수 있습니다.
+- PowerShell 스크립트에서 저장소 텍스트 파일을 읽거나 쓸 때는 항상 `-Encoding utf8`을 명시하세요.
+- Codex 실행 시에는 저장소의 `cdx.cmd` 래퍼를 우선 사용하세요. 이 래퍼는 UTF-8 코드페이지와 Python UTF-8 환경 변수를 설정합니다.
 
 ## 🌟 비전 및 철학 (Vision & Philosophy)
 
