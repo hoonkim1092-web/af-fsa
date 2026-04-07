@@ -325,8 +325,8 @@ class MaintenancePipeline:
             return {"approved": True, "reasons": []}
 
         except Exception as exc:
-            print(f"[MaintenancePipeline] approval gate check error (proceeding): {exc}")
-            return {"approved": True, "reasons": [], "error": str(exc)}
+            print(f"[MaintenancePipeline] approval gate check error (blocking): {exc}")
+            return {"approved": False, "reasons": [f"approval gate check error: {exc}"], "error": str(exc)}
 
     def _check_conflicts(self, normalized: Any) -> dict:
         """RunLedger로 동시 작업 충돌을 확인한다."""

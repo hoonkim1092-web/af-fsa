@@ -95,6 +95,7 @@ class DynamicOrchestrator:
         self._manifest_roles = list(roles or [])
         self._manifest_project_desc = str(project_desc or "")
         self.active_assignments = {}
+        self._task_retry_count = {}
         # 개선 7: asyncio.run()마다 새 이벤트 루프가 생성되므로 Event도 재생성
         self._task_done_event = asyncio.Event()
 
@@ -560,8 +561,12 @@ class DynamicOrchestrator:
             "task_id": task_id,
             "broker_address": self.broker.get_broker_address(),
         }
-        with open(task_file, "w", encoding="utf-8") as fh:
+        import tempfile
+        _task_dir = os.path.dirname(task_file)
+        with tempfile.NamedTemporaryFile("w", dir=_task_dir, delete=False, suffix=".tmp", encoding="utf-8") as fh:
             json.dump(task_payload, fh, ensure_ascii=False, indent=2)
+            _tmp = fh.name
+        os.replace(_tmp, task_file)
 
         # PyInstaller frozen exe → "af.exe worker --task-file ..."
         # 일반 Python → "python core/agent_worker.py --task-file ..."

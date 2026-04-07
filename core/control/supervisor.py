@@ -85,6 +85,8 @@ class RuntimeSupervisor:
         finally:
             self._stop_event.set()
             heartbeat_thread.join(timeout=5)
+            if heartbeat_thread.is_alive():
+                heartbeat_thread.join(timeout=self.HEARTBEAT_INTERVAL_SEC + 1)
 
         state = "completed" if result["success"] else "failed"
         self._update_ledger(run_id, state=state)

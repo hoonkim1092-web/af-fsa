@@ -104,8 +104,12 @@ class ProjectPipeline:
         self._visualizer = visualizer
 
     def _write_json(self, path: str, data: dict):
-        with open(path, "w", encoding="utf-8") as f:
+        import tempfile
+        dir_ = os.path.dirname(path) or "."
+        with tempfile.NamedTemporaryFile("w", dir=dir_, delete=False, suffix=".tmp", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
+            tmp = f.name
+        os.replace(tmp, path)
 
     def _planning_dir(self, workspace: str) -> str:
         planning_dir = os.path.join(workspace, "planning")

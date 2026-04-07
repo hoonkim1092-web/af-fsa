@@ -142,8 +142,8 @@ class TerminalBridge:
             # Windows에서는 shell=True 필요, Unix에서는 shlex.split 사용
             if os.name == "nt":
                 proc = subprocess.run(
-                    cmd,
-                    shell=True,
+                    ["cmd.exe", "/c", cmd],
+                    shell=False,
                     capture_output=True,
                     text=True,
                     timeout=max(5, timeout),

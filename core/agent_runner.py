@@ -576,6 +576,8 @@ class AgentRunner:
             )
         )
 
+    _SKILL_LOADER_CACHE_MAX = 16
+
     def _get_skill_loader(self, model_name: str):
         """
         Resolve an AdaptiveSkillLoader lazily and cache it by model name.
@@ -588,6 +590,8 @@ class AgentRunner:
         """
         if model_name not in self._skill_loader_cache:
             # MIN-4: avoid repeated lazy-loader import setup
+            if len(self._skill_loader_cache) >= self._SKILL_LOADER_CACHE_MAX:
+                self._skill_loader_cache.pop(next(iter(self._skill_loader_cache)))
             self._skill_loader_cache[model_name] = AdaptiveSkillLoader.for_model(model_name)
         return self._skill_loader_cache[model_name]
 
