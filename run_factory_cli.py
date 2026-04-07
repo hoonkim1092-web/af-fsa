@@ -45,12 +45,14 @@ if hasattr(sys.stderr, "reconfigure"):
     sys.stderr.reconfigure(encoding="utf-8")
 
 # 시작 즉시 CLI 프로바이더 자동 탐색 및 런타임 레지스트리 설정
-# AGENT_CHAT_PROVIDER 환경변수 불필요: 설치된 CLI를 자동 감지해 우선순위 배정
-try:
-    from core.engine_auth import auto_configure_cli_provider
-    auto_configure_cli_provider()
-except Exception:
-    pass  # 임포트 실패 시 무시 (이후 check_llm_available()에서 재시도)
+# --help / -h 는 LLM 탐색 불필요 → 스킵해서 즉시 출력
+_is_help_only = any(a in sys.argv for a in ("--help", "-h"))
+if not _is_help_only:
+    try:
+        from core.engine_auth import auto_configure_cli_provider
+        auto_configure_cli_provider()
+    except Exception:
+        pass  # 임포트 실패 시 무시 (이후 check_llm_available()에서 재시도)
 
 
 
