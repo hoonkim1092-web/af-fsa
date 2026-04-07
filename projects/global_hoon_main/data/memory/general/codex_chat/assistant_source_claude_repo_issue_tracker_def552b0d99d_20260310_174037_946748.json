@@ -1,18 +1,18 @@
-{
-  "key": "assistant 내 의견은 중복을 막는 게 맞다입니다 다만 범위를 나눠야 합니다- 같은 source 안에서의 중복은 막는 게 맞습니다  예 claude 아래 여러 repo가 같은 issue_tracker를 내는 경",
-  "value": "[assistant] 내 의견은 `중복을 막는 게 맞다`입니다. 다만 범위를 나눠야 합니다.  - 같은 `source` 안에서의 중복은 막는 게 맞습니다.   예: `claude` 아래 여러 repo가 같은 `issue_tracker`를 내는 경우 - 서로 다른 `source` 간 중복은 남겨두는 게 맞습니다.   예: `claude.issue_tracker`와 `codex.issue_tracker`   이건 지금 만든 `source priority`의 존...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T17:40:37.947158+00:00",
-  "updated_at": "2026-03-10T17:40:37.947158+00:00",
-  "details": {
-    "text": "[assistant] 내 의견은 `중복을 막는 게 맞다`입니다. 다만 범위를 나눠야 합니다.\n\n- 같은 `source` 안에서의 중복은 막는 게 맞습니다.\n  예: `claude` 아래 여러 repo가 같은 `issue_tracker`를 내는 경우\n- 서로 다른 `source` 간 중복은 남겨두는 게 맞습니다.\n  예: `claude.issue_tracker`와 `codex.issue_tracker`\n  이건 지금 만든 `source priority`의 존재 이유입니다.\n\n즉 권장 정책은 이겁니다.\n\n1. `same source + same skill_id` 중복 금지\n2. `different source + same skill_id` 허용\n3. importer 단계에서 충돌 발견 시 조용히 덮어쓰지 말고 `skip/fail + 로그`\n4. resolver는 `claude -> codex -> registry -> external_cache` 순서만 비교\n\n이게 좋은 이유:\n- 결정성이 생깁니다. 지금처럼 마지막 repo가 우연히 이기는 구조는 별로입니다.\n- 퍼포먼스도 좋아집니다. 같은 source 안에서 후보를 여러 개 들고 있을 이유가 없습니다.\n- 디버깅이 쉬워집니다. “왜 이 스킬이 골라졌는가”가 명확해집니다.\n\n반대로 전부 글로벌 유니크로 막아버리면 문제가 있습니다.\n- `codex` fallback 가치가 사라집니다.\n- `claude` 쪽이 실패해도 같은 skill id의 `codex` 후보를 못 씁니다.\n\n그래서 결론은:\n- `중복 차단`: 찬성\n- `차단 범위`: source 내부만\n- `cross-source duplicate`: 유지\n\n원하면 바로 다음으로 importer에\n- `same source + same skill_id` 충돌 차단\n- 충돌 로그/리포트 출력\n까지 구현하겠습니다.",
-    "event_timestamp": "2026-03-10T15:21:51.637Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
-    "session_line": 1165,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 내 의견은 중복을 막는 게 맞다입니다 다만 범위를 나눠야 합니다- 같은 source 안에서의 중복은 막는 게 맞습니다  예 claude 아래 여러 repo가 같은 issue_tracker를 내는 경",
+  "value": "[assistant] 내 의견은 `중복을 막는 게 맞다`입니다. 다만 범위를 나눠야 합니다.  - 같은 `source` 안에서의 중복은 막는 게 맞습니다.   예: `claude` 아래 여러 repo가 같은 `issue_tracker`를 내는 경우 - 서로 다른 `source` 간 중복은 남겨두는 게 맞습니다.   예: `claude.issue_tracker`와 `codex.issue_tracker`   이건 지금 만든 `source priority`의 존...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:37.947158+00:00",
+  "updated_at": "2026-03-10T17:40:37.947158+00:00",
+  "details": {
+    "text": "[assistant] 내 의견은 `중복을 막는 게 맞다`입니다. 다만 범위를 나눠야 합니다.\n\n- 같은 `source` 안에서의 중복은 막는 게 맞습니다.\n  예: `claude` 아래 여러 repo가 같은 `issue_tracker`를 내는 경우\n- 서로 다른 `source` 간 중복은 남겨두는 게 맞습니다.\n  예: `claude.issue_tracker`와 `codex.issue_tracker`\n  이건 지금 만든 `source priority`의 존재 이유입니다.\n\n즉 권장 정책은 이겁니다.\n\n1. `same source + same skill_id` 중복 금지\n2. `different source + same skill_id` 허용\n3. importer 단계에서 충돌 발견 시 조용히 덮어쓰지 말고 `skip/fail + 로그`\n4. resolver는 `claude -> codex -> registry -> external_cache` 순서만 비교\n\n이게 좋은 이유:\n- 결정성이 생깁니다. 지금처럼 마지막 repo가 우연히 이기는 구조는 별로입니다.\n- 퍼포먼스도 좋아집니다. 같은 source 안에서 후보를 여러 개 들고 있을 이유가 없습니다.\n- 디버깅이 쉬워집니다. “왜 이 스킬이 골라졌는가”가 명확해집니다.\n\n반대로 전부 글로벌 유니크로 막아버리면 문제가 있습니다.\n- `codex` fallback 가치가 사라집니다.\n- `claude` 쪽이 실패해도 같은 skill id의 `codex` 후보를 못 씁니다.\n\n그래서 결론은:\n- `중복 차단`: 찬성\n- `차단 범위`: source 내부만\n- `cross-source duplicate`: 유지\n\n원하면 바로 다음으로 importer에\n- `same source + same skill_id` 충돌 차단\n- 충돌 로그/리포트 출력\n까지 구현하겠습니다.",
+    "event_timestamp": "2026-03-10T15:21:51.637Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
+    "session_line": 1165,
+    "provider": "codex"
+  }
 }

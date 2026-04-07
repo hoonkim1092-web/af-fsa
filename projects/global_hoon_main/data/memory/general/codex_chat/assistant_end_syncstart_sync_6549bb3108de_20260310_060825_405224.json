@@ -1,18 +1,18 @@
-{
-  "key": "assistant 핵심은 코드와 연속성 상태를 따로 봐야 한다는 점입니다 스크립트 인자 규칙까지 맞는지 마지막으로 end_syncstart_sync 기본 동작만 확인하겠습니다",
-  "value": "[assistant] 핵심은 `코드`와 `연속성 상태`를 따로 봐야 한다는 점입니다. 스크립트 인자 규칙까지 맞는지 마지막으로 `end_sync/start_sync` 기본 동작만 확인하겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T06:08:25.405286+00:00",
-  "updated_at": "2026-03-10T06:08:25.405286+00:00",
-  "details": {
-    "text": "[assistant] 핵심은 `코드`와 `연속성 상태`를 따로 봐야 한다는 점입니다. 스크립트 인자 규칙까지 맞는지 마지막으로 `end_sync/start_sync` 기본 동작만 확인하겠습니다.",
-    "event_timestamp": "2026-03-10T01:48:22.727Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
-    "session_line": 209,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 핵심은 코드와 연속성 상태를 따로 봐야 한다는 점입니다 스크립트 인자 규칙까지 맞는지 마지막으로 end_syncstart_sync 기본 동작만 확인하겠습니다",
+  "value": "[assistant] 핵심은 `코드`와 `연속성 상태`를 따로 봐야 한다는 점입니다. 스크립트 인자 규칙까지 맞는지 마지막으로 `end_sync/start_sync` 기본 동작만 확인하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T06:08:25.405286+00:00",
+  "updated_at": "2026-03-10T06:08:25.405286+00:00",
+  "details": {
+    "text": "[assistant] 핵심은 `코드`와 `연속성 상태`를 따로 봐야 한다는 점입니다. 스크립트 인자 규칙까지 맞는지 마지막으로 `end_sync/start_sync` 기본 동작만 확인하겠습니다.",
+    "event_timestamp": "2026-03-10T01:48:22.727Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 209,
+    "provider": "codex"
+  }
 }

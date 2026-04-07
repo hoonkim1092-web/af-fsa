@@ -1,18 +1,18 @@
-{
-  "key": "assistant 로컬 코드 경로 기준으로는 문제 없어 보입니다실행한 테스트- python -m pytest -q teststest_external_skill_sourcespy teststest_external_sk",
-  "value": "[assistant] 로컬 코드 경로 기준으로는 문제 없어 보입니다.  실행한 테스트: - `python -m pytest -q tests\\test_external_skill_sources.py tests\\test_external_skill_candidate_importer.py tests\\test_skill_procurer_external_fallback.py` - 결과: `12 passed`  이 테스트에서 확인된 것: - `claude` source가...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T17:40:38.007045+00:00",
-  "updated_at": "2026-03-10T17:40:38.007045+00:00",
-  "details": {
-    "text": "[assistant] 로컬 코드 경로 기준으로는 문제 없어 보입니다.\n\n실행한 테스트:\n- `python -m pytest -q tests\\test_external_skill_sources.py tests\\test_external_skill_candidate_importer.py tests\\test_skill_procurer_external_fallback.py`\n- 결과: `12 passed`\n\n이 테스트에서 확인된 것:\n- `claude` source가 `codex`보다 우선 선택됨\n- manifest 기반 Claude skill import 동작\n- manifest가 없어도 raw `.py` fallback 동작\n- Claude repo sync 실패가 `source_error`로 표면화됨\n- external install 실패 시 builder fallback으로 내려감\n\n다만 한계는 있습니다.\n- 지금 환경에는 `AGENT_EXTERNAL_SKILL_CLAUDE_REPOS`가 설정돼 있지 않아서, 실제 원격 Claude skill repo를 붙인 live 테스트는 못 했습니다.\n- full bootstrap까지 억지로 태우는 ad-hoc smoke는 `config_paths`의 로컬 디렉터리 권한 문제로 중간에 막혔습니다. 그래서 “실제 네트워크 repo에서 clone/pull 후 가져오기”까지 확인한 건 아닙니다.\n\n즉 결론은:\n- 코드 경로와 테스트 기준: 이상 없음\n- 실제 Claude 외부 repo live 검증: 아직 안 함\n\n원하면 다음엔 `AGENT_EXTERNAL_SKILL_CLAUDE_REPOS` 하나 지정해서 진짜 repo 대상으로 live smoke까지 해보겠습니다.",
-    "event_timestamp": "2026-03-10T15:52:10.224Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
-    "session_line": 1836,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 로컬 코드 경로 기준으로는 문제 없어 보입니다실행한 테스트- python -m pytest -q teststest_external_skill_sourcespy teststest_external_sk",
+  "value": "[assistant] 로컬 코드 경로 기준으로는 문제 없어 보입니다.  실행한 테스트: - `python -m pytest -q tests\\test_external_skill_sources.py tests\\test_external_skill_candidate_importer.py tests\\test_skill_procurer_external_fallback.py` - 결과: `12 passed`  이 테스트에서 확인된 것: - `claude` source가...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:38.007045+00:00",
+  "updated_at": "2026-03-10T17:40:38.007045+00:00",
+  "details": {
+    "text": "[assistant] 로컬 코드 경로 기준으로는 문제 없어 보입니다.\n\n실행한 테스트:\n- `python -m pytest -q tests\\test_external_skill_sources.py tests\\test_external_skill_candidate_importer.py tests\\test_skill_procurer_external_fallback.py`\n- 결과: `12 passed`\n\n이 테스트에서 확인된 것:\n- `claude` source가 `codex`보다 우선 선택됨\n- manifest 기반 Claude skill import 동작\n- manifest가 없어도 raw `.py` fallback 동작\n- Claude repo sync 실패가 `source_error`로 표면화됨\n- external install 실패 시 builder fallback으로 내려감\n\n다만 한계는 있습니다.\n- 지금 환경에는 `AGENT_EXTERNAL_SKILL_CLAUDE_REPOS`가 설정돼 있지 않아서, 실제 원격 Claude skill repo를 붙인 live 테스트는 못 했습니다.\n- full bootstrap까지 억지로 태우는 ad-hoc smoke는 `config_paths`의 로컬 디렉터리 권한 문제로 중간에 막혔습니다. 그래서 “실제 네트워크 repo에서 clone/pull 후 가져오기”까지 확인한 건 아닙니다.\n\n즉 결론은:\n- 코드 경로와 테스트 기준: 이상 없음\n- 실제 Claude 외부 repo live 검증: 아직 안 함\n\n원하면 다음엔 `AGENT_EXTERNAL_SKILL_CLAUDE_REPOS` 하나 지정해서 진짜 repo 대상으로 live smoke까지 해보겠습니다.",
+    "event_timestamp": "2026-03-10T15:52:10.224Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
+    "session_line": 1836,
+    "provider": "codex"
+  }
 }

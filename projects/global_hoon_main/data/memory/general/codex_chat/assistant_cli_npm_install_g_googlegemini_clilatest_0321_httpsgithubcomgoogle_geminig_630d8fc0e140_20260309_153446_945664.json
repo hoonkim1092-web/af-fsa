@@ -1,18 +1,18 @@
-{
-  "key": "assistant 제미나이 CLI도 설치했습니다- 설치 명령 npm install -g googlegemini-clilatest- 확인된 버전 0321- 공식 소스 httpsgithubcomgoogle-geminig",
-  "value": "[assistant] 제미나이 CLI도 설치했습니다.  - 설치 명령: `npm install -g @google/gemini-cli@latest` - 확인된 버전: `0.32.1` - 공식 소스: https://github.com/google-gemini/gemini-cli  이 PowerShell에서는 실행 정책 때문에 `gemini.ps1` 대신 `gemini.cmd`로 쓰는 게 안전합니다. - 실행 예: `C:\\Users\\HOME\\AppData\\Ro...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T15:34:46.945814+00:00",
-  "updated_at": "2026-03-09T15:34:46.945814+00:00",
-  "details": {
-    "text": "[assistant] 제미나이 CLI도 설치했습니다.\n\n- 설치 명령: `npm install -g @google/gemini-cli@latest`\n- 확인된 버전: `0.32.1`\n- 공식 소스: https://github.com/google-gemini/gemini-cli\n\n이 PowerShell에서는 실행 정책 때문에 `gemini.ps1` 대신 `gemini.cmd`로 쓰는 게 안전합니다.\n- 실행 예: `C:\\Users\\HOME\\AppData\\Roaming\\npm\\gemini.cmd --version`\n\n원하면 다음으로 `claude` 로그인, `gemini` 로그인, 실제 `run_factory_cli.py` 스모크 테스트까지 이어서 하겠습니다.",
-    "event_timestamp": "2026-03-09T15:21:50.999Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
-    "session_line": 528,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 제미나이 CLI도 설치했습니다- 설치 명령 npm install -g googlegemini-clilatest- 확인된 버전 0321- 공식 소스 httpsgithubcomgoogle-geminig",
+  "value": "[assistant] 제미나이 CLI도 설치했습니다.  - 설치 명령: `npm install -g @google/gemini-cli@latest` - 확인된 버전: `0.32.1` - 공식 소스: https://github.com/google-gemini/gemini-cli  이 PowerShell에서는 실행 정책 때문에 `gemini.ps1` 대신 `gemini.cmd`로 쓰는 게 안전합니다. - 실행 예: `C:\\Users\\HOME\\AppData\\Ro...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T15:34:46.945814+00:00",
+  "updated_at": "2026-03-09T15:34:46.945814+00:00",
+  "details": {
+    "text": "[assistant] 제미나이 CLI도 설치했습니다.\n\n- 설치 명령: `npm install -g @google/gemini-cli@latest`\n- 확인된 버전: `0.32.1`\n- 공식 소스: https://github.com/google-gemini/gemini-cli\n\n이 PowerShell에서는 실행 정책 때문에 `gemini.ps1` 대신 `gemini.cmd`로 쓰는 게 안전합니다.\n- 실행 예: `C:\\Users\\HOME\\AppData\\Roaming\\npm\\gemini.cmd --version`\n\n원하면 다음으로 `claude` 로그인, `gemini` 로그인, 실제 `run_factory_cli.py` 스모크 테스트까지 이어서 하겠습니다.",
+    "event_timestamp": "2026-03-09T15:21:50.999Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 528,
+    "provider": "codex"
+  }
 }

@@ -1,18 +1,18 @@
-{
-  "key": "assistant 있습니다 이 시스템 기준으로는 codex도 claude와 같은 외부 스킬 source로 취급합니다근거- source priority 기본값에 codex가 들어갑니다 project_initpyDwar",
-  "value": "[assistant] 있습니다. 이 시스템 기준으로는 `codex`도 `claude`와 같은 외부 스킬 source로 취급합니다.  근거: - source priority 기본값에 `codex`가 들어갑니다: [project_init.py](/D:/warkSpaces/agent-factory/core/project_init.py#L34) - provider/source 우선순위도 `claude -> codex -> registry -> external_ca...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T17:40:38.008844+00:00",
-  "updated_at": "2026-03-10T17:40:38.008844+00:00",
-  "details": {
-    "text": "[assistant] 있습니다. 이 시스템 기준으로는 `codex`도 `claude`와 같은 외부 스킬 source로 취급합니다.\n\n근거:\n- source priority 기본값에 `codex`가 들어갑니다: [project_init.py](/D:/warkSpaces/agent-factory/core/project_init.py#L34)\n- provider/source 우선순위도 `claude -> codex -> registry -> external_cache`로 설계돼 있습니다: [projects/agent_factory/policies.yaml](/D:/warkSpaces/agent-factory/projects/agent_factory/policies.yaml#L8)\n- 외부 repo 환경변수도 따로 있습니다: `AGENT_EXTERNAL_SKILL_CODEX_REPOS`\n  처리 위치는 [external_skill_sources.py](/D:/warkSpaces/agent-factory/core/external_skill_sources.py#L87)\n- importer도 `codex` source를 그대로 받아 `install_candidates.source_id=codex`로 넣습니다: [external_skill_candidate_importer.py](/D:/warkSpaces/agent-factory/core/external_skill_candidate_importer.py#L232)\n\n즉 구조상은 이렇습니다.\n- `Claude skills`\n- `Codex skills`\n- 둘 다 없으면 builder fallback\n\n다만 중요한 건:\n- 이건 “Codex CLI가 자기 내부 스킬 마켓을 자동 조회한다”는 뜻은 아닙니다.\n- `skills/_external_cache/codex/...` 아래 repo나 `AGENT_EXTERNAL_SKILL_CODEX_REPOS`로 연결한 외부 스킬 저장소를 우리가 읽는 구조입니다.\n\n원하면 바로 `codex` 쪽도 `claude`처럼 테스트 만들어서 실제 source 흐름까지 확인해드릴게요.",
-    "event_timestamp": "2026-03-10T15:52:38.479Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
-    "session_line": 1844,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 있습니다 이 시스템 기준으로는 codex도 claude와 같은 외부 스킬 source로 취급합니다근거- source priority 기본값에 codex가 들어갑니다 project_initpyDwar",
+  "value": "[assistant] 있습니다. 이 시스템 기준으로는 `codex`도 `claude`와 같은 외부 스킬 source로 취급합니다.  근거: - source priority 기본값에 `codex`가 들어갑니다: [project_init.py](/D:/warkSpaces/agent-factory/core/project_init.py#L34) - provider/source 우선순위도 `claude -> codex -> registry -> external_ca...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:38.008844+00:00",
+  "updated_at": "2026-03-10T17:40:38.008844+00:00",
+  "details": {
+    "text": "[assistant] 있습니다. 이 시스템 기준으로는 `codex`도 `claude`와 같은 외부 스킬 source로 취급합니다.\n\n근거:\n- source priority 기본값에 `codex`가 들어갑니다: [project_init.py](/D:/warkSpaces/agent-factory/core/project_init.py#L34)\n- provider/source 우선순위도 `claude -> codex -> registry -> external_cache`로 설계돼 있습니다: [projects/agent_factory/policies.yaml](/D:/warkSpaces/agent-factory/projects/agent_factory/policies.yaml#L8)\n- 외부 repo 환경변수도 따로 있습니다: `AGENT_EXTERNAL_SKILL_CODEX_REPOS`\n  처리 위치는 [external_skill_sources.py](/D:/warkSpaces/agent-factory/core/external_skill_sources.py#L87)\n- importer도 `codex` source를 그대로 받아 `install_candidates.source_id=codex`로 넣습니다: [external_skill_candidate_importer.py](/D:/warkSpaces/agent-factory/core/external_skill_candidate_importer.py#L232)\n\n즉 구조상은 이렇습니다.\n- `Claude skills`\n- `Codex skills`\n- 둘 다 없으면 builder fallback\n\n다만 중요한 건:\n- 이건 “Codex CLI가 자기 내부 스킬 마켓을 자동 조회한다”는 뜻은 아닙니다.\n- `skills/_external_cache/codex/...` 아래 repo나 `AGENT_EXTERNAL_SKILL_CODEX_REPOS`로 연결한 외부 스킬 저장소를 우리가 읽는 구조입니다.\n\n원하면 바로 `codex` 쪽도 `claude`처럼 테스트 만들어서 실제 source 흐름까지 확인해드릴게요.",
+    "event_timestamp": "2026-03-10T15:52:38.479Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
+    "session_line": 1844,
+    "provider": "codex"
+  }
 }

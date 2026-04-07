@@ -1,18 +1,18 @@
-{
-  "key": "assistant 변경 범위가 문서 정책 todomd resume_briefmd까지 걸려 있어서 관련 테스트를 한 번에 검증하겠습니다 문서 언어 계약이 프롬프트와 자동 생성 파일에 같이 들어가는지만 확인하면 됩니다",
-  "value": "[assistant] 변경 범위가 문서 정책, `.todo.md`, `resume_brief.md`까지 걸려 있어서 관련 테스트를 한 번에 검증하겠습니다. 문서 언어 계약이 프롬프트와 자동 생성 파일에 같이 들어가는지만 확인하면 됩니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T10:23:07.651712+00:00",
-  "updated_at": "2026-03-10T10:23:07.651712+00:00",
-  "details": {
-    "text": "[assistant] 변경 범위가 문서 정책, `.todo.md`, `resume_brief.md`까지 걸려 있어서 관련 테스트를 한 번에 검증하겠습니다. 문서 언어 계약이 프롬프트와 자동 생성 파일에 같이 들어가는지만 확인하면 됩니다.",
-    "event_timestamp": "2026-03-10T09:01:54.288Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
-    "session_line": 1905,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 변경 범위가 문서 정책 todomd resume_briefmd까지 걸려 있어서 관련 테스트를 한 번에 검증하겠습니다 문서 언어 계약이 프롬프트와 자동 생성 파일에 같이 들어가는지만 확인하면 됩니다",
+  "value": "[assistant] 변경 범위가 문서 정책, `.todo.md`, `resume_brief.md`까지 걸려 있어서 관련 테스트를 한 번에 검증하겠습니다. 문서 언어 계약이 프롬프트와 자동 생성 파일에 같이 들어가는지만 확인하면 됩니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T10:23:07.651712+00:00",
+  "updated_at": "2026-03-10T10:23:07.651712+00:00",
+  "details": {
+    "text": "[assistant] 변경 범위가 문서 정책, `.todo.md`, `resume_brief.md`까지 걸려 있어서 관련 테스트를 한 번에 검증하겠습니다. 문서 언어 계약이 프롬프트와 자동 생성 파일에 같이 들어가는지만 확인하면 됩니다.",
+    "event_timestamp": "2026-03-10T09:01:54.288Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 1905,
+    "provider": "codex"
+  }
 }

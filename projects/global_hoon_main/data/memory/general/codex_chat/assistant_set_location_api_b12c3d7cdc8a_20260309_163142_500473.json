@@ -1,18 +1,18 @@
-{
-  "key": "assistant 작업트리 직접 진입은 샌드박스가 불안정해서 루트에서 Set-Location으로 우회해 확인하겠습니다 사용자 입장에선 중요한 건 API 키 제거 후에도 세션으로 응답하느냐 하나입니다",
-  "value": "[assistant] 작업트리 직접 진입은 샌드박스가 불안정해서, 루트에서 `Set-Location`으로 우회해 확인하겠습니다. 사용자 입장에선 중요한 건 “API 키 제거 후에도 세션으로 응답하느냐” 하나입니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T16:31:42.500548+00:00",
-  "updated_at": "2026-03-09T16:31:42.500548+00:00",
-  "details": {
-    "text": "[assistant] 작업트리 직접 진입은 샌드박스가 불안정해서, 루트에서 `Set-Location`으로 우회해 확인하겠습니다. 사용자 입장에선 중요한 건 “API 키 제거 후에도 세션으로 응답하느냐” 하나입니다.",
-    "event_timestamp": "2026-03-09T16:16:45.532Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
-    "session_line": 1053,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 작업트리 직접 진입은 샌드박스가 불안정해서 루트에서 Set-Location으로 우회해 확인하겠습니다 사용자 입장에선 중요한 건 API 키 제거 후에도 세션으로 응답하느냐 하나입니다",
+  "value": "[assistant] 작업트리 직접 진입은 샌드박스가 불안정해서, 루트에서 `Set-Location`으로 우회해 확인하겠습니다. 사용자 입장에선 중요한 건 “API 키 제거 후에도 세션으로 응답하느냐” 하나입니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T16:31:42.500548+00:00",
+  "updated_at": "2026-03-09T16:31:42.500548+00:00",
+  "details": {
+    "text": "[assistant] 작업트리 직접 진입은 샌드박스가 불안정해서, 루트에서 `Set-Location`으로 우회해 확인하겠습니다. 사용자 입장에선 중요한 건 “API 키 제거 후에도 세션으로 응답하느냐” 하나입니다.",
+    "event_timestamp": "2026-03-09T16:16:45.532Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 1053,
+    "provider": "codex"
+  }
 }

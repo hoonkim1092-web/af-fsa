@@ -1,18 +1,18 @@
-{
-  "key": "assistant 차단 원인은 기능 고장이 아니라 가드레일입니다 제가 준 첫 작업문이 길어서 복잡 작업으로 판정됐고 todomd가 없어서 멈췄습니다 이제 가드레일을 통과하는 짧은 작업문으로 다시 같은 경로를 태우겠습",
-  "value": "[assistant] 차단 원인은 기능 고장이 아니라 가드레일입니다. 제가 준 첫 작업문이 길어서 복잡 작업으로 판정됐고, `.todo.md`가 없어서 멈췄습니다. 이제 가드레일을 통과하는 짧은 작업문으로 다시 같은 경로를 태우겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T17:40:38.122099+00:00",
-  "updated_at": "2026-03-10T17:40:38.122099+00:00",
-  "details": {
-    "text": "[assistant] 차단 원인은 기능 고장이 아니라 가드레일입니다. 제가 준 첫 작업문이 길어서 복잡 작업으로 판정됐고, `.todo.md`가 없어서 멈췄습니다. 이제 가드레일을 통과하는 짧은 작업문으로 다시 같은 경로를 태우겠습니다.",
-    "event_timestamp": "2026-03-10T17:36:12.498Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/11/rollout-2026-03-11T01-30-46-019cd896-2cfb-7692-a889-53fc50ef1599.jsonl",
-    "session_line": 830,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 차단 원인은 기능 고장이 아니라 가드레일입니다 제가 준 첫 작업문이 길어서 복잡 작업으로 판정됐고 todomd가 없어서 멈췄습니다 이제 가드레일을 통과하는 짧은 작업문으로 다시 같은 경로를 태우겠습",
+  "value": "[assistant] 차단 원인은 기능 고장이 아니라 가드레일입니다. 제가 준 첫 작업문이 길어서 복잡 작업으로 판정됐고, `.todo.md`가 없어서 멈췄습니다. 이제 가드레일을 통과하는 짧은 작업문으로 다시 같은 경로를 태우겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:38.122099+00:00",
+  "updated_at": "2026-03-10T17:40:38.122099+00:00",
+  "details": {
+    "text": "[assistant] 차단 원인은 기능 고장이 아니라 가드레일입니다. 제가 준 첫 작업문이 길어서 복잡 작업으로 판정됐고, `.todo.md`가 없어서 멈췄습니다. 이제 가드레일을 통과하는 짧은 작업문으로 다시 같은 경로를 태우겠습니다.",
+    "event_timestamp": "2026-03-10T17:36:12.498Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/11/rollout-2026-03-11T01-30-46-019cd896-2cfb-7692-a889-53fc50ef1599.jsonl",
+    "session_line": 830,
+    "provider": "codex"
+  }
 }

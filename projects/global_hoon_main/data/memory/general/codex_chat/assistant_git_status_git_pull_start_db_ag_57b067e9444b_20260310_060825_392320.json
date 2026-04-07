@@ -1,18 +1,18 @@
-{
-  "key": "assistant 세 개 다 현재 브랜치에 원래 들어있던 추적 파일이 아니라 로컬에서 자동 생성된 미추적 산출물입니다 git status 기준으로 모두  상태였고 git pull이나 오늘 실행한 start_db ag",
-  "value": "[assistant] 세 개 다 현재 브랜치에 원래 들어있던 추적 파일이 아니라, 로컬에서 자동 생성된 미추적 산출물입니다. `git status` 기준으로 모두 `??` 상태였고, `git pull`이나 오늘 실행한 `start_db agent-factory`가 만든 건 아닙니다. 파일 안의 `Trigger: sync_push`를 보면 이전 로컬 `sync push` 계열 작업에서 생성된 흔적입니다.  - [resume_brief.md](D:/hoonPr...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T06:08:25.392579+00:00",
-  "updated_at": "2026-03-10T06:08:25.392579+00:00",
-  "details": {
-    "text": "[assistant] 세 개 다 현재 브랜치에 원래 들어있던 추적 파일이 아니라, 로컬에서 자동 생성된 미추적 산출물입니다. `git status` 기준으로 모두 `??` 상태였고, `git pull`이나 오늘 실행한 `start_db agent-factory`가 만든 건 아닙니다. 파일 안의 `Trigger: sync_push`를 보면 이전 로컬 `sync push` 계열 작업에서 생성된 흔적입니다.\n\n- [resume_brief.md](D:/hoonProJect/worktrees/agent-factory/resume_brief.md): 작업트리 루트용 재개 요약 파일입니다. `# Resume Brief` 형식이고, 현재는 `Create layout`, `Implement logic` 같은 open todo가 들어 있습니다.\n- [projects/agent_factory/resume_brief.md](D:/hoonProJect/worktrees/agent-factory/projects/agent_factory/resume_brief.md): `projects/agent_factory` 전용 재개 요약 파일입니다. 완료/실패/중단 카운트를 기록하는 자동 생성 마크다운입니다.\n- [projects/logi-mind-v22](D:/hoonProJect/worktrees/agent-factory/projects/logi-mind-v22): 별도 작업용 프로젝트 폴더처럼 보입니다. 지금 내부에는 [resume_brief.md](D:/hoonProJect/worktrees/agent-factory/projects/logi-mind-v22/resume_brief.md)와 비어 있는 `.af_runtime/`만 있습니다.\n\n생성 근거도 코드에 있습니다. [scripts/sync_easy.ps1#L63](D:/hoonProJect/worktrees/agent-factory/scripts/sync_easy.ps1#L63)에서 `push` 모드일 때 `write_resume_brief.py --trigger sync_push`를 호출하고, [core/continuity/resume_brief.py#L11](D:/hoonProJect/worktrees/agent-factory/core/continuity/resume_brief.py#L11)와 [core/continuity/resume_brief.py#L173](D:/hoonProJect/worktrees/agent-factory/core/continuity/resume_brief.py#L173)에서 각 워크스페이스에 `resume_brief.md`를 씁니다.\n\n원하면 다음으로 이 셋을 지워도 되는지, 아니면 `.gitignore`에 넣는 게 맞는지까지 바로 정리해드리겠습니다.",
-    "event_timestamp": "2026-03-10T01:24:02.774Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
-    "session_line": 143,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 세 개 다 현재 브랜치에 원래 들어있던 추적 파일이 아니라 로컬에서 자동 생성된 미추적 산출물입니다 git status 기준으로 모두  상태였고 git pull이나 오늘 실행한 start_db ag",
+  "value": "[assistant] 세 개 다 현재 브랜치에 원래 들어있던 추적 파일이 아니라, 로컬에서 자동 생성된 미추적 산출물입니다. `git status` 기준으로 모두 `??` 상태였고, `git pull`이나 오늘 실행한 `start_db agent-factory`가 만든 건 아닙니다. 파일 안의 `Trigger: sync_push`를 보면 이전 로컬 `sync push` 계열 작업에서 생성된 흔적입니다.  - [resume_brief.md](D:/hoonPr...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T06:08:25.392579+00:00",
+  "updated_at": "2026-03-10T06:08:25.392579+00:00",
+  "details": {
+    "text": "[assistant] 세 개 다 현재 브랜치에 원래 들어있던 추적 파일이 아니라, 로컬에서 자동 생성된 미추적 산출물입니다. `git status` 기준으로 모두 `??` 상태였고, `git pull`이나 오늘 실행한 `start_db agent-factory`가 만든 건 아닙니다. 파일 안의 `Trigger: sync_push`를 보면 이전 로컬 `sync push` 계열 작업에서 생성된 흔적입니다.\n\n- [resume_brief.md](D:/hoonProJect/worktrees/agent-factory/resume_brief.md): 작업트리 루트용 재개 요약 파일입니다. `# Resume Brief` 형식이고, 현재는 `Create layout`, `Implement logic` 같은 open todo가 들어 있습니다.\n- [projects/agent_factory/resume_brief.md](D:/hoonProJect/worktrees/agent-factory/projects/agent_factory/resume_brief.md): `projects/agent_factory` 전용 재개 요약 파일입니다. 완료/실패/중단 카운트를 기록하는 자동 생성 마크다운입니다.\n- [projects/logi-mind-v22](D:/hoonProJect/worktrees/agent-factory/projects/logi-mind-v22): 별도 작업용 프로젝트 폴더처럼 보입니다. 지금 내부에는 [resume_brief.md](D:/hoonProJect/worktrees/agent-factory/projects/logi-mind-v22/resume_brief.md)와 비어 있는 `.af_runtime/`만 있습니다.\n\n생성 근거도 코드에 있습니다. [scripts/sync_easy.ps1#L63](D:/hoonProJect/worktrees/agent-factory/scripts/sync_easy.ps1#L63)에서 `push` 모드일 때 `write_resume_brief.py --trigger sync_push`를 호출하고, [core/continuity/resume_brief.py#L11](D:/hoonProJect/worktrees/agent-factory/core/continuity/resume_brief.py#L11)와 [core/continuity/resume_brief.py#L173](D:/hoonProJect/worktrees/agent-factory/core/continuity/resume_brief.py#L173)에서 각 워크스페이스에 `resume_brief.md`를 씁니다.\n\n원하면 다음으로 이 셋을 지워도 되는지, 아니면 `.gitignore`에 넣는 게 맞는지까지 바로 정리해드리겠습니다.",
+    "event_timestamp": "2026-03-10T01:24:02.774Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 143,
+    "provider": "codex"
+  }
 }

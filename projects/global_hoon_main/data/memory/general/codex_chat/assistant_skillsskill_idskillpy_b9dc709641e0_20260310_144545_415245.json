@@ -1,18 +1,18 @@
-{
-  "key": "assistant 의미는 아주 단순합니다지금 말하는 새 스킬 빌드는 모델이 앱 코드 파일을 직접 수정한다가 아니라 skillsskill_idskillpy 같은 재사용 가능한 스킬 패키지 자체를 새로 생성하는 기능입니",
-  "value": "[assistant] 의미는 아주 단순합니다.  지금 말하는 `새 스킬 빌드`는 “모델이 앱 코드 파일을 직접 수정한다”가 아니라, `skills/<skill_id>/skill.py` 같은 **재사용 가능한 스킬 패키지 자체를 새로 생성하는 기능**입니다. 이 경로는 현재 [`builder.py`](/D:/warkSpaces/agent-factory/core/builder.py#L14) 가 담당합니다.  문제가 되는 부분은 여기입니다. [`builder.p...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T14:45:45.415747+00:00",
-  "updated_at": "2026-03-10T14:45:45.415747+00:00",
-  "details": {
-    "text": "[assistant] 의미는 아주 단순합니다.\n\n지금 말하는 `새 스킬 빌드`는 “모델이 앱 코드 파일을 직접 수정한다”가 아니라, `skills/<skill_id>/skill.py` 같은 **재사용 가능한 스킬 패키지 자체를 새로 생성하는 기능**입니다. 이 경로는 현재 [`builder.py`](/D:/warkSpaces/agent-factory/core/builder.py#L14) 가 담당합니다.\n\n문제가 되는 부분은 여기입니다. [`builder.py`](/D:/warkSpaces/agent-factory/core/builder.py#L57) 에서 `get_engine_api_key(\"google\")`로 Google 키를 읽고, 없으면 바로 실패로 반환합니다: [`builder.py`](/D:/warkSpaces/agent-factory/core/builder.py#L58). 그 다음에야 `genai.Client(api_key=...)`를 만들어 스킬 코드를 생성합니다: [`builder.py`](/D:/warkSpaces/agent-factory/core/builder.py#L70). 즉 이 빌더는 현재 **Gemini SDK 직결 전용**이고, `gemini_cli`나 `codex_cli`로 우회하지 않습니다.\n\n흐름으로 보면 이렇습니다.\n1. 어떤 역할에 필요한 스킬이 없다고 판단됨\n2. [`skill_procurer.py`](/D:/warkSpaces/agent-factory/core/skill_procurer.py#L289) 가 `builder.build_skill(...)` 호출\n3. 빌더가 Google API key 확인\n4. 키 없으면 `False` 반환하고 스킬 생성 중단\n\n그래서 “API key 없이 안 된다”는 뜻은:\n- 앱 코드 수정 자체가 안 된다는 뜻이 아님\n- **없는 스킬을 새로 만들어서 레지스트리에 등록하는 기능**이 안 된다는 뜻입니다\n\n예를 들면:\n- 기존 `file_handler`, `core_memory`로 지뢰찾기 파일을 수정하는 것: 가능\n- `gameplay_core` 같은 스킬이 레포에 이미 있으면 설치해서 쓰는 것: 가능\n- `gameplay_core`가 없어서 AI가 새 `skills/gameplay_core/skill.py`를 생성하는 것: 현재는 불가\n\n추가로 주석은 좀 헷갈리게 되어 있습니다. `builder 단계 = Claude/GPT`처럼 적혀 있어도, 실제 구현은 아직 Google SDK만 씁니다: [`builder.py`](/D:/warkSpaces/agent-factory/core/builder.py#L56).\n\n한 줄 결론:\n지금 구조에서 `API key 없이` 하려면 `스킬 자동 생성(build)`은 꺼두고, `기존 스킬 재사용 + CLI로 실제 프로젝트 코드 작성` 쪽으로 가야 합니다.\n\n원하면 다음으로 `no-key 기준에서 어떤 기능은 유지하고 어떤 기능은 꺼야 하는지`를 바로 정리해드리겠습니다.",
-    "event_timestamp": "2026-03-10T14:36:18.398Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
-    "session_line": 482,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 의미는 아주 단순합니다지금 말하는 새 스킬 빌드는 모델이 앱 코드 파일을 직접 수정한다가 아니라 skillsskill_idskillpy 같은 재사용 가능한 스킬 패키지 자체를 새로 생성하는 기능입니",
+  "value": "[assistant] 의미는 아주 단순합니다.  지금 말하는 `새 스킬 빌드`는 “모델이 앱 코드 파일을 직접 수정한다”가 아니라, `skills/<skill_id>/skill.py` 같은 **재사용 가능한 스킬 패키지 자체를 새로 생성하는 기능**입니다. 이 경로는 현재 [`builder.py`](/D:/warkSpaces/agent-factory/core/builder.py#L14) 가 담당합니다.  문제가 되는 부분은 여기입니다. [`builder.p...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T14:45:45.415747+00:00",
+  "updated_at": "2026-03-10T14:45:45.415747+00:00",
+  "details": {
+    "text": "[assistant] 의미는 아주 단순합니다.\n\n지금 말하는 `새 스킬 빌드`는 “모델이 앱 코드 파일을 직접 수정한다”가 아니라, `skills/<skill_id>/skill.py` 같은 **재사용 가능한 스킬 패키지 자체를 새로 생성하는 기능**입니다. 이 경로는 현재 [`builder.py`](/D:/warkSpaces/agent-factory/core/builder.py#L14) 가 담당합니다.\n\n문제가 되는 부분은 여기입니다. [`builder.py`](/D:/warkSpaces/agent-factory/core/builder.py#L57) 에서 `get_engine_api_key(\"google\")`로 Google 키를 읽고, 없으면 바로 실패로 반환합니다: [`builder.py`](/D:/warkSpaces/agent-factory/core/builder.py#L58). 그 다음에야 `genai.Client(api_key=...)`를 만들어 스킬 코드를 생성합니다: [`builder.py`](/D:/warkSpaces/agent-factory/core/builder.py#L70). 즉 이 빌더는 현재 **Gemini SDK 직결 전용**이고, `gemini_cli`나 `codex_cli`로 우회하지 않습니다.\n\n흐름으로 보면 이렇습니다.\n1. 어떤 역할에 필요한 스킬이 없다고 판단됨\n2. [`skill_procurer.py`](/D:/warkSpaces/agent-factory/core/skill_procurer.py#L289) 가 `builder.build_skill(...)` 호출\n3. 빌더가 Google API key 확인\n4. 키 없으면 `False` 반환하고 스킬 생성 중단\n\n그래서 “API key 없이 안 된다”는 뜻은:\n- 앱 코드 수정 자체가 안 된다는 뜻이 아님\n- **없는 스킬을 새로 만들어서 레지스트리에 등록하는 기능**이 안 된다는 뜻입니다\n\n예를 들면:\n- 기존 `file_handler`, `core_memory`로 지뢰찾기 파일을 수정하는 것: 가능\n- `gameplay_core` 같은 스킬이 레포에 이미 있으면 설치해서 쓰는 것: 가능\n- `gameplay_core`가 없어서 AI가 새 `skills/gameplay_core/skill.py`를 생성하는 것: 현재는 불가\n\n추가로 주석은 좀 헷갈리게 되어 있습니다. `builder 단계 = Claude/GPT`처럼 적혀 있어도, 실제 구현은 아직 Google SDK만 씁니다: [`builder.py`](/D:/warkSpaces/agent-factory/core/builder.py#L56).\n\n한 줄 결론:\n지금 구조에서 `API key 없이` 하려면 `스킬 자동 생성(build)`은 꺼두고, `기존 스킬 재사용 + CLI로 실제 프로젝트 코드 작성` 쪽으로 가야 합니다.\n\n원하면 다음으로 `no-key 기준에서 어떤 기능은 유지하고 어떤 기능은 꺼야 하는지`를 바로 정리해드리겠습니다.",
+    "event_timestamp": "2026-03-10T14:36:18.398Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
+    "session_line": 482,
+    "provider": "codex"
+  }
 }

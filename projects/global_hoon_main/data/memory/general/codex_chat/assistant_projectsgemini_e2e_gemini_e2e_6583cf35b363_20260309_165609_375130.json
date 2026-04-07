@@ -1,18 +1,18 @@
-{
-  "key": "assistant 둘을 같은 부류로 보면 안 됩니다projectsgemini_e2e는 현재 기준으로 사용 안 하는 코드 자산에 가깝습니다 코드스크립트에서 gemini_e2e를 직접 참조하는 곳은 못 찾았고 디렉터리 ",
-  "value": "[assistant] 둘을 같은 부류로 보면 안 됩니다.  `projects/gemini_e2e/`는 현재 기준으로 `사용 안 하는 코드 자산`에 가깝습니다. 코드/스크립트에서 `gemini_e2e`를 직접 참조하는 곳은 못 찾았고, 디렉터리 구조도 `.af_runtime`, `runs`, `resume_brief.md`, `.todo.md`가 들어 있는 일회성 E2E 실험 프로젝트 형태였습니다. 즉 이건 제가 Gemini 검증용으로 만든 작업 산출물이라,...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T16:56:09.375530+00:00",
-  "updated_at": "2026-03-09T16:56:09.375530+00:00",
-  "details": {
-    "text": "[assistant] 둘을 같은 부류로 보면 안 됩니다.\n\n`projects/gemini_e2e/`는 현재 기준으로 `사용 안 하는 코드 자산`에 가깝습니다. 코드/스크립트에서 `gemini_e2e`를 직접 참조하는 곳은 못 찾았고, 디렉터리 구조도 `.af_runtime`, `runs`, `resume_brief.md`, `.todo.md`가 들어 있는 일회성 E2E 실험 프로젝트 형태였습니다. 즉 이건 제가 Gemini 검증용으로 만든 작업 산출물이라, 보관 목적이 없으면 지워도 됩니다.\n\n반면 `projects/global_hoon_main/data/memory/...`는 `실제로 쓰는 런타임 데이터`입니다. README에서도 프로젝트 메모리 JSON이 컨텍스트 원천이라고 적혀 있고, [project_context_sync.py](D:/warkSpaces/agent-factory/scripts/project_context_sync.py#L440)는 `data/memory` 전체를 글로벌 스냅샷에 포함합니다. 또 [session_bridge.py](D:/warkSpaces/agent-factory/scripts/session_bridge.py#L221)는 Codex 세션을 `codex_chat` 메모리 카테고리로 브리지하고, [session_bridge.py](D:/warkSpaces/agent-factory/scripts/session_bridge.py#L475)에서는 `session_cursor.json`을 읽어서 어디까지 동기화했는지 추적합니다. 그래서:\n- `projects/global_hoon_main/data/memory/general/codex_chat/*.json`은 대화/메모리 기록입니다. 코드 실행 자체엔 필수는 아니지만, 지우면 기억/연속성이 날아갑니다.\n- `projects/global_hoon_main/data/memory/codex/_bridge_state/session_cursor.json`은 브리지 상태 파일입니다. 지우면 세션 브리지가 처음부터 다시 훑을 수 있습니다.\n\n정리하면:\n- `projects/gemini_e2e/`: 정리 가능\n- `projects/global_hoon_main/data/memory/...`: 미사용 파일이 아니라 런타임 메모리/상태 파일\n\n원하면 다음으로 `.gitignore`에 `projects/gemini_e2e/` 같은 E2E 산출물만 걸고, `global_hoon_main/data/memory`는 유지하는 쪽으로 정리하겠습니다.",
-    "event_timestamp": "2026-03-09T16:53:33.099Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
-    "session_line": 1878,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 둘을 같은 부류로 보면 안 됩니다projectsgemini_e2e는 현재 기준으로 사용 안 하는 코드 자산에 가깝습니다 코드스크립트에서 gemini_e2e를 직접 참조하는 곳은 못 찾았고 디렉터리 ",
+  "value": "[assistant] 둘을 같은 부류로 보면 안 됩니다.  `projects/gemini_e2e/`는 현재 기준으로 `사용 안 하는 코드 자산`에 가깝습니다. 코드/스크립트에서 `gemini_e2e`를 직접 참조하는 곳은 못 찾았고, 디렉터리 구조도 `.af_runtime`, `runs`, `resume_brief.md`, `.todo.md`가 들어 있는 일회성 E2E 실험 프로젝트 형태였습니다. 즉 이건 제가 Gemini 검증용으로 만든 작업 산출물이라,...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T16:56:09.375530+00:00",
+  "updated_at": "2026-03-09T16:56:09.375530+00:00",
+  "details": {
+    "text": "[assistant] 둘을 같은 부류로 보면 안 됩니다.\n\n`projects/gemini_e2e/`는 현재 기준으로 `사용 안 하는 코드 자산`에 가깝습니다. 코드/스크립트에서 `gemini_e2e`를 직접 참조하는 곳은 못 찾았고, 디렉터리 구조도 `.af_runtime`, `runs`, `resume_brief.md`, `.todo.md`가 들어 있는 일회성 E2E 실험 프로젝트 형태였습니다. 즉 이건 제가 Gemini 검증용으로 만든 작업 산출물이라, 보관 목적이 없으면 지워도 됩니다.\n\n반면 `projects/global_hoon_main/data/memory/...`는 `실제로 쓰는 런타임 데이터`입니다. README에서도 프로젝트 메모리 JSON이 컨텍스트 원천이라고 적혀 있고, [project_context_sync.py](D:/warkSpaces/agent-factory/scripts/project_context_sync.py#L440)는 `data/memory` 전체를 글로벌 스냅샷에 포함합니다. 또 [session_bridge.py](D:/warkSpaces/agent-factory/scripts/session_bridge.py#L221)는 Codex 세션을 `codex_chat` 메모리 카테고리로 브리지하고, [session_bridge.py](D:/warkSpaces/agent-factory/scripts/session_bridge.py#L475)에서는 `session_cursor.json`을 읽어서 어디까지 동기화했는지 추적합니다. 그래서:\n- `projects/global_hoon_main/data/memory/general/codex_chat/*.json`은 대화/메모리 기록입니다. 코드 실행 자체엔 필수는 아니지만, 지우면 기억/연속성이 날아갑니다.\n- `projects/global_hoon_main/data/memory/codex/_bridge_state/session_cursor.json`은 브리지 상태 파일입니다. 지우면 세션 브리지가 처음부터 다시 훑을 수 있습니다.\n\n정리하면:\n- `projects/gemini_e2e/`: 정리 가능\n- `projects/global_hoon_main/data/memory/...`: 미사용 파일이 아니라 런타임 메모리/상태 파일\n\n원하면 다음으로 `.gitignore`에 `projects/gemini_e2e/` 같은 E2E 산출물만 걸고, `global_hoon_main/data/memory`는 유지하는 쪽으로 정리하겠습니다.",
+    "event_timestamp": "2026-03-09T16:53:33.099Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 1878,
+    "provider": "codex"
+  }
 }

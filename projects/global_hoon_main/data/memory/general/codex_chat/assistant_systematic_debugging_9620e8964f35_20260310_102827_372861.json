@@ -1,18 +1,18 @@
-{
-  "key": "assistant systematic-debugging 스킬로 멈춘 지점을 재현하고 남은 실패가 실제 버그인지 테스트 불일치인지부터 분리하겠습니다",
-  "value": "[assistant] `systematic-debugging` 스킬로 멈춘 지점을 재현하고, 남은 실패가 실제 버그인지 테스트 불일치인지부터 분리하겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T10:28:27.372894+00:00",
-  "updated_at": "2026-03-10T10:28:27.372894+00:00",
-  "details": {
-    "text": "[assistant] `systematic-debugging` 스킬로 멈춘 지점을 재현하고, 남은 실패가 실제 버그인지 테스트 불일치인지부터 분리하겠습니다.",
-    "event_timestamp": "2026-03-10T10:24:58.584Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
-    "session_line": 2096,
-    "provider": "codex"
-  }
+{
+  "key": "assistant systematic-debugging 스킬로 멈춘 지점을 재현하고 남은 실패가 실제 버그인지 테스트 불일치인지부터 분리하겠습니다",
+  "value": "[assistant] `systematic-debugging` 스킬로 멈춘 지점을 재현하고, 남은 실패가 실제 버그인지 테스트 불일치인지부터 분리하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T10:28:27.372894+00:00",
+  "updated_at": "2026-03-10T10:28:27.372894+00:00",
+  "details": {
+    "text": "[assistant] `systematic-debugging` 스킬로 멈춘 지점을 재현하고, 남은 실패가 실제 버그인지 테스트 불일치인지부터 분리하겠습니다.",
+    "event_timestamp": "2026-03-10T10:24:58.584Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 2096,
+    "provider": "codex"
+  }
 }

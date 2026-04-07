@@ -1,18 +1,18 @@
-{
-  "key": "assistant 원인은 꽤 명확합니다 DynamicOrchestrator가 현재 manifest를 아예 읽지도 쓰지도 않아서 resume 테스트가 구조적으로 실패하고 있습니다",
-  "value": "[assistant] 원인은 꽤 명확합니다. `DynamicOrchestrator`가 현재 manifest를 아예 읽지도 쓰지도 않아서, resume 테스트가 구조적으로 실패하고 있습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T10:28:27.374746+00:00",
-  "updated_at": "2026-03-10T10:28:27.374746+00:00",
-  "details": {
-    "text": "[assistant] 원인은 꽤 명확합니다. `DynamicOrchestrator`가 현재 manifest를 아예 읽지도 쓰지도 않아서, resume 테스트가 구조적으로 실패하고 있습니다.",
-    "event_timestamp": "2026-03-10T10:25:29.436Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
-    "session_line": 2116,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 원인은 꽤 명확합니다 DynamicOrchestrator가 현재 manifest를 아예 읽지도 쓰지도 않아서 resume 테스트가 구조적으로 실패하고 있습니다",
+  "value": "[assistant] 원인은 꽤 명확합니다. `DynamicOrchestrator`가 현재 manifest를 아예 읽지도 쓰지도 않아서, resume 테스트가 구조적으로 실패하고 있습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T10:28:27.374746+00:00",
+  "updated_at": "2026-03-10T10:28:27.374746+00:00",
+  "details": {
+    "text": "[assistant] 원인은 꽤 명확합니다. `DynamicOrchestrator`가 현재 manifest를 아예 읽지도 쓰지도 않아서, resume 테스트가 구조적으로 실패하고 있습니다.",
+    "event_timestamp": "2026-03-10T10:25:29.436Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 2116,
+    "provider": "codex"
+  }
 }

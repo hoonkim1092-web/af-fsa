@@ -1,18 +1,18 @@
-{
-  "key": "assistant 방금은 응답이 멈춘 게 맞습니다 로컬 패키지 전체를 넓게 검색하다가 출력이 너무 커졌고 지금은 중단된 상태입니다 남은 프로세스가 있는지만 바로 확인하겠습니다",
-  "value": "[assistant] 방금은 응답이 멈춘 게 맞습니다. 로컬 패키지 전체를 넓게 검색하다가 출력이 너무 커졌고, 지금은 중단된 상태입니다. 남은 프로세스가 있는지만 바로 확인하겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T16:31:42.494337+00:00",
-  "updated_at": "2026-03-09T16:31:42.494337+00:00",
-  "details": {
-    "text": "[assistant] 방금은 응답이 멈춘 게 맞습니다. 로컬 패키지 전체를 넓게 검색하다가 출력이 너무 커졌고, 지금은 중단된 상태입니다. 남은 프로세스가 있는지만 바로 확인하겠습니다.",
-    "event_timestamp": "2026-03-09T16:13:00.107Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
-    "session_line": 926,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 방금은 응답이 멈춘 게 맞습니다 로컬 패키지 전체를 넓게 검색하다가 출력이 너무 커졌고 지금은 중단된 상태입니다 남은 프로세스가 있는지만 바로 확인하겠습니다",
+  "value": "[assistant] 방금은 응답이 멈춘 게 맞습니다. 로컬 패키지 전체를 넓게 검색하다가 출력이 너무 커졌고, 지금은 중단된 상태입니다. 남은 프로세스가 있는지만 바로 확인하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T16:31:42.494337+00:00",
+  "updated_at": "2026-03-09T16:31:42.494337+00:00",
+  "details": {
+    "text": "[assistant] 방금은 응답이 멈춘 게 맞습니다. 로컬 패키지 전체를 넓게 검색하다가 출력이 너무 커졌고, 지금은 중단된 상태입니다. 남은 프로세스가 있는지만 바로 확인하겠습니다.",
+    "event_timestamp": "2026-03-09T16:13:00.107Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 926,
+    "provider": "codex"
+  }
 }

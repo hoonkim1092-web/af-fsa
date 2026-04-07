@@ -1,18 +1,18 @@
-{
-  "key": "assistant 설계 변경 문서화 규칙을 중앙에 박아뒀습니다 이제 런타임 프롬프트가 항상 문서 계약을 주입하고 새 프로젝트 기본 파일과 프로젝트 todo에도 같은 규칙이 자동 반영됩니다핵심 변경- 중앙 계약 추가 ",
-  "value": "[assistant] 설계 변경 문서화 규칙을 중앙에 박아뒀습니다. 이제 런타임 프롬프트가 항상 문서 계약을 주입하고, 새 프로젝트 기본 파일과 프로젝트 `.todo`에도 같은 규칙이 자동 반영됩니다.  핵심 변경: - 중앙 계약 추가: [core/documentation_policy.py](D:/hoonProJect/worktrees/agent-factory/core/documentation_policy.py):1   `docs/architecture.m...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T06:08:25.503426+00:00",
-  "updated_at": "2026-03-10T06:08:25.503426+00:00",
-  "details": {
-    "text": "[assistant] 설계 변경 문서화 규칙을 중앙에 박아뒀습니다. 이제 런타임 프롬프트가 항상 문서 계약을 주입하고, 새 프로젝트 기본 파일과 프로젝트 `.todo`에도 같은 규칙이 자동 반영됩니다.\n\n핵심 변경:\n- 중앙 계약 추가: [core/documentation_policy.py](D:/hoonProJect/worktrees/agent-factory/core/documentation_policy.py):1\n  `docs/architecture.md`와 `docs/change_history.md`를 표준 경로로 정의하고, 기본 뼈대/프롬프트 계약/자동 TODO 항목을 한 군데서 관리합니다.\n- 모든 실행 프롬프트에 강제 주입: [core/agent_runner.py](D:/hoonProJect/worktrees/agent-factory/core/agent_runner.py):339, [core/agent_runner.py](D:/hoonProJect/worktrees/agent-factory/core/agent_runner.py):749\n  설계, 워크플로우, 인터페이스, 구현 전략이 바뀌면 같은 작업 안에서 `docs/architecture.md` 갱신 + `docs/change_history.md` append를 해야 하도록 넣었습니다.\n- 새 프로젝트 기본 문서 자동 생성: [core/project_init.py](D:/hoonProJect/worktrees/agent-factory/core/project_init.py):19, [core/project_init.py](D:/hoonProJect/worktrees/agent-factory/core/project_init.py):93\n- 프로젝트 파이프라인 TODO 자동 포함: [core/project_pipeline.py](D:/hoonProJect/worktrees/agent-factory/core/project_pipeline.py):66, [core/project_pipeline.py](D:/hoonProJect/worktrees/agent-factory/core/project_pipeline.py):147\n- 현재 저장소에도 실문서 추가: [docs/architecture.md](D:/hoonProJect/worktrees/agent-factory/docs/architecture.md), [docs/change_history.md](D:/hoonProJect/worktrees/agent-factory/docs/change_history.md)\n\n검증:\n- `python -m pytest tests/test_documentation_policy.py tests/test_runner_contracts.py -q`\n- 결과: `8 passed`\n\n참고로 작업트리에 원래부터 있던 다른 수정 파일들이 많이 있어서, 이번 변경만 바로 커밋하려면 선택적으로 `git add` 하는 게 맞습니다. 원하면 다음으로 이 변경만 골라서 커밋까지 하겠습니다.",
-    "event_timestamp": "2026-03-10T05:26:59.039Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
-    "session_line": 795,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 설계 변경 문서화 규칙을 중앙에 박아뒀습니다 이제 런타임 프롬프트가 항상 문서 계약을 주입하고 새 프로젝트 기본 파일과 프로젝트 todo에도 같은 규칙이 자동 반영됩니다핵심 변경- 중앙 계약 추가 ",
+  "value": "[assistant] 설계 변경 문서화 규칙을 중앙에 박아뒀습니다. 이제 런타임 프롬프트가 항상 문서 계약을 주입하고, 새 프로젝트 기본 파일과 프로젝트 `.todo`에도 같은 규칙이 자동 반영됩니다.  핵심 변경: - 중앙 계약 추가: [core/documentation_policy.py](D:/hoonProJect/worktrees/agent-factory/core/documentation_policy.py):1   `docs/architecture.m...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T06:08:25.503426+00:00",
+  "updated_at": "2026-03-10T06:08:25.503426+00:00",
+  "details": {
+    "text": "[assistant] 설계 변경 문서화 규칙을 중앙에 박아뒀습니다. 이제 런타임 프롬프트가 항상 문서 계약을 주입하고, 새 프로젝트 기본 파일과 프로젝트 `.todo`에도 같은 규칙이 자동 반영됩니다.\n\n핵심 변경:\n- 중앙 계약 추가: [core/documentation_policy.py](D:/hoonProJect/worktrees/agent-factory/core/documentation_policy.py):1\n  `docs/architecture.md`와 `docs/change_history.md`를 표준 경로로 정의하고, 기본 뼈대/프롬프트 계약/자동 TODO 항목을 한 군데서 관리합니다.\n- 모든 실행 프롬프트에 강제 주입: [core/agent_runner.py](D:/hoonProJect/worktrees/agent-factory/core/agent_runner.py):339, [core/agent_runner.py](D:/hoonProJect/worktrees/agent-factory/core/agent_runner.py):749\n  설계, 워크플로우, 인터페이스, 구현 전략이 바뀌면 같은 작업 안에서 `docs/architecture.md` 갱신 + `docs/change_history.md` append를 해야 하도록 넣었습니다.\n- 새 프로젝트 기본 문서 자동 생성: [core/project_init.py](D:/hoonProJect/worktrees/agent-factory/core/project_init.py):19, [core/project_init.py](D:/hoonProJect/worktrees/agent-factory/core/project_init.py):93\n- 프로젝트 파이프라인 TODO 자동 포함: [core/project_pipeline.py](D:/hoonProJect/worktrees/agent-factory/core/project_pipeline.py):66, [core/project_pipeline.py](D:/hoonProJect/worktrees/agent-factory/core/project_pipeline.py):147\n- 현재 저장소에도 실문서 추가: [docs/architecture.md](D:/hoonProJect/worktrees/agent-factory/docs/architecture.md), [docs/change_history.md](D:/hoonProJect/worktrees/agent-factory/docs/change_history.md)\n\n검증:\n- `python -m pytest tests/test_documentation_policy.py tests/test_runner_contracts.py -q`\n- 결과: `8 passed`\n\n참고로 작업트리에 원래부터 있던 다른 수정 파일들이 많이 있어서, 이번 변경만 바로 커밋하려면 선택적으로 `git add` 하는 게 맞습니다. 원하면 다음으로 이 변경만 골라서 커밋까지 하겠습니다.",
+    "event_timestamp": "2026-03-10T05:26:59.039Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 795,
+    "provider": "codex"
+  }
 }

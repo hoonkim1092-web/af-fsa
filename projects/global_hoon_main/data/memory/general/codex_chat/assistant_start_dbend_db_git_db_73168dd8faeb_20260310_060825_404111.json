@@ -1,18 +1,18 @@
-{
-  "key": "assistant 절차를 한 줄 요약이 아니라 실수 없게 정리하려고 설계 문서에서 start_dbend_db 의도 한 군데만 더 확인합니다 그러면 언제 git 언제 db를 명확히 답할 수 있습니다",
-  "value": "[assistant] 절차를 한 줄 요약이 아니라 실수 없게 정리하려고, 설계 문서에서 `start_db`/`end_db` 의도 한 군데만 더 확인합니다. 그러면 \"언제 git, 언제 db\"를 명확히 답할 수 있습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T06:08:25.404165+00:00",
-  "updated_at": "2026-03-10T06:08:25.404165+00:00",
-  "details": {
-    "text": "[assistant] 절차를 한 줄 요약이 아니라 실수 없게 정리하려고, 설계 문서에서 `start_db`/`end_db` 의도 한 군데만 더 확인합니다. 그러면 \"언제 git, 언제 db\"를 명확히 답할 수 있습니다.",
-    "event_timestamp": "2026-03-10T01:48:05.235Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
-    "session_line": 203,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 절차를 한 줄 요약이 아니라 실수 없게 정리하려고 설계 문서에서 start_dbend_db 의도 한 군데만 더 확인합니다 그러면 언제 git 언제 db를 명확히 답할 수 있습니다",
+  "value": "[assistant] 절차를 한 줄 요약이 아니라 실수 없게 정리하려고, 설계 문서에서 `start_db`/`end_db` 의도 한 군데만 더 확인합니다. 그러면 \"언제 git, 언제 db\"를 명확히 답할 수 있습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T06:08:25.404165+00:00",
+  "updated_at": "2026-03-10T06:08:25.404165+00:00",
+  "details": {
+    "text": "[assistant] 절차를 한 줄 요약이 아니라 실수 없게 정리하려고, 설계 문서에서 `start_db`/`end_db` 의도 한 군데만 더 확인합니다. 그러면 \"언제 git, 언제 db\"를 명확히 답할 수 있습니다.",
+    "event_timestamp": "2026-03-10T01:48:05.235Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 203,
+    "provider": "codex"
+  }
 }

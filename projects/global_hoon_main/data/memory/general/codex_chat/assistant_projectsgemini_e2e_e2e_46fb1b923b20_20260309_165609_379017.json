@@ -1,18 +1,18 @@
-{
-  "key": "assistant projectsgemini_e2e 하나만 걸면 당장 문제는 해결됩니다 다만 같은 성격의 스모크E2E 프로젝트가 계속 생길 수 있으니 실제 프로젝트와 충돌하지 않는 범위에서 패턴을 조금 일반화할지 보",
-  "value": "[assistant] `projects/gemini_e2e/` 하나만 걸면 당장 문제는 해결됩니다. 다만 같은 성격의 스모크/E2E 프로젝트가 계속 생길 수 있으니, 실제 프로젝트와 충돌하지 않는 범위에서 패턴을 조금 일반화할지 보고 결정하겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T16:56:09.379128+00:00",
-  "updated_at": "2026-03-09T16:56:09.379128+00:00",
-  "details": {
-    "text": "[assistant] `projects/gemini_e2e/` 하나만 걸면 당장 문제는 해결됩니다. 다만 같은 성격의 스모크/E2E 프로젝트가 계속 생길 수 있으니, 실제 프로젝트와 충돌하지 않는 범위에서 패턴을 조금 일반화할지 보고 결정하겠습니다.",
-    "event_timestamp": "2026-03-09T16:54:40.579Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
-    "session_line": 1903,
-    "provider": "codex"
-  }
+{
+  "key": "assistant projectsgemini_e2e 하나만 걸면 당장 문제는 해결됩니다 다만 같은 성격의 스모크E2E 프로젝트가 계속 생길 수 있으니 실제 프로젝트와 충돌하지 않는 범위에서 패턴을 조금 일반화할지 보",
+  "value": "[assistant] `projects/gemini_e2e/` 하나만 걸면 당장 문제는 해결됩니다. 다만 같은 성격의 스모크/E2E 프로젝트가 계속 생길 수 있으니, 실제 프로젝트와 충돌하지 않는 범위에서 패턴을 조금 일반화할지 보고 결정하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T16:56:09.379128+00:00",
+  "updated_at": "2026-03-09T16:56:09.379128+00:00",
+  "details": {
+    "text": "[assistant] `projects/gemini_e2e/` 하나만 걸면 당장 문제는 해결됩니다. 다만 같은 성격의 스모크/E2E 프로젝트가 계속 생길 수 있으니, 실제 프로젝트와 충돌하지 않는 범위에서 패턴을 조금 일반화할지 보고 결정하겠습니다.",
+    "event_timestamp": "2026-03-09T16:54:40.579Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 1903,
+    "provider": "codex"
+  }
 }

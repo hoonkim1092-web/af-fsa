@@ -1,18 +1,18 @@
-{
-  "key": "assistant 엔드투엔드 실행은 종료 코드 0으로 끝났고 표준 출력이 비어 있었습니다 실제 성공 여부는 생성된 런 아티팩트 쪽이 더 정확하니 바로 확인하겠습니다",
-  "value": "[assistant] 엔드투엔드 실행은 종료 코드 `0`으로 끝났고, 표준 출력이 비어 있었습니다. 실제 성공 여부는 생성된 런 아티팩트 쪽이 더 정확하니 바로 확인하겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T16:31:42.505881+00:00",
-  "updated_at": "2026-03-09T16:31:42.505881+00:00",
-  "details": {
-    "text": "[assistant] 엔드투엔드 실행은 종료 코드 `0`으로 끝났고, 표준 출력이 비어 있었습니다. 실제 성공 여부는 생성된 런 아티팩트 쪽이 더 정확하니 바로 확인하겠습니다.",
-    "event_timestamp": "2026-03-09T16:20:57.674Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
-    "session_line": 1135,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 엔드투엔드 실행은 종료 코드 0으로 끝났고 표준 출력이 비어 있었습니다 실제 성공 여부는 생성된 런 아티팩트 쪽이 더 정확하니 바로 확인하겠습니다",
+  "value": "[assistant] 엔드투엔드 실행은 종료 코드 `0`으로 끝났고, 표준 출력이 비어 있었습니다. 실제 성공 여부는 생성된 런 아티팩트 쪽이 더 정확하니 바로 확인하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T16:31:42.505881+00:00",
+  "updated_at": "2026-03-09T16:31:42.505881+00:00",
+  "details": {
+    "text": "[assistant] 엔드투엔드 실행은 종료 코드 `0`으로 끝났고, 표준 출력이 비어 있었습니다. 실제 성공 여부는 생성된 런 아티팩트 쪽이 더 정확하니 바로 확인하겠습니다.",
+    "event_timestamp": "2026-03-09T16:20:57.674Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 1135,
+    "provider": "codex"
+  }
 }

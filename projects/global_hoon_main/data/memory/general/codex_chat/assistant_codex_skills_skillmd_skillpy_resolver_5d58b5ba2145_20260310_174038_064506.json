@@ -1,18 +1,18 @@
-{
-  "key": "assistant 패치 범위를 조금 넓혀야 합니다 공식 Codex skills는 SKILLmd 기반이라 현재의 skillpy 전용 로직으로는 외부 소스 인식만 해도 실제 사용이 안 됩니다 그래서 resolver뿐 아",
-  "value": "[assistant] 패치 범위를 조금 넓혀야 합니다. 공식 Codex skills는 `SKILL.md` 기반이라 현재의 `skill.py` 전용 로직으로는 외부 소스 인식만 해도 실제 사용이 안 됩니다. 그래서 resolver뿐 아니라 markdown skill 설치/탐지 경로까지 같이 맞추겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T17:40:38.064591+00:00",
-  "updated_at": "2026-03-10T17:40:38.064591+00:00",
-  "details": {
-    "text": "[assistant] 패치 범위를 조금 넓혀야 합니다. 공식 Codex skills는 `SKILL.md` 기반이라 현재의 `skill.py` 전용 로직으로는 외부 소스 인식만 해도 실제 사용이 안 됩니다. 그래서 resolver뿐 아니라 markdown skill 설치/탐지 경로까지 같이 맞추겠습니다.",
-    "event_timestamp": "2026-03-10T16:43:06.261Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/11/rollout-2026-03-11T01-30-46-019cd896-2cfb-7692-a889-53fc50ef1599.jsonl",
-    "session_line": 159,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 패치 범위를 조금 넓혀야 합니다 공식 Codex skills는 SKILLmd 기반이라 현재의 skillpy 전용 로직으로는 외부 소스 인식만 해도 실제 사용이 안 됩니다 그래서 resolver뿐 아",
+  "value": "[assistant] 패치 범위를 조금 넓혀야 합니다. 공식 Codex skills는 `SKILL.md` 기반이라 현재의 `skill.py` 전용 로직으로는 외부 소스 인식만 해도 실제 사용이 안 됩니다. 그래서 resolver뿐 아니라 markdown skill 설치/탐지 경로까지 같이 맞추겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:38.064591+00:00",
+  "updated_at": "2026-03-10T17:40:38.064591+00:00",
+  "details": {
+    "text": "[assistant] 패치 범위를 조금 넓혀야 합니다. 공식 Codex skills는 `SKILL.md` 기반이라 현재의 `skill.py` 전용 로직으로는 외부 소스 인식만 해도 실제 사용이 안 됩니다. 그래서 resolver뿐 아니라 markdown skill 설치/탐지 경로까지 같이 맞추겠습니다.",
+    "event_timestamp": "2026-03-10T16:43:06.261Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/11/rollout-2026-03-11T01-30-46-019cd896-2cfb-7692-a889-53fc50ef1599.jsonl",
+    "session_line": 159,
+    "provider": "codex"
+  }
 }

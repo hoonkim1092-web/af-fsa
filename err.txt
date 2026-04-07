@@ -1,41 +1,41 @@
-============================= test session starts =============================
-platform win32 -- Python 3.14.3, pytest-9.0.2, pluggy-1.6.0 -- C:\Users\HOME\AppData\Local\Python\pythoncore-3.14-64\python.exe
-rootdir: D:\agent-factory
-configfile: pytest.ini
-plugins: anyio-4.12.1
-collecting ... collected 3 items
-
-tests/test_runner_contracts.py::test_tool_filter_and_ctx_merge FAILED    [ 33%]
-tests/test_runner_contracts.py::test_runtime_rule_default_deny FAILED    [ 66%]
-tests/test_runner_contracts.py::test_system_prompt_and_signature_resolution PASSED [100%]
-
-================================== FAILURES ===================================
-_______________________ test_tool_filter_and_ctx_merge ________________________
-tests\test_runner_contracts.py:48: in test_tool_filter_and_ctx_merge
-    res = apply_tool(command="list")
-          ^^^^^^^^^^^^^^^^^^^^^^^^^^
-core\tool_runtime.py:55: in wrapper
-    return fn(ctx, *args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^
-E   TypeError: apply() got an unexpected keyword argument 'command'
-_______________________ test_runtime_rule_default_deny ________________________
-tests\test_runner_contracts.py:65: in test_runtime_rule_default_deny
-    assert "beta" not in skill_ids
-E   AssertionError: assert 'beta' not in ['alpha', 'beta']
-============================== warnings summary ===============================
-tests/test_runner_contracts.py::test_tool_filter_and_ctx_merge
-  D:\agent-factory\core\config_paths.py:3: FutureWarning: 
-  
-  All support for the `google.generativeai` package has ended. It will no longer be receiving 
-  updates or bug fixes. Please switch to the `google.genai` package as soon as possible.
-  See README for more details:
-  
-  https://github.com/google-gemini/deprecated-generative-ai-python/blob/main/README.md
-  
-    import google.generativeai as genai
-
--- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-=========================== short test summary info ===========================
-FAILED tests/test_runner_contracts.py::test_tool_filter_and_ctx_merge - TypeE...
-FAILED tests/test_runner_contracts.py::test_runtime_rule_default_deny - Asser...
-=================== 2 failed, 1 passed, 1 warning in 0.96s ====================
+============================= test session starts =============================
+platform win32 -- Python 3.14.3, pytest-9.0.2, pluggy-1.6.0 -- C:\Users\HOME\AppData\Local\Python\pythoncore-3.14-64\python.exe
+rootdir: D:\agent-factory
+configfile: pytest.ini
+plugins: anyio-4.12.1
+collecting ... collected 3 items
+
+tests/test_runner_contracts.py::test_tool_filter_and_ctx_merge FAILED    [ 33%]
+tests/test_runner_contracts.py::test_runtime_rule_default_deny FAILED    [ 66%]
+tests/test_runner_contracts.py::test_system_prompt_and_signature_resolution PASSED [100%]
+
+================================== FAILURES ===================================
+_______________________ test_tool_filter_and_ctx_merge ________________________
+tests\test_runner_contracts.py:48: in test_tool_filter_and_ctx_merge
+    res = apply_tool(command="list")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+core\tool_runtime.py:55: in wrapper
+    return fn(ctx, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: apply() got an unexpected keyword argument 'command'
+_______________________ test_runtime_rule_default_deny ________________________
+tests\test_runner_contracts.py:65: in test_runtime_rule_default_deny
+    assert "beta" not in skill_ids
+E   AssertionError: assert 'beta' not in ['alpha', 'beta']
+============================== warnings summary ===============================
+tests/test_runner_contracts.py::test_tool_filter_and_ctx_merge
+  D:\agent-factory\core\config_paths.py:3: FutureWarning: 
+  
+  All support for the `google.generativeai` package has ended. It will no longer be receiving 
+  updates or bug fixes. Please switch to the `google.genai` package as soon as possible.
+  See README for more details:
+  
+  https://github.com/google-gemini/deprecated-generative-ai-python/blob/main/README.md
+  
+    import google.generativeai as genai
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_runner_contracts.py::test_tool_filter_and_ctx_merge - TypeE...
+FAILED tests/test_runner_contracts.py::test_runtime_rule_default_deny - Asser...
+=================== 2 failed, 1 passed, 1 warning in 0.96s ====================

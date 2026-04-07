@@ -1,18 +1,18 @@
-{
-  "key": "assistant 코드 쪽 호환성 보정과 테스트 고정을 끝냈습니다 다시 컴파일과 핵심 회귀 테스트를 돌려서 이번엔 통과하는지 확인하겠습니다",
-  "value": "[assistant] 코드 쪽 호환성 보정과 테스트 고정을 끝냈습니다. 다시 컴파일과 핵심 회귀 테스트를 돌려서 이번엔 통과하는지 확인하겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T14:39:12.871363+00:00",
-  "updated_at": "2026-03-09T14:39:12.871363+00:00",
-  "details": {
-    "text": "[assistant] 코드 쪽 호환성 보정과 테스트 고정을 끝냈습니다. 다시 컴파일과 핵심 회귀 테스트를 돌려서 이번엔 통과하는지 확인하겠습니다.",
-    "event_timestamp": "2026-03-08T01:59:49.564Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/07/rollout-2026-03-07T23-57-50-019cc8ce-02f3-7c92-a357-f51576977b23.jsonl",
-    "session_line": 2078,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 코드 쪽 호환성 보정과 테스트 고정을 끝냈습니다 다시 컴파일과 핵심 회귀 테스트를 돌려서 이번엔 통과하는지 확인하겠습니다",
+  "value": "[assistant] 코드 쪽 호환성 보정과 테스트 고정을 끝냈습니다. 다시 컴파일과 핵심 회귀 테스트를 돌려서 이번엔 통과하는지 확인하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T14:39:12.871363+00:00",
+  "updated_at": "2026-03-09T14:39:12.871363+00:00",
+  "details": {
+    "text": "[assistant] 코드 쪽 호환성 보정과 테스트 고정을 끝냈습니다. 다시 컴파일과 핵심 회귀 테스트를 돌려서 이번엔 통과하는지 확인하겠습니다.",
+    "event_timestamp": "2026-03-08T01:59:49.564Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/07/rollout-2026-03-07T23-57-50-019cc8ce-02f3-7c92-a357-f51576977b23.jsonl",
+    "session_line": 2078,
+    "provider": "codex"
+  }
 }

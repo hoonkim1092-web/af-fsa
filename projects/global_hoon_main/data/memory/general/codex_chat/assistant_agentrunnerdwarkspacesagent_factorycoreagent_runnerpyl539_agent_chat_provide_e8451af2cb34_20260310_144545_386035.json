@@ -1,18 +1,18 @@
-{
-  "key": "assistant 아니요 꼭 탈 필요 없습니다지금 레포도 이미 그 방향입니다 AgentRunnerDwarkSpacesagent-factorycoreagent_runnerpyL539는 AGENT_CHAT_PROVIDE",
-  "value": "[assistant] 아니요. 꼭 탈 필요 없습니다.  지금 레포도 이미 그 방향입니다. [`AgentRunner`](D:/warkSpaces/agent-factory/core/agent_runner.py#L539)는 `AGENT_CHAT_PROVIDER`가 있으면 먼저 CLI provider를 타고, 그게 없거나 실패했을 때만 Gemini SDK 경로로 내려갑니다. Gemini SDK 직결은 필수 메인 경로가 아니라 fallback에 가깝습니다. 문서도...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T14:45:45.386468+00:00",
-  "updated_at": "2026-03-10T14:45:45.386468+00:00",
-  "details": {
-    "text": "[assistant] 아니요. 꼭 탈 필요 없습니다.\n\n지금 레포도 이미 그 방향입니다. [`AgentRunner`](D:/warkSpaces/agent-factory/core/agent_runner.py#L539)는 `AGENT_CHAT_PROVIDER`가 있으면 먼저 CLI provider를 타고, 그게 없거나 실패했을 때만 Gemini SDK 경로로 내려갑니다. Gemini SDK 직결은 필수 메인 경로가 아니라 fallback에 가깝습니다. 문서도 그렇게 적혀 있습니다: [`docs/architecture.md`](D:/warkSpaces/agent-factory/docs/architecture.md#L207).\n\n정리하면:\n- `Gemini SDK + 내부 Tool Registry`를 꼭 써야 하는 경우\n  로컬 Python 함수 툴을 모델에 직접 노출하고 싶을 때입니다. 예를 들어 `write_file`, `hash_edit`를 우리 policy/hook 아래에서 함수 단위로 강하게 통제하려면 이 경로가 가장 직접적입니다. 관련 구조는 [`core/tool_runtime.py`](D:/warkSpaces/agent-factory/core/tool_runtime.py), [`core/registry.py`](D:/warkSpaces/agent-factory/core/registry.py)에 있습니다.\n- 꼭 안 써도 되는 경우\n  운영 기준을 `claude_cli/gemini_cli/codex_cli` 같은 외부 CLI 세션으로 통일하려는 경우입니다. 이 경우 내부 Gemini SDK ReAct 루프는 빼도 됩니다. 이미 [`core/providers/cli.py`](D:/warkSpaces/agent-factory/core/providers/cli.py)와 session adapter 쪽이 그 방향입니다.\n\n실무적으로는 이렇게 보는 게 맞습니다.\n- “Gemini를 꼭 써야 하냐”가 아니라\n- “모델이 우리 로컬 함수 툴을 직접 호출해야 하냐”가 기준입니다.\n\n내 판단:\n- 제품 방향이 멀티-provider 공통 런타임이면 Gemini SDK 직결은 필수 아님\n- 로컬 툴 실행 제어가 핵심 경쟁력이면 유지 가치 있음\n- 둘 다 가져가려면 지금처럼 `CLI 우선, SDK fallback`이면 충분하고, SDK를 메인 경로로 고집할 이유는 크지 않습니다\n\n원하면 다음으로 바로\n1. `Gemini SDK 경로 제거` 기준으로 구조 단순화안\n2. `SDK 유지하되 fallback 전용으로 축소`안\n둘 중 하나로 정리해드리겠습니다.",
-    "event_timestamp": "2026-03-10T13:52:30.196Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
-    "session_line": 224,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 아니요 꼭 탈 필요 없습니다지금 레포도 이미 그 방향입니다 AgentRunnerDwarkSpacesagent-factorycoreagent_runnerpyL539는 AGENT_CHAT_PROVIDE",
+  "value": "[assistant] 아니요. 꼭 탈 필요 없습니다.  지금 레포도 이미 그 방향입니다. [`AgentRunner`](D:/warkSpaces/agent-factory/core/agent_runner.py#L539)는 `AGENT_CHAT_PROVIDER`가 있으면 먼저 CLI provider를 타고, 그게 없거나 실패했을 때만 Gemini SDK 경로로 내려갑니다. Gemini SDK 직결은 필수 메인 경로가 아니라 fallback에 가깝습니다. 문서도...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T14:45:45.386468+00:00",
+  "updated_at": "2026-03-10T14:45:45.386468+00:00",
+  "details": {
+    "text": "[assistant] 아니요. 꼭 탈 필요 없습니다.\n\n지금 레포도 이미 그 방향입니다. [`AgentRunner`](D:/warkSpaces/agent-factory/core/agent_runner.py#L539)는 `AGENT_CHAT_PROVIDER`가 있으면 먼저 CLI provider를 타고, 그게 없거나 실패했을 때만 Gemini SDK 경로로 내려갑니다. Gemini SDK 직결은 필수 메인 경로가 아니라 fallback에 가깝습니다. 문서도 그렇게 적혀 있습니다: [`docs/architecture.md`](D:/warkSpaces/agent-factory/docs/architecture.md#L207).\n\n정리하면:\n- `Gemini SDK + 내부 Tool Registry`를 꼭 써야 하는 경우\n  로컬 Python 함수 툴을 모델에 직접 노출하고 싶을 때입니다. 예를 들어 `write_file`, `hash_edit`를 우리 policy/hook 아래에서 함수 단위로 강하게 통제하려면 이 경로가 가장 직접적입니다. 관련 구조는 [`core/tool_runtime.py`](D:/warkSpaces/agent-factory/core/tool_runtime.py), [`core/registry.py`](D:/warkSpaces/agent-factory/core/registry.py)에 있습니다.\n- 꼭 안 써도 되는 경우\n  운영 기준을 `claude_cli/gemini_cli/codex_cli` 같은 외부 CLI 세션으로 통일하려는 경우입니다. 이 경우 내부 Gemini SDK ReAct 루프는 빼도 됩니다. 이미 [`core/providers/cli.py`](D:/warkSpaces/agent-factory/core/providers/cli.py)와 session adapter 쪽이 그 방향입니다.\n\n실무적으로는 이렇게 보는 게 맞습니다.\n- “Gemini를 꼭 써야 하냐”가 아니라\n- “모델이 우리 로컬 함수 툴을 직접 호출해야 하냐”가 기준입니다.\n\n내 판단:\n- 제품 방향이 멀티-provider 공통 런타임이면 Gemini SDK 직결은 필수 아님\n- 로컬 툴 실행 제어가 핵심 경쟁력이면 유지 가치 있음\n- 둘 다 가져가려면 지금처럼 `CLI 우선, SDK fallback`이면 충분하고, SDK를 메인 경로로 고집할 이유는 크지 않습니다\n\n원하면 다음으로 바로\n1. `Gemini SDK 경로 제거` 기준으로 구조 단순화안\n2. `SDK 유지하되 fallback 전용으로 축소`안\n둘 중 하나로 정리해드리겠습니다.",
+    "event_timestamp": "2026-03-10T13:52:30.196Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
+    "session_line": 224,
+    "provider": "codex"
+  }
 }

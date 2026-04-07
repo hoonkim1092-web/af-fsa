@@ -1,18 +1,18 @@
-{
-  "key": "assistant 새 외부 프로젝트를 DhoonProJectworktreesai-workflow-course에 생성했고 Gemini 런도 성공했습니다 생성된 핵심 파일은 READMEmdDhoonProJectworkt",
-  "value": "[assistant] 새 외부 프로젝트를 `D:\\hoonProJect\\worktrees\\ai-workflow-course`에 생성했고, Gemini 런도 성공했습니다. 생성된 핵심 파일은 [README.md](D:/hoonProJect/worktrees/ai-workflow-course/README.md) 와 [course_outline.md](D:/hoonProJect/worktrees/ai-workflow-course/docs/course_outline...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T06:08:25.489315+00:00",
-  "updated_at": "2026-03-10T06:08:25.489315+00:00",
-  "details": {
-    "text": "[assistant] 새 외부 프로젝트를 `D:\\hoonProJect\\worktrees\\ai-workflow-course`에 생성했고, Gemini 런도 성공했습니다. 생성된 핵심 파일은 [README.md](D:/hoonProJect/worktrees/ai-workflow-course/README.md) 와 [course_outline.md](D:/hoonProJect/worktrees/ai-workflow-course/docs/course_outline.md) 입니다.\n\n검증 결과:\n- [README.md](D:/hoonProJect/worktrees/ai-workflow-course/README.md): 프로젝트 개요와 시작 안내가 들어갔습니다.\n- [course_outline.md](D:/hoonProJect/worktrees/ai-workflow-course/docs/course_outline.md): `AI Workflow Starter Course` 4개 모듈과 실습 섹션이 생성됐습니다.\n- Git 상태: 아직 이 폴더는 Git 저장소가 아닙니다. `git status`는 `not a git repository`로 확인됐습니다.\n\n원하면 바로 다음으로\n1. 이 폴더에서 `git init`까지 붙이거나\n2. 코스 내용을 한 번 더 수정 테스트하거나\n3. 프로젝트명을 원하는 이름으로 다시 생성하겠습니다.",
-    "event_timestamp": "2026-03-10T05:18:35.312Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
-    "session_line": 630,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 새 외부 프로젝트를 DhoonProJectworktreesai-workflow-course에 생성했고 Gemini 런도 성공했습니다 생성된 핵심 파일은 READMEmdDhoonProJectworkt",
+  "value": "[assistant] 새 외부 프로젝트를 `D:\\hoonProJect\\worktrees\\ai-workflow-course`에 생성했고, Gemini 런도 성공했습니다. 생성된 핵심 파일은 [README.md](D:/hoonProJect/worktrees/ai-workflow-course/README.md) 와 [course_outline.md](D:/hoonProJect/worktrees/ai-workflow-course/docs/course_outline...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T06:08:25.489315+00:00",
+  "updated_at": "2026-03-10T06:08:25.489315+00:00",
+  "details": {
+    "text": "[assistant] 새 외부 프로젝트를 `D:\\hoonProJect\\worktrees\\ai-workflow-course`에 생성했고, Gemini 런도 성공했습니다. 생성된 핵심 파일은 [README.md](D:/hoonProJect/worktrees/ai-workflow-course/README.md) 와 [course_outline.md](D:/hoonProJect/worktrees/ai-workflow-course/docs/course_outline.md) 입니다.\n\n검증 결과:\n- [README.md](D:/hoonProJect/worktrees/ai-workflow-course/README.md): 프로젝트 개요와 시작 안내가 들어갔습니다.\n- [course_outline.md](D:/hoonProJect/worktrees/ai-workflow-course/docs/course_outline.md): `AI Workflow Starter Course` 4개 모듈과 실습 섹션이 생성됐습니다.\n- Git 상태: 아직 이 폴더는 Git 저장소가 아닙니다. `git status`는 `not a git repository`로 확인됐습니다.\n\n원하면 바로 다음으로\n1. 이 폴더에서 `git init`까지 붙이거나\n2. 코스 내용을 한 번 더 수정 테스트하거나\n3. 프로젝트명을 원하는 이름으로 다시 생성하겠습니다.",
+    "event_timestamp": "2026-03-10T05:18:35.312Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 630,
+    "provider": "codex"
+  }
 }

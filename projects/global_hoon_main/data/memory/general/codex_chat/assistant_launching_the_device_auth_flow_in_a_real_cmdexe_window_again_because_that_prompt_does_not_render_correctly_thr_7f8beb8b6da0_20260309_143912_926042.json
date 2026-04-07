@@ -1,18 +1,18 @@
-{
-  "key": "assistant Launching the device-auth flow in a real cmdexe window again because that prompt does not render correctly thr",
-  "value": "[assistant] Launching the device-auth flow in a real `cmd.exe` window again, because that prompt does not render correctly through this captured shell.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T14:39:12.926129+00:00",
-  "updated_at": "2026-03-09T14:39:12.926129+00:00",
-  "details": {
-    "text": "[assistant] Launching the device-auth flow in a real `cmd.exe` window again, because that prompt does not render correctly through this captured shell.",
-    "event_timestamp": "2026-03-09T14:10:53.469Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-02-00-019cd2e7-9f34-78e2-a979-fd92d8dc41fc.jsonl",
-    "session_line": 132,
-    "provider": "codex"
-  }
+{
+  "key": "assistant Launching the device-auth flow in a real cmdexe window again because that prompt does not render correctly thr",
+  "value": "[assistant] Launching the device-auth flow in a real `cmd.exe` window again, because that prompt does not render correctly through this captured shell.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T14:39:12.926129+00:00",
+  "updated_at": "2026-03-09T14:39:12.926129+00:00",
+  "details": {
+    "text": "[assistant] Launching the device-auth flow in a real `cmd.exe` window again, because that prompt does not render correctly through this captured shell.",
+    "event_timestamp": "2026-03-09T14:10:53.469Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-02-00-019cd2e7-9f34-78e2-a979-fd92d8dc41fc.jsonl",
+    "session_line": 132,
+    "provider": "codex"
+  }
 }

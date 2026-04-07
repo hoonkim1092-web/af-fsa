@@ -1,18 +1,18 @@
-{
-  "key": "assistant 네 다만 provider별로 약간 차이가 있습니다지금 Agent Factory의 일반 실행 경로는 run_factory_clipy - agent_runnerpyDwarkSpacesagent-fact",
-  "value": "[assistant] 네. 다만 provider별로 약간 차이가 있습니다.  지금 `Agent Factory`의 일반 실행 경로는 `run_factory_cli.py` -> [agent_runner.py](D:/warkSpaces/agent-factory/core/agent_runner.py) -> [cli.py](D:/warkSpaces/agent-factory/core/providers/cli.py) -> [session_adapter.py](D:/wa...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T17:22:13.110188+00:00",
-  "updated_at": "2026-03-09T17:22:13.110188+00:00",
-  "details": {
-    "text": "[assistant] 네. 다만 provider별로 약간 차이가 있습니다.\n\n지금 `Agent Factory`의 일반 실행 경로는 `run_factory_cli.py` -> [agent_runner.py](D:/warkSpaces/agent-factory/core/agent_runner.py) -> [cli.py](D:/warkSpaces/agent-factory/core/providers/cli.py) -> [session_adapter.py](D:/warkSpaces/agent-factory/core/providers/session_adapter.py) 순서로 가고, 여기서 LLM은 직접 SDK/API key로 치는 게 아니라 `claude` / `gemini` / `codex exec` CLI 프로세스를 띄워서 돌립니다.\n\n구체적으로는 이렇습니다.\n- `Claude`, `Gemini`: `native_hooks` 모드입니다. [session_adapter.py](D:/warkSpaces/agent-factory/core/providers/session_adapter.py)에서 각 CLI 설정 파일을 써 주고, 훅 이벤트를 [cli_hook_bridge.py](D:/warkSpaces/agent-factory/scripts/cli_hook_bridge.py)로 받아서 세션 상태와 메모리 브리지를 갱신합니다.\n- `Codex`: 현재도 CLI로 돌리지만, 같은 의미의 native hook 연결은 아니고 `wrapper_bridge` 모드입니다. 실행 후 finalize 시점에 bridge를 태우는 구조입니다. 즉 세션 기반은 맞는데 Claude/Gemini처럼 hook event를 계속 받는 방식은 아닙니다.\n\n한 가지 예외만 있습니다. 방금 마지막에 내가 따로 친 `gemini.CMD --output-format json -p ...` 직접 스모크는 `Agent Factory`를 안 거치고 Gemini CLI를 바로 친 거라서, 그 한 번은 hook/session adapter를 우회했습니다. 하지만 평소 `run_factory_cli.py` 경로는 맞습니다.",
-    "event_timestamp": "2026-03-09T17:02:12.504Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
-    "session_line": 2030,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 네 다만 provider별로 약간 차이가 있습니다지금 Agent Factory의 일반 실행 경로는 run_factory_clipy - agent_runnerpyDwarkSpacesagent-fact",
+  "value": "[assistant] 네. 다만 provider별로 약간 차이가 있습니다.  지금 `Agent Factory`의 일반 실행 경로는 `run_factory_cli.py` -> [agent_runner.py](D:/warkSpaces/agent-factory/core/agent_runner.py) -> [cli.py](D:/warkSpaces/agent-factory/core/providers/cli.py) -> [session_adapter.py](D:/wa...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T17:22:13.110188+00:00",
+  "updated_at": "2026-03-09T17:22:13.110188+00:00",
+  "details": {
+    "text": "[assistant] 네. 다만 provider별로 약간 차이가 있습니다.\n\n지금 `Agent Factory`의 일반 실행 경로는 `run_factory_cli.py` -> [agent_runner.py](D:/warkSpaces/agent-factory/core/agent_runner.py) -> [cli.py](D:/warkSpaces/agent-factory/core/providers/cli.py) -> [session_adapter.py](D:/warkSpaces/agent-factory/core/providers/session_adapter.py) 순서로 가고, 여기서 LLM은 직접 SDK/API key로 치는 게 아니라 `claude` / `gemini` / `codex exec` CLI 프로세스를 띄워서 돌립니다.\n\n구체적으로는 이렇습니다.\n- `Claude`, `Gemini`: `native_hooks` 모드입니다. [session_adapter.py](D:/warkSpaces/agent-factory/core/providers/session_adapter.py)에서 각 CLI 설정 파일을 써 주고, 훅 이벤트를 [cli_hook_bridge.py](D:/warkSpaces/agent-factory/scripts/cli_hook_bridge.py)로 받아서 세션 상태와 메모리 브리지를 갱신합니다.\n- `Codex`: 현재도 CLI로 돌리지만, 같은 의미의 native hook 연결은 아니고 `wrapper_bridge` 모드입니다. 실행 후 finalize 시점에 bridge를 태우는 구조입니다. 즉 세션 기반은 맞는데 Claude/Gemini처럼 hook event를 계속 받는 방식은 아닙니다.\n\n한 가지 예외만 있습니다. 방금 마지막에 내가 따로 친 `gemini.CMD --output-format json -p ...` 직접 스모크는 `Agent Factory`를 안 거치고 Gemini CLI를 바로 친 거라서, 그 한 번은 hook/session adapter를 우회했습니다. 하지만 평소 `run_factory_cli.py` 경로는 맞습니다.",
+    "event_timestamp": "2026-03-09T17:02:12.504Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 2030,
+    "provider": "codex"
+  }
 }

@@ -1,18 +1,18 @@
-{
-  "key": "assistant skill_procurer 쪽에도 외부 시도 이력의 source 라벨이 아직 구식으로 남아 있는지 확인하겠습니다 이 부분까지 같이 맞춰야 테스트가 안정적입니다",
-  "value": "[assistant] `skill_procurer` 쪽에도 외부 시도 이력의 source 라벨이 아직 구식으로 남아 있는지 확인하겠습니다. 이 부분까지 같이 맞춰야 테스트가 안정적입니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T17:40:38.017582+00:00",
-  "updated_at": "2026-03-10T17:40:38.017582+00:00",
-  "details": {
-    "text": "[assistant] `skill_procurer` 쪽에도 외부 시도 이력의 source 라벨이 아직 구식으로 남아 있는지 확인하겠습니다. 이 부분까지 같이 맞춰야 테스트가 안정적입니다.",
-    "event_timestamp": "2026-03-10T16:10:01.331Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
-    "session_line": 1959,
-    "provider": "codex"
-  }
+{
+  "key": "assistant skill_procurer 쪽에도 외부 시도 이력의 source 라벨이 아직 구식으로 남아 있는지 확인하겠습니다 이 부분까지 같이 맞춰야 테스트가 안정적입니다",
+  "value": "[assistant] `skill_procurer` 쪽에도 외부 시도 이력의 source 라벨이 아직 구식으로 남아 있는지 확인하겠습니다. 이 부분까지 같이 맞춰야 테스트가 안정적입니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:38.017582+00:00",
+  "updated_at": "2026-03-10T17:40:38.017582+00:00",
+  "details": {
+    "text": "[assistant] `skill_procurer` 쪽에도 외부 시도 이력의 source 라벨이 아직 구식으로 남아 있는지 확인하겠습니다. 이 부분까지 같이 맞춰야 테스트가 안정적입니다.",
+    "event_timestamp": "2026-03-10T16:10:01.331Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
+    "session_line": 1959,
+    "provider": "codex"
+  }
 }

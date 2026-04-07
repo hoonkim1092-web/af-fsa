@@ -1,18 +1,18 @@
-{
-  "key": "assistant 이건 근본 수정입니다 model_utils에서 SDK import와 client 생성을 top-level에서 빼고 실제 Google 모델 조회가 필요할 때만 생성하도록 바꾸겠습니다",
-  "value": "[assistant] 이건 근본 수정입니다. `model_utils`에서 SDK import와 client 생성을 top-level에서 빼고, 실제 Google 모델 조회가 필요할 때만 생성하도록 바꾸겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T17:40:37.976802+00:00",
-  "updated_at": "2026-03-10T17:40:37.976802+00:00",
-  "details": {
-    "text": "[assistant] 이건 근본 수정입니다. `model_utils`에서 SDK import와 client 생성을 top-level에서 빼고, 실제 Google 모델 조회가 필요할 때만 생성하도록 바꾸겠습니다.",
-    "event_timestamp": "2026-03-10T15:35:35.401Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
-    "session_line": 1470,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 이건 근본 수정입니다 model_utils에서 SDK import와 client 생성을 top-level에서 빼고 실제 Google 모델 조회가 필요할 때만 생성하도록 바꾸겠습니다",
+  "value": "[assistant] 이건 근본 수정입니다. `model_utils`에서 SDK import와 client 생성을 top-level에서 빼고, 실제 Google 모델 조회가 필요할 때만 생성하도록 바꾸겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:37.976802+00:00",
+  "updated_at": "2026-03-10T17:40:37.976802+00:00",
+  "details": {
+    "text": "[assistant] 이건 근본 수정입니다. `model_utils`에서 SDK import와 client 생성을 top-level에서 빼고, 실제 Google 모델 조회가 필요할 때만 생성하도록 바꾸겠습니다.",
+    "event_timestamp": "2026-03-10T15:35:35.401Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
+    "session_line": 1470,
+    "provider": "codex"
+  }
 }

@@ -1,18 +1,18 @@
-{
-  "key": "assistant 정리하면 codex_repo를 OpenAI 공식 Codex Skills 소스로 보면 안 됩니다 로컬 코드 기준으로는 codex - codex_repo alias일 뿐이고 AGENT_EXTERNAL_",
-  "value": "[assistant] 정리하면, `codex_repo`를 “OpenAI 공식 Codex Skills 소스”로 보면 안 됩니다. 로컬 코드 기준으로는 `codex -> codex_repo` alias일 뿐이고, `AGENT_EXTERNAL_SKILL_CODEX_REPOS` 환경변수에서 읽어 `repo_cache` 소스로 붙이는 구조입니다. [core/external_skill_source_ids.py](/D:/warkSpaces/agent-factory/co...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T17:40:38.061400+00:00",
-  "updated_at": "2026-03-10T17:40:38.061400+00:00",
-  "details": {
-    "text": "[assistant] 정리하면, `codex_repo`를 “OpenAI 공식 Codex Skills 소스”로 보면 안 됩니다. 로컬 코드 기준으로는 `codex -> codex_repo` alias일 뿐이고, `AGENT_EXTERNAL_SKILL_CODEX_REPOS` 환경변수에서 읽어 `repo_cache` 소스로 붙이는 구조입니다. [core/external_skill_source_ids.py](/D:/warkSpaces/agent-factory/core/external_skill_source_ids.py#L20) [core/external_skill_sources.py](/D:/warkSpaces/agent-factory/core/external_skill_sources.py#L103) [tests/test_external_skill_sources.py](/D:/warkSpaces/agent-factory/tests/test_external_skill_sources.py#L12)\n\n다만 전제 하나는 수정해야 합니다. 2026년 2월 2일 공개된 Codex app 발표와 현재 Codex docs 기준으로, OpenAI는 공식 `Agent Skills`를 문서화했고 Codex app/CLI/IDE에서 지원합니다. 앱에는 skill 생성/관리 UI와 skill library가 있고, 공식 스킬 형식은 `SKILL.md` 기반 디렉터리이며 Codex는 `.agents/skills`, `$HOME/.agents/skills`, `/etc/codex/skills`, 시스템 번들 위치에서 읽습니다. 즉 “공식 skill runtime/format”은 있습니다. 반면 “퍼블릭 Skills API/catalog endpoint”는 문서상 못 찾았고, 이건 제가 docs 구조를 보고 내린 추론입니다.  \nSources: https://developers.openai.com/codex/skills https://openai.com/index/introducing-the-codex-app/ https://developers.openai.com/codex/sdk https://openai.com/index/introducing-codex/ https://developers.openai.com/codex/enterprise/admin-setup\n\n그래서 방향은 이렇습니다.\n\n1. `codex_repo`는 공식 스킬이 아니라 `external_repo_cache` 계층으로 분리해서 다루세요. 이름도 가능하면 `external_codex_repo`나 `external_repo_cache`로 바꾸는 게 맞습니다.\n2. “공식 Codex Skills 연동”은 API 연동이 아니라 파일시스템 연동으로 구현하세요. 우선순위는 `.agents/skills` 계층을 먼저 스캔하고, 그다음 외부 repo cache를 보게 해야 합니다.\n3. 해석 순서는 `official/local skills -> team/shared skills -> external repo cache(claude_repo, codex_repo) -> forge/build`가 맞습니다.\n4. Codex SDK를 쓸 수는 있지만, 그건 에이전트 실행 제어용이지 스킬 카탈로그 API 대체품으로 보면 안 됩니다.\n5. 즉, 지금 문서/설계 문구는 이렇게 바꾸는 게 정확합니다:\n`OpenAI 공식 Codex Skills API: 미확인`\n`OpenAI 공식 Codex Skills format/runtime: 있음`\n`Codex app/CLI/IDE skill integration: 있음`\n`현재 codex_repo: 공식 소스가 아니라 외부 repo bucket/source_id`\n\n원하시면 다음 턴에 바로 이 repo에 맞춰 `official skill resolver` 추가하고, `codex_repo`를 하위호환 유지한 채 의미상 분리하는 패치까지 진행하겠습니다.",
-    "event_timestamp": "2026-03-10T16:35:50.760Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/11/rollout-2026-03-11T01-30-46-019cd896-2cfb-7692-a889-53fc50ef1599.jsonl",
-    "session_line": 98,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 정리하면 codex_repo를 OpenAI 공식 Codex Skills 소스로 보면 안 됩니다 로컬 코드 기준으로는 codex - codex_repo alias일 뿐이고 AGENT_EXTERNAL_",
+  "value": "[assistant] 정리하면, `codex_repo`를 “OpenAI 공식 Codex Skills 소스”로 보면 안 됩니다. 로컬 코드 기준으로는 `codex -> codex_repo` alias일 뿐이고, `AGENT_EXTERNAL_SKILL_CODEX_REPOS` 환경변수에서 읽어 `repo_cache` 소스로 붙이는 구조입니다. [core/external_skill_source_ids.py](/D:/warkSpaces/agent-factory/co...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:38.061400+00:00",
+  "updated_at": "2026-03-10T17:40:38.061400+00:00",
+  "details": {
+    "text": "[assistant] 정리하면, `codex_repo`를 “OpenAI 공식 Codex Skills 소스”로 보면 안 됩니다. 로컬 코드 기준으로는 `codex -> codex_repo` alias일 뿐이고, `AGENT_EXTERNAL_SKILL_CODEX_REPOS` 환경변수에서 읽어 `repo_cache` 소스로 붙이는 구조입니다. [core/external_skill_source_ids.py](/D:/warkSpaces/agent-factory/core/external_skill_source_ids.py#L20) [core/external_skill_sources.py](/D:/warkSpaces/agent-factory/core/external_skill_sources.py#L103) [tests/test_external_skill_sources.py](/D:/warkSpaces/agent-factory/tests/test_external_skill_sources.py#L12)\n\n다만 전제 하나는 수정해야 합니다. 2026년 2월 2일 공개된 Codex app 발표와 현재 Codex docs 기준으로, OpenAI는 공식 `Agent Skills`를 문서화했고 Codex app/CLI/IDE에서 지원합니다. 앱에는 skill 생성/관리 UI와 skill library가 있고, 공식 스킬 형식은 `SKILL.md` 기반 디렉터리이며 Codex는 `.agents/skills`, `$HOME/.agents/skills`, `/etc/codex/skills`, 시스템 번들 위치에서 읽습니다. 즉 “공식 skill runtime/format”은 있습니다. 반면 “퍼블릭 Skills API/catalog endpoint”는 문서상 못 찾았고, 이건 제가 docs 구조를 보고 내린 추론입니다.  \nSources: https://developers.openai.com/codex/skills https://openai.com/index/introducing-the-codex-app/ https://developers.openai.com/codex/sdk https://openai.com/index/introducing-codex/ https://developers.openai.com/codex/enterprise/admin-setup\n\n그래서 방향은 이렇습니다.\n\n1. `codex_repo`는 공식 스킬이 아니라 `external_repo_cache` 계층으로 분리해서 다루세요. 이름도 가능하면 `external_codex_repo`나 `external_repo_cache`로 바꾸는 게 맞습니다.\n2. “공식 Codex Skills 연동”은 API 연동이 아니라 파일시스템 연동으로 구현하세요. 우선순위는 `.agents/skills` 계층을 먼저 스캔하고, 그다음 외부 repo cache를 보게 해야 합니다.\n3. 해석 순서는 `official/local skills -> team/shared skills -> external repo cache(claude_repo, codex_repo) -> forge/build`가 맞습니다.\n4. Codex SDK를 쓸 수는 있지만, 그건 에이전트 실행 제어용이지 스킬 카탈로그 API 대체품으로 보면 안 됩니다.\n5. 즉, 지금 문서/설계 문구는 이렇게 바꾸는 게 정확합니다:\n`OpenAI 공식 Codex Skills API: 미확인`\n`OpenAI 공식 Codex Skills format/runtime: 있음`\n`Codex app/CLI/IDE skill integration: 있음`\n`현재 codex_repo: 공식 소스가 아니라 외부 repo bucket/source_id`\n\n원하시면 다음 턴에 바로 이 repo에 맞춰 `official skill resolver` 추가하고, `codex_repo`를 하위호환 유지한 채 의미상 분리하는 패치까지 진행하겠습니다.",
+    "event_timestamp": "2026-03-10T16:35:50.760Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/11/rollout-2026-03-11T01-30-46-019cd896-2cfb-7692-a889-53fc50ef1599.jsonl",
+    "session_line": 98,
+    "provider": "codex"
+  }
 }

@@ -1,18 +1,18 @@
-{
-  "key": "assistant 요청 범위가 넓어서 먼저 실행 경로를 기준으로 구조를 추적하겠습니다 엔트리포인트 훅세션 브리지 CLI 프로바이더 프로젝트 생성 파이프라인 그리고 프롬프트 입출력 경로를 순서대로 읽고 그 결과를 아키",
-  "value": "[assistant] 요청 범위가 넓어서 먼저 실행 경로를 기준으로 구조를 추적하겠습니다. 엔트리포인트, 훅/세션 브리지, CLI 프로바이더, 프로젝트 생성 파이프라인, 그리고 프롬프트 입출력 경로를 순서대로 읽고 그 결과를 아키텍처 문서로 정리하겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T06:08:25.505647+00:00",
-  "updated_at": "2026-03-10T06:08:25.505647+00:00",
-  "details": {
-    "text": "[assistant] 요청 범위가 넓어서 먼저 실행 경로를 기준으로 구조를 추적하겠습니다. 엔트리포인트, 훅/세션 브리지, CLI 프로바이더, 프로젝트 생성 파이프라인, 그리고 프롬프트 입출력 경로를 순서대로 읽고 그 결과를 아키텍처 문서로 정리하겠습니다.",
-    "event_timestamp": "2026-03-10T05:41:23.397Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
-    "session_line": 804,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 요청 범위가 넓어서 먼저 실행 경로를 기준으로 구조를 추적하겠습니다 엔트리포인트 훅세션 브리지 CLI 프로바이더 프로젝트 생성 파이프라인 그리고 프롬프트 입출력 경로를 순서대로 읽고 그 결과를 아키",
+  "value": "[assistant] 요청 범위가 넓어서 먼저 실행 경로를 기준으로 구조를 추적하겠습니다. 엔트리포인트, 훅/세션 브리지, CLI 프로바이더, 프로젝트 생성 파이프라인, 그리고 프롬프트 입출력 경로를 순서대로 읽고 그 결과를 아키텍처 문서로 정리하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T06:08:25.505647+00:00",
+  "updated_at": "2026-03-10T06:08:25.505647+00:00",
+  "details": {
+    "text": "[assistant] 요청 범위가 넓어서 먼저 실행 경로를 기준으로 구조를 추적하겠습니다. 엔트리포인트, 훅/세션 브리지, CLI 프로바이더, 프로젝트 생성 파이프라인, 그리고 프롬프트 입출력 경로를 순서대로 읽고 그 결과를 아키텍처 문서로 정리하겠습니다.",
+    "event_timestamp": "2026-03-10T05:41:23.397Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 804,
+    "provider": "codex"
+  }
 }

@@ -1,18 +1,18 @@
-{
-  "key": "assistant 현재 Dagent-factory 쪽은 실행 경로가 기대한 런타임 아티팩트를 안 남겨서 실제로 검증이 잘 되던 DwarkSpacesagent-factory clone 기준으로 이어가겠습니다 테스트 파",
-  "value": "[assistant] 현재 `D:\\agent-factory` 쪽은 실행 경로가 기대한 런타임 아티팩트를 안 남겨서, 실제로 검증이 잘 되던 `D:\\warkSpaces\\agent-factory` clone 기준으로 이어가겠습니다. 테스트 파일을 거기로 맞춘 뒤, 같은 Gemini OAuth 경로로 실제 수정까지 확인하겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T17:22:13.117111+00:00",
-  "updated_at": "2026-03-09T17:22:13.117111+00:00",
-  "details": {
-    "text": "[assistant] 현재 `D:\\agent-factory` 쪽은 실행 경로가 기대한 런타임 아티팩트를 안 남겨서, 실제로 검증이 잘 되던 `D:\\warkSpaces\\agent-factory` clone 기준으로 이어가겠습니다. 테스트 파일을 거기로 맞춘 뒤, 같은 Gemini OAuth 경로로 실제 수정까지 확인하겠습니다.",
-    "event_timestamp": "2026-03-09T17:05:14.745Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
-    "session_line": 2112,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 현재 Dagent-factory 쪽은 실행 경로가 기대한 런타임 아티팩트를 안 남겨서 실제로 검증이 잘 되던 DwarkSpacesagent-factory clone 기준으로 이어가겠습니다 테스트 파",
+  "value": "[assistant] 현재 `D:\\agent-factory` 쪽은 실행 경로가 기대한 런타임 아티팩트를 안 남겨서, 실제로 검증이 잘 되던 `D:\\warkSpaces\\agent-factory` clone 기준으로 이어가겠습니다. 테스트 파일을 거기로 맞춘 뒤, 같은 Gemini OAuth 경로로 실제 수정까지 확인하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T17:22:13.117111+00:00",
+  "updated_at": "2026-03-09T17:22:13.117111+00:00",
+  "details": {
+    "text": "[assistant] 현재 `D:\\agent-factory` 쪽은 실행 경로가 기대한 런타임 아티팩트를 안 남겨서, 실제로 검증이 잘 되던 `D:\\warkSpaces\\agent-factory` clone 기준으로 이어가겠습니다. 테스트 파일을 거기로 맞춘 뒤, 같은 Gemini OAuth 경로로 실제 수정까지 확인하겠습니다.",
+    "event_timestamp": "2026-03-09T17:05:14.745Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/09/rollout-2026-03-09T23-17-46-019cd2f6-0d0e-7751-a91d-8ed090086cb5.jsonl",
+    "session_line": 2112,
+    "provider": "codex"
+  }
 }

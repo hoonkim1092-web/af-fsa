@@ -1,18 +1,18 @@
-{
-  "key": "assistant 맞습니다 지뢰찾기 게임 만들어줘 같은 요청은 project 생성으로 보는 게 맞습니다현재 라우터도 그렇게 가게 돼 있습니다 corerequest_routerpyDwarkSpacesagent-fact",
-  "value": "[assistant] 맞습니다. `\"지뢰찾기 게임 만들어줘\"` 같은 요청은 `project 생성`으로 보는 게 맞습니다.  현재 라우터도 그렇게 가게 돼 있습니다. [`core/request_router.py`](D:/warkSpaces/agent-factory/core/request_router.py#L7)에서 `게임`, `create`, `from scratch` 같은 힌트를 `project` 쪽 점수로 올리고, 점수가 2 이상이면 `project pi...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T14:45:45.390631+00:00",
-  "updated_at": "2026-03-10T14:45:45.390631+00:00",
-  "details": {
-    "text": "[assistant] 맞습니다. `\"지뢰찾기 게임 만들어줘\"` 같은 요청은 `project 생성`으로 보는 게 맞습니다.\n\n현재 라우터도 그렇게 가게 돼 있습니다. [`core/request_router.py`](D:/warkSpaces/agent-factory/core/request_router.py#L7)에서 `게임`, `create`, `from scratch` 같은 힌트를 `project` 쪽 점수로 올리고, 점수가 2 이상이면 `project pipeline`으로 보냅니다: [`core/request_router.py`](D:/warkSpaces/agent-factory/core/request_router.py#L86).\n\n핵심은 이겁니다.\n- 첫 요청이 `새 제품/새 앱 생성`이면 `project`\n- 이미 프로젝트가 생긴 뒤의 후속 작업은 `single`\n- provider/code-edit 스모크 테스트는 `project`를 타면 안 됨\n\n추천 시나리오는 3단계입니다.\n1. 부트스트랩\n   사용자: `지뢰찾기 게임 만들어줘`\n   실행: `project pipeline`\n   결과: `projects/minesweeper/` 생성, `planning/`, `.todo.md`, 역할/에이전트 세팅\n2. 구현 반복\n   사용자: `타일 클릭 로직 구현해`, `지뢰 배치 버그 고쳐`, `모바일 반응형 맞춰`\n   실행: 같은 workspace에서 `single`\n   이유: 이미 프로젝트는 있으니 다시 research/planning 할 필요가 없음\n3. 빠른 검증\n   사용자: `artifacts/index.html만 수정해서 타이머 추가`\n   실행: provider 직통 또는 single fast-path\n   이유: 여기서 project를 다시 타면 느려짐\n\n즉 느린 이유는 “프로젝트 생성이 필요 없는 작업까지 매번 프로젝트 생성 시나리오로 테스트해서”일 가능성이 큽니다.\n\n내 기준으로는 라우팅을 이렇게 나누는 게 맞습니다.\n- `greenfield 요청`: `project`\n- `기존 프로젝트 작업`: `single`\n- `provider/tool smoke`: `single`보다도 더 얇은 direct path\n\n원하면 다음으로 바로 `지뢰찾기 게임` 기준 실제 테스트 시나리오를\n- 최초 생성 시나리오\n- 2차 수정 시나리오\n- 초고속 스모크 시나리오\n이 3개로 딱 끊어서 써드리겠습니다.",
-    "event_timestamp": "2026-03-10T13:55:53.964Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
-    "session_line": 261,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 맞습니다 지뢰찾기 게임 만들어줘 같은 요청은 project 생성으로 보는 게 맞습니다현재 라우터도 그렇게 가게 돼 있습니다 corerequest_routerpyDwarkSpacesagent-fact",
+  "value": "[assistant] 맞습니다. `\"지뢰찾기 게임 만들어줘\"` 같은 요청은 `project 생성`으로 보는 게 맞습니다.  현재 라우터도 그렇게 가게 돼 있습니다. [`core/request_router.py`](D:/warkSpaces/agent-factory/core/request_router.py#L7)에서 `게임`, `create`, `from scratch` 같은 힌트를 `project` 쪽 점수로 올리고, 점수가 2 이상이면 `project pi...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T14:45:45.390631+00:00",
+  "updated_at": "2026-03-10T14:45:45.390631+00:00",
+  "details": {
+    "text": "[assistant] 맞습니다. `\"지뢰찾기 게임 만들어줘\"` 같은 요청은 `project 생성`으로 보는 게 맞습니다.\n\n현재 라우터도 그렇게 가게 돼 있습니다. [`core/request_router.py`](D:/warkSpaces/agent-factory/core/request_router.py#L7)에서 `게임`, `create`, `from scratch` 같은 힌트를 `project` 쪽 점수로 올리고, 점수가 2 이상이면 `project pipeline`으로 보냅니다: [`core/request_router.py`](D:/warkSpaces/agent-factory/core/request_router.py#L86).\n\n핵심은 이겁니다.\n- 첫 요청이 `새 제품/새 앱 생성`이면 `project`\n- 이미 프로젝트가 생긴 뒤의 후속 작업은 `single`\n- provider/code-edit 스모크 테스트는 `project`를 타면 안 됨\n\n추천 시나리오는 3단계입니다.\n1. 부트스트랩\n   사용자: `지뢰찾기 게임 만들어줘`\n   실행: `project pipeline`\n   결과: `projects/minesweeper/` 생성, `planning/`, `.todo.md`, 역할/에이전트 세팅\n2. 구현 반복\n   사용자: `타일 클릭 로직 구현해`, `지뢰 배치 버그 고쳐`, `모바일 반응형 맞춰`\n   실행: 같은 workspace에서 `single`\n   이유: 이미 프로젝트는 있으니 다시 research/planning 할 필요가 없음\n3. 빠른 검증\n   사용자: `artifacts/index.html만 수정해서 타이머 추가`\n   실행: provider 직통 또는 single fast-path\n   이유: 여기서 project를 다시 타면 느려짐\n\n즉 느린 이유는 “프로젝트 생성이 필요 없는 작업까지 매번 프로젝트 생성 시나리오로 테스트해서”일 가능성이 큽니다.\n\n내 기준으로는 라우팅을 이렇게 나누는 게 맞습니다.\n- `greenfield 요청`: `project`\n- `기존 프로젝트 작업`: `single`\n- `provider/tool smoke`: `single`보다도 더 얇은 direct path\n\n원하면 다음으로 바로 `지뢰찾기 게임` 기준 실제 테스트 시나리오를\n- 최초 생성 시나리오\n- 2차 수정 시나리오\n- 초고속 스모크 시나리오\n이 3개로 딱 끊어서 써드리겠습니다.",
+    "event_timestamp": "2026-03-10T13:55:53.964Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
+    "session_line": 261,
+    "provider": "codex"
+  }
 }

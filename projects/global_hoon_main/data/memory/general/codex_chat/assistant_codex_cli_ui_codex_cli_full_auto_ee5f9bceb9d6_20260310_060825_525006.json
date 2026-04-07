@@ -1,18 +1,18 @@
-{
-  "key": "assistant 이 문구는 내부 정책 프롬프트가 아니라 Codex CLI 자체 승인 UI일 가능성이 큽니다 로컬에 설치된 Codex CLI 도움말을 먼저 확인해서 지금 붙인 --full-auto가 실제 버전에서 맞",
-  "value": "[assistant] 이 문구는 내부 정책 프롬프트가 아니라 Codex CLI 자체 승인 UI일 가능성이 큽니다. 로컬에 설치된 Codex CLI 도움말을 먼저 확인해서, 지금 붙인 `--full-auto`가 실제 버전에서 맞는 플래그인지 바로 검증하겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T06:08:25.525079+00:00",
-  "updated_at": "2026-03-10T06:08:25.525079+00:00",
-  "details": {
-    "text": "[assistant] 이 문구는 내부 정책 프롬프트가 아니라 Codex CLI 자체 승인 UI일 가능성이 큽니다. 로컬에 설치된 Codex CLI 도움말을 먼저 확인해서, 지금 붙인 `--full-auto`가 실제 버전에서 맞는 플래그인지 바로 검증하겠습니다.",
-    "event_timestamp": "2026-03-10T06:06:48.961Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
-    "session_line": 968,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 이 문구는 내부 정책 프롬프트가 아니라 Codex CLI 자체 승인 UI일 가능성이 큽니다 로컬에 설치된 Codex CLI 도움말을 먼저 확인해서 지금 붙인 --full-auto가 실제 버전에서 맞",
+  "value": "[assistant] 이 문구는 내부 정책 프롬프트가 아니라 Codex CLI 자체 승인 UI일 가능성이 큽니다. 로컬에 설치된 Codex CLI 도움말을 먼저 확인해서, 지금 붙인 `--full-auto`가 실제 버전에서 맞는 플래그인지 바로 검증하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T06:08:25.525079+00:00",
+  "updated_at": "2026-03-10T06:08:25.525079+00:00",
+  "details": {
+    "text": "[assistant] 이 문구는 내부 정책 프롬프트가 아니라 Codex CLI 자체 승인 UI일 가능성이 큽니다. 로컬에 설치된 Codex CLI 도움말을 먼저 확인해서, 지금 붙인 `--full-auto`가 실제 버전에서 맞는 플래그인지 바로 검증하겠습니다.",
+    "event_timestamp": "2026-03-10T06:06:48.961Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 968,
+    "provider": "codex"
+  }
 }

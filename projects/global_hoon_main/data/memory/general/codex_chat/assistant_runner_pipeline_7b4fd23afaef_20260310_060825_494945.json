@@ -1,18 +1,18 @@
-{
-  "key": "assistant 강제 규칙을 넣기 전에 테스트 지점을 같이 잡고 있습니다 중앙 프롬프트 주입은 runner 테스트로 프로젝트 기본 산출물은 pipeline 테스트를 새로 추가하는 방향이 가장 안전합니다",
-  "value": "[assistant] 강제 규칙을 넣기 전에 테스트 지점을 같이 잡고 있습니다. 중앙 프롬프트 주입은 `runner` 테스트로, 프로젝트 기본 산출물은 `pipeline` 테스트를 새로 추가하는 방향이 가장 안전합니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T06:08:25.494996+00:00",
-  "updated_at": "2026-03-10T06:08:25.494996+00:00",
-  "details": {
-    "text": "[assistant] 강제 규칙을 넣기 전에 테스트 지점을 같이 잡고 있습니다. 중앙 프롬프트 주입은 `runner` 테스트로, 프로젝트 기본 산출물은 `pipeline` 테스트를 새로 추가하는 방향이 가장 안전합니다.",
-    "event_timestamp": "2026-03-10T05:20:15.228Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
-    "session_line": 667,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 강제 규칙을 넣기 전에 테스트 지점을 같이 잡고 있습니다 중앙 프롬프트 주입은 runner 테스트로 프로젝트 기본 산출물은 pipeline 테스트를 새로 추가하는 방향이 가장 안전합니다",
+  "value": "[assistant] 강제 규칙을 넣기 전에 테스트 지점을 같이 잡고 있습니다. 중앙 프롬프트 주입은 `runner` 테스트로, 프로젝트 기본 산출물은 `pipeline` 테스트를 새로 추가하는 방향이 가장 안전합니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T06:08:25.494996+00:00",
+  "updated_at": "2026-03-10T06:08:25.494996+00:00",
+  "details": {
+    "text": "[assistant] 강제 규칙을 넣기 전에 테스트 지점을 같이 잡고 있습니다. 중앙 프롬프트 주입은 `runner` 테스트로, 프로젝트 기본 산출물은 `pipeline` 테스트를 새로 추가하는 방향이 가장 안전합니다.",
+    "event_timestamp": "2026-03-10T05:20:15.228Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 667,
+    "provider": "codex"
+  }
 }

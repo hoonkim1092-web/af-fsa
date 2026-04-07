@@ -1,18 +1,18 @@
-{
-  "key": "assistant 현재 브랜치와 작업트리 상태를 다시 확인합니다 병렬 실행 중 하나가 환경 문제로 실패해서 읽기 명령만 순차로 재시도하겠습니다",
-  "value": "[assistant] 현재 브랜치와 작업트리 상태를 다시 확인합니다. 병렬 실행 중 하나가 환경 문제로 실패해서, 읽기 명령만 순차로 재시도하겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T06:08:25.341477+00:00",
-  "updated_at": "2026-03-10T06:08:25.341477+00:00",
-  "details": {
-    "text": "[assistant] 현재 브랜치와 작업트리 상태를 다시 확인합니다. 병렬 실행 중 하나가 환경 문제로 실패해서, 읽기 명령만 순차로 재시도하겠습니다.",
-    "event_timestamp": "2026-03-10T01:14:00.884Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
-    "session_line": 18,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 현재 브랜치와 작업트리 상태를 다시 확인합니다 병렬 실행 중 하나가 환경 문제로 실패해서 읽기 명령만 순차로 재시도하겠습니다",
+  "value": "[assistant] 현재 브랜치와 작업트리 상태를 다시 확인합니다. 병렬 실행 중 하나가 환경 문제로 실패해서, 읽기 명령만 순차로 재시도하겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T06:08:25.341477+00:00",
+  "updated_at": "2026-03-10T06:08:25.341477+00:00",
+  "details": {
+    "text": "[assistant] 현재 브랜치와 작업트리 상태를 다시 확인합니다. 병렬 실행 중 하나가 환경 문제로 실패해서, 읽기 명령만 순차로 재시도하겠습니다.",
+    "event_timestamp": "2026-03-10T01:14:00.884Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 18,
+    "provider": "codex"
+  }
 }

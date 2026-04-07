@@ -1,18 +1,18 @@
-{
-  "key": "assistant 그 문구는 그대로 믿기 어렵습니다 저장소에 남아 있는 근거는 더 좁고 현재 코드 상태와도 완전히 맞지 않습니다- 정확히 그 문구가 들어간 보고서 파일은 찾지 못했습니다- final_analysis_",
-  "value": "[assistant] 그 문구는 그대로 믿기 어렵습니다. 저장소에 남아 있는 근거는 더 좁고, 현재 코드 상태와도 완전히 맞지 않습니다.  - 정확히 그 문구가 들어간 보고서 파일은 찾지 못했습니다. - [final_analysis_v3.md](/D:/hoonProJect/worktrees/agent-factory/final_analysis_v3.md#L1)은 존재하지만, 인코딩이 깨져 있고 내용도 “15개 핵심 모듈 종합 분석”이 아니라 몇 개 오류 원인...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T10:23:07.613942+00:00",
-  "updated_at": "2026-03-10T10:23:07.613942+00:00",
-  "details": {
-    "text": "[assistant] 그 문구는 그대로 믿기 어렵습니다. 저장소에 남아 있는 근거는 더 좁고, 현재 코드 상태와도 완전히 맞지 않습니다.\n\n- 정확히 그 문구가 들어간 보고서 파일은 찾지 못했습니다.\n- [final_analysis_v3.md](/D:/hoonProJect/worktrees/agent-factory/final_analysis_v3.md#L1)은 존재하지만, 인코딩이 깨져 있고 내용도 “15개 핵심 모듈 종합 분석”이 아니라 몇 개 오류 원인 분석에 가깝습니다. 실제 본문도 3개 정도의 root cause 중심입니다. [final_analysis_v3.md](/D:/hoonProJect/worktrees/agent-factory/final_analysis_v3.md#L13) [final_analysis_v3.md](/D:/hoonProJect/worktrees/agent-factory/final_analysis_v3.md#L19)\n- [findings.md](/D:/hoonProJect/worktrees/agent-factory/findings.md#L1)와 [progress.md](/D:/hoonProJect/worktrees/agent-factory/progress.md#L1)는 있긴 한데, 범위가 주로 `CLI provider split`, hook/orchestrator continuity 쪽입니다. 적어주신 15개 모듈 전체에 대한 상세 감사 보고서라고 보긴 어렵습니다. [findings.md](/D:/hoonProJect/worktrees/agent-factory/findings.md#L3) [progress.md](/D:/hoonProJect/worktrees/agent-factory/progress.md#L5) [progress.md](/D:/hoonProJect/worktrees/agent-factory/progress.md#L17)\n- 현재 트리에는 아직 오케스트레이션 resume 회귀도 남아 있습니다. 제가 방금 `python -m pytest tests/test_orchestrator_manifest.py::test_dynamic_orchestrator_writes_manifest_and_restores_interruptions -q`를 돌렸는데 실패했고, [tests/test_orchestrator_manifest.py](/D:/hoonProJect/worktrees/agent-factory/tests/test_orchestrator_manifest.py#L122) / [tests/test_orchestrator_manifest.py](/D:/hoonProJect/worktrees/agent-factory/tests/test_orchestrator_manifest.py#L125) 기준으로 `interrupted_subtasks`가 없어 `KeyError`가 납니다. 즉 “구조 파악 완료”라는 말은 가능해도, “정리 끝” 수준은 아닙니다.\n- 반대로 project 오케스트레이션 경로 자체는 살아 있습니다. `python -m pytest tests/test_request_router.py tests/test_project_pipeline.py tests/test_dynamic_orchestrator_workspace_scope.py -q`는 `8 passed`였고, [tests/test_project_pipeline.py](/D:/hoonProJect/worktrees/agent-factory/tests/test_project_pipeline.py#L20)에서 project pipeline 진입, [tests/test_project_pipeline.py](/D:/hoonProJect/worktrees/agent-factory/tests/test_project_pipeline.py#L96)에서 `DynamicOrchestrator.run_project()` 경유가 검증됩니다.\n\n판정만 짧게 말하면:\n- “몇몇 핵심 모듈을 분석한 흔적”은 있음\n- “15개 이상 전체 상세 분석 완료”는 현재 남아 있는 산출물로는 입증 안 됨\n- “보안 취약점/중복/아키텍처 문제를 다 파악했다”도 과장 가능성이 큼\n\n원하면 제가 지금 이걸 실제 기준으로 다시 정리해서, 15개 모듈에 대해 `중복`, `보안`, `아키텍처`, `현재 리스크`, `근거 파일/라인` 포함한 진짜 리뷰 문서로 만들어드리겠습니다.",
-    "event_timestamp": "2026-03-10T08:30:37.981Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
-    "session_line": 1600,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 그 문구는 그대로 믿기 어렵습니다 저장소에 남아 있는 근거는 더 좁고 현재 코드 상태와도 완전히 맞지 않습니다- 정확히 그 문구가 들어간 보고서 파일은 찾지 못했습니다- final_analysis_",
+  "value": "[assistant] 그 문구는 그대로 믿기 어렵습니다. 저장소에 남아 있는 근거는 더 좁고, 현재 코드 상태와도 완전히 맞지 않습니다.  - 정확히 그 문구가 들어간 보고서 파일은 찾지 못했습니다. - [final_analysis_v3.md](/D:/hoonProJect/worktrees/agent-factory/final_analysis_v3.md#L1)은 존재하지만, 인코딩이 깨져 있고 내용도 “15개 핵심 모듈 종합 분석”이 아니라 몇 개 오류 원인...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T10:23:07.613942+00:00",
+  "updated_at": "2026-03-10T10:23:07.613942+00:00",
+  "details": {
+    "text": "[assistant] 그 문구는 그대로 믿기 어렵습니다. 저장소에 남아 있는 근거는 더 좁고, 현재 코드 상태와도 완전히 맞지 않습니다.\n\n- 정확히 그 문구가 들어간 보고서 파일은 찾지 못했습니다.\n- [final_analysis_v3.md](/D:/hoonProJect/worktrees/agent-factory/final_analysis_v3.md#L1)은 존재하지만, 인코딩이 깨져 있고 내용도 “15개 핵심 모듈 종합 분석”이 아니라 몇 개 오류 원인 분석에 가깝습니다. 실제 본문도 3개 정도의 root cause 중심입니다. [final_analysis_v3.md](/D:/hoonProJect/worktrees/agent-factory/final_analysis_v3.md#L13) [final_analysis_v3.md](/D:/hoonProJect/worktrees/agent-factory/final_analysis_v3.md#L19)\n- [findings.md](/D:/hoonProJect/worktrees/agent-factory/findings.md#L1)와 [progress.md](/D:/hoonProJect/worktrees/agent-factory/progress.md#L1)는 있긴 한데, 범위가 주로 `CLI provider split`, hook/orchestrator continuity 쪽입니다. 적어주신 15개 모듈 전체에 대한 상세 감사 보고서라고 보긴 어렵습니다. [findings.md](/D:/hoonProJect/worktrees/agent-factory/findings.md#L3) [progress.md](/D:/hoonProJect/worktrees/agent-factory/progress.md#L5) [progress.md](/D:/hoonProJect/worktrees/agent-factory/progress.md#L17)\n- 현재 트리에는 아직 오케스트레이션 resume 회귀도 남아 있습니다. 제가 방금 `python -m pytest tests/test_orchestrator_manifest.py::test_dynamic_orchestrator_writes_manifest_and_restores_interruptions -q`를 돌렸는데 실패했고, [tests/test_orchestrator_manifest.py](/D:/hoonProJect/worktrees/agent-factory/tests/test_orchestrator_manifest.py#L122) / [tests/test_orchestrator_manifest.py](/D:/hoonProJect/worktrees/agent-factory/tests/test_orchestrator_manifest.py#L125) 기준으로 `interrupted_subtasks`가 없어 `KeyError`가 납니다. 즉 “구조 파악 완료”라는 말은 가능해도, “정리 끝” 수준은 아닙니다.\n- 반대로 project 오케스트레이션 경로 자체는 살아 있습니다. `python -m pytest tests/test_request_router.py tests/test_project_pipeline.py tests/test_dynamic_orchestrator_workspace_scope.py -q`는 `8 passed`였고, [tests/test_project_pipeline.py](/D:/hoonProJect/worktrees/agent-factory/tests/test_project_pipeline.py#L20)에서 project pipeline 진입, [tests/test_project_pipeline.py](/D:/hoonProJect/worktrees/agent-factory/tests/test_project_pipeline.py#L96)에서 `DynamicOrchestrator.run_project()` 경유가 검증됩니다.\n\n판정만 짧게 말하면:\n- “몇몇 핵심 모듈을 분석한 흔적”은 있음\n- “15개 이상 전체 상세 분석 완료”는 현재 남아 있는 산출물로는 입증 안 됨\n- “보안 취약점/중복/아키텍처 문제를 다 파악했다”도 과장 가능성이 큼\n\n원하면 제가 지금 이걸 실제 기준으로 다시 정리해서, 15개 모듈에 대해 `중복`, `보안`, `아키텍처`, `현재 리스크`, `근거 파일/라인` 포함한 진짜 리뷰 문서로 만들어드리겠습니다.",
+    "event_timestamp": "2026-03-10T08:30:37.981Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 1600,
+    "provider": "codex"
+  }
 }

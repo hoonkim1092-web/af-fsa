@@ -1,18 +1,18 @@
-{
-  "key": "assistant npmps1은 정책에 막히지만 npmcmd는 쓸 수 있습니다 Gemini CLI 설치와 실행에 인증 단계가 붙을 수 있어서 세션 어댑터의 Gemini 처리만 짧게 확인한 뒤 설치로 넘어가겠습니다",
-  "value": "[assistant] `npm.ps1`은 정책에 막히지만 `npm.cmd`는 쓸 수 있습니다. Gemini CLI 설치와 실행에 인증 단계가 붙을 수 있어서, 세션 어댑터의 Gemini 처리만 짧게 확인한 뒤 설치로 넘어가겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T06:08:25.427212+00:00",
-  "updated_at": "2026-03-10T06:08:25.427212+00:00",
-  "details": {
-    "text": "[assistant] `npm.ps1`은 정책에 막히지만 `npm.cmd`는 쓸 수 있습니다. Gemini CLI 설치와 실행에 인증 단계가 붙을 수 있어서, 세션 어댑터의 Gemini 처리만 짧게 확인한 뒤 설치로 넘어가겠습니다.",
-    "event_timestamp": "2026-03-10T03:33:17.440Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
-    "session_line": 327,
-    "provider": "codex"
-  }
+{
+  "key": "assistant npmps1은 정책에 막히지만 npmcmd는 쓸 수 있습니다 Gemini CLI 설치와 실행에 인증 단계가 붙을 수 있어서 세션 어댑터의 Gemini 처리만 짧게 확인한 뒤 설치로 넘어가겠습니다",
+  "value": "[assistant] `npm.ps1`은 정책에 막히지만 `npm.cmd`는 쓸 수 있습니다. Gemini CLI 설치와 실행에 인증 단계가 붙을 수 있어서, 세션 어댑터의 Gemini 처리만 짧게 확인한 뒤 설치로 넘어가겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T06:08:25.427212+00:00",
+  "updated_at": "2026-03-10T06:08:25.427212+00:00",
+  "details": {
+    "text": "[assistant] `npm.ps1`은 정책에 막히지만 `npm.cmd`는 쓸 수 있습니다. Gemini CLI 설치와 실행에 인증 단계가 붙을 수 있어서, 세션 어댑터의 Gemini 처리만 짧게 확인한 뒤 설치로 넘어가겠습니다.",
+    "event_timestamp": "2026-03-10T03:33:17.440Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 327,
+    "provider": "codex"
+  }
 }

@@ -1,18 +1,18 @@
-{
-  "key": "assistant 있습니다 지금 기준으로는 3개는 손보는 게 맞습니다- RepoCacheSkillSource가 manifest 없는 raw py repo를 external_cache priority에만 의존하게 바뀌",
-  "value": "[assistant] 있습니다. 지금 기준으로는 3개는 손보는 게 맞습니다.  - `RepoCacheSkillSource`가 manifest 없는 raw `.py` repo를 `external_cache` priority에만 의존하게 바뀌었습니다. 정책이 `claude,codex`만 있으면 source별 repo가 보여도 후보를 못 찾을 수 있습니다: [external_skill_sources.py](/D:/warkSpaces/agent-factory/co...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T17:40:37.992169+00:00",
-  "updated_at": "2026-03-10T17:40:37.992169+00:00",
-  "details": {
-    "text": "[assistant] 있습니다. 지금 기준으로는 3개는 손보는 게 맞습니다.\n\n- `RepoCacheSkillSource`가 manifest 없는 raw `.py` repo를 `external_cache` priority에만 의존하게 바뀌었습니다. 정책이 `claude,codex`만 있으면 source별 repo가 보여도 후보를 못 찾을 수 있습니다: [external_skill_sources.py](/D:/warkSpaces/agent-factory/core/external_skill_sources.py#L168), [external_skill_sources.py](/D:/warkSpaces/agent-factory/core/external_skill_sources.py#L280)\n- `git clone/pull` 실패가 그냥 `miss`처럼 보입니다. `check=False`라서 nonzero exit code를 `source_error`로 못 올리고 builder까지 내려갈 수 있습니다: [external_skill_sources.py](/D:/warkSpaces/agent-factory/core/external_skill_sources.py#L150), [external_skill_sources.py](/D:/warkSpaces/agent-factory/core/external_skill_sources.py#L158)\n- 구형 list-form `install_candidates`는 `source_id` 정규화가 안 됩니다. 그래서 Claude/Codex 후보가 `registry`로 뭉개질 수 있습니다: [skill_registry.py](/D:/warkSpaces/agent-factory/core/skill_registry.py#L81), [external_skill_sources.py](/D:/warkSpaces/agent-factory/core/external_skill_sources.py#L255)\n\n반대로 이번에 한 lazy import 정리 자체는 방향 문제는 안 보였습니다. 원하면 바로 위 3개까지 이어서 수정하겠습니다.",
-    "event_timestamp": "2026-03-10T15:43:32.025Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
-    "session_line": 1699,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 있습니다 지금 기준으로는 3개는 손보는 게 맞습니다- RepoCacheSkillSource가 manifest 없는 raw py repo를 external_cache priority에만 의존하게 바뀌",
+  "value": "[assistant] 있습니다. 지금 기준으로는 3개는 손보는 게 맞습니다.  - `RepoCacheSkillSource`가 manifest 없는 raw `.py` repo를 `external_cache` priority에만 의존하게 바뀌었습니다. 정책이 `claude,codex`만 있으면 source별 repo가 보여도 후보를 못 찾을 수 있습니다: [external_skill_sources.py](/D:/warkSpaces/agent-factory/co...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:37.992169+00:00",
+  "updated_at": "2026-03-10T17:40:37.992169+00:00",
+  "details": {
+    "text": "[assistant] 있습니다. 지금 기준으로는 3개는 손보는 게 맞습니다.\n\n- `RepoCacheSkillSource`가 manifest 없는 raw `.py` repo를 `external_cache` priority에만 의존하게 바뀌었습니다. 정책이 `claude,codex`만 있으면 source별 repo가 보여도 후보를 못 찾을 수 있습니다: [external_skill_sources.py](/D:/warkSpaces/agent-factory/core/external_skill_sources.py#L168), [external_skill_sources.py](/D:/warkSpaces/agent-factory/core/external_skill_sources.py#L280)\n- `git clone/pull` 실패가 그냥 `miss`처럼 보입니다. `check=False`라서 nonzero exit code를 `source_error`로 못 올리고 builder까지 내려갈 수 있습니다: [external_skill_sources.py](/D:/warkSpaces/agent-factory/core/external_skill_sources.py#L150), [external_skill_sources.py](/D:/warkSpaces/agent-factory/core/external_skill_sources.py#L158)\n- 구형 list-form `install_candidates`는 `source_id` 정규화가 안 됩니다. 그래서 Claude/Codex 후보가 `registry`로 뭉개질 수 있습니다: [skill_registry.py](/D:/warkSpaces/agent-factory/core/skill_registry.py#L81), [external_skill_sources.py](/D:/warkSpaces/agent-factory/core/external_skill_sources.py#L255)\n\n반대로 이번에 한 lazy import 정리 자체는 방향 문제는 안 보였습니다. 원하면 바로 위 3개까지 이어서 수정하겠습니다.",
+    "event_timestamp": "2026-03-10T15:43:32.025Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
+    "session_line": 1699,
+    "provider": "codex"
+  }
 }

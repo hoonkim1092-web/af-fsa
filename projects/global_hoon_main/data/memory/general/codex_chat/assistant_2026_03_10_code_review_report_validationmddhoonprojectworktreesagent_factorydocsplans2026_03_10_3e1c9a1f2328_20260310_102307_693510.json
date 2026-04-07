@@ -1,18 +1,18 @@
-{
-  "key": "assistant 두 문서 한글화했습니다- 2026-03-10-code-review-report-validationmdDhoonProJectworktreesagent-factorydocsplans2026-03-10-",
-  "value": "[assistant] 두 문서 한글화했습니다.  - [2026-03-10-code-review-report-validation.md](/D:/hoonProJect/worktrees/agent-factory/docs/plans/2026-03-10-code-review-report-validation.md) - [change_history.md](/D:/hoonProJect/worktrees/agent-factory/docs/change_history.md)...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T10:23:07.693618+00:00",
-  "updated_at": "2026-03-10T10:23:07.693618+00:00",
-  "details": {
-    "text": "[assistant] 두 문서 한글화했습니다.\n\n- [2026-03-10-code-review-report-validation.md](/D:/hoonProJect/worktrees/agent-factory/docs/plans/2026-03-10-code-review-report-validation.md)\n- [change_history.md](/D:/hoonProJect/worktrees/agent-factory/docs/change_history.md)\n\n제목, 본문, 항목 설명, 변경 이력 엔트리까지 한국어로 정리했고, UTF-8로 저장된 파일에 실제 한글 문자가 들어 있는 것도 확인했습니다. 참고로 현재 PowerShell 코드페이지 때문에 터미널에서만 글자가 깨져 보일 수 있지만, 파일 자체는 정상입니다.\n\n현재 Git 상태상 두 파일은 아직 `untracked`입니다. 원하면 다음으로 이 문서들까지 포함해서 커밋 정리하겠습니다.",
-    "event_timestamp": "2026-03-10T09:13:45.834Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
-    "session_line": 1980,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 두 문서 한글화했습니다- 2026-03-10-code-review-report-validationmdDhoonProJectworktreesagent-factorydocsplans2026-03-10-",
+  "value": "[assistant] 두 문서 한글화했습니다.  - [2026-03-10-code-review-report-validation.md](/D:/hoonProJect/worktrees/agent-factory/docs/plans/2026-03-10-code-review-report-validation.md) - [change_history.md](/D:/hoonProJect/worktrees/agent-factory/docs/change_history.md)...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T10:23:07.693618+00:00",
+  "updated_at": "2026-03-10T10:23:07.693618+00:00",
+  "details": {
+    "text": "[assistant] 두 문서 한글화했습니다.\n\n- [2026-03-10-code-review-report-validation.md](/D:/hoonProJect/worktrees/agent-factory/docs/plans/2026-03-10-code-review-report-validation.md)\n- [change_history.md](/D:/hoonProJect/worktrees/agent-factory/docs/change_history.md)\n\n제목, 본문, 항목 설명, 변경 이력 엔트리까지 한국어로 정리했고, UTF-8로 저장된 파일에 실제 한글 문자가 들어 있는 것도 확인했습니다. 참고로 현재 PowerShell 코드페이지 때문에 터미널에서만 글자가 깨져 보일 수 있지만, 파일 자체는 정상입니다.\n\n현재 Git 상태상 두 파일은 아직 `untracked`입니다. 원하면 다음으로 이 문서들까지 포함해서 커밋 정리하겠습니다.",
+    "event_timestamp": "2026-03-10T09:13:45.834Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 1980,
+    "provider": "codex"
+  }
 }

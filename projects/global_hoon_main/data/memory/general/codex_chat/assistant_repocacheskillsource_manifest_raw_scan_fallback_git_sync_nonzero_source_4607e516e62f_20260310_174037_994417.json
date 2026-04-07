@@ -1,18 +1,18 @@
-{
-  "key": "assistant 패치 방향은 정해졌습니다 RepoCacheSkillSource는 manifest 우선 후 raw scan fallback으로 바꾸고 git sync nonzero 종료는 후보가 없을 때 source",
-  "value": "[assistant] 패치 방향은 정해졌습니다. `RepoCacheSkillSource`는 manifest 우선 후 raw scan fallback으로 바꾸고, git sync nonzero 종료는 후보가 없을 때 `source_error`로 승격시키겠습니다. `skill_registry`는 list-form `install_candidates`도 `source_id`를 정규화하도록 맞춥니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T17:40:37.994549+00:00",
-  "updated_at": "2026-03-10T17:40:37.994549+00:00",
-  "details": {
-    "text": "[assistant] 패치 방향은 정해졌습니다. `RepoCacheSkillSource`는 manifest 우선 후 raw scan fallback으로 바꾸고, git sync nonzero 종료는 후보가 없을 때 `source_error`로 승격시키겠습니다. `skill_registry`는 list-form `install_candidates`도 `source_id`를 정규화하도록 맞춥니다.",
-    "event_timestamp": "2026-03-10T15:44:51.120Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
-    "session_line": 1718,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 패치 방향은 정해졌습니다 RepoCacheSkillSource는 manifest 우선 후 raw scan fallback으로 바꾸고 git sync nonzero 종료는 후보가 없을 때 source",
+  "value": "[assistant] 패치 방향은 정해졌습니다. `RepoCacheSkillSource`는 manifest 우선 후 raw scan fallback으로 바꾸고, git sync nonzero 종료는 후보가 없을 때 `source_error`로 승격시키겠습니다. `skill_registry`는 list-form `install_candidates`도 `source_id`를 정규화하도록 맞춥니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:37.994549+00:00",
+  "updated_at": "2026-03-10T17:40:37.994549+00:00",
+  "details": {
+    "text": "[assistant] 패치 방향은 정해졌습니다. `RepoCacheSkillSource`는 manifest 우선 후 raw scan fallback으로 바꾸고, git sync nonzero 종료는 후보가 없을 때 `source_error`로 승격시키겠습니다. `skill_registry`는 list-form `install_candidates`도 `source_id`를 정규화하도록 맞춥니다.",
+    "event_timestamp": "2026-03-10T15:44:51.120Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/10/rollout-2026-03-10T21-34-24-019cd7bd-c627-78a3-93c3-b676b4919fc3.jsonl",
+    "session_line": 1718,
+    "provider": "codex"
+  }
 }

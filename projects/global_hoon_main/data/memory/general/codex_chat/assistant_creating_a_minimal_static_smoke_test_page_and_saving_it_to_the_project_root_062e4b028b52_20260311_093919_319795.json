@@ -1,18 +1,18 @@
-{
-  "key": "assistant Creating a minimal static smoke test page and saving it to the project root",
-  "value": "[assistant] Creating a minimal static smoke test page and saving it to the project root.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-11T09:39:19.319840+00:00",
-  "updated_at": "2026-03-11T09:39:19.319840+00:00",
-  "details": {
-    "text": "[assistant] Creating a minimal static smoke test page and saving it to the project root.",
-    "event_timestamp": "2026-03-11T09:38:15.093Z",
-    "session_file": "D:/hoonProJect/worktrees/af_web_smoke_20260311_v4/.af_runtime/codex_home/sessions/2026/03/11/rollout-2026-03-11T18-38-02-019cdc42-ab1b-76b1-a6e6-84e797a84706.jsonl",
-    "session_line": 10,
-    "provider": "codex"
-  }
+{
+  "key": "assistant Creating a minimal static smoke test page and saving it to the project root",
+  "value": "[assistant] Creating a minimal static smoke test page and saving it to the project root.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-11T09:39:19.319840+00:00",
+  "updated_at": "2026-03-11T09:39:19.319840+00:00",
+  "details": {
+    "text": "[assistant] Creating a minimal static smoke test page and saving it to the project root.",
+    "event_timestamp": "2026-03-11T09:38:15.093Z",
+    "session_file": "D:/hoonProJect/worktrees/af_web_smoke_20260311_v4/.af_runtime/codex_home/sessions/2026/03/11/rollout-2026-03-11T18-38-02-019cdc42-ab1b-76b1-a6e6-84e797a84706.jsonl",
+    "session_line": 10,
+    "provider": "codex"
+  }
 }

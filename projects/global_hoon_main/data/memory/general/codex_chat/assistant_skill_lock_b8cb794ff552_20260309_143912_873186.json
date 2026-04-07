@@ -1,18 +1,18 @@
-{
-  "key": "assistant 대시보드와 skill-lock 변경은 테스트 부산물이라 코드 스냅샷에 섞지 않겠습니다 이 두 파일만 원래 상태로 되돌리고 코드테스트 변경만 커밋 대상으로 남기겠습니다",
-  "value": "[assistant] 대시보드와 skill-lock 변경은 테스트 부산물이라 코드 스냅샷에 섞지 않겠습니다. 이 두 파일만 원래 상태로 되돌리고, 코드/테스트 변경만 커밋 대상으로 남기겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-09T14:39:12.873284+00:00",
-  "updated_at": "2026-03-09T14:39:12.873284+00:00",
-  "details": {
-    "text": "[assistant] 대시보드와 skill-lock 변경은 테스트 부산물이라 코드 스냅샷에 섞지 않겠습니다. 이 두 파일만 원래 상태로 되돌리고, 코드/테스트 변경만 커밋 대상으로 남기겠습니다.",
-    "event_timestamp": "2026-03-08T02:00:43.848Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/07/rollout-2026-03-07T23-57-50-019cc8ce-02f3-7c92-a357-f51576977b23.jsonl",
-    "session_line": 2102,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 대시보드와 skill-lock 변경은 테스트 부산물이라 코드 스냅샷에 섞지 않겠습니다 이 두 파일만 원래 상태로 되돌리고 코드테스트 변경만 커밋 대상으로 남기겠습니다",
+  "value": "[assistant] 대시보드와 skill-lock 변경은 테스트 부산물이라 코드 스냅샷에 섞지 않겠습니다. 이 두 파일만 원래 상태로 되돌리고, 코드/테스트 변경만 커밋 대상으로 남기겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-09T14:39:12.873284+00:00",
+  "updated_at": "2026-03-09T14:39:12.873284+00:00",
+  "details": {
+    "text": "[assistant] 대시보드와 skill-lock 변경은 테스트 부산물이라 코드 스냅샷에 섞지 않겠습니다. 이 두 파일만 원래 상태로 되돌리고, 코드/테스트 변경만 커밋 대상으로 남기겠습니다.",
+    "event_timestamp": "2026-03-08T02:00:43.848Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/07/rollout-2026-03-07T23-57-50-019cc8ce-02f3-7c92-a357-f51576977b23.jsonl",
+    "session_line": 2102,
+    "provider": "codex"
+  }
 }

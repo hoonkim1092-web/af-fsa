@@ -1,18 +1,18 @@
-{
-  "key": "assistant 현재 브랜치 featunified-project-pipeline-subscription는 워킹트리가 깨끗합니다 이제 원격에서 그대로 git pull을 실행합니다",
-  "value": "[assistant] 현재 브랜치 `feat/unified-project-pipeline-subscription`는 워킹트리가 깨끗합니다. 이제 원격에서 그대로 `git pull`을 실행합니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T06:08:25.343085+00:00",
-  "updated_at": "2026-03-10T06:08:25.343085+00:00",
-  "details": {
-    "text": "[assistant] 현재 브랜치 `feat/unified-project-pipeline-subscription`는 워킹트리가 깨끗합니다. 이제 원격에서 그대로 `git pull`을 실행합니다.",
-    "event_timestamp": "2026-03-10T01:14:28.021Z",
-    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
-    "session_line": 32,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 현재 브랜치 featunified-project-pipeline-subscription는 워킹트리가 깨끗합니다 이제 원격에서 그대로 git pull을 실행합니다",
+  "value": "[assistant] 현재 브랜치 `feat/unified-project-pipeline-subscription`는 워킹트리가 깨끗합니다. 이제 원격에서 그대로 `git pull`을 실행합니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T06:08:25.343085+00:00",
+  "updated_at": "2026-03-10T06:08:25.343085+00:00",
+  "details": {
+    "text": "[assistant] 현재 브랜치 `feat/unified-project-pipeline-subscription`는 워킹트리가 깨끗합니다. 이제 원격에서 그대로 `git pull`을 실행합니다.",
+    "event_timestamp": "2026-03-10T01:14:28.021Z",
+    "session_file": "C:/Users/HOON/.codex/sessions/2026/03/10/rollout-2026-03-10T10-01-44-019cd543-9d89-7e11-b305-f800100f4640.jsonl",
+    "session_line": 32,
+    "provider": "codex"
+  }
 }

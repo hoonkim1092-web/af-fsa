@@ -1,18 +1,18 @@
-{
-  "key": "assistant 가드레일은 통과했습니다 그런데 이번엔 codex_cli로 안 가고 바로 missing_google_api_key로 떨어졌습니다 즉 AGENT_CHAT_PROVIDERcodex_cli가 런타임에 먹지",
-  "value": "[assistant] 가드레일은 통과했습니다. 그런데 이번엔 `codex_cli`로 안 가고 바로 `missing_google_api_key`로 떨어졌습니다. 즉, `AGENT_CHAT_PROVIDER=codex_cli`가 런타임에 먹지 않았거나 중간에서 비워졌습니다. 그 부분만 짚어보겠습니다.",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T17:40:38.124113+00:00",
-  "updated_at": "2026-03-10T17:40:38.124113+00:00",
-  "details": {
-    "text": "[assistant] 가드레일은 통과했습니다. 그런데 이번엔 `codex_cli`로 안 가고 바로 `missing_google_api_key`로 떨어졌습니다. 즉, `AGENT_CHAT_PROVIDER=codex_cli`가 런타임에 먹지 않았거나 중간에서 비워졌습니다. 그 부분만 짚어보겠습니다.",
-    "event_timestamp": "2026-03-10T17:37:35.965Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/11/rollout-2026-03-11T01-30-46-019cd896-2cfb-7692-a889-53fc50ef1599.jsonl",
-    "session_line": 863,
-    "provider": "codex"
-  }
+{
+  "key": "assistant 가드레일은 통과했습니다 그런데 이번엔 codex_cli로 안 가고 바로 missing_google_api_key로 떨어졌습니다 즉 AGENT_CHAT_PROVIDERcodex_cli가 런타임에 먹지",
+  "value": "[assistant] 가드레일은 통과했습니다. 그런데 이번엔 `codex_cli`로 안 가고 바로 `missing_google_api_key`로 떨어졌습니다. 즉, `AGENT_CHAT_PROVIDER=codex_cli`가 런타임에 먹지 않았거나 중간에서 비워졌습니다. 그 부분만 짚어보겠습니다.",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:38.124113+00:00",
+  "updated_at": "2026-03-10T17:40:38.124113+00:00",
+  "details": {
+    "text": "[assistant] 가드레일은 통과했습니다. 그런데 이번엔 `codex_cli`로 안 가고 바로 `missing_google_api_key`로 떨어졌습니다. 즉, `AGENT_CHAT_PROVIDER=codex_cli`가 런타임에 먹지 않았거나 중간에서 비워졌습니다. 그 부분만 짚어보겠습니다.",
+    "event_timestamp": "2026-03-10T17:37:35.965Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/11/rollout-2026-03-11T01-30-46-019cd896-2cfb-7692-a889-53fc50ef1599.jsonl",
+    "session_line": 863,
+    "provider": "codex"
+  }
 }

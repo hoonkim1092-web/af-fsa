@@ -1,18 +1,18 @@
-{
-  "key": "assistant teststest_knowledge_skillpy의 권한 문제는 수정했습니다 원인은 tempfilemkdtemp가 샌드박스 밖의 시스템 temp를 잡는 구조였고 이 파일을 pytest의 worksp",
-  "value": "[assistant] `tests/test_knowledge_skill.py`의 권한 문제는 수정했습니다. 원인은 `tempfile.mkdtemp()`가 샌드박스 밖의 시스템 temp를 잡는 구조였고, 이 파일을 `pytest`의 workspace-safe `tmp_path` 기반으로 다시 썼습니다. 인코딩도 많이 깨져 있어서 테스트 목적은 유지한 채 깔끔한 ASCII 버전으로 정리했습니다. [tests/test_knowledge_skill.py](/D:/...",
-  "category": "codex_chat",
-  "agent_id": "general",
-  "memory_scope": "global",
-  "source": "codex_session_bridge",
-  "global_user_key": "hoon_main",
-  "created_at": "2026-03-10T17:40:38.083282+00:00",
-  "updated_at": "2026-03-10T17:40:38.083282+00:00",
-  "details": {
-    "text": "[assistant] `tests/test_knowledge_skill.py`의 권한 문제는 수정했습니다. 원인은 `tempfile.mkdtemp()`가 샌드박스 밖의 시스템 temp를 잡는 구조였고, 이 파일을 `pytest`의 workspace-safe `tmp_path` 기반으로 다시 썼습니다. 인코딩도 많이 깨져 있어서 테스트 목적은 유지한 채 깔끔한 ASCII 버전으로 정리했습니다. [tests/test_knowledge_skill.py](/D:/warkSpaces/agent-factory/tests/test_knowledge_skill.py)\n\n검증은 `tests/test_knowledge_skill.py` 단독 13개 통과, 관련 타깃 스위트까지 합쳐 41개 통과했습니다. 이제 이전에 막히던 temp 권한 에러는 재현되지 않습니다.",
-    "event_timestamp": "2026-03-10T17:06:04.764Z",
-    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/11/rollout-2026-03-11T01-30-46-019cd896-2cfb-7692-a889-53fc50ef1599.jsonl",
-    "session_line": 507,
-    "provider": "codex"
-  }
+{
+  "key": "assistant teststest_knowledge_skillpy의 권한 문제는 수정했습니다 원인은 tempfilemkdtemp가 샌드박스 밖의 시스템 temp를 잡는 구조였고 이 파일을 pytest의 worksp",
+  "value": "[assistant] `tests/test_knowledge_skill.py`의 권한 문제는 수정했습니다. 원인은 `tempfile.mkdtemp()`가 샌드박스 밖의 시스템 temp를 잡는 구조였고, 이 파일을 `pytest`의 workspace-safe `tmp_path` 기반으로 다시 썼습니다. 인코딩도 많이 깨져 있어서 테스트 목적은 유지한 채 깔끔한 ASCII 버전으로 정리했습니다. [tests/test_knowledge_skill.py](/D:/...",
+  "category": "codex_chat",
+  "agent_id": "general",
+  "memory_scope": "global",
+  "source": "codex_session_bridge",
+  "global_user_key": "hoon_main",
+  "created_at": "2026-03-10T17:40:38.083282+00:00",
+  "updated_at": "2026-03-10T17:40:38.083282+00:00",
+  "details": {
+    "text": "[assistant] `tests/test_knowledge_skill.py`의 권한 문제는 수정했습니다. 원인은 `tempfile.mkdtemp()`가 샌드박스 밖의 시스템 temp를 잡는 구조였고, 이 파일을 `pytest`의 workspace-safe `tmp_path` 기반으로 다시 썼습니다. 인코딩도 많이 깨져 있어서 테스트 목적은 유지한 채 깔끔한 ASCII 버전으로 정리했습니다. [tests/test_knowledge_skill.py](/D:/warkSpaces/agent-factory/tests/test_knowledge_skill.py)\n\n검증은 `tests/test_knowledge_skill.py` 단독 13개 통과, 관련 타깃 스위트까지 합쳐 41개 통과했습니다. 이제 이전에 막히던 temp 권한 에러는 재현되지 않습니다.",
+    "event_timestamp": "2026-03-10T17:06:04.764Z",
+    "session_file": "C:/Users/HOME/.codex/sessions/2026/03/11/rollout-2026-03-11T01-30-46-019cd896-2cfb-7692-a889-53fc50ef1599.jsonl",
+    "session_line": 507,
+    "provider": "codex"
+  }
 }
