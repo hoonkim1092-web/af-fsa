@@ -15,18 +15,26 @@ sys.path.append(FACTORY_DIR)
 
 # .env 자동 로드 — TAVILY_API_KEY 등 외부 서비스 키 포함
 def _load_dotenv() -> None:
-    env_path = os.path.join(FACTORY_DIR, ".env")
-    if not os.path.isfile(env_path):
-        return
-    with open(env_path, encoding="utf-8") as f:
-        for line in f:
-            raw = line.strip()
-            if not raw or raw.startswith("#") or "=" not in raw:
-                continue
-            k, v = raw.split("=", 1)
-            k, v = k.strip(), v.strip().strip('"').strip("'")
-            if k and k not in os.environ:
-                os.environ[k] = v
+    # 탐색 순서: exe 옆 디렉토리(frozen) → 소스 루트 → cwd
+    candidates = []
+    if getattr(sys, "frozen", False):
+        candidates.append(os.path.join(os.path.dirname(sys.executable), ".env"))
+    candidates.append(os.path.join(FACTORY_DIR, ".env"))
+    candidates.append(os.path.join(os.getcwd(), ".env"))
+
+    for env_path in candidates:
+        if not os.path.isfile(env_path):
+            continue
+        with open(env_path, encoding="utf-8") as f:
+            for line in f:
+                raw = line.strip()
+                if not raw or raw.startswith("#") or "=" not in raw:
+                    continue
+                k, v = raw.split("=", 1)
+                k, v = k.strip(), v.strip().strip('"').strip("'")
+                if k and k not in os.environ:
+                    os.environ[k] = v
+        break  # 첫 번째 발견한 .env만 사용
 
 _load_dotenv()
 

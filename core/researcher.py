@@ -541,9 +541,9 @@ Rules:
             except Exception:
                 pass
 
-        # -- NotebookLM: risk_level==high 또는 comparison_mode일 때만 --
+        # -- NotebookLM: normal 이상이면 시도 (notebooklm_tools 없으면 자동 스킵) --
         should_query_notebooklm = (
-            risk_level.lower() in ("high", "strict", "elevated") or comparison_mode
+            risk_level.lower() not in ("low", "skip") or comparison_mode
         )
         notebook_summary = (
             self._collect_notebook_summary(task_input, local_refs, web_refs)
