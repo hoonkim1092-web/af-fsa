@@ -139,6 +139,10 @@ if ($userPath -notlike "*$afPath*") {
 } else {
     Write-Host "✓ 이미 PATH에 등록됨" -ForegroundColor Green
 }
+# 현재 세션에도 즉시 반영
+if ($env:Path -notlike "*$afPath*") {
+    $env:Path += ";$afPath"
+}
 
 Write-Host ""
 Write-Host "============================================================" -ForegroundColor Cyan
