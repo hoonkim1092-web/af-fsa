@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# start_db — pull context from DB (bash equivalent of start_db.cmd)
+# Usage: ./start_db [target] [agent]
+#   e.g. ./start_db agent-factory
+#        ./start_db all
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+TARGET="${1:-all}"
+AGENT="${2:-}"
+
+echo "[SYNC START] pulling latest context from db for target=$TARGET agent=$AGENT..."
+bash "$SCRIPT_DIR/sync.sh" down db "$TARGET" "$AGENT"
+echo "[SYNC START] done."

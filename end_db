@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# end_db — push context to DB (bash equivalent of end_db.cmd)
+# Usage: ./end_db [target] [agent]
+#   e.g. ./end_db agent-factory
+#        ./end_db all
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+TARGET="${1:-all}"
+AGENT="${2:-}"
+
+echo "[SYNC END] pushing latest context to db for target=$TARGET agent=$AGENT..."
+bash "$SCRIPT_DIR/sync.sh" up db "$TARGET" "$AGENT"
+echo "[SYNC END] done."
