@@ -1,5 +1,5 @@
 # Agent Factory — Master Blueprint
-<!-- last_updated: 2026-04-03 | version: 1.2.16 -->
+<!-- last_updated: 2026-04-10 | version: 1.2.18 -->
 
 > **사용 목적**: 전체 코드를 다시 읽지 않고 이 파일만으로 수정·유지보수·기능 추가를 수행한다.
 > 코드 수정 시 반드시 해당 섹션을 **같은 커밋**에서 업데이트할 것.
@@ -36,6 +36,7 @@
 | `version.py` | 버전 문자열 | `__version__` |
 | `build_exe.py` | PyInstaller 빌드 | `main()` |
 | `install-af.ps1` | Windows 설치 스크립트 | — |
+| `install-af-macos.sh` | macOS Intel 설치 스크립트 | — |
 | `af.spec` | PyInstaller 스펙 | hiddenimports 목록 |
 | `policy.yaml` | 전역 정책 | engines, skills, task_decomposition |
 
@@ -690,7 +691,9 @@ python build_exe.py
 # 4. dist/af-{version}.zip 생성
 ```
 
-**출력:** `dist/af/af.exe` (12.5 MB), `dist/af-1.x.x.zip` (44 MB)
+**출력 (Windows):** `dist/af/af.exe` (12.5 MB), `dist/af-1.x.x.zip` (44 MB)
+
+**추가 아티팩트 (macOS Intel):** `dist/af-1.x.x-macos-x86_64.zip`
 
 ### PyInstaller 핵심 설정 (`af.spec`)
 
@@ -731,17 +734,20 @@ else:
 ```
 1. version.py → __version__ = "1.x.x" 업데이트
 2. install-af.ps1 → 버전 문자열 3곳 수정 (1.x.x)
-3. python build_exe.py → dist/af-1.x.x.zip 생성
-4. git add dist/af-1.x.x.zip (LFS 자동 추적)
-5. git commit + git push origin 브랜치
-6. git tag af-fsa_v1.x.x + git push origin refs/tags/...
-7. GitHub Release 생성 (PyGithub 또는 gh CLI)
+3. Windows 빌드 시 python build_exe.py → dist/af-1.x.x.zip 생성
+4. macOS Intel 배포 시 dist/af-1.x.x-macos-x86_64.zip + install-af-macos.sh 갱신
+5. git add dist/*.zip (LFS 자동 추적)
+6. git commit + git push origin 브랜치
+7. Windows 태그: af-fsa_v1.x.x / macOS 태그: af-fsa_v1.x.x-macos-x86_64
+8. GitHub Release 생성 (선택)
 ```
 
 **설치 URL 패턴:**
 ```
 raw URL:   https://github.com/hoonkim1092-web/af-fsa/raw/af-fsa_v1.x.x/dist/af-1.x.x.zip
 installer: https://raw.githubusercontent.com/hoonkim1092-web/af-fsa/af-fsa_v1.x.x/install-af.ps1
+macOS raw: https://github.com/hoonkim1092-web/af-fsa/raw/af-fsa_v1.x.x-macos-x86_64/dist/af-1.x.x-macos-x86_64.zip
+macOS sh:  https://raw.githubusercontent.com/hoonkim1092-web/af-fsa/af-fsa_v1.x.x-macos-x86_64/install-af-macos.sh
 ```
 
 ---
@@ -875,6 +881,7 @@ model_utils.py (독립 모듈)
 
 | 날짜 | 버전 | 변경 내용 |
 |------|------|----------|
+| 2026-04-10 | v1.2.18 | build(release): macOS Intel 배포 아티팩트(`dist/af-1.2.18-macos-x86_64.zip`)와 `install-af-macos.sh` 추가, 플랫폼 전용 태그 흐름 문서화 |
 | 2026-04-08 | v1.2.18 | fix(config_paths): PyInstaller exe에서 BASE_DIR이 임시 언팩 폴더(_MEI...)로 잡히는 버그 수정 — sys.frozen 감지 후 sys.executable 기준으로 전환, 프로젝트가 올바른 경로(af.exe 옆)에 생성됨 |
 | 2026-04-07 | v1.0.3 | feat(forge): forge 스킬 품질 파이프라인 — forge_new_skill() 3-helper 분할, evaluate_and_promote() 공통 추출, FORGE_POLICIES, LLM budget 카운터(MAX_LLM_CALLS=15), directory 구조(forge/{name}/{name}.py), sys.path forge guard, propose/apply/test 함수 시그니처, evals.yml 자동 생성(MIN_EVAL_CASES=3), Registry 직접 등록 |
 | 2026-04-04 | v1.0.3 | feat(session): revision_loop 학습 루프 (critique_fn + revision_history + best_artifact), run_factory_cli .env 자동로드, JudgmentLedger 설계, 세션 핸드오프 문서 |
